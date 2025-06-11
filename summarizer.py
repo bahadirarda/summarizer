@@ -50,6 +50,64 @@ from features.gui_installer import (
 )
 
 
+def get_framework_version():
+    """Get current framework version from package.json"""
+    try:
+        import json
+        package_json_path = Path(__file__).parent / "package.json"
+        if package_json_path.exists():
+            with open(package_json_path, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+                return data.get('version', '2.2.0')
+        return '2.2.0'
+    except Exception:
+        return '2.2.0'
+
+def get_version_codename(version):
+    """Get professional codename for version"""
+    try:
+        major, minor = map(int, version.split('.')[:2])
+        if major == 2:
+            codenames = {
+                0: "Genesis",      # v2.0.x - Initial v2 release
+                1: "Intelligence", # v2.1.x - Enhanced AI features
+                2: "Synthesis",    # v2.2.x - Integration improvements
+                3: "Evolution",    # v2.3.x - Advanced evolution
+                4: "Transcendence",# v2.4.x - Next level features
+                5: "Infinity"      # v2.5.x - Ultimate features
+            }
+            return codenames.get(minor, f"Unknown-{minor}")
+        elif major == 3:
+            return "Quantum"   # v3.x series
+        else:
+            return f"Future-{major}.{minor}"
+    except:
+        return "Genesis"
+
+def print_version_info():
+    """Print comprehensive version information"""
+    version = get_framework_version()
+    codename = get_version_codename(version)
+    
+    print("🚀 Summarizer Framework")
+    print("=" * 30)
+    print(f"📦 Version: {version}")
+    print(f"💫 Codename: {codename}")
+    print(f"🐍 Python: {sys.version.split()[0]}")
+    print(f"📁 Location: {Path(__file__).parent}")
+    print()
+    print("✨ Features:")
+    print("   🤖 AI-Powered Analysis")
+    print("   📝 Automatic Changelog Generation")
+    print("   🏷️  Professional Version Management")
+    print("   📊 Dynamic README Updates")
+    print("   🎨 Enterprise GUI Interface")
+    print("   📸 Screenshot Analysis")
+    print()
+    print("🔗 Repository: https://github.com/bahadirarda/summarizer")
+    print("📚 Documentation: Run 'summarizer --help' for usage")
+
+
 class CallableModule(ModuleType):
     """A module that can be called like a function"""
 
@@ -68,6 +126,11 @@ class CallableModule(ModuleType):
         """Entry point when running as script"""
         # Handle simple commands without argparse for better UX
         args = sys.argv[1:]
+        
+        # Handle version commands first
+        if args and args[0] in ['--version', '--v', '-v', 'version']:
+            print_version_info()
+            return True
         
         # Handle screenshot commands
         if args and args[0] in ['screenshot', 'ss']:
@@ -110,6 +173,7 @@ class CallableModule(ModuleType):
             epilog="""
 Examples:
   summarizer                    # Run basic analysis
+  summarizer --version          # Show version information
   summarizer --setup            # Interactive setup
   summarizer --gui              # Launch GUI configuration
   summarizer --check            # Check configuration
@@ -126,6 +190,12 @@ Examples:
             '--setup', 
             action='store_true',
             help='Interactive setup for API keys and configuration'
+        )
+        
+        parser.add_argument(
+            '--version', '--v', '-v',
+            action='store_true',
+            help='Show version information and features'
         )
         
         parser.add_argument(
@@ -181,6 +251,9 @@ Examples:
         # Handle parsed arguments
         if parsed_args.setup:
             return setup_command()
+        
+        if parsed_args.version:
+            return print_version_info()
         
         if parsed_args.gui:
             return launch_gui()

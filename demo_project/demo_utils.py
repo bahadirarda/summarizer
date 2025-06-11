@@ -4,7 +4,7 @@ Demo utility functions for the Summarizer Framework demo
 """
 
 def demo_function():
-    """A simple demo function - updated version"""
+    """A simple demo function - updated version v2"""
     print("This is an updated demo function in the demo project!")
     print("Added new functionality for demonstration purposes.")
     return "updated_demo_result"
