@@ -152,8 +152,8 @@ LINKS_SECTION = """## 🔗 Links
 - **Discussions**: [Join Discussions](https://github.com/bahadirarda/summarizer/discussions)"""
 
 
-def generate_readme_content(project_root: Path, project_name: str = None) -> str:
-    """Generate comprehensive README.md content based on project state and changelog"""
+def generate_complete_readme_content(project_root: Path, project_name: str = None, ai_client=None) -> str:
+    """Generate complete README.md content with AI enhancement and static sections"""
     
     if project_name is None:
         project_name = project_root.name
@@ -169,8 +169,51 @@ def generate_readme_content(project_root: Path, project_name: str = None) -> str
     # Get current date for freshness
     current_date = datetime.now().strftime('%B %d, %Y')
     
-    # Generate the base README content (this will be enhanced by AI)
-    readme_content = f"""# 🚀 {project_name}
+    # Create AI prompt for dynamic content generation
+    ai_generated_content = None
+    if ai_client and hasattr(ai_client, 'is_ready') and ai_client.is_ready():
+        try:
+            print("   🤖 Generating AI-enhanced content...")
+            
+            ai_prompt = f"""
+Proje adı: {project_name}
+Proje türü: {project_type}
+Toplam değişiklik: {stats.get('total_entries', 0)}
+Son değişiklikler: {[entry.ai_summary if hasattr(entry, 'ai_summary') else str(entry) for entry in recent_entries[:3]]}
+
+Bu proje için çekici bir README açıklaması, proje durumu ve özellikler bölümü oluştur.
+Markdown formatında, emoji kullanarak ve modern bir yaklaşımla yaz.
+Sadece başlık, açıklama, proje durumu ve özellikler bölümlerini yaz.
+Kurulum, kullanım gibi teknik bölümleri ekleme.
+
+Format:
+# 🚀 [Proje Adı]
+> [Açıklama]
+
+## 📊 Proje Durumu
+[Durum bilgileri]
+
+## ✨ Özellikler
+[Özellikler listesi]
+"""
+            
+            ai_generated_content = ai_client.generate_summary(
+                text_prompt=ai_prompt,
+                changed_files=[]
+            )
+            
+            if ai_generated_content and len(ai_generated_content) > 100:
+                print("   ✨ AI-enhanced content generated")
+            else:
+                ai_generated_content = None
+                
+        except Exception as e:
+            print(f"   ⚠️  AI content generation failed: {e}")
+            ai_generated_content = None
+    
+    # Generate fallback content if AI failed
+    if not ai_generated_content:
+        ai_generated_content = f"""# 🚀 {project_name}
 
 > **AI-Powered Project with Intelligent Change Tracking**
 
@@ -188,23 +231,10 @@ def generate_readme_content(project_root: Path, project_name: str = None) -> str
 
 ## ✨ Key Features
 
-{_get_project_features(project_type, project_root)}
-"""
+{_get_project_features(project_type, project_root)}"""
     
-    return readme_content
-
-
-def _merge_static_sections_to_readme(base_content: str, project_root: Path, project_name: str, current_date: str) -> str:
-    """Merge static sections with base/AI-generated content"""
-    
-    # Get dynamic sections
-    project_type = _detect_project_type(project_root)
-    json_manager = JsonChangelogManager(project_root)
-    stats = json_manager.get_stats()
-    recent_entries = json_manager.get_entries(limit=3)
-    
-    # Build the complete README
-    complete_readme = base_content + "\n\n"
+    # Build complete README with all sections
+    complete_readme = ai_generated_content + "\n\n"
     
     # Add static sections
     complete_readme += INSTALLATION_SECTION + "\n\n"
@@ -338,46 +368,7 @@ def _get_project_features(project_type: str, project_root: Path) -> str:
     return base_features + type_features.get(project_type, "")
 
 
-def _get_install_commands(project_type: str, project_root: Path) -> str:
-    """Get installation commands based on project type"""
-    
-    commands = {
-        "python": "pip install -r requirements.txt",
-        "web": "npm install",
-        "react": "npm install && npm run build",
-        "data-science": "pip install -r requirements.txt && jupyter lab",
-        "general": "# Follow project-specific installation instructions"
-    }
-    
-    # Check for specific files
-    if (project_root / "requirements.txt").exists():
-        return "pip install -r requirements.txt"
-    elif (project_root / "package.json").exists():
-        return "npm install"
-    
-    return commands.get(project_type, commands["general"])
-
-
-def _get_run_commands(project_type: str, project_root: Path) -> str:
-    """Get run commands based on project type"""
-    
-    commands = {
-        "python": "python main.py  # or python -m src.main",
-        "web": "npm start",
-        "react": "npm start",
-        "data-science": "jupyter lab",
-        "general": "# Follow project-specific run instructions"
-    }
-    
-    # Check for specific files
-    if (project_root / "main.py").exists():
-        return "python main.py"
-    elif (project_root / "src" / "main.py").exists():
-        return "python -m src.main"
-    elif (project_root / "package.json").exists():
-        return "npm start"
-    
-    return commands.get(project_type, commands["general"])
+# Helper functions for project analysis
 
 
 def _get_project_structure(project_root: Path, project_type: str) -> str:
@@ -553,65 +544,16 @@ def update_readme(project_root: Path, ai_client=None) -> bool:
         print("   📝 Generating updated README.md...")
         
         project_name = project_root.name
-        current_date = datetime.now().strftime('%B %d, %Y')
         
-        # Generate base content (without static sections)
-        base_content = generate_readme_content(project_root, project_name)
-        
-        # Try to enhance with AI if available
-        ai_enhanced_content = None
-        if ai_client and hasattr(ai_client, 'is_ready') and ai_client.is_ready():
-            try:
-                print("   🤖 Enhancing README with AI analysis...")
-                
-                # Get project overview for AI
-                json_manager = JsonChangelogManager(project_root)
-                recent_entries = json_manager.get_entries(limit=5)
-                
-                ai_prompt = f"""
-Proje adı: {project_name}
-Son değişiklikler: {[entry.ai_summary if hasattr(entry, 'ai_summary') else str(entry) for entry in recent_entries[:3]]}
-
-Bu README içeriğini geliştir. Sadece proje tanımı, durum bilgisi, son aktiviteler ve özellikler bölümlerini yeniden yaz.
-Kurulum, kullanım, katkıda bulunma gibi bölümleri ekleme, bunlar ayrıca eklenecek.
-Daha çekici, profesyonel ve kullanıcı dostu hale getir. 
-Projenin özelliklerini, kullanım senaryolarını ve faydalarını vurgula.
-README'yi markdown formatında, emoji kullanarak ve modern bir yaklaşımla yaz.
-
-Mevcut içerik:
-{base_content}
-"""
-                
-                ai_enhancement = ai_client.generate_summary(
-                    text_prompt=ai_prompt,
-                    changed_files=[]
-                )
-                
-                if ai_enhancement and len(ai_enhancement) > 100:
-                    # Use AI enhanced version
-                    ai_enhanced_content = ai_enhancement
-                    print("   ✨ README enhanced with AI analysis")
-                else:
-                    print("   ⚠️  Using base README (AI enhancement unavailable)")
-                    
-            except Exception as e:
-                print(f"   ⚠️  AI enhancement failed: {e}")
-                # Continue with base content
-        
-        # Use AI enhanced content if available, otherwise use base content
-        content_to_merge = ai_enhanced_content if ai_enhanced_content else base_content
-        
-        # Merge with static sections
-        final_readme_content = _merge_static_sections_to_readme(
-            content_to_merge, project_root, project_name, current_date
-        )
+        # Generate complete README content in one go
+        readme_content = generate_complete_readme_content(project_root, project_name, ai_client)
         
         # Write README file
         readme_path = project_root / "README.md"
         with open(readme_path, 'w', encoding='utf-8') as f:
-            f.write(final_readme_content)
+            f.write(readme_content)
             
-        print(f"   ✅ README.md updated ({len(final_readme_content)} characters)")
+        print(f"   ✅ README.md updated ({len(readme_content)} characters)")
         logger.info(f"README.md updated for project: {project_name}")
         
         return True
