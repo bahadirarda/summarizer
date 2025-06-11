@@ -1,0 +1,31 @@
+"""
+🚀 Summarizer Framework Features
+
+This package contains modular features for the summarizer framework.
+Each feature is self-contained and can be imported independently.
+
+Available Features:
+- screenshot: Screenshot capture and analysis
+- terminal_commands: Terminal command utilities
+- gui_installer: GUI installation helpers
+- parameter_checker: Configuration validation
+"""
+
+# Import all features for easy access
+from .screenshot import take_screenshot, analyze_screenshot, take_app_screenshot
+from .terminal_commands import create_terminal_command, install_terminal_command
+from .gui_installer import install_gui_components, check_gui_availability
+from .parameter_checker import check_required_parameters, print_parameter_guidance, setup_command
+
+__all__ = [
+    'take_screenshot',
+    'analyze_screenshot', 
+    'take_app_screenshot',
+    'create_terminal_command',
+    'install_terminal_command',
+    'install_gui_components',
+    'check_gui_availability',
+    'check_required_parameters',
+    'print_parameter_guidance',
+    'setup_command'
+]

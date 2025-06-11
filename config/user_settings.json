@@ -1,0 +1,23 @@
+{
+  "user_settings": {
+    "last_modified": "2025-06-11T17:19:16.262528",
+    "created_by": "Configuration Manager v1.0",
+    "profile": "development"
+  },
+  "environment_variables": {
+    "GEMINI_API_KEY": "AIzaSyDwef6dk5r61xFKpAAcgY6INBOomQeWscs",
+    "APP_ENV": "development",
+    "LOG_LEVEL": "DEBUG",
+    "MAX_WORKERS": "2",
+    "CACHE_SIZE": "100",
+    "REQUEST_TIMEOUT": "30",
+    "DB_HOST": "localhost",
+    "DB_PORT": "5432",
+    "THEME_MODE": "light",
+    "LANGUAGE": "tr",
+    "AUTO_SAVE": "true"
+  },
+  "custom_variables": {},
+  "backup_count": 5,
+  "export_format": "env"
+}
