@@ -3,10 +3,31 @@
     "version": "1.0",
     "project_name": "Summarizer Framework",
     "created_at": "2025-06-11T16:09:37.067316",
-    "last_updated": "2025-06-11T21:08:51.609674",
-    "total_entries": 17
+    "last_updated": "2025-06-11T21:33:45.662124",
+    "total_entries": 18
   },
   "entries": [
+    {
+      "id": "entry_20250611_213345",
+      "timestamp": "2025-06-11T21:33:45.661713",
+      "ai_summary": "### 1. YAPISAL ANALİZ:\n\nDeğişiklikler yalnızca `src/utils/version_manager.py` dosyasını etkiliyor. Bu dosya, projenin servis katmanında yer alan ve versiyon yönetiminden sorumlu bir yardımcı (utility) modülüdür.  Mimari değişiklik yok, sadece mevcut `VersionManager` sınıfının işlevselliği genişletilmiş. Kod organizasyonunda belirgin bir iyileştirme gözlenmiyor, ancak mevcut kodun daha kapsamlı hale getirildiği ve hata yönetiminin iyileştirildiği söylenebilir.  `auto_increment_based_on_changes` fonksiyonunun eklenmesi ve mevcut fonksiyonların daha detaylı hale getirilmesi, kodun daha modüler ve okunabilir olmasına katkıda bulunmuş olabilir. Ancak, sağlanan kodun sadece bir parçası olduğu için kesin bir yargıya varmak mümkün değil.  Özellikle `... [Truncated 159 lines] ...` kısmındaki kodun eksikliği, tam bir yapısal analiz yapmayı engelliyor.\n\n### 2. İŞLEVSEL ETKİ:\n\nAşağıdaki işlevsel değişiklikler yapılmış:\n\n* **Yeni Özellik:** `auto_increment_based_on_changes` fonksiyonu eklenmiştir. Bu fonksiyon, dosyalarda yapılan değişikliklere dayanarak otomatik olarak versiyon numarasını güncelleme yeteneği katıyor.  Değişikliklerin kapsamını (`impact_level`) ve yapay zeka özetini (`ai_summary`) girdi olarak alarak daha akıllı bir versiyon güncelleme mekanizması sunuyor.  Bu, geliştiricilerin manuel olarak versiyon numarasını güncellemek zorunda kalma sıklığını azaltır.\n\n* **Değiştirilen Özellikler:** `get_current_version`, `parse_version` ve `increment_version` fonksiyonları daha sağlam hale getirilmiştir.  `try-except` blokları eklenerek olası hataların daha iyi yönetilmesi sağlanmıştır.  Varsayılan versiyon değeri (`2.0.3`)  hata durumlarında geri döndürülmesi, uygulamanın çökmesini engeller.\n\n\n* **Kaldırılan Özellikler:**  Sağlanan kod parçasında kaldırılan özellik yok.\n\nKullanıcı deneyimi doğrudan etkilenmez, çünkü bu değişiklikler arka planda gerçekleştirilir. Ancak, otomatik versiyon yönetimi sayesinde geliştiricilerin iş yükü azalır ve versiyonlama hatalarının önüne geçilir. Performans üzerindeki etki, kodun ne kadar karmaşık olduğuna ve değişikliklerin kapsamına bağlıdır. Güvenlik ve güvenilirlik açısından, hata yönetiminin iyileştirilmesi olumlu bir etki yaratır.\n\n### 3. TEKNİK DERİNLİK:\n\n* **Tasarım Desenleri:**  `VersionManager` sınıfı, tek sorumluluk prensibini (Single Responsibility Principle) takip eden bir örnektir. Versiyon yönetimiyle ilgili tüm işlevleri tek bir yerde toplar.\n\n* **Kod Kalitesi ve Sürdürülebilirlik:**  Hata yönetimi iyileştirilmiş, kod daha okunabilir ve anlaşılır hale getirilmiştir.  `typing` modülünün kullanımı, kodun daha güvenilir ve bakımı daha kolay olmasını sağlar.  Ancak, tam kodu görmeden kod kalitesi ve sürdürülebilirlik hakkında kesin bir yorum yapmak zordur.\n\n* **Yeni Bağımlılıklar:**  Sağlanan kod parçasında yeni bağımlılık eklenmesi gözlenmiyor.\n\n### 4. SONUÇ YORUMU:\n\nBu değişiklikler, projenin uzun vadeli sürdürülebilirliğine olumlu katkıda bulunur. Otomatik versiyon yönetimi, geliştirme sürecini hızlandırır ve insan hatası olasılığını azaltır.  Teknik borç azalmış olabilir, çünkü versiyonlama işlemi daha otomatikleştirilmiştir.  Gelecekteki geliştirmelere hazırlık yapılmış, çünkü kod daha modüler ve esnek hale getirilmiştir. Ancak, `auto_increment_based_on_changes` fonksiyonunun  `impact_level` ve `ai_summary` parametrelerinin nasıl kullanıldığı ve hangi kriterlere göre versiyon artışının yapıldığı kodun geri kalanında belirtilmediği için tam değerlendirmesi mümkün değildir.  Tam kodun incelenmesi daha kapsamlı bir sonuç yorumu için gereklidir.",
+      "changed_files": [
+        "src/utils/version_manager.py"
+      ],
+      "impact_level": "high",
+      "change_type": "feature",
+      "tags": [
+        "manager",
+        "version-manager",
+        "api",
+        "utils"
+      ],
+      "file_count": 1,
+      "lines_added": 13,
+      "lines_removed": 0,
+      "commit_hash": null,
+      "author": null
+    },
     {
       "id": "entry_20250611_210851",
       "timestamp": "2025-06-11T21:08:51.609244",

@@ -15,7 +15,7 @@ def calculate_demo_stats():
         "files_processed": 5,
         "changes_detected": 4,
         "ai_summaries": 4,
-        "demo_version": "1.4.6"
+        "demo_version": "1.4.2"
     }
 
 if __name__ == "__main__":
