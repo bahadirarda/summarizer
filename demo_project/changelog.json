@@ -3,10 +3,29 @@
     "version": "1.0",
     "project_name": "Summarizer Framework",
     "created_at": "2025-06-11T16:11:31.407531",
-    "last_updated": "2025-06-11T18:56:01.027613",
-    "total_entries": 6
+    "last_updated": "2025-06-11T19:31:16.294993",
+    "total_entries": 7
   },
   "entries": [
+    {
+      "id": "entry_20250611_193116",
+      "timestamp": "2025-06-11T19:31:16.294931",
+      "ai_summary": "Kod tabanında güncellemeler yapıldı. Değişen dosyalar: simple_demo.py. (AI özeti alınamadı: 400 API key expired. Please renew the API key. [reason: \"API_KEY_INVALID\"\ndomain: \"googleapis.com\"\nmetadata {\n  key: \"service\"\n  value: \"generativelanguage.googleapis.com\"\n}\n, locale: \"en-US\"\nmessage: \"API key expired. Please renew the API key.\"\n])",
+      "changed_files": [
+        "simple_demo.py"
+      ],
+      "impact_level": "high",
+      "change_type": "other",
+      "tags": [
+        "simple-demo",
+        "api"
+      ],
+      "file_count": 1,
+      "lines_added": 1,
+      "lines_removed": 0,
+      "commit_hash": null,
+      "author": null
+    },
     {
       "id": "entry_20250611_185601",
       "timestamp": "2025-06-11T18:56:01.027519",

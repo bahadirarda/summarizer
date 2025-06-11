@@ -3,6 +3,26 @@
 Bu dosya otomatik olarak generate edilmiştir.
 Düzenlemeler için `changelog.json` dosyasını kullanın.
 
+## 2025-06-11 19:31:16
+
+Kod tabanında güncellemeler yapıldı. Değişen dosyalar: simple_demo.py. (AI özeti alınamadı: 400 API key expired. Please renew the API key. [reason: "API_KEY_INVALID"
+domain: "googleapis.com"
+metadata {
+  key: "service"
+  value: "generativelanguage.googleapis.com"
+}
+, locale: "en-US"
+message: "API key expired. Please renew the API key."
+])
+
+**Değişen Dosyalar:** simple_demo.py
+**Etki Seviyesi:** High
+**Değişiklik Tipi:** Other
+**Satır Değişiklikleri:** +1
+**Etiketler:** simple-demo, api
+
+---
+
 ## 2025-06-11 18:56:01
 
 **1. YAPISAL ANALİZ:** Değişiklikler sadece `demo_utils.py` dosyasını etkilemiştir. Bu dosya, Özetleyici Çerçeve demosu için yardımcı fonksiyonlar içeren bağımsız bir yardımcı araçtır. Mimari değişiklik yok;  kod organizasyonunda bir iyileştirme gözlemlenmemiştir, sadece fonksiyonların işlevselliği güncellenmiştir.
