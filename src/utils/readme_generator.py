@@ -40,6 +40,118 @@ def _get_framework_version(project_root: Path) -> str:
         return "v2.0.2"
 
 
+# Static content templates - these won't change and ensure consistency
+INSTALLATION_SECTION = """## 🛠️ Kurulum (Installation)
+
+1.  **Depo Klonlama ve Sanal Ortam Kurulumu:**
+    ```bash
+    git clone https://github.com/bahadirarda/summarizer # Veya kendi fork adresiniz
+    cd summarizer
+    python -m venv venv
+    source venv/bin/activate  # macOS/Linux için
+    # venv\\Scripts\\activate    # Windows için
+    ```
+
+2.  **Gerekli Paketlerin Yüklenmesi:**
+    ```bash
+    pip install -r requirements.txt
+    ```
+
+3.  **Summarizer CLI Kurulumu:**
+    `summarizer` komutunu terminalinizden doğrudan çalıştırabilmek için:
+    ```bash
+    python summarizer.py --install-terminal
+    ```
+    Bu komut, `summarizer`'ı sistem genelinde kullanılabilir hale getirecektir.
+
+4.  **(Opsiyonel) GUI Bileşenlerinin Kurulumu:**
+    Eğer GUI arayüzünü kullanmak isterseniz:
+    ```bash
+    python summarizer.py --install-gui
+    ```"""
+
+USAGE_SECTION = """## 🚀 Kullanım (Usage)
+
+`summarizer` CLI kurulduktan sonra, terminalinizde aşağıdaki gibi kullanabilirsiniz:
+
+**Temel Komutlar:**
+```bash
+# Proje analizi başlatma (temel)
+summarizer
+
+# Versiyon bilgisini ve özellikleri gösterme
+summarizer --version
+
+# API anahtarları ve yapılandırma için interaktif kurulum
+summarizer --setup
+
+# GUI yapılandırma arayüzünü başlatma
+summarizer --gui
+
+# Mevcut yapılandırma durumunu kontrol etme
+summarizer --check
+
+# Sistem durumunu gösterme
+summarizer --status
+```
+
+**Ekran Görüntüsü Analizi:**
+```bash
+# Tam ekran analizi
+summarizer screenshot
+
+# Belirli bir pencere analizi (örneğin Chrome)
+summarizer ss chrome
+```
+
+**Yardım:**
+Daha fazla komut ve seçenek için yardım mesajını görüntüleyebilirsiniz:
+```bash
+summarizer --help
+```
+
+**Python İçinde Kullanım:**
+`summarizer`'ı bir Python betiği içinde de kullanabilirsiniz (projenizin ana dizininde olduğunuzdan emin olun):
+```python
+import summarizer
+
+# Mevcut projeyi analiz et. 
+# Bu kullanım `summarizer --help` çıktısındaki örneğe dayanmaktadır.
+# `summarizer.py` dosyasının kendisinin veya paketinin `summarizer()` çağrısını uygun şekilde ele aldığı varsayılır.
+summarizer.summarizer() 
+```"""
+
+CONTRIBUTING_SECTION = """## 🤝 Contributing
+
+We welcome contributions! Here's how you can help:
+
+1. **Fork the repository**
+2. **Create a feature branch**: `git checkout -b feature/amazing-feature`
+3. **Make your changes** and test them
+4. **Commit your changes**: `git commit -m 'Add amazing feature'`
+5. **Push to the branch**: `git push origin feature/amazing-feature`
+6. **Open a Pull Request**
+
+### Development Guidelines
+
+- Follow the existing code style
+- Add tests for new features
+- Update documentation as needed
+- Use descriptive commit messages"""
+
+LICENSE_SECTION = """## 📜 Lisans (License)
+
+Bu proje MIT Lisansı altında lisanslanmıştır. Detaylar için [LICENSE](LICENSE) dosyasına bakınız.
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details."""
+
+LINKS_SECTION = """## 🔗 Links
+
+- **Repository**: [GitHub](https://github.com/bahadirarda/summarizer)
+- **Issues**: [Report Issues](https://github.com/bahadirarda/summarizer/issues)
+- **Discussions**: [Join Discussions](https://github.com/bahadirarda/summarizer/discussions)"""
+
+
 def generate_readme_content(project_root: Path, project_name: str = None) -> str:
     """Generate comprehensive README.md content based on project state and changelog"""
     
@@ -57,6 +169,7 @@ def generate_readme_content(project_root: Path, project_name: str = None) -> str
     # Get current date for freshness
     current_date = datetime.now().strftime('%B %d, %Y')
     
+    # Generate the base README content (this will be enhanced by AI)
     readme_content = f"""# 🚀 {project_name}
 
 > **AI-Powered Project with Intelligent Change Tracking**
@@ -76,73 +189,66 @@ def generate_readme_content(project_root: Path, project_name: str = None) -> str
 ## ✨ Key Features
 
 {_get_project_features(project_type, project_root)}
+"""
+    
+    return readme_content
 
-## 🚀 Quick Start
 
-```bash
-# Clone and setup
-git clone <your-repo-url>
-cd {project_name}
-
-# Install dependencies
-{_get_install_commands(project_type, project_root)}
-
-# Run the project
-{_get_run_commands(project_type, project_root)}
-```
-
-## 📁 Project Structure
+def _merge_static_sections_to_readme(base_content: str, project_root: Path, project_name: str, current_date: str) -> str:
+    """Merge static sections with base/AI-generated content"""
+    
+    # Get dynamic sections
+    project_type = _detect_project_type(project_root)
+    json_manager = JsonChangelogManager(project_root)
+    stats = json_manager.get_stats()
+    recent_entries = json_manager.get_entries(limit=3)
+    
+    # Build the complete README
+    complete_readme = base_content + "\n\n"
+    
+    # Add static sections
+    complete_readme += INSTALLATION_SECTION + "\n\n"
+    complete_readme += USAGE_SECTION + "\n\n"
+    
+    # Add dynamic project structure
+    complete_readme += f"""## 📁 Project Structure
 
 ```
 {project_name}/
 {_get_project_structure(project_root, project_type)}
 ```
 
-## 🔧 Configuration
+"""
+    
+    # Add configuration section
+    complete_readme += f"""## 🔧 Configuration
 
 {_get_configuration_section(project_root)}
 
-## 📈 Development Activity
+"""
+    
+    # Add development activity
+    complete_readme += f"""## 📈 Development Activity
 
 {_get_development_activity(stats, recent_entries)}
 
-## 🤝 Contributing
-
-We welcome contributions! Here's how you can help:
-
-1. **Fork the repository**
-2. **Create a feature branch**: `git checkout -b feature/amazing-feature`
-3. **Make your changes** and test them
-4. **Commit your changes**: `git commit -m 'Add amazing feature'`
-5. **Push to the branch**: `git push origin feature/amazing-feature`
-6. **Open a Pull Request**
-
-### Development Guidelines
-
-- Follow the existing code style
-- Add tests for new features
-- Update documentation as needed
-- Use descriptive commit messages
-
-## 📜 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🔗 Links
-
-- **Repository**: [GitHub](<your-repo-url>)
-- **Issues**: [Report Issues](<your-repo-url>/issues)
-- **Discussions**: [Join Discussions](<your-repo-url>/discussions)
-
----
-
-**Last updated**: {current_date} by Summarizer Framework v2.0.2  
-*This README is automatically generated and updated based on project activity.*
-
-> *"Automatically maintained with AI-powered analysis"*
 """
     
-    return readme_content
+    # Add static sections
+    complete_readme += CONTRIBUTING_SECTION + "\n\n"
+    complete_readme += LICENSE_SECTION + "\n\n"
+    complete_readme += LINKS_SECTION + "\n\n"
+    
+    # Add footer
+    complete_readme += f"""---
+
+**Last updated**: {current_date} by Summarizer Framework {_get_framework_version(project_root)}
+*This README is automatically generated and updated based on project activity.*
+
+> *\"Automatically maintained with AI-powered analysis\"*
+"""
+    
+    return complete_readme
 
 
 def _detect_project_type(project_root: Path) -> str:
@@ -447,9 +553,13 @@ def update_readme(project_root: Path, ai_client=None) -> bool:
         print("   📝 Generating updated README.md...")
         
         project_name = project_root.name
-        readme_content = generate_readme_content(project_root, project_name)
+        current_date = datetime.now().strftime('%B %d, %Y')
         
-        # Enhance with AI if available
+        # Generate base content (without static sections)
+        base_content = generate_readme_content(project_root, project_name)
+        
+        # Try to enhance with AI if available
+        ai_enhanced_content = None
         if ai_client and hasattr(ai_client, 'is_ready') and ai_client.is_ready():
             try:
                 print("   🤖 Enhancing README with AI analysis...")
@@ -462,9 +572,14 @@ def update_readme(project_root: Path, ai_client=None) -> bool:
 Proje adı: {project_name}
 Son değişiklikler: {[entry.ai_summary if hasattr(entry, 'ai_summary') else str(entry) for entry in recent_entries[:3]]}
 
-Bu projeye ait README.md dosyasını Türkçe olarak geliştir. Daha çekici, profesyonel ve kullanıcı dostu hale getir. 
+Bu README içeriğini geliştir. Sadece proje tanımı, durum bilgisi, son aktiviteler ve özellikler bölümlerini yeniden yaz.
+Kurulum, kullanım, katkıda bulunma gibi bölümleri ekleme, bunlar ayrıca eklenecek.
+Daha çekici, profesyonel ve kullanıcı dostu hale getir. 
 Projenin özelliklerini, kullanım senaryolarını ve faydalarını vurgula.
 README'yi markdown formatında, emoji kullanarak ve modern bir yaklaşımla yaz.
+
+Mevcut içerik:
+{base_content}
 """
                 
                 ai_enhancement = ai_client.generate_summary(
@@ -473,22 +588,30 @@ README'yi markdown formatında, emoji kullanarak ve modern bir yaklaşımla yaz.
                 )
                 
                 if ai_enhancement and len(ai_enhancement) > 100:
-                    # AI enhanced version available
-                    readme_content = ai_enhancement
+                    # Use AI enhanced version
+                    ai_enhanced_content = ai_enhancement
                     print("   ✨ README enhanced with AI analysis")
                 else:
-                    print("   ⚠️  Using generated README (AI enhancement unavailable)")
+                    print("   ⚠️  Using base README (AI enhancement unavailable)")
                     
             except Exception as e:
                 print(f"   ⚠️  AI enhancement failed: {e}")
-                # Continue with generated content
+                # Continue with base content
+        
+        # Use AI enhanced content if available, otherwise use base content
+        content_to_merge = ai_enhanced_content if ai_enhanced_content else base_content
+        
+        # Merge with static sections
+        final_readme_content = _merge_static_sections_to_readme(
+            content_to_merge, project_root, project_name, current_date
+        )
         
         # Write README file
         readme_path = project_root / "README.md"
         with open(readme_path, 'w', encoding='utf-8') as f:
-            f.write(readme_content)
+            f.write(final_readme_content)
             
-        print(f"   ✅ README.md updated ({len(readme_content)} characters)")
+        print(f"   ✅ README.md updated ({len(final_readme_content)} characters)")
         logger.info(f"README.md updated for project: {project_name}")
         
         return True
