@@ -1,5 +1,5 @@
 {
-  "name": "summarizer-framework",
+  "name": "summarizer",
   "version": "2.4.0",
   "description": "🚀 AI-Powered Project Summarizer with Enterprise GUI and Terminal Commands",
   "author": "Bahadir Arda",
@@ -19,16 +19,19 @@
     "install": "python install_gui.py",
     "test": "pytest tests/",
     "lint": "flake8 src/ features/",
-    "format": "black src/ features/"
+    "format": "black src/ features/",
+    "pre-publish": "python scripts/pre_publish_check.py",
+    "fix-api-key": "python scripts/api_key_manager.py",
+    "validate": "python scripts/pre_publish_check.py"
   },
   "dependencies": {
     "pip": "^0.0.1"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/bahadirarda/summarizer-framework"
+    "url": "https://github.com/bahadirarda/summarizer"
   },
   "bugs": {
-    "url": "https://github.com/bahadirarda/summarizer-framework/issues"
+    "url": "https://github.com/bahadirarda/summarizer/issues"
   }
 }
