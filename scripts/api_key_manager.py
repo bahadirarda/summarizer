@@ -17,21 +17,24 @@ from pathlib import Path
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
+from src.core.configuration_manager import ConfigurationManager # Added
+
+# Global ConfigurationManager instance
+config_manager = ConfigurationManager() # Added
+
 def test_current_key():
     """Mevcut API key'i test et"""
     print("🔍 Testing current API key...")
     
     try:
         from src.services.gemini_client import GeminiClient
-        from src.services.request_manager import RequestManager
-        from src.core.configuration_manager import ConfigurationManager
+        # from src.services.request_manager import RequestManager # No longer directly needed here
         
-        # Konfigürasyonu yükle
-        ConfigurationManager()
-        RequestManager()
+        # RequestManager() # No longer directly needed here
         
         # Test çağrısı
-        client = GeminiClient()
+        # Pass the global config_manager to GeminiClient
+        client = GeminiClient(config_manager) # Modified
         
         # Önce client'in hazır olup olmadığını kontrol et
         if not client.is_ready():
@@ -78,46 +81,27 @@ def setup_new_key():
         print("❌ No key entered!")
         return False
     
+    # Basic validation, can be enhanced in ConfigurationManager if needed
     if not new_key.startswith("AIza"):
         print("❌ Invalid key format! Gemini keys should start with 'AIza'")
         return False
     
-    # .env dosyasını güncelle
-    env_path = project_root / ".env"
-    
-    if env_path.exists():
-        # Mevcut .env'i oku
-        with open(env_path, 'r') as f:
-            lines = f.readlines()
-        
-        # API key satırını güncelle
-        updated = False
-        for i, line in enumerate(lines):
-            if line.startswith("GEMINI_API_KEY="):
-                lines[i] = f"GEMINI_API_KEY={new_key}\n"
-                updated = True
-                break
-        
-        # Eğer bulunamadıysa ekle
-        if not updated:
-            lines.append(f"GEMINI_API_KEY={new_key}\n")
-        
-        # Dosyayı güncelle
-        with open(env_path, 'w') as f:
-            f.writelines(lines)
-            
-        print("✅ API key updated in .env file")
+    # ConfigurationManager aracılığıyla API key'i güncelle
+    try:
+        config_manager.set_api_key(new_key)
+        config_manager.save_configuration() # Ensure settings are saved to user_settings.json and exported to .env
+        print("✅ API key updated via ConfigurationManager.")
         
         # Test et
         print("\n🧪 Testing new API key...")
-        if test_current_key():
+        if test_current_key(): # test_current_key will now use the updated key from config_manager
             print("🎉 New API key is working perfectly!")
             return True
         else:
             print("❌ New API key test failed!")
             return False
-    else:
-        print("❌ .env file not found!")
+    except Exception as e:
+        print(f"❌ Error updating API key via ConfigurationManager: {e}")
         return False
 
 def main():

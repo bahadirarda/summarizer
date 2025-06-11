@@ -3,6 +3,114 @@
 Bu dosya otomatik olarak generate edilmiştir.
 Düzenlemeler için `changelog.json` dosyasını kullanın.
 
+## 2025-06-11 20:53:23
+
+## `demo_utils.py` Dosyası Değişiklik Analizi
+
+Bu değişiklikler, demo projesinin çekirdek işlevselliğini temsil eden `demo_utils.py` dosyasını etkiliyor. Yapısal olarak, bu değişiklikler temel yardımcı fonksiyonların bulunduğu katmanda gerçekleşiyor. İşlevsel olarak, `demo_function` metni güncellenerek ve yeni bir açıklama satırı eklenerek demo işlevselliğinin görsel sunumu iyileştirilmiş. `calculate_demo_stats` fonksiyonu "demo_version" anahtarıyla birlikte güncellenmiş, böylece demo sürümünün takibi sağlanarak raporlamada ve hata ayıklamada iyileşme hedeflenmiş. Teknik olarak, kod kalitesi yorum satırları ile desteklenirken, eklenen sürüm bilgisi, projenin uzun vadeli sürdürülebilirliğini ve versiyon kontrolünü destekler. Bu değişiklikler, teknik borcu azaltır ve gelecekteki geliştirmeler için daha iyi bir zemin oluşturur; özellikle raporlama ve takibi kolaylaştıran sürüm bilgisi eklenmesi bu projeyi daha profesyonel ve sürdürülebilir kılmaya yönelik önemli bir adımdır.
+
+**Değişen Dosyalar:** demo_utils.py
+**Etki Seviyesi:** Low
+**Değişiklik Tipi:** Other
+**Etiketler:** utils, demo-utils
+
+---
+
+## 2025-06-11 20:51:34
+
+Kod tabanında güncellemeler yapıldı. Değişen dosyalar: demo_utils.py. (AI özeti alınamadı: 400 API key expired. Please renew the API key. [reason: "API_KEY_INVALID"
+domain: "googleapis.com"
+metadata {
+  key: "service"
+  value: "generativelanguage.googleapis.com"
+}
+, locale: "en-US"
+message: "API key expired. Please renew the API key."
+])
+
+**Değişen Dosyalar:** demo_utils.py
+**Etki Seviyesi:** High
+**Değişiklik Tipi:** Other
+**Etiketler:** api, utils, demo-utils
+
+---
+
+## 2025-06-11 20:47:24
+
+Kod tabanında güncellemeler yapıldı. Değişen dosyalar: demo_utils.py. (AI özeti alınamadı: 400 API key expired. Please renew the API key. [reason: "API_KEY_INVALID"
+domain: "googleapis.com"
+metadata {
+  key: "service"
+  value: "generativelanguage.googleapis.com"
+}
+, locale: "en-US"
+message: "API key expired. Please renew the API key."
+])
+
+**Değişen Dosyalar:** demo_utils.py
+**Etki Seviyesi:** High
+**Değişiklik Tipi:** Other
+**Etiketler:** api, utils, demo-utils
+
+---
+
+## 2025-06-11 20:37:45
+
+Kod tabanında güncellemeler yapıldı. Değişen dosyalar: demo_utils.py. (AI özeti alınamadı: 400 API key expired. Please renew the API key. [reason: "API_KEY_INVALID"
+domain: "googleapis.com"
+metadata {
+  key: "service"
+  value: "generativelanguage.googleapis.com"
+}
+, locale: "en-US"
+message: "API key expired. Please renew the API key."
+])
+
+**Değişen Dosyalar:** demo_utils.py
+**Etki Seviyesi:** High
+**Değişiklik Tipi:** Other
+**Etiketler:** utils, demo-utils, api
+
+---
+
+## 2025-06-11 20:35:44
+
+Kod tabanında güncellemeler yapıldı. Değişen dosyalar: demo_utils.py. (AI özeti alınamadı: 400 API key expired. Please renew the API key. [reason: "API_KEY_INVALID"
+domain: "googleapis.com"
+metadata {
+  key: "service"
+  value: "generativelanguage.googleapis.com"
+}
+, locale: "en-US"
+message: "API key expired. Please renew the API key."
+])
+
+**Değişen Dosyalar:** demo_utils.py
+**Etki Seviyesi:** High
+**Değişiklik Tipi:** Other
+**Etiketler:** api, utils, demo-utils
+
+---
+
+## 2025-06-11 20:32:20
+
+Kod tabanında güncellemeler yapıldı. Değişen dosyalar: demo_utils.py. (AI özeti alınamadı: 400 API key expired. Please renew the API key. [reason: "API_KEY_INVALID"
+domain: "googleapis.com"
+metadata {
+  key: "service"
+  value: "generativelanguage.googleapis.com"
+}
+, locale: "en-US"
+message: "API key expired. Please renew the API key."
+])
+
+**Değişen Dosyalar:** demo_utils.py
+**Etki Seviyesi:** High
+**Değişiklik Tipi:** Other
+**Etiketler:** utils, api, demo-utils
+
+---
+
 ## 2025-06-11 20:05:43
 
 Kod tabanında güncellemeler yapıldı. Değişen dosyalar: demo_utils.py. (AI özeti alınamadı: 400 API key expired. Please renew the API key. [reason: "API_KEY_INVALID"

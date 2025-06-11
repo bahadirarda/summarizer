@@ -21,12 +21,25 @@ class ConfigurationManager:
 
         # Paths - Use .summarizer instead of config
         if config_dir is None:
-            summarizer_dir = Path.cwd() / ".summarizer"
+            # Determine project root based on this file's location
+            # (src/core/configuration_manager.py)
+            # Path(__file__) is .../src/core/configuration_manager.py
+            # .parent is .../src/core/
+            # .parent is .../src/
+            # .parent is project_root
+            project_root_path = Path(__file__).resolve().parent.parent.parent
+            summarizer_dir = project_root_path / ".summarizer"
             summarizer_dir.mkdir(exist_ok=True)
             self.config_dir = summarizer_dir
+            self.logger.info(
+                f"ConfigurationManager using project root for config: {self.config_dir}"
+            )
         else:
             self.config_dir = config_dir
-            
+            self.logger.info(
+                f"ConfigurationManager using provided config_dir: {self.config_dir}"
+            )
+
         self.schema_file = self.config_dir / "configuration_schema.json"
         self.settings_file = self.config_dir / "user_settings.json"
         self.env_file = Path.cwd() / ".env"
@@ -98,18 +111,25 @@ class ConfigurationManager:
         return self.schema.get("configuration_groups", [])
 
     def get_field_value(self, key: str) -> Optional[str]:
-        """Get current value for a configuration field"""
-        # First check user settings
+        """Get current value for a configuration field.
+        Priority:
+        1. User settings (environment_variables)
+        2. User settings (custom_variables)
+        3. OS Environment variables (fallback)
+        """
+        # First check user settings environment_variables
         env_vars = self.settings.get("environment_variables", {})
-        if key in env_vars:
+        if key in env_vars and env_vars[key] is not None:
             return env_vars[key]
 
-        # Then check custom variables
+        # Then check user settings custom_variables
         custom_vars = self.settings.get("custom_variables", {})
-        if key in custom_vars:
+        if key in custom_vars and custom_vars[key] is not None:
             return custom_vars[key]
 
-        # Finally check environment variables
+        # Finally check OS environment variables as a fallback
+        # This is useful if the key is set directly in the shell
+        # or by a parent process, and not yet in user_settings.json
         return os.getenv(key)
 
     def set_field_value(
@@ -117,15 +137,22 @@ class ConfigurationManager:
             key: str,
             value: str,
             is_custom: bool = False) -> None:
-        """Set value for a configuration field"""
+        """Set value for a configuration field directly in user_settings.json.
+        This will be the primary source of truth.
+        """
         if is_custom:
             if "custom_variables" not in self.settings:
                 self.settings["custom_variables"] = {}
             self.settings["custom_variables"][key] = value
+            self.logger.info(f"Custom variable \'{key}\' set in user_settings.json")
         else:
             if "environment_variables" not in self.settings:
                 self.settings["environment_variables"] = {}
             self.settings["environment_variables"][key] = value
+            self.logger.info(f"Environment variable \'{key}\' set in user_settings.json")
+        
+        # Immediately save settings after a value is set
+        self._save_settings()
 
     def validate_field(
         self, field_config: Dict[str, Any], value: str
@@ -185,7 +212,9 @@ class ConfigurationManager:
         return True
 
     def export_to_env(self) -> None:
-        """Export current configuration to .env file"""
+        """Export current configuration from user_settings.json to .env file.
+        The .env file serves as a secondary/fallback or for external tools.
+        """
         try:
             # Create new .env content
             new_lines = [
@@ -223,33 +252,60 @@ class ConfigurationManager:
             raise
 
     def import_from_env(self) -> None:
-        """Import configuration from existing .env file"""
+        """Import configuration from existing .env file into user_settings.json
+        if not already set in user_settings.json. This is a one-time import.
+        """
         if not self.env_file.exists():
+            self.logger.info(f".env file not found at {self.env_file}, skipping import.")
             return
 
         try:
-            load_dotenv(self.env_file)
+            load_dotenv(self.env_file) # Loads .env into os.environ
 
-            # Get all fields from schema
-            all_fields = []
+            imported_something = False
+            # Get all fields from schema to know what to look for
+            all_schema_fields = []
             for group in self.get_configuration_groups():
-                all_fields.extend(group.get("fields", []))
+                all_schema_fields.extend(field["key"] for field in group.get("fields", []))
+            
+            # Add common keys like GEMINI_API_KEY if not in schema
+            if "GEMINI_API_KEY" not in all_schema_fields:
+                all_schema_fields.append("GEMINI_API_KEY")
 
-            # Import known fields
-            env_vars = {}
-            for field in all_fields:
-                key = field["key"]
-                value = os.getenv(key)
-                if value:
-                    env_vars[key] = value
 
-            if env_vars:
-                self.settings["environment_variables"] = env_vars
-                self._save_settings()
-                self.logger.info("Configuration imported from .env file")
+            for key_from_env in os.environ: # Iterate over keys loaded by load_dotenv
+                # Only import keys that are part of our schema or common known keys
+                if key_from_env in all_schema_fields:
+                    current_value_in_settings = self.get_field_value(key_from_env)
+                    
+                    # If key is not in user_settings.json (get_field_value would return from os.getenv)
+                    # or if it is there but None/empty, then import from .env
+                    is_in_env_vars = key_from_env in self.settings.get("environment_variables", {})
+                    is_in_custom_vars = key_from_env in self.settings.get("custom_variables", {})
+
+                    if not is_in_env_vars and not is_in_custom_vars:
+                        value_from_os_env = os.getenv(key_from_env)
+                        if value_from_os_env: # Ensure there's a value
+                            self.set_field_value(key_from_env, value_from_os_env)
+                            self.logger.info(f"Imported \'{key_from_env}\' from .env into user_settings.json")
+                            imported_something = True
+            
+            if imported_something:
+                self._save_settings() # Save if any new values were imported
+                self.logger.info("Configuration imported from .env file into user_settings.json where applicable.")
+            else:
+                self.logger.info("No new configurations to import from .env file into user_settings.json.")
 
         except Exception as e:
             self.logger.error(f"Error importing from .env: {e}")
+
+    def get_api_key(self) -> Optional[str]:
+        """Convenience method to get the GEMINI_API_KEY."""
+        return self.get_field_value("GEMINI_API_KEY")
+
+    def set_api_key(self, api_key: str) -> None:
+        """Convenience method to set the GEMINI_API_KEY."""
+        self.set_field_value("GEMINI_API_KEY", api_key)
 
     def save_configuration(self) -> None:
         """Save current configuration"""

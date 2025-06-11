@@ -3,10 +3,129 @@
     "version": "1.0",
     "project_name": "Summarizer Framework",
     "created_at": "2025-06-11T16:11:31.407531",
-    "last_updated": "2025-06-11T20:05:43.891599",
-    "total_entries": 8
+    "last_updated": "2025-06-11T20:53:23.177114",
+    "total_entries": 14
   },
   "entries": [
+    {
+      "id": "entry_20250611_205323",
+      "timestamp": "2025-06-11T20:53:23.177002",
+      "ai_summary": "## `demo_utils.py` Dosyası Değişiklik Analizi\n\nBu değişiklikler, demo projesinin çekirdek işlevselliğini temsil eden `demo_utils.py` dosyasını etkiliyor. Yapısal olarak, bu değişiklikler temel yardımcı fonksiyonların bulunduğu katmanda gerçekleşiyor. İşlevsel olarak, `demo_function` metni güncellenerek ve yeni bir açıklama satırı eklenerek demo işlevselliğinin görsel sunumu iyileştirilmiş. `calculate_demo_stats` fonksiyonu \"demo_version\" anahtarıyla birlikte güncellenmiş, böylece demo sürümünün takibi sağlanarak raporlamada ve hata ayıklamada iyileşme hedeflenmiş. Teknik olarak, kod kalitesi yorum satırları ile desteklenirken, eklenen sürüm bilgisi, projenin uzun vadeli sürdürülebilirliğini ve versiyon kontrolünü destekler. Bu değişiklikler, teknik borcu azaltır ve gelecekteki geliştirmeler için daha iyi bir zemin oluşturur; özellikle raporlama ve takibi kolaylaştıran sürüm bilgisi eklenmesi bu projeyi daha profesyonel ve sürdürülebilir kılmaya yönelik önemli bir adımdır.",
+      "changed_files": [
+        "demo_utils.py"
+      ],
+      "impact_level": "low",
+      "change_type": "other",
+      "tags": [
+        "utils",
+        "demo-utils"
+      ],
+      "file_count": 1,
+      "lines_added": 0,
+      "lines_removed": 0,
+      "commit_hash": null,
+      "author": null
+    },
+    {
+      "id": "entry_20250611_205134",
+      "timestamp": "2025-06-11T20:51:34.915547",
+      "ai_summary": "Kod tabanında güncellemeler yapıldı. Değişen dosyalar: demo_utils.py. (AI özeti alınamadı: 400 API key expired. Please renew the API key. [reason: \"API_KEY_INVALID\"\ndomain: \"googleapis.com\"\nmetadata {\n  key: \"service\"\n  value: \"generativelanguage.googleapis.com\"\n}\n, locale: \"en-US\"\nmessage: \"API key expired. Please renew the API key.\"\n])",
+      "changed_files": [
+        "demo_utils.py"
+      ],
+      "impact_level": "high",
+      "change_type": "other",
+      "tags": [
+        "api",
+        "utils",
+        "demo-utils"
+      ],
+      "file_count": 1,
+      "lines_added": 0,
+      "lines_removed": 0,
+      "commit_hash": null,
+      "author": null
+    },
+    {
+      "id": "entry_20250611_204724",
+      "timestamp": "2025-06-11T20:47:24.449347",
+      "ai_summary": "Kod tabanında güncellemeler yapıldı. Değişen dosyalar: demo_utils.py. (AI özeti alınamadı: 400 API key expired. Please renew the API key. [reason: \"API_KEY_INVALID\"\ndomain: \"googleapis.com\"\nmetadata {\n  key: \"service\"\n  value: \"generativelanguage.googleapis.com\"\n}\n, locale: \"en-US\"\nmessage: \"API key expired. Please renew the API key.\"\n])",
+      "changed_files": [
+        "demo_utils.py"
+      ],
+      "impact_level": "high",
+      "change_type": "other",
+      "tags": [
+        "api",
+        "utils",
+        "demo-utils"
+      ],
+      "file_count": 1,
+      "lines_added": 0,
+      "lines_removed": 0,
+      "commit_hash": null,
+      "author": null
+    },
+    {
+      "id": "entry_20250611_203745",
+      "timestamp": "2025-06-11T20:37:45.044824",
+      "ai_summary": "Kod tabanında güncellemeler yapıldı. Değişen dosyalar: demo_utils.py. (AI özeti alınamadı: 400 API key expired. Please renew the API key. [reason: \"API_KEY_INVALID\"\ndomain: \"googleapis.com\"\nmetadata {\n  key: \"service\"\n  value: \"generativelanguage.googleapis.com\"\n}\n, locale: \"en-US\"\nmessage: \"API key expired. Please renew the API key.\"\n])",
+      "changed_files": [
+        "demo_utils.py"
+      ],
+      "impact_level": "high",
+      "change_type": "other",
+      "tags": [
+        "utils",
+        "demo-utils",
+        "api"
+      ],
+      "file_count": 1,
+      "lines_added": 0,
+      "lines_removed": 0,
+      "commit_hash": null,
+      "author": null
+    },
+    {
+      "id": "entry_20250611_203544",
+      "timestamp": "2025-06-11T20:35:44.482671",
+      "ai_summary": "Kod tabanında güncellemeler yapıldı. Değişen dosyalar: demo_utils.py. (AI özeti alınamadı: 400 API key expired. Please renew the API key. [reason: \"API_KEY_INVALID\"\ndomain: \"googleapis.com\"\nmetadata {\n  key: \"service\"\n  value: \"generativelanguage.googleapis.com\"\n}\n, locale: \"en-US\"\nmessage: \"API key expired. Please renew the API key.\"\n])",
+      "changed_files": [
+        "demo_utils.py"
+      ],
+      "impact_level": "high",
+      "change_type": "other",
+      "tags": [
+        "api",
+        "utils",
+        "demo-utils"
+      ],
+      "file_count": 1,
+      "lines_added": 0,
+      "lines_removed": 0,
+      "commit_hash": null,
+      "author": null
+    },
+    {
+      "id": "entry_20250611_203220",
+      "timestamp": "2025-06-11T20:32:20.054834",
+      "ai_summary": "Kod tabanında güncellemeler yapıldı. Değişen dosyalar: demo_utils.py. (AI özeti alınamadı: 400 API key expired. Please renew the API key. [reason: \"API_KEY_INVALID\"\ndomain: \"googleapis.com\"\nmetadata {\n  key: \"service\"\n  value: \"generativelanguage.googleapis.com\"\n}\n, locale: \"en-US\"\nmessage: \"API key expired. Please renew the API key.\"\n])",
+      "changed_files": [
+        "demo_utils.py"
+      ],
+      "impact_level": "high",
+      "change_type": "other",
+      "tags": [
+        "utils",
+        "api",
+        "demo-utils"
+      ],
+      "file_count": 1,
+      "lines_added": 0,
+      "lines_removed": 0,
+      "commit_hash": null,
+      "author": null
+    },
     {
       "id": "entry_20250611_200543",
       "timestamp": "2025-06-11T20:05:43.891436",
