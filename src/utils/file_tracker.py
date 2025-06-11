@@ -8,20 +8,81 @@ SUMMARIZER_DIR = ".summarizer"
 logger = logging.getLogger(__name__)
 
 
+def _discover_python_directories(project_root_path: Path) -> list[str]:
+    """
+    Automatically discovers all subdirectories that contain Python files.
+    
+    Args:
+        project_root_path: Root path of the project
+        
+    Returns:
+        List of directory names relative to project root that contain .py files
+    """
+    python_dirs = set()
+    exclude_dirs = {
+        "__pycache__", 
+        ".git", 
+        ".vscode", 
+        ".idea", 
+        "node_modules", 
+        ".env", 
+        "venv", 
+        ".venv", 
+        "ENV", 
+        "env",
+        ".summarizer",
+        ".pytest_cache",
+        ".tox",
+        "build",
+        "dist",
+        "*.egg-info"
+    }
+    
+    # Walk through all directories and find those containing Python files
+    for item in project_root_path.iterdir():
+        if not item.is_dir():
+            continue
+            
+        # Skip hidden directories and common exclude patterns
+        if item.name.startswith('.') or item.name in exclude_dirs:
+            continue
+            
+        # Check if this directory or any subdirectory contains Python files
+        try:
+            for py_file in item.rglob("*.py"):
+                # Make sure it's not in an excluded subdirectory
+                if not any(exclude_dir in py_file.parts for exclude_dir in exclude_dirs):
+                    python_dirs.add(str(item.relative_to(project_root_path)))  # Return relative path as string
+                    break  # Found at least one Python file, no need to continue
+        except (PermissionError, OSError) as e:
+            logger.warning(f"Could not scan directory {item}: {e}")
+            continue
+    
+    discovered_dirs = sorted(list(python_dirs))
+    logger.info(f"Auto-discovered Python directories: {discovered_dirs}")
+    return discovered_dirs
+
+
 def get_changed_files_since_last_run(
-    project_root_path: Path, watch_dir: str = "src"
+    project_root_path: Path, watch_dirs: list[str] = None
 ) -> list[str]:
     """
-    Identifies .py files under watch_dir that have been modified since the last run.
+    Identifies .py files under watch_dirs that have been modified since the last run.
     Updates a state file with current modification times.
     Returns a list of file paths relative to the project_root_path.
+    
+    Args:
+        project_root_path: Root path of the project
+        watch_dirs: List of directories to watch. If None, automatically discovers all subdirectories with Python files
     """
+    if watch_dirs is None:
+        # Automatically discover all directories containing Python files
+        watch_dirs = _discover_python_directories(project_root_path)
     # Create .summarizer directory if it doesn't exist
     summarizer_dir = project_root_path / SUMMARIZER_DIR
     summarizer_dir.mkdir(exist_ok=True)
     
     state_file_path = summarizer_dir / STATE_FILE_NAME
-    tracked_dir_path = project_root_path / watch_dir
 
     previous_states = {}
     if state_file_path.exists():
@@ -45,50 +106,54 @@ def get_changed_files_since_last_run(
     current_states = {}
     changed_files_relative_paths = []
 
-    if not tracked_dir_path.is_dir():
-        logger.warning(
-            f"Watch directory {tracked_dir_path} does not exist. "
-            f"No files will be tracked."
-        )
-        return []
+    # Process each watch directory
+    for watch_dir in watch_dirs:
+        tracked_dir_path = project_root_path / watch_dir
 
-    for file_path_obj in tracked_dir_path.rglob("*.py"):
-        if "__pycache__" in str(
-                file_path_obj.parts):  # Check parts for __pycache__
-            continue
-        
-        # Skip .summarizer directory to avoid infinite recursion
-        if SUMMARIZER_DIR in str(file_path_obj.parts):
-            continue
-
-        try:
-            relative_path_str = str(
-                file_path_obj.relative_to(project_root_path))
-            current_mtime = os.path.getmtime(file_path_obj)
-            current_states[relative_path_str] = current_mtime
-
-            if previous_states.get(relative_path_str) != current_mtime:
-                changed_files_relative_paths.append(relative_path_str)
-                logger.debug(
-                    f"Detected change in: {relative_path_str} "
-                    f"(new_mtime: {current_mtime}, "
-                    f"old_mtime: {previous_states.get(relative_path_str)})"
-                )
-            elif (
-                relative_path_str not in previous_states
-            ):  # New file not caught by mtime diff if mtime is same
-                # (unlikely but good to have)
-                changed_files_relative_paths.append(relative_path_str)
-                logger.debug(
-                    f"Detected new file: {relative_path_str} (mtime: {current_mtime})")
-
-        except FileNotFoundError:
+        if not tracked_dir_path.is_dir():
             logger.warning(
-                f"File {file_path_obj} not found during scan, might have been deleted.")
+                f"Watch directory {tracked_dir_path} does not exist. "
+                f"Skipping {watch_dir}."
+            )
             continue
-        except Exception as e:
-            logger.error(f"Error processing file {file_path_obj}: {e}")
-            continue
+
+        for file_path_obj in tracked_dir_path.rglob("*.py"):
+            if "__pycache__" in str(
+                    file_path_obj.parts):  # Check parts for __pycache__
+                continue
+            
+            # Skip .summarizer directory to avoid infinite recursion
+            if SUMMARIZER_DIR in str(file_path_obj.parts):
+                continue
+
+            try:
+                relative_path_str = str(
+                    file_path_obj.relative_to(project_root_path))
+                current_mtime = os.path.getmtime(file_path_obj)
+                current_states[relative_path_str] = current_mtime
+
+                if previous_states.get(relative_path_str) != current_mtime:
+                    changed_files_relative_paths.append(relative_path_str)
+                    logger.debug(
+                        f"Detected change in: {relative_path_str} "
+                        f"(new_mtime: {current_mtime}, "
+                        f"old_mtime: {previous_states.get(relative_path_str)})"
+                    )
+                elif (
+                    relative_path_str not in previous_states
+                ):  # New file not caught by mtime diff if mtime is same
+                    # (unlikely but good to have)
+                    changed_files_relative_paths.append(relative_path_str)
+                    logger.debug(
+                        f"Detected new file: {relative_path_str} (mtime: {current_mtime})")
+
+            except FileNotFoundError:
+                logger.warning(
+                    f"File {file_path_obj} not found during scan, might have been deleted.")
+                continue
+            except Exception as e:
+                logger.error(f"Error processing file {file_path_obj}: {e}")
+                continue
 
     # Optionally, detect deleted files:
     # deleted_files = [path for path in previous_states if path not in current_states]

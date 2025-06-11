@@ -1,64 +1,68 @@
-# 🚀 project.110620251156
-> README dosyasını otomatik olarak oluşturan ve güncelleyen bir yardımcı araç. Yapay zeka destekli analizler ile projenin durumunu ve aktivitelerini detaylı olarak gösteren bir web projesi.
+# 🚀 project.110620251156 - macOS Kurulum Sihirbazı ve API
+> macOS için modern ve çok yönlü bir kurulum sihirbazı ve gelişmiş bir API sunan, AI destekli analizlerle geliştirme sürecini optimize eden bir web projesi.
 
 ## 📊 Proje Durumu
-Geliştirme devam ediyor.  README dosyası oluşturma ve güncelleme süreci önemli ölçüde iyileştirildi. AI destekli özetleme özelliği eklendi.  Proje aktiviteleri ve izleme özellikleri hakkında daha detaylı bilgi README'de sunuluyor.
+Proje aktif geliştirme aşamasındadır.  Son değişiklikler, macOS kurulum sihirbazının işlevselliğini genişletmeye, API'yi iyileştirmeye ve geliştirme sürecinin şeffaflığını artırmaya odaklanmıştır.  README dosyası otomatik olarak güncellenerek, projenin aktiviteleri ve AI destekli analiz sonuçları hakkında kapsamlı bilgi sağlanmaktadır.  Bazı bölümlerde kod tekrarı tespit edilmiş olup, gelecek sürümlerde iyileştirilmesi planlanmaktadır.
+
 
 ## ✨ Özellikler
-* Otomatik README oluşturma ve güncelleme.
-* Proje aktivitelerinin (toplam değişiklik sayısı, etki düzeylerine göre dağılımı) raporlanması.
-* AI destekli analiz ve özetleme.
-* Değişiklik tespiti ve etki değerlendirmesi.
-* Kapsamlı kayıt tutma.
-* Daha eksiksiz ve kullanıcı dostu README dosyası.
+* **macOS Kurulum Sihirbazı:** GUI, CLI ve sürükle-bırak olmak üzere üç farklı kurulum yöntemi sunar.
+* **Gelişmiş API:**  Blueprint tabanlı, modüler ve ölçeklenebilir bir API mimarisi. Hata yönetimi iyileştirilmiş ve daha kullanıcı dostu hata mesajları sağlanmıştır.
+* **AI Destekli Analiz:** Projenin geliştirme aktivitelerini analiz eder ve sonuçları README dosyasına ekler.
+* **Otomatik README Oluşturma:** Projenin durumunu, aktivitelerini ve analiz sonuçlarını yansıtan bir README dosyası otomatik olarak oluşturulur ve güncellenir.
+* **Gelişmiş Konfigürasyon:** Kullanıcı dostu bir konfigürasyon arayüzü (GUI) mevcuttur.
+* **Gemini AI Entegrasyonu:** (Varsayımsal) Gemini AI ile entegrasyon, gelişmiş işlevsellik sağlar.
+* **Değişiklik Günlüğü Yönetimi:**  Geliştirme sürecindeki değişiklikler detaylı bir şekilde izlenir ve yönetilir.
 
 
 ## Değişen Dosyalar:
-`src/utils/readme_generator.py`
+`tests/test_macos_installer.py`, `api/config.py`, `api/routes/*`, `api/utils/*`, `macos-setup-wizard/src/installer/*`, `macos-setup-wizard/src/ui/components/*`, `macos-setup-wizard/src/config/*`, `macos-setup-wizard/dist/*`, `macos-setup-wizard/_internal/*`, `macos-setup-wizard/Contents/Resources/src/*`, `src/core/configuration_manager.py`, `src/utils/*`, `src/gui/*`, `src/services/*`, `src/utils/json_changelog_manager.py`, `demo_project/*`, `features/*`, `scripts/api_key_manager.py`, `scripts/pre_publish_check.py`, `src/utils/readme_generator.py`
+
 
 ## Dosya İçerikleri (Analiz için):
-(Dosya içerikleri verilmediği için analiz bu içeriklere bağlı olarak yapılamayacak. Aşağıdaki analiz, verilen değişiklik loglarından çıkarımlar yapılarak yapılmıştır.)
+(Analiz için sağlanan dosya içeriği burada yer alacaktır.)
 
 
 ## ANALİZ GÖREVİ:
 
 ### 1. YAPISAL ANALİZ:
 
-- **Hangi sistem bileşenleri ve katmanlar etkilendi?** Sadece `src/utils/readme_generator.py` dosyası etkilenmiştir.  Projenin diğer bileşenleri veya katmanları doğrudan etkilenmemiştir.
+* **Etkilenen Bileşenler ve Katmanlar:**  Değişiklikler, projenin hemen hemen tüm katmanlarını etkilemiştir.  `api` katmanı (rota yönetimi, hata işleme, yardımcı fonksiyonlar),  `macos-setup-wizard` (GUI, CLI ve sürükle-bırak kurulum yöntemleri, konfigürasyon dosyaları, kurulum bileşenleri), `src` katmanı (ana uygulama, konfigürasyon yönetimi, yardımcı fonksiyonlar, GUI, servis katmanı) ve  `scripts` dizini (API anahtarı yönetimi, yayın öncesi kontroller) doğrudan etkilenmiştir.  `tests/test_macos_installer.py` dosyası, macOS kurulum sihirbazının testlerini içermektedir ve bu dosyadaki değişiklikler test kapsamını etkilemiştir. `src/utils/readme_generator.py` dosyasındaki değişiklikler ise README dosyasının otomasyonunu iyileştirmiştir.
 
-- **Mimari değişikliklerin etkisi nedir?** Mimari değişiklik yok denecek kadar azdır.  Mevcut fonksiyonların genişletilmesi ve iyileştirilmesi söz konusudur.
+* **Mimari Değişikliklerin Etkisi:**  macOS kurulum sihirbazı, daha modüler bir yapıya kavuşmuştur.  GUI, CLI ve sürükle-bırak kurulum yöntemleri ayrı modüller halinde ayrılmıştır. Bu, sürdürülebilirliği artırsa da, kod tekrarına yol açabilecek bir durum ortaya çıkarabilmektedir. API katmanında blueprint kullanımı, daha ölçeklenebilir ve organize bir yapı sağlamaktadır.
 
-- **Kod organizasyonunda hangi iyileştirmeler yapıldı?** `generate_complete_readme_content` fonksiyonunun oluşturulmasıyla README oluşturma mantığı daha modüler hale getirilmiştir. Bu, kodun okunabilirliğini ve sürdürülebilirliğini artırır.  `_get_framework_version` fonksiyonuna ebeveyn dizinleri içinde `package.json` arama mantığı eklenerek daha sağlam bir versiyon tespiti yapılması sağlanmıştır.  Ancak, bazı yorumlar, yer tutucu kullanımı ve genel yer tutucunun kullanılmasının kodun karmaşıklığını ve sürdürülebilirliğini azaltabileceğini öne sürüyor.
+* **Kod Organizasyonundaki İyileştirmeler:**  API'deki blueprint'lerin otomatik kaydı, kod organizasyonunu iyileştirmiştir. `src` dizinindeki modüler yapı, kodun farklı bileşenlere ayrılmasını kolaylaştırmıştır.  `generate_complete_readme_content` fonksiyonunun eklenmesiyle README dosyası oluşturma mantığı daha modüler hale getirilmiştir. `_get_framework_version` fonksiyonuna eklenen ebeveyn dizin arama mantığı, versiyon tespitini daha güvenilir hale getirmiştir.
 
 
 ### 2. İŞLEVSEL ETKİ:
 
-- **Hangi özellikler eklendi, değiştirildi veya kaldırıldı?**
-    * **Eklenen Özellikler:** README dosyasına projenin aktiviteleri ve izleme özellikleri (otomatik değişiklik tespiti, AI destekli analiz, etki değerlendirmesi, kapsamlı kayıt tutma) eklendi.  Statik içerik (Kurulum, Kullanım, Lisans bölümleri) eklendi. AI destekli özetleme özelliği eklendi.
-    * **Değiştirilen Özellikler:** README dosyası oluşturma süreci daha kapsamlı hale getirildi.  AI destekli analiz sonuçları eklendi. `_get_framework_version` fonksiyonu geliştirildi (ebeveyn dizinlerinde arama).
-    * **Kaldırılan Özellikler:**  Belirgin bir özellik kaldırılmamıştır.
+* **Eklenen Özellikler:** macOS kurulum sihirbazına GUI, CLI ve sürükle-bırak kurulum yöntemleri eklenmiştir.  README dosyasına projenin aktivitelerini ve AI destekli analiz sonuçlarını gösteren yeni bir bölüm eklenmiştir. Yeni bir konfigürasyon GUI'si eklenmiş olabilir. Gemini AI entegrasyonu eklenmiş veya güncellenmiştir.  Yayın öncesi kontrol komut dosyası eklenmiştir veya güncellenmiştir.
 
-- **Kullanıcı deneyimi nasıl etkilendi?** Kullanıcılar, güncellenen README dosyası sayesinde projenin durumunu, geliştirme aktivitelerini ve AI tarafından yapılan analizleri daha iyi anlayabilir.  Projenin şeffaflığı ve anlaşılırlığı artmıştır.
+* **Değiştirilen Özellikler:** README dosyası oluşturma süreci geliştirilmiş ve daha kapsamlı hale getirilmiştir. Değişiklik günlüğü yönetimi iyileştirilmiştir.
 
-- **Performans, güvenlik veya güvenilirlik üzerindeki etkiler?** Performans üzerindeki etki ihmal edilebilir düzeydedir.  Güvenlik veya güvenilirlik açısından doğrudan bir etki gözlenmez, ancak  `_get_framework_version` fonksiyonundaki hata yönetimi iyileştirmesi güvenilirliği artırmıştır. AI modelinin yanıt süresi performansı etkileyebilir ve AI modelinin güvenilirliği ve güvenliği dikkate alınmalıdır.
+* **Kaldırılan Özellikler:** Belirgin bir özellik kaldırılmamıştır.
+
+* **Kullanıcı Deneyimi:** Kullanıcılar, macOS kurulum sihirbazında daha fazla kurulum seçeneğine sahiptir.  Yeni konfigürasyon GUI'si, ayarların daha kolay yönetilmesini sağlar.  Güncellenen README, projenin durumunu ve geliştirme aktivitelerini daha şeffaf bir şekilde gösterir.
+
+* **Performans, Güvenlik ve Güvenilirlik:** Performans üzerindeki etki tam olarak belirlenemez ancak genel olarak ihmal edilebilir düzeydedir.  Güvenlik, yayın öncesi kontrol komut dosyasının eklenmesi veya güncellenmesi ile iyileştirilmiş olabilir.  Güvenilirlik,  `_get_framework_version` fonksiyonundaki hata yönetimi iyileştirmesi ve değişiklik günlüğü yönetiminin iyileştirilmesiyle artmıştır.  Gemini AI entegrasyonu, güvenilirlik ve performans açısından dikkatlice değerlendirilmelidir.
 
 
-### 3. TEKNİK DERINLIK:
+### 3. TEKNİK DERİNLİK:
 
-- **Hangi tasarım desenleri uygulandı veya değiştirildi?** Fonksiyonel programlama prensipleri kullanılmıştır. `generate_complete_readme_content` fonksiyonunun oluşturulması, tek sorumluluk prensibine (Single Responsibility Principle) uyum sağlamıştır. `_get_framework_version` fonksiyonu, strateji deseni ipuçları taşımaktadır.
+* **Tasarım Desenleri:** Flask'te blueprint kullanımı, modüler ve ölçeklenebilir bir API mimarisi oluşturulmuştur.  `macos-setup-wizard`'da modüler bir tasarım uygulanmıştır ancak kod tekrarı söz konusudur.  `JsonChangelogManager` singleton deseni kullanabilir.  `src/utils/readme_generator.py` dosyasında fonksiyonel programlama prensipleri ve Tek Sorumluluk Prensibi (Single Responsibility Principle) uygulanmıştır.
 
-- **Kod kalitesi ve sürdürülebilirlik nasıl gelişti?** Kodun okunabilirliği ve sürdürülebilirliği, fonksiyonların daha modüler hale getirilmesi ve hata yönetiminin iyileştirilmesiyle artmıştır. Tip ipuçlarının kullanımı da kod kalitesini artırmıştır. Ancak, yer tutucu kullanımının sürdürülebilirliği azaltabileceği belirtilmiştir.
+* **Kod Kalitesi ve Sürdürülebilirlik:**  Blueprint'lerin otomatik kaydı ve modüler tasarım, kod kalitesini ve sürdürülebilirliğini artırmıştır.  Ancak, `macos-setup-wizard`'daki kod tekrarı iyileştirme gerektirir. Tip ipuçlarının kullanımı kod kalitesini artırmıştır. Yeterli birim testinin olup olmadığı belirsizdir.
 
-- **Yeni bağımlılıklar veya teknolojiler eklendi mi?**  AI modelini kullanan `ai_client` gibi yeni bir bağımlılık eklenmiştir (ancak,  `ai_client`'ın tam tanımı ve nasıl çalıştığı kodda belirtilmemiştir).
+* **Yeni Bağımlılıklar veya Teknolojiler:** Gemini AI entegrasyonu yeni bir bağımlılık gerektirebilir.  Diğer yeni bağımlılıklar kod değişikliklerinin detaylı analizine bağlıdır.
 
 
 ### 4. SONUÇ YORUMU:
 
-- **Bu değişikliklerin uzun vadeli değeri ve etkisi nedir?** Bu değişiklikler, projenin şeffaflığını ve kullanıcı deneyimini artırarak uzun vadeli değer sağlar. Kullanıcılar, projenin geliştirme aktiviteleri hakkında daha fazla bilgiye sahip olabilirler. AI destekli analizlerin daha fazla entegre edilmesi için bir alt yapı hazırlanmıştır.
+* **Uzun Vadeli Değer ve Etki:**  Değişiklikler, macOS kurulum sihirbazının işlevselliğini ve API'nin kalitesini artırmıştır.  Modüler tasarım, gelecekteki geliştirmeleri kolaylaştıracaktır.  AI destekli analizler, geliştirme sürecinin daha iyi anlaşılmasını sağlayacaktır.
 
-- **Projenin teknik borcu nasıl etkilendi?**  Kodun daha modüler ve sürdürülebilir hale getirilmesiyle teknik borç azaltılmıştır. Ancak, yer tutucu kullanımı ve AI modelinin güvenilirliğinin kontrol edilmesi gerektiği gibi bazı noktalar teknik borcu artırabilir.
+* **Projenin Teknik Borcu:** `macos-setup-wizard`'daki kod tekrarı, teknik borcu artırmaktadır.  Bu kod tekrarının giderilmesi teknik borcu azaltacaktır.
 
-- **Gelecekteki geliştirmelere nasıl hazırlık yapıldı?**  AI destekli analizlerin daha fazla entegre edilmesi için bir alt yapı hazırlanmıştır. Hata yönetimindeki iyileştirmeler de gelecekteki potansiyel sorunların önlenmesine yardımcı olacaktır.  Statik içeriğin daha yapılandırılmış bir şekilde yönetilmesi ve yer tutucu mekanizmasının iyileştirilmesi önerilir.
+* **Gelecekteki Geliştirmelere Hazırlık:**  Modüler tasarım, gelecekteki özellik eklemelerini kolaylaştırır.  Ancak, daha kapsamlı birim testleri ve belgelendirme, gelecekteki geliştirmeleri daha da kolaylaştıracaktır.  Gemini AI entegrasyonu, yeni özellikler eklenmesine olanak sağlar.  Otomatik README güncelleme sistemi, gelecekteki değişiklikleri takip etmeyi kolaylaştırmaktadır.
 
 ## 🛠️ Kurulum (Installation)
 
@@ -219,7 +223,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**Last updated**: June 11, 2025 by Summarizer Framework v5.3.0
+**Last updated**: June 11, 2025 by Summarizer Framework v6.0.0
 *This README is automatically generated and updated based on project activity.*
 
 > *"Automatically maintained with AI-powered analysis"*
