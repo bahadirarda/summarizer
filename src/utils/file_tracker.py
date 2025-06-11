@@ -4,6 +4,7 @@ import os
 from pathlib import Path
 
 STATE_FILE_NAME = ".file_states.json"
+SUMMARIZER_DIR = ".summarizer"
 logger = logging.getLogger(__name__)
 
 
@@ -15,7 +16,11 @@ def get_changed_files_since_last_run(
     Updates a state file with current modification times.
     Returns a list of file paths relative to the project_root_path.
     """
-    state_file_path = project_root_path / STATE_FILE_NAME
+    # Create .summarizer directory if it doesn't exist
+    summarizer_dir = project_root_path / SUMMARIZER_DIR
+    summarizer_dir.mkdir(exist_ok=True)
+    
+    state_file_path = summarizer_dir / STATE_FILE_NAME
     tracked_dir_path = project_root_path / watch_dir
 
     previous_states = {}
@@ -50,6 +55,10 @@ def get_changed_files_since_last_run(
     for file_path_obj in tracked_dir_path.rglob("*.py"):
         if "__pycache__" in str(
                 file_path_obj.parts):  # Check parts for __pycache__
+            continue
+        
+        # Skip .summarizer directory to avoid infinite recursion
+        if SUMMARIZER_DIR in str(file_path_obj.parts):
             continue
 
         try:
@@ -119,7 +128,8 @@ def get_file_line_changes(
         }
     """
     line_changes = {}
-    backup_dir = project_root_path / ".file_backups"
+    summarizer_dir = project_root_path / SUMMARIZER_DIR
+    backup_dir = summarizer_dir / "file_backups"
 
     for file_path in changed_files:
         full_path = project_root_path / file_path
@@ -211,7 +221,11 @@ def create_file_backups(
     Creates backup copies of current files for future line diff analysis.
     Should be called after processing changes.
     """
-    backup_dir = project_root_path / ".file_backups"
+    # Create .summarizer directory if it doesn't exist
+    summarizer_dir = project_root_path / SUMMARIZER_DIR
+    summarizer_dir.mkdir(exist_ok=True)
+    
+    backup_dir = summarizer_dir / "file_backups"
     tracked_dir_path = project_root_path / watch_dir
 
     if not tracked_dir_path.is_dir():
@@ -221,6 +235,10 @@ def create_file_backups(
 
     for file_path_obj in tracked_dir_path.rglob("*.py"):
         if "__pycache__" in str(file_path_obj.parts):
+            continue
+        
+        # Skip .summarizer directory to avoid infinite recursion
+        if SUMMARIZER_DIR in str(file_path_obj.parts):
             continue
 
         try:

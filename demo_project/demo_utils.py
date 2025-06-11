@@ -22,3 +22,7 @@ if __name__ == "__main__":
     demo_function()
     stats = calculate_demo_stats()
     print(f"Demo stats: {stats}")
+# Test comment Wed Jun 11 18:08:27 +03 2025
+# Another test comment Wed Jun 11 18:11:22 +03 2025
+# Final test Wed Jun 11 18:13:52 +03 2025
+# Bir başka test değişikliği

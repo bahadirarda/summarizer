@@ -20,9 +20,6 @@ Python Import:
     summarizer()
 """
 
-# Suppress warnings before any other imports
-import suppress_warnings
-
 import os
 import sys
 import argparse
