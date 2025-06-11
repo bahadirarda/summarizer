@@ -219,28 +219,27 @@ def auto_version_management(project_root: Path, changed_files: list,
         version_manager = VersionManager(project_root)
         
         # Get current version
-        current_version = version_manager.get_current_version()
-        print(f"   📋 Current version: v{current_version}")
+        current_version_str = version_manager.get_current_version()
+        print(f"   📋 Current version: v{current_version_str}")
         
-        # Auto-increment based on changes
-        new_version = version_manager.auto_increment_based_on_changes(
+        # auto_increment_based_on_changes attempts to update files and returns 
+        # the new version string if successful, or the original version string if not.
+        new_version_str = version_manager.auto_increment_based_on_changes(
             changed_files, impact_level
         )
         
-        if new_version != current_version:
-            print(f"   ⬆️ Auto-incrementing: v{current_version} → v{new_version}")
-            
-            # Update version in files
-            if version_manager.update_version_in_files(new_version):
-                print(f"   ✅ Version updated to v{new_version}")
-                return new_version
-            else:
-                print("   ⚠️ Failed to update version")
+        if new_version_str != current_version_str:
+            # This means auto_increment_based_on_changes succeeded in determining AND applying a new version.
+            # The update_version_in_files call was handled within auto_increment_based_on_changes.
+            print(f"   ⬆️ Version updated: v{current_version_str} → v{new_version_str}")
+            return new_version_str
         else:
-            print(f"   ✅ Version unchanged: v{current_version}")
-        
-        return current_version
-        
+            # This means either no version change was needed, 
+            # or auto_increment_based_on_changes failed to update the files 
+            # (it would have logged an error and returned current_version_str).
+            print(f"   ✅ Version unchanged or update failed for v{current_version_str}")
+            return current_version_str
+            
     except Exception as e:
         print(f"   ⚠️ Version management error: {e}")
         logger.error(f"Auto version management error: {e}")
