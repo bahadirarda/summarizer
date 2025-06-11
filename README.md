@@ -10,16 +10,19 @@ A powerful, modular framework that automatically analyzes your project changes, 
 - **Real-time Progress**: See exactly what the summarizer is doing at each step
 - **Detailed Console Output**: Track file scanning, AI analysis, and changelog generation
 - **Professional Progress Indicators**: Clear visual feedback with emojis and status messages
+- **Transparent Operations**: Know when files are being analyzed, AI is thinking, and backups are created
 
 ### 📁 **Clean Project Structure**
 - **Hidden Internal Files**: All system files stored in `.summarizer/` directory
 - **User-Friendly Workspace**: Only `CHANGELOG.md` and `changelog.json` visible to users
 - **Automatic Setup**: Framework manages all internal structures transparently
+- **No Clutter**: `.file_states.json`, backups, and configs hidden from main workspace
 
 ### 🎉 **New Project Initialization**
 - **Professional Welcome**: Beautiful initial changelog entries for new projects
 - **Project Type Detection**: Automatically detects Python, Web, or General project types
 - **Setup Guidance**: Helpful instructions and next steps for new users
+- **Zero Configuration**: Just run `summarizer` in any new directory to get started
 
 ## ✨ Core Features
 
