@@ -5,11 +5,14 @@ from typing import List, Dict, Optional
 
 import google.generativeai as genai  # Gerçek Gemini kütüphanesi
 
+from src.core.configuration_manager import ConfigurationManager # Added import
+
 
 class GeminiClient:
-    def __init__(self):  # Removed request_manager parameter
+    def __init__(self, config_manager: ConfigurationManager):  # Added config_manager parameter
         self.logger = logging.getLogger(__name__)
-        self.api_key = os.getenv("GEMINI_API_KEY")
+        self.config_manager = config_manager # Store config_manager instance
+        self.api_key = self.config_manager.get_api_key() # Get API key from ConfigurationManager
         self.model = None
         self._is_configured = False
 
@@ -19,7 +22,7 @@ class GeminiClient:
                 genai.configure(api_key=self.api_key)
 
                 # Initialize the model
-                self.model = genai.GenerativeModel("gemini-2.5-flash")
+                self.model = genai.GenerativeModel("gemini-1.5-flash")
 
                 self._is_configured = True
                 self.logger.info(
@@ -53,6 +56,34 @@ class GeminiClient:
     ) -> str:
         """Verilen metin veya dosya değişikliklerine göre
         detaylı anlamsal özet oluşturur."""
+        # Re-fetch API key from ConfigurationManager and re-configure before each call
+        self.api_key = self.config_manager.get_api_key()
+        
+        # Log the API key being used (or if it's None)
+        if self.api_key:
+            self.logger.info(f"Attempting to use API key ending with: ...{self.api_key[-4:]}")
+        else:
+            self.logger.error("API key from ConfigurationManager is None.")
+
+        if not self.api_key:
+            self.logger.error(
+                "GEMINI_API_KEY, ConfigurationManager aracılığıyla bulunamadı. Özet oluşturulamıyor."
+            )
+            return "[GEMINI_API_KEY bulunamadı (ConfigurationManager)]"
+        
+        try:
+            genai.configure(api_key=self.api_key)
+            # Re-initialize the model if it wasn't configured or if the key might have changed
+            if not self.model or not self._is_configured:
+                 self.model = genai.GenerativeModel("gemini-2.0-flash") # Changed to 2.0-flash
+                 self._is_configured = True # Assume configuration is successful if no exception
+        except Exception as e:
+            self.logger.error(f"Gemini API yeniden konfigürasyonu başarısız: {e}")
+            self._is_configured = False # Mark as not configured on error
+            # self.model will remain None or its previous state
+            return f"[Gemini API yeniden konfigürasyonu başarısız: {e}]"
+
+
         if not self.is_ready():
             self.logger.error(
                 "GeminiClient düzgün yapılandırılmamış. Özet oluşturulamıyor."
@@ -122,9 +153,10 @@ Türkçe olarak KAPSAMLI ve ANALİTİK bir özet oluştur. Özet şunları içer
 - Projenin teknik borcu nasıl etkilendi?
 - Gelecekteki geliştirmelere nasıl hazırlık yapıldı?
 
-ÖNEMLI: Dosya içeriklerine dayanarak SPESIFIK teknik detaylar ver.
-Genel laflar yerine kod değişikliklerinin gerçek etkisini analiz et.
-4-6 cümle ile öz ama kapsamlı olsun.
+ÖNEMLI:
+- Yanıtını tam olarak yukarıda belirtilen Markdown başlıklarını (### 1. YAPISAL ANALİZ:, ### 2. İŞLEVSEL ETKİ:, vb.) kullanarak yapılandır.
+- Her bölüm için ayrıntılı ve spesifik teknik bilgiler ver.
+- Genel ifadelerden kaçın; kod değişikliklerinin gerçek etkisini analiz et.
 """
 
             # Gemini API çağrısı

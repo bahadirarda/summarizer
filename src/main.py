@@ -13,6 +13,8 @@ logger = logging.getLogger(__name__)
 def setup_configuration():
     """Konfigürasyon sistemini başlatır."""
     config_manager = ConfigurationManager()
+    # Attempt to import from .env on initial setup if settings are sparse
+    config_manager.import_from_env()
     config_data = config_manager.settings
 
     # Konfigürasyon verilerini environment'a yükle
@@ -43,9 +45,9 @@ def setup_request_manager():
     RequestManager()
 
 
-def setup_gemini_client():
+def setup_gemini_client(config_manager: ConfigurationManager):  # Added config_manager parameter
     """GeminiClient servisini başlatır."""
-    GeminiClient()
+    GeminiClient(config_manager=config_manager)  # Pass config_manager
 
 
 def setup_changelog_updater():
@@ -56,31 +58,19 @@ def setup_changelog_updater():
 
 def summarizer():
     """Analyze and summarize current project changes"""
-    # Get dynamic version from package.json
-    package_json = Path(__file__).resolve().parent.parent / "package.json"
-    version = "2.0.3"  # fallback
-    try:
-        import json
-        with open(package_json, 'r', encoding='utf-8') as f:
-            data = json.load(f)
-            version = data.get('version', '2.0.3')
-    except:
-        pass
-        
-    print(f"🔍 Summarizer Framework v{version} Starting...")
-    print("=" * 50)
-    
+    # Version display is handled by the entry point script (summarizer.py)
+
     try:
         print("📝 Step 1/7: Setting up configuration...")
-        setup_configuration()
+        config_manager = setup_configuration()  # Capture config_manager
         print("✅ Configuration loaded successfully")
-        
+
         print("\n🔗 Step 2/7: Initializing request manager...")
         setup_request_manager()
         print("✅ Request manager ready")
-        
+
         print("\n🤖 Step 3/7: Connecting to Gemini AI...")
-        setup_gemini_client()
+        setup_gemini_client(config_manager)  # Pass config_manager
         print("✅ AI client connected")
 
         print("\n📁 Step 4/7: Detecting project structure...")
@@ -104,10 +94,10 @@ def summarizer():
         print("\n🔎 Step 5/7: Scanning for file changes...")
         # Update changelog with current changes
         update_changelog(project_root)
-        
+
         print("\n✨ Step 6/7: Finalizing documentation...")
         print("   📝 README.md automatically updated with current project state")
-        
+
         print("\n🎉 Step 7/7: Analysis complete!")
         print("=" * 50)
         print("📊 Results saved to:")
@@ -118,7 +108,7 @@ def summarizer():
         print("✅ Summarizer completed successfully!")
         print(f"   • .summarizer/ - Internal tracking files")
         print("✅ Summarizer completed successfully!")
-        
+
     except Exception as e:
         print(f"\n❌ Error occurred: {e}")
         print("💡 Try running with debug mode for more details")
@@ -130,7 +120,7 @@ def main():
     setup_logging()
     config_manager = setup_configuration()
     setup_request_manager()
-    setup_gemini_client()
+    setup_gemini_client(config_manager=config_manager)  # Pass config_manager
     setup_changelog_updater()
 
     logger.info("🚀 Uygulama başarıyla başlatıldı!")
