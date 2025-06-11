@@ -207,8 +207,13 @@ def analyze_screenshot(screenshot_path, custom_prompt=""):
         # Import Gemini client
         sys.path.append(str(Path(__file__).parent.parent))
         from src.services.gemini_client import GeminiClient
+        from src.core.configuration_manager import ConfigurationManager
+
+        # ConfigurationManager will determine its paths based on its own location
+        # in src/core, ensuring it uses the central .summarizer directory.
+        config_manager = ConfigurationManager()
         
-        client = GeminiClient()
+        client = GeminiClient(config_manager=config_manager)
         
         if not client.is_ready():
             print("❌ Gemini API not configured. Run 'summarizer --setup' first.")
