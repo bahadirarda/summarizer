@@ -16,8 +16,13 @@ from ..core.configuration_manager import ConfigurationManager
 class SimplifiedConfigGUI:
     """Simplified professional configuration GUI"""
 
-    def __init__(self):
-        self.config_manager = ConfigurationManager()
+    def __init__(self, project_root: Optional[Path] = None):
+        # Use project_root if provided, otherwise default to cwd for config
+        config_dir = project_root / ".summarizer" if project_root else Path.cwd() / ".summarizer"
+        # Ensure the config directory exists
+        config_dir.mkdir(parents=True, exist_ok=True)
+        
+        self.config_manager = ConfigurationManager(config_dir=config_dir)
         self.page: Optional[ft.Page] = None
         self.field_controls: Dict[str, ft.Control] = {}
         self.status_text: Optional[ft.Text] = None
@@ -541,15 +546,32 @@ class SimplifiedConfigGUI:
         page.add(main_layout)
 
 
-def run_configuration_gui():
+def run_configuration_gui(project_root_str: Optional[str] = None):
     """Run the configuration GUI"""
-    gui = SimplifiedConfigGUI()
+    project_root = Path(project_root_str) if project_root_str else Path.cwd()
+    gui = SimplifiedConfigGUI(project_root=project_root)
     ft.app(target=gui.main)
 
 
 # For compatibility
-main = run_configuration_gui
-
+def main_gui_entry():
+    # This function will be called by the summarizer CLI
+    # It needs to accept the project_root argument from the CLI
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--project_root", type=str, help="The root directory of the project.", default=None)
+    args = parser.parse_args()
+    
+    # If project_root is not passed, it defaults to None, and SimplifiedConfigGUI will use Path.cwd()
+    run_configuration_gui(args.project_root)
 
 if __name__ == "__main__":
-    run_configuration_gui()
+    # When run directly, try to get project_root from argv or default to cwd
+    # This allows testing the GUI with a specific project context if needed
+    # e.g. python -m src.gui.modern_config_gui --project_root /path/to/your/project
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--project_root", type=str, help="The root directory of the project.", default=None)
+    args = parser.parse_args()
+    
+    run_configuration_gui(args.project_root)

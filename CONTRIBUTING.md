@@ -231,8 +231,8 @@ Add any other context about the feature request.
 
 ## 🤔 Questions?
 
-- Check existing [Issues](https://github.com/bahadirarda/summarizer-framework/issues)
-- Start a [Discussion](https://github.com/bahadirarda/summarizer-framework/discussions)
+- Check existing [Issues](https://github.com/bahadirarda/summarizer/issues)
+- Start a [Discussion](https://github.com/bahadirarda/summarizer/discussions)
 - Contact maintainers
 
 ## 📜 License

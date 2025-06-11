@@ -7,6 +7,15 @@ from src.services.gemini_client import GeminiClient
 from src.services.request_manager import RequestManager
 from src.utils.changelog_updater import update_changelog
 
+# Attempt to import GUI, but make it optional
+try:
+    from src.gui.modern_config_gui import main_gui_entry as run_gui
+    GUI_AVAILABLE = True
+except ImportError:
+    GUI_AVAILABLE = False
+    def run_gui(): # Placeholder if GUI is not available
+        print("GUI is not available. Please ensure all GUI dependencies are installed.")
+
 logger = logging.getLogger(__name__)
 
 
@@ -59,11 +68,52 @@ def setup_changelog_updater(project_root: Path):  # Added project_root parameter
     update_changelog(project_root=project_root)
 
 
-def summarizer():
-    """Analyze and summarize current project changes based on the current working directory."""
-    # Version display is handled by the entry point script (summarizer.py)
+def summarizer(run_gui_mode: bool = False, project_root_str: str = None):
+    """Analyze and summarize current project changes or run the configuration GUI."""
 
-    project_root = Path.cwd()
+    if run_gui_mode:
+        if GUI_AVAILABLE:
+            print("🎨 Launching Configuration GUI...")
+            # Pass project_root to the GUI if provided, otherwise it will use cwd
+            # The GUI's main_gui_entry should handle receiving this or using cwd.
+            # For now, we assume the GUI's entry point can be called directly
+            # and it will parse its own arguments if necessary or use cwd.
+            # We need to ensure modern_config_gui.py's entry point is compatible.
+            
+            # If project_root_str is provided (e.g. from CLI args to summarizer), pass it.
+            # The GUI's entry point (main_gui_entry) will need to accept this.
+            if project_root_str:
+                # This assumes run_gui (main_gui_entry) can accept project_root
+                # We might need to adjust how arguments are passed if not.
+                # For example, by setting an environment variable or modifying sys.argv
+                # before calling it if it uses argparse directly without expecting a direct arg.
+                
+                # Simplest approach: if main_gui_entry uses argparse, it will pick up --project_root
+                # if we construct sys.argv appropriately. Or, modify main_gui_entry to accept it.
+                # Given the previous change to modern_config_gui.py, it should now accept --project_root.
+                
+                # We will call it and let its argparse handle the --project_root if present in sys.argv
+                # or we can explicitly pass it if the function signature allows.
+                # The updated modern_config_gui.py's main_gui_entry uses argparse.
+                # So, we ensure the argument is available for it.
+                
+                # To be safe and explicit, let's modify sys.argv for the GUI's argparse
+                import sys
+                original_argv = sys.argv
+                sys.argv = [sys.argv[0], "--project_root", project_root_str]
+                try:
+                    run_gui() # This will now use the project_root_str via its own argparse
+                finally:
+                    sys.argv = original_argv # Restore original sys.argv
+            else:
+                run_gui() # Run GUI in the context of current working directory
+        else:
+            print("❌ Error: GUI mode requested, but GUI components could not be loaded.")
+            print("   Please check your installation and ensure all dependencies for the GUI are met.")
+        return
+
+    # Determine project_root: use provided string or default to Path.cwd()
+    project_root = Path(project_root_str) if project_root_str else Path.cwd()
 
     # Validate if project_root is a valid project directory
     # (e.g., contains package.json or .git)
@@ -148,6 +198,33 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    # This part is typically for when main.py is run directly (e.g., python -m src.main)
+    # The CLI entry point (summarizer.py) will call summarizer() function directly.
+    
+    # Basic argument parsing for direct execution (e.g., for testing GUI launch)
+    import argparse
+    parser = argparse.ArgumentParser(description="Summarizer main module.")
+    parser.add_argument(
+        "--gui",
+        action="store_true",
+        help="Launch the configuration GUI."
+    )
+    parser.add_argument(
+        "--project_root",
+        type=str,
+        default=None,
+        help="Specify the project root directory. Defaults to current working directory if not in GUI mode."
+    )
+    args = parser.parse_args()
+
+    setup_logging() # Setup logging first
+
+    if args.gui:
+        summarizer(run_gui_mode=True, project_root_str=args.project_root)
+    else:
+        # If not running GUI, and main.py is run directly, 
+        # it implies a direct call to the summarizer logic for the specified/current project.
+        summarizer(run_gui_mode=False, project_root_str=args.project_root)
+
 # Debug comment Wed Jun 11 17:58:46 +03 2025
 # Version v2.0.3 test
