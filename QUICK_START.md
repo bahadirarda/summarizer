@@ -39,12 +39,26 @@ export GEMINI_API_KEY="your-api-key-here"
 python summarizer.py
 ```
 
-### Option 3: Environment File 📁
+### Option 3: Environment File 📁 (Recommended)
 
-Create a `.env` file:
+```bash
+# Copy example configuration
+cp .env.example .env
+
+# Edit with your actual values
+nano .env  # or use your preferred editor
+```
+
+The `.env.example` file includes all available configuration options:
 ```env
+# Required
 GEMINI_API_KEY=your-api-key-here
+
+# Optional
 APP_ENV=development
+LOG_LEVEL=INFO
+ENABLE_AI_ANALYSIS=true
+ENABLE_SCREENSHOT_ANALYSIS=true
 ```
 
 ## 🔑 Getting Your API Key

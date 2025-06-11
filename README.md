@@ -68,13 +68,17 @@ python install_gui.py
 ### Setup
 
 ```bash
-# Interactive setup (recommended)
+# 1. Configure environment variables
+cp .env.example .env
+# Edit .env with your Gemini API key
+
+# 2. Interactive setup (recommended)
 summarizer --setup
 
-# Or use GUI setup
+# 3. Or use GUI setup
 summarizer --gui
 
-# Check configuration
+# 4. Verify configuration
 summarizer --check
 ```
 
@@ -240,15 +244,45 @@ You need a Google Gemini API key for AI features:
 2. **Setup Options**:
    - **GUI**: `summarizer --gui` (recommended)
    - **Interactive**: `summarizer --setup`
-   - **Manual**: Add `GEMINI_API_KEY=your-key` to `.env` file
+   - **Manual**: Copy `.env.example` to `.env` and configure
 
 ### Environment Variables
 
-Create a `.env` file in your project root:
+The framework includes a comprehensive `.env.example` file with all available configuration options:
 
+```bash
+# Quick setup
+cp .env.example .env
+# Edit .env with your actual values
+```
+
+**Required Configuration:**
 ```env
 # Required: Gemini AI API Key
 GEMINI_API_KEY=your-api-key-here
+
+# Environment mode
+APP_ENV=development
+LOG_LEVEL=INFO
+```
+
+**Optional Advanced Configuration:**
+```env
+# AI Analysis Settings
+AI_MODEL_TEMPERATURE=0.3
+AI_MAX_TOKENS=1000
+
+# Feature Toggles
+ENABLE_AI_ANALYSIS=true
+ENABLE_SCREENSHOT_ANALYSIS=true
+ENABLE_GUI_INTERFACE=true
+
+# GUI Appearance
+GUI_THEME=modern
+GUI_WINDOW_SIZE=800x600
+```
+
+See `.env.example` for complete configuration options including database, API server, and deployment settings.
 
 # Optional: Application Environment
 APP_ENV=development
