@@ -3,10 +3,31 @@
     "version": "1.0",
     "project_name": "Summarizer Framework",
     "created_at": "2025-06-11T16:09:37.067316",
-    "last_updated": "2025-06-11T20:58:58.562257",
-    "total_entries": 16
+    "last_updated": "2025-06-11T21:08:51.609674",
+    "total_entries": 17
   },
   "entries": [
+    {
+      "id": "entry_20250611_210851",
+      "timestamp": "2025-06-11T21:08:51.609244",
+      "ai_summary": "### 1. YAPISAL ANALİZ:\n\nDeğişiklikler, `src/utils/version_manager.py` dosyasında bulunan `VersionManager` sınıfını ve `auto_version_management` fonksiyonunu etkilemiştir.  Bu dosya, servis katmanında yer almaktadır ve projenin versiyon yönetiminden sorumludur.  Mimari açıdan bir değişiklik yok; mevcut versiyon yönetimi mekanizması geliştirilmiştir.  Kod organizasyonu açısından,  `increment_version` metodu eksik bırakılmış olsa da, mevcut kodda belirgin bir iyileştirme ya da yeniden düzenleme görünmemektedir.  Ancak, kodun daha okunabilir ve bakımı daha kolay hale getirilmesi için potansiyel var.  `auto_increment_based_on_changes` fonksiyonunun daha iyi bir şekilde parçalanması ve daha açıklayıcı isim verilmesi kod kalitesini artırabilirdi.\n\n\n### 2. İŞLEVSEL ETKİ:\n\nYeni özellikler eklenmiş, mevcut özellikler değiştirilmiştir.  Esasen, otomatik versiyon artırımı işlevi geliştirilmiştir.  `auto_increment_based_on_changes` fonksiyonu,  değiştirilen dosyaları ve etkileşim seviyesini (impact_level) inceleyerek  versiyon numarasını otomatik olarak günceller.  Bu, manuel versiyon yönetimine olan ihtiyacı azaltarak, geliştirici verimliliğini artırmayı hedefler.  Kullanıcı deneyimi doğrudan etkilenmemiştir; ancak arka planda daha otomatik ve hataya daha az müsait bir versiyonlama sistemi sağlanmıştır.  Performans üzerindeki etki ihmal edilebilir düzeydedir. Güvenlik ve güvenilirlik açısından,  `try-except` blokları ile hata yönetimi yapılmış, ancak daha kapsamlı hata kontrol mekanizmaları eklenebilir.\n\n\n### 3. TEKNİK DERINLIK:\n\n`VersionManager` sınıfı, basit bir sınıf yapısı kullanmaktadır.  Özel bir tasarım deseni kullanılmamıştır.  Kod kalitesi,  yorum satırlarının eksikliği ve bazı fonksiyonların (örneğin, `increment_version`) tamamlanmamış olması nedeniyle iyileştirilebilir.  Sürdürülebilirlik, daha iyi yorumlama ve daha modüler bir tasarımla geliştirilebilir.  Yeni bir bağımlılık eklenmemiştir. Mevcut `json`, `logging`, `pathlib`, `datetime` ve `subprocess` kütüphaneleri kullanılmaya devam edilmektedir.\n\n\n### 4. SONUÇ YORUMU:\n\nBu değişikliklerin uzun vadeli değeri, geliştirici verimliliğinin artması ve manuel versiyon yönetimi hatalarının azaltılmasıdır.  Projenin teknik borcu, eksik yorum satırları ve bazı fonksiyonların tamamlanmamış olması nedeniyle kısmen artmıştır.  Ancak, otomatik versiyon yönetimi işlevselliğinin eklenmesi, gelecekteki geliştirmeleri kolaylaştıracak ve daha sürdürülebilir bir kod tabanı oluşturacaktır.  Gelecekteki geliştirmeler için,  `auto_increment_based_on_changes` fonksiyonunun daha kapsamlı bir şekilde test edilmesi ve daha detaylı hata ayıklama mekanizmalarının eklenmesi önerilir.  Ayrıca, kodun daha iyi yorumlanması ve daha modüler bir yapıya kavuşması sürdürülebilirliği artıracaktır.  `increment_version` fonksiyonunun tamamlanması ve daha açıklayıcı isim verilmesi, kodun daha anlaşılır olmasını sağlayacaktır.  Değişiklikler,  versiyon yönetimi sürecinin otomatikleştirilmesi ve geliştirilmesi açısından olumlu bir adımdır, ancak kod kalitesi ve sürdürülebilirlik açısından iyileştirmelere ihtiyaç duyulmaktadır.",
+      "changed_files": [
+        "src/utils/version_manager.py"
+      ],
+      "impact_level": "high",
+      "change_type": "feature",
+      "tags": [
+        "utils",
+        "api",
+        "manager",
+        "version-manager"
+      ],
+      "file_count": 1,
+      "lines_added": 0,
+      "lines_removed": 1,
+      "commit_hash": null,
+      "author": null
+    },
     {
       "id": "entry_20250611_205858",
       "timestamp": "2025-06-11T20:58:58.561866",
