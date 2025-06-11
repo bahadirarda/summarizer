@@ -1,0 +1,34 @@
+---
+name: Documentation Issue
+about: Report an issue with documentation
+title: '[DOCS] '
+labels: ['documentation']
+assignees: ''
+---
+
+## 📝 Documentation Issue
+
+### 📍 Location
+Which documentation needs improvement?
+- [ ] README.md
+- [ ] API Documentation
+- [ ] Installation Guide
+- [ ] Examples/Tutorials
+- [ ] Code Comments
+- [ ] Other: _____________
+
+### 🔍 Issue Description
+A clear description of what's wrong or missing in the documentation.
+
+### 💡 Suggested Improvement
+What would you like to see changed or added?
+
+### 👥 Target Audience
+Who would benefit from this documentation improvement?
+- [ ] New users
+- [ ] Developers
+- [ ] Contributors
+- [ ] Advanced users
+
+### 📋 Additional Context
+Any additional context, screenshots, or examples that would help.
