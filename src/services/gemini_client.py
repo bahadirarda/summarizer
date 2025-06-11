@@ -127,7 +127,6 @@ class GeminiClient:
 ## Değişen Dosyalar:
 {file_summary}
 
-## Dosya İçerikleri (Analiz için):
 {file_contents}
 
 ## ANALİZ GÖREVİ:
@@ -240,10 +239,16 @@ Türkçe olarak KAPSAMLI ve ANALİTİK bir özet oluştur. Özet şunları içer
 
                 category_display = category_names.get(
                     category, category.title())
-                files_display = ", ".join(file_list)
-                formatted_parts.append(f"{category_display}: {files_display}")
+                
+                # Format files in a more readable way
+                files_formatted = []
+                for file in file_list:
+                    files_formatted.append(f"  • `{file}`")
+                    
+                files_display = "\n".join(files_formatted)
+                formatted_parts.append(f"**{category_display}:**\n{files_display}")
 
-        return "\n".join(formatted_parts)
+        return "\n\n".join(formatted_parts)
 
     def _get_file_contents_for_analysis(
         self, files: List[str], max_lines_per_file: int = 100
