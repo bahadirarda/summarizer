@@ -1,0 +1,24 @@
+# Summarizer Framework Dependencies - Updated 2025
+
+# Core Dependencies
+python-dotenv>=1.0.1
+
+# Network Dependencies (Fixed LibreSSL compatibility)
+urllib3>=1.26.0,<2.0.0  # Fix LibreSSL compatibility issue
+requests>=2.32.0
+
+# GUI Dependencies  
+flet>=0.28.0
+
+# Web API Dependencies
+flask>=3.1.0
+werkzeug>=3.1.0
+
+# AI/ML Dependencies
+google-generativeai>=0.8.5
+google-api-core>=2.25.0
+
+# Development Dependencies
+pytest>=8.0.0
+flake8>=7.0.0
+black>=24.0.0

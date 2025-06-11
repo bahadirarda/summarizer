@@ -1,0 +1,92 @@
+{
+  "metadata": {
+    "version": "1.0",
+    "project_name": "Summarizer Framework",
+    "created_at": "2025-06-11T16:09:37.067316",
+    "last_updated": "2025-06-11T17:04:12.453719",
+    "total_entries": 2
+  },
+  "entries": [
+    {
+      "id": "entry_20250611_170412",
+      "timestamp": "2025-06-11T17:04:12.453519",
+      "ai_summary": "Bu kod değişiklikleri, AI destekli bir özetleyici framework'ünün çeşitli bileşenlerini etkileyen kapsamlı bir revizyonu yansıtmaktadır.  Yapısal olarak, konfigürasyon yönetimi (`src/config.py`, `src/core/configuration_manager.py`, `src/gui/modern_config_gui.py`) geliştirilmiş, loglama daha esnek hale getirilmiş ve hata yönetimi iyileştirilmiştir. İşlevsel olarak, Gemini API entegrasyonu (`src/services/gemini_client.py`) eklenmiş ve  `src/main_fixed.py` dosyasındaki ana iş mantığında hata düzeltmeleri yapılmıştır.  Teknik olarak,  `urllib3` kütüphanesinden gelen uyarılar bastırılmış,  hata ayıklama ve loglama geliştirilmiş, dosya işlemede  büyük dosyalar için kırpma mekanizması eklenmiştir. Sonuç olarak, kod daha sağlam, sürdürülebilir ve genişletilebilir hale gelmiştir.  Teknik borç kısmen azalmış ve gelecekteki genişletmeler için daha sağlam bir temel oluşturulmuştur.  Özellikle, Gemini API entegrasyonu yeni bir özellik eklerken,  hata yönetimindeki iyileştirmeler güvenilirliği artırmaktadır.",
+      "changed_files": [
+        "src/config.py",
+        "src/main_fixed.py",
+        "src/test_line_tracking.py",
+        "src/main.py",
+        "src/main_broken.py",
+        "src/core/__init__.py",
+        "src/core/configuration_manager.py",
+        "src/utils/json_changelog_manager.py",
+        "src/utils/file_tracker.py",
+        "src/utils/changelog_updater.py",
+        "src/gui/__init__.py",
+        "src/gui/modern_config_gui.py",
+        "src/services/request_manager.py",
+        "src/services/gemini_client.py"
+      ],
+      "impact_level": "high",
+      "change_type": "config",
+      "tags": [
+        "configuration-manager",
+        "client",
+        "services",
+        "--init--",
+        "core",
+        "test-line-tracking",
+        "file-tracker",
+        "modern-config-gui",
+        "utils",
+        "gui"
+      ],
+      "file_count": 14,
+      "lines_added": 491,
+      "lines_removed": 0,
+      "commit_hash": null,
+      "author": null
+    },
+    {
+      "id": "entry_20250611_160940",
+      "timestamp": "2025-06-11T16:09:40.354202",
+      "ai_summary": "## Değişiklik Analizi Özeti:\n\nBu yazılım projesindeki değişiklikler, konfigürasyon yönetimi, loglama, kullanıcı arayüzü ve Gemini AI entegrasyonu gibi çeşitli alanları kapsamaktadır.  Değişiklikler, konfigürasyonun `src/config.py` dosyasında  `DevelopmentConfig` ve `ProductionConfig` sınıflarıyla daha esnek hale getirilmesi, loglama mekanizmasının iyileştirilmesi ve farklı ortamlar için özelleştirilmesiyle başlıyor.  `src/main.py` ve `src/services/gemini_client.py` dosyalarında yapılan değişiklikler, Gemini AI entegrasyonunu içerir ve ortam değişkenlerine bağlı olarak çalışabilirliği sağlar.  Yeni bir `RequestManager`  ve  `ConfigurationManager` sınıfı ile konfigürasyon ve istek yönetimi daha modüler hale getirilmiştir. `src/utils` altındaki yardımcı araçlar dosya izleme ve değişiklik günlüğü güncellemelerini iyileştirmektedir.  Sonuç olarak, proje daha yapılandırılmış, sürdürülebilir ve genişletilebilir hale gelmiştir.  Teknik borç kısmen azalırken,  Gemini API entegrasyonu yeni bir bağımlılık eklemiştir. Gelecekteki geliştirmeler için sağlam bir temel oluşturulmuştur.",
+      "changed_files": [
+        "src/config.py",
+        "src/__init__.py",
+        "src/test_line_tracking.py",
+        "src/main.py",
+        "src/core/__init__.py",
+        "src/core/configuration_manager.py",
+        "src/utils/__init__.py",
+        "src/utils/json_changelog_manager.py",
+        "src/utils/file_tracker.py",
+        "src/utils/changelog_updater.py",
+        "src/gui/__init__.py",
+        "src/gui/modern_config_gui.py",
+        "src/services/request_manager.py",
+        "src/services/__init__.py",
+        "src/services/gemini_client.py"
+      ],
+      "impact_level": "high",
+      "change_type": "config",
+      "tags": [
+        "json-changelog-manager",
+        "changelog-updater",
+        "api",
+        "services",
+        "modern-config-gui",
+        "config",
+        "core",
+        "file-tracker",
+        "client",
+        "--init--"
+      ],
+      "file_count": 15,
+      "lines_added": 2,
+      "lines_removed": 2,
+      "commit_hash": null,
+      "author": null
+    }
+  ]
+}

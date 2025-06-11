@@ -1,0 +1,300 @@
+{
+  "schema_version": "1.0",
+  "application": {
+    "name": "Dynamic Configuration Manager",
+    "version": "1.0.0",
+    "description": "Professional configuration management system"
+  },
+  "configuration_groups": [
+    {
+      "id": "api_settings",
+      "title": "🤖 API Configuration",
+      "description": "External API settings and credentials",
+      "color": "blue",
+      "fields": [
+        {
+          "key": "GEMINI_API_KEY",
+          "type": "password",
+          "label": "Gemini API Key",
+          "description": "Google Gemini AI API authentication key",
+          "placeholder": "AIza...",
+          "required": true,
+          "validation": {
+            "min_length": 20,
+            "pattern": "^AIza[A-Za-z0-9_-]+$"
+          },
+          "help_url": "https://aistudio.google.com/app/apikey"
+        },
+        {
+          "key": "OPENAI_API_KEY",
+          "type": "password",
+          "label": "OpenAI API Key (Optional)",
+          "description": "OpenAI API key for additional AI features",
+          "placeholder": "sk-...",
+          "required": false,
+          "validation": {
+            "min_length": 20,
+            "pattern": "^sk-[A-Za-z0-9_-]+$"
+          }
+        }
+      ]
+    },
+    {
+      "id": "environment_settings",
+      "title": "⚙️ Environment Configuration",
+      "description": "Application runtime environment settings",
+      "color": "green",
+      "fields": [
+        {
+          "key": "APP_ENV",
+          "type": "select",
+          "label": "Environment Mode",
+          "description": "Application execution environment",
+          "required": true,
+          "default": "development",
+          "options": [
+            {
+              "value": "development",
+              "label": "Development",
+              "description": "Debug mode, detailed logging, hot reload"
+            },
+            {
+              "value": "production",
+              "label": "Production",
+              "description": "Optimized performance, minimal logging"
+            },
+            {
+              "value": "staging",
+              "label": "Staging",
+              "description": "Testing environment with production-like settings"
+            }
+          ]
+        },
+        {
+          "key": "LOG_LEVEL",
+          "type": "select",
+          "label": "Logging Level",
+          "description": "Minimum log level to capture",
+          "required": true,
+          "default": "INFO",
+          "options": [
+            {
+              "value": "DEBUG",
+              "label": "Debug",
+              "description": "All messages including debug information"
+            },
+            {
+              "value": "INFO",
+              "label": "Info",
+              "description": "General information messages"
+            },
+            {
+              "value": "WARNING",
+              "label": "Warning",
+              "description": "Warning messages and above"
+            },
+            {
+              "value": "ERROR",
+              "label": "Error",
+              "description": "Error messages only"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "performance_settings",
+      "title": "🚀 Performance Configuration",
+      "description": "Application performance and resource settings",
+      "color": "purple",
+      "fields": [
+        {
+          "key": "MAX_WORKERS",
+          "type": "number",
+          "label": "Maximum Workers",
+          "description": "Maximum number of concurrent worker threads",
+          "required": false,
+          "default": "4",
+          "validation": {
+            "min": 1,
+            "max": 16
+          }
+        },
+        {
+          "key": "CACHE_SIZE",
+          "type": "number",
+          "label": "Cache Size (MB)",
+          "description": "Maximum memory cache size in megabytes",
+          "required": false,
+          "default": "100",
+          "validation": {
+            "min": 10,
+            "max": 1000
+          }
+        },
+        {
+          "key": "REQUEST_TIMEOUT",
+          "type": "number",
+          "label": "Request Timeout (seconds)",
+          "description": "HTTP request timeout duration",
+          "required": false,
+          "default": "30",
+          "validation": {
+            "min": 5,
+            "max": 300
+          }
+        }
+      ]
+    },
+    {
+      "id": "database_settings",
+      "title": "🗄️ Database Configuration",
+      "description": "Database connection and settings",
+      "color": "teal",
+      "fields": [
+        {
+          "key": "DATABASE_URL",
+          "type": "password",
+          "label": "Database URL",
+          "description": "Complete PostgreSQL connection string",
+          "placeholder": "postgresql://user:password@host:port/database",
+          "required": false,
+          "validation": {
+            "pattern": "^postgresql://.*"
+          }
+        },
+        {
+          "key": "DB_HOST",
+          "type": "text",
+          "label": "Database Host",
+          "description": "Database server hostname or IP address",
+          "placeholder": "localhost",
+          "required": false,
+          "default": "localhost"
+        },
+        {
+          "key": "DB_PORT",
+          "type": "number",
+          "label": "Database Port",
+          "description": "Database server port number",
+          "placeholder": "5432",
+          "required": false,
+          "default": "5432",
+          "validation": {
+            "min": 1,
+            "max": 65535
+          }
+        },
+        {
+          "key": "DB_NAME",
+          "type": "text",
+          "label": "Database Name",
+          "description": "Name of the database to connect to",
+          "placeholder": "myapp_db",
+          "required": false
+        },
+        {
+          "key": "DB_USER",
+          "type": "text",
+          "label": "Database Username",
+          "description": "Database authentication username",
+          "placeholder": "postgres",
+          "required": false
+        },
+        {
+          "key": "DB_PASSWORD",
+          "type": "password",
+          "label": "Database Password",
+          "description": "Database authentication password",
+          "placeholder": "••••••••",
+          "required": false
+        }
+      ]
+    },
+    {
+      "id": "ui_settings",
+      "title": "🎨 UI Preferences",
+      "description": "User interface and display settings",
+      "color": "orange",
+      "fields": [
+        {
+          "key": "THEME_MODE",
+          "type": "select",
+          "label": "Theme Mode",
+          "description": "Application visual theme",
+          "required": false,
+          "default": "auto",
+          "options": [
+            {
+              "value": "light",
+              "label": "Light",
+              "description": "Light theme for bright environments"
+            },
+            {
+              "value": "dark",
+              "label": "Dark",
+              "description": "Dark theme for low-light environments"
+            },
+            {
+              "value": "auto",
+              "label": "Auto",
+              "description": "Follow system theme setting"
+            }
+          ]
+        },
+        {
+          "key": "LANGUAGE",
+          "type": "select",
+          "label": "Language",
+          "description": "Application interface language",
+          "required": false,
+          "default": "tr",
+          "options": [
+            {
+              "value": "tr",
+              "label": "Türkçe",
+              "description": "Turkish language interface"
+            },
+            {
+              "value": "en",
+              "label": "English",
+              "description": "English language interface"
+            }
+          ]
+        },
+        {
+          "key": "AUTO_SAVE",
+          "type": "boolean",
+          "label": "Auto Save",
+          "description": "Automatically save configuration changes",
+          "required": false,
+          "default": "true"
+        }
+      ]
+    }
+  ],
+  "profiles": {
+    "development": {
+      "name": "Development Profile",
+      "description": "Optimized for development work",
+      "values": {
+        "APP_ENV": "development",
+        "LOG_LEVEL": "DEBUG",
+        "MAX_WORKERS": "2",
+        "THEME_MODE": "auto",
+        "AUTO_SAVE": "true"
+      }
+    },
+    "production": {
+      "name": "Production Profile",
+      "description": "Optimized for production deployment",
+      "values": {
+        "APP_ENV": "production",
+        "LOG_LEVEL": "WARNING",
+        "MAX_WORKERS": "8",
+        "THEME_MODE": "light",
+        "AUTO_SAVE": "false"
+      }
+    }
+  }
+}
