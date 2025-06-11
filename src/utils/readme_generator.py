@@ -225,7 +225,7 @@ Format:
 - **Total Changes**: {stats.get('total_entries', 0)} tracked entries
 - **Framework Version**: Summarizer {_get_framework_version(project_root)}
 - **Project Type**: {project_type.title()} Project
-- **AI Analysis**: ✅ Active with Gemini AI
+- **AI Analysis**: Active with Gemini AI
 
 {_get_recent_activity_section(recent_entries)}
 
