@@ -3,6 +3,59 @@
 Bu dosya otomatik olarak generate edilmiştir.
 Düzenlemeler için `changelog.json` dosyasını kullanın.
 
+## 2025-06-12 01:34:33
+
+### 1. YAPISAL ANALİZ:
+
+Değişiklikler, macOS için bir özetleyici yazılımının kurulum sihirbazını kapsayan geniş bir alanda yapılmış olup,  projenin temel mimarisini etkilemektedir.  Sistem, aşağıdaki katmanlara ayrılabilir ve değişikliklerin bu katmanlara nasıl yansıdığı aşağıda detaylı olarak açıklanmıştır:
+
+* **Kurulum Motoru:** `setup_installer.py`,  CLI ve GUI kurulumunu yöneten giriş noktasıdır.  Değişiklikler, kurulum tipinin (CLI, GUI, Drag-and-Drop)  komut satırı argümanları veya standart çıktının (`sys.stdout.isatty()`) kontrolüyle daha esnek bir şekilde seçilmesini sağlamıştır.  `installer` alt dizini içindeki  `cli_installer.py` ve `gui_installer.py`  (ve yeni eklenen `drag_drop_installer.py`)  farklı kurulum yöntemlerini uygular.  Bu, kurulum mantığının daha modüler ve sürdürülebilir hale getirildiğini gösterir.
+
+* **Kullanıcı Arayüzü (UI):** `ui` alt dizini, PyQt5 tabanlı bir GUI'yi tanımlar.  `setup_wizard.py`,  `installation_type_selector.py`, `drag_drop_area.py`, ve `progress_indicator.py` dosyalarındaki değişiklikler, kullanıcı arayüzünün görünümünü, kurulum tiplerini seçme mekanizmasını ve ilerleme göstergesini geliştirmeyi amaçlamaktadır.  Özellikle `drag_drop_area.py` dosyasının eklenmesi, yeni bir kurulum yöntemini (sürükle-bırak) desteklediğini gösteriyor.
+
+* **Konfigürasyon:** `config` alt dizini,  `app_settings.py` ve `installation_config.py`  dosyalarıyla uygulama ve kurulum ayarlarını yönetir.  Bu dosyalarda yapılan değişiklikler,  kurulum sürecinin özelleştirilmesine olanak tanır.
+
+* **Yardımcı Fonksiyonlar:** `utils` alt dizini,  `permissions_handler.py`, `path_resolver.py` ve `system_checker.py` dosyalarıyla işletim sistemiyle ilgili işlemleri (izinler, dosya yolları, sistem kontrolü)  soyutlar.  Bu, kodun okunabilirliğini ve bakımını kolaylaştırır.
+
+* **Arka Plan Oluşturma:** `create_clean_background.py`, `create_background.py`, ve `create_enterprise_background.py` dosyaları,  DMG dosyalarının arka plan görüntülerini oluşturur.  Bu, kurulum programının görsel bileşenlerini yönetir.
+
+Kod organizasyonunda, alt dizinler ve modüller kullanarak bir MVC (Model-View-Controller)  veya MVVM (Model-View-ViewModel)  benzeri mimariye geçiş yapılmıştır. Bu mimari yaklaşımı, kodun daha modüler, test edilebilir ve bakımı daha kolay olmasını sağlar.  `__init__.py` dosyalarının varlığı, paket yönetimini ve import işlemlerini kolaylaştırır.
+
+
+### 2. İŞLEVSEL ETKİ:
+
+* **Yeni Özellikler:** Sürükle-bırak kurulumu eklenmiştir (`drag_drop_installer.py`, `ui/components/drag_drop_area.py`). Bu, kullanıcılara alternatif bir kurulum yöntemi sunar.
+
+* **Değiştirilen Özellikler:** Kurulum sihirbazı, CLI ve GUI kurulumu arasında daha esnek geçişlere izin verecek şekilde değiştirilmiştir.  Kurulum tipinin seçimi daha açık bir şekilde tanımlanmıştır.
+
+* **Kullanıcı Deneyimi:** Yeni sürükle-bırak özelliği ve daha iyi organize edilmiş GUI,  kullanıcı deneyimini geliştirir.  İlerleme göstergesi (`progress_indicator.py`)  kullanıcıya kurulumun ilerleyişi hakkında geri bildirim sağlar.
+
+* **Performans, Güvenlik ve Güvenilirlik:**  Kodun modülerleştirilmesi,  potansiyel hataları izole etmeye ve güvenilirliği artırmaya yardımcı olur. Güvenlik açısından,  izinlerin yönetimi (`permissions_handler.py`)  önemli bir rol oynar ve bu alandaki iyileştirmeler güvenliği artırabilir. Performans açısından, önemli bir değişiklik gözlenmese de, daha iyi organize edilmiş kod, gelecekteki optimizasyonları kolaylaştırabilir.
+
+
+### 3. TEKNİK DERINLIK:
+
+* **Tasarım Desenleri:**  Modülerlik,  tek sorumluluk ilkesine uygun bir tasarım yaklaşımı kullanılarak uygulanmıştır.  Her modül, belirli bir görevi yerine getirir.  Fabrika deseni (factory pattern)  farklı kurulum tiplerinin oluşturulmasında dolaylı olarak kullanılabilir.
+
+* **Kod Kalitesi ve Sürdürülebilirlik:**  Kodun modüler yapısı ve alt dizinler halinde düzenlenmesi, kod kalitesini ve sürdürülebilirliğini önemli ölçüde artırır.  Daha temiz ve daha okunabilir kod,  bakım ve gelecekteki geliştirmeleri kolaylaştırır.
+
+* **Yeni Bağımlılıklar:**  PyQt5 (GUI için) bir bağımlılık olarak kullanılmaktadır.  `PIL` (veya `Pillow`) kütüphanesi arka plan resimlerinin oluşturulmasında kullanılır.
+
+
+### 4. SONUÇ YORUMU:
+
+Bu değişiklikler, macOS kurulum sihirbazının  işlevselliğini, kullanıcı deneyimini ve sürdürülebilirliğini artırmayı hedeflemektedir. Sürükle-bırak kurulumunun eklenmesi, kullanıcılara daha kolay bir kurulum seçeneği sunar.  Kodun daha modüler bir yapıya dönüştürülmesi,  gelecekteki geliştirme ve bakım işlemlerini kolaylaştıracaktır.
+
+Projenin teknik borcu azalmıştır çünkü kod daha düzenli ve daha iyi organize edilmiştir.  Bu değişiklikler, gelecekteki özellik eklemelerini ve hata düzeltmelerini kolaylaştıran sağlam bir temel oluşturmuştur.  Ancak,  PyQt5 bağımlılığı,  kullanıcı sistemlerinde önceden kurulu olmaması durumunda ek bir adım gerektirir.  Bu durumun potansiyel sorunları dikkate alınarak,  uygun bir hata yönetimi ve alternatif çözümler sunulmalıdır.  Genel olarak, bu değişiklikler projenin uzun vadeli başarısı için olumlu bir etkiye sahiptir.
+
+**Değişen Dosyalar:** macos-setup-wizard/setup_installer.py, macos-setup-wizard/create_clean_background.py, macos-setup-wizard/create_background.py, macos-setup-wizard/create_enterprise_background.py, macos-setup-wizard/dist/Summarizer Setup/_internal/src/__init__.py, macos-setup-wizard/dist/Summarizer Setup/_internal/src/main.py, macos-setup-wizard/dist/Summarizer Setup/_internal/src/ui/__init__.py, macos-setup-wizard/dist/Summarizer Setup/_internal/src/ui/setup_wizard.py, macos-setup-wizard/dist/Summarizer Setup/_internal/src/config/app_settings.py, macos-setup-wizard/dist/Summarizer Setup/_internal/src/config/installation_config.py, macos-setup-wizard/dist/Summarizer Setup/_internal/src/config/__init__.py, macos-setup-wizard/dist/Summarizer Setup/_internal/src/utils/__init__.py, macos-setup-wizard/dist/Summarizer Setup/_internal/src/utils/permissions_handler.py, macos-setup-wizard/dist/Summarizer Setup/_internal/src/utils/path_resolver.py, macos-setup-wizard/dist/Summarizer Setup/_internal/src/utils/system_checker.py, macos-setup-wizard/dist/Summarizer Setup/_internal/src/installer/__init__.py, macos-setup-wizard/dist/Summarizer Setup/_internal/src/installer/gui_installer.py, macos-setup-wizard/dist/Summarizer Setup/_internal/src/installer/cli_installer.py, macos-setup-wizard/dist/Summarizer Setup/_internal/src/installer/drag_drop_installer.py, macos-setup-wizard/dist/Summarizer Setup/_internal/src/ui/components/installation_type_selector.py, macos-setup-wizard/dist/Summarizer Setup/_internal/src/ui/components/drag_drop_area.py, macos-setup-wizard/dist/Summarizer Setup/_internal/src/ui/components/progress_indicator.py
+**Etki Seviyesi:** High
+**Değişiklik Tipi:** Feature
+**Satır Değişiklikleri:** +1962
+**Etiketler:** drag-drop-area, permissions-handler, path-resolver, gui-installer, utils, app-settings, Summarizer Setup, config, api, macos-setup-wizard
+
+---
+
 ## 2025-06-12 00:03:06
 
 ### 1. YAPISAL ANALİZ:
