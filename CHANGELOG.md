@@ -3,6 +3,26 @@
 Bu dosya otomatik olarak generate edilmiştir.
 Düzenlemeler için `changelog.json` dosyasını kullanın.
 
+## 2025-06-11 20:13:18
+
+Kod tabanında güncellemeler yapıldı. Değişen dosyalar: src/utils/version_manager.py, src/utils/changelog_updater.py. (AI özeti alınamadı: 400 API key expired. Please renew the API key. [reason: "API_KEY_INVALID"
+domain: "googleapis.com"
+metadata {
+  key: "service"
+  value: "generativelanguage.googleapis.com"
+}
+, locale: "en-US"
+message: "API key expired. Please renew the API key."
+])
+
+**Değişen Dosyalar:** src/utils/version_manager.py, src/utils/changelog_updater.py
+**Etki Seviyesi:** High
+**Değişiklik Tipi:** Feature
+**Satır Değişiklikleri:** +5 -6
+**Etiketler:** api, changelog-updater, version-manager, manager, utils
+
+---
+
 ## 2025-06-11 19:49:10
 
 `changelog_updater.py` dosyasındaki değişiklikler, yazılım projesinin değişiklik yönetimi ve günlüğünü tutma sistemini etkiler.  Değişiklikler, özellikle `demo_framework_analysis` fonksiyonunun eklenmesiyle,  bir yapay zeka özeti kullanarak bir demo için otomatik changelog girişi oluşturma yeteneği kazandırır.  Bu fonksiyon, `JsonChangelogManager`, `get_file_line_changes`, `get_aggregate_line_stats` gibi mevcut bileşenleri kullanarak demo dosyalarındaki satır değişikliklerini analiz eder ve `ImpactLevel.HIGH` olarak işaretlenmiş bir changelog girişi oluşturur.  Bu, geliştirme sürecinin otomasyonunu artırırken, aynı zamanda  framework'ün kendi kendini analiz etme kabiliyetini göstermek için bir araç sunmaktadır.  Ancak, bu değişikliğin uzun vadeli etkisi, demo kullanımının yaygınlığına ve bu fonksiyonun gelecekteki geliştirmelerle nasıl bütünleştirileceğine bağlıdır. Teknik borç etkilenmez, ancak gelecekteki AI entegrasyonları için bir temel oluşturur.

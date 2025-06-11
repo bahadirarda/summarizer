@@ -257,12 +257,6 @@ def update_changelog(project_root: Optional[Path] = None):
             print(f"   📈 Version updated: {current_version} → {new_version}")
             print(f"   🎯 Change Impact: {impact_level.value} ({increment_type} increment)")
             
-            # Update version in package.json
-            if version_manager.update_version_in_files(new_version):
-                print(f"   ✅ package.json updated to v{new_version}")
-            else:
-                print(f"   ⚠️  Failed to update package.json")
-            
             # Get version codename
             major, minor, patch = version_manager.parse_version(new_version)
             codename = version_manager._get_version_codename(major, minor)

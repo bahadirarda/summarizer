@@ -71,8 +71,13 @@ class VersionManager:
             
         new_version = self.increment_version(increment_type)
         
-        logger.info(f"Auto-incremented version: {self.get_current_version()} -> {new_version} ({increment_type})")
-        return new_version
+        # Actually update the version in files
+        if self.update_version_in_files(new_version):
+            logger.info(f"Auto-incremented version: {self.get_current_version()} -> {new_version} ({increment_type})")
+            return new_version
+        else:
+            logger.error(f"Failed to update version files")
+            return self.get_current_version()
         
     def create_git_tag(self, version: str) -> bool:
         """Create git tag for version"""
