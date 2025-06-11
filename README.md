@@ -1,45 +1,64 @@
-# 🚀 project.110620251156 - Gemini AI ile Güçlendirilmiş Web Uygulaması
-> Bu proje, Google Gemini API'sini entegre eden, macOS kurulum sihirbazı ve modern bir GUI'ye sahip çok katmanlı bir web uygulamasıdır.  Uygulama, gelişmiş metin üretim yetenekleri sunarken, güvenli konfigürasyon yönetimi ve iyileştirilmiş hata yönetimiyle geliştirilmiştir.
+# 🚀 project.110620251156: macOS Özetleyici Yazılımı Kurulum Sihirbazı
+> macOS için geliştirilen bir özetleyici yazılımının kullanıcı dostu ve güvenilir bir kurulum deneyimi sağlayan kurulum sihirbazı projesidir.  Sürükle-bırak desteği ve Google Gemini API entegrasyonu gibi gelişmiş özellikler içerir.
 
 ## 📊 Proje Durumu
-Proje aktif olarak geliştirilmektedir.  Son değişiklikler, Google Gemini API entegrasyonu, macOS kurulum sihirbazının iyileştirilmesi ve kod kalitesinin artırılmasına odaklanmıştır.  Mevcut durum, genel olarak istikrarlıdır ancak `macos-setup-wizard` dizinindeki bazı kod tekrarları, gelecekteki refactor çalışmalarını gerektirmektedir.  Kapsamlı testler mevcuttur, ancak `tests/test_macos_installer.py` dosyasının eksik kısımları tam bir değerlendirmeyi engellemektedir.
+Proje aktif geliştirme aşamasındadır.  Son değişiklikler, kurulum sihirbazının işlevselliğini, kullanıcı deneyimini ve sürdürülebilirliğini önemli ölçüde artırmıştır.  Yeni sürükle-bırak kurulum özelliği ve Google Gemini API entegrasyonu eklenmiştir.  Kod, daha modüler ve sürdürülebilir bir mimariye geçirilmiştir.  Test kapsamı genişletilerek yazılımın güvenilirliği artırılmıştır. Ancak,  `tests/test_macos_installer.py` dosyasının tamamı sağlanmadığı için testlerin kapsamlılığı tam olarak değerlendirilememiştir.
 
 ## ✨ Özellikler
-* 💻 **Çok Platformlu Kurulum:**  macOS için GUI, CLI ve sürükle bırak kurulum seçenekleri.
-* 🧠 **Gemini AI Entegrasyonu:** Gelişmiş metin üretme ve işleme yetenekleri için Google Gemini API ile entegre.
-* 🔒 **Güvenli Konfigürasyon Yönetimi:** Merkezi bir `ConfigurationManager` sınıfı ile API anahtarları ve diğer hassas veriler güvenli bir şekilde yönetilir.
-* 📈 **İyileştirilmiş Hata Yönetimi:** Gelişmiş hata yakalama ve loglama, sorun gidermeyi kolaylaştırır.
-* 📝 **Değişiklik Günlüğü Yönetimi:**  Uygulamada yapılan değişiklikleri takip eden ve yöneten bir sistem.
-* 📊 **Modern GUI:** Kullanıcı dostu bir grafiksel arayüz.
+* 🖥️ macOS için yerel kurulum
+* 🖱️ Kullanıcı dostu grafiksel arayüz (GUI)
+* ⌨️ Komut satırı arayüzü (CLI) desteği
+* 拖拽  Sürükle ve bırak kurulumu
+* 🔄 İlerleme göstergesi
+* ⚙️ Özelleştirilebilir kurulum ayarları
+* 🔒 Güvenli API anahtarı yönetimi
+* 🤖 Google Gemini API entegrasyonu (metin oluşturma)
 
 
 ## Değişen Dosyalar:
-`src/services/gemini_client.py`, `tests/test_macos_installer.py`, `api/config.py`, `api/routes/*`, `api/utils/*`, `macos-setup-wizard/src/installer/*`, `macos-setup-wizard/src/ui/components/*`, `macos-setup-wizard/src/config/*`, `macos-setup-wizard/dist/*`, `macos-setup-wizard/_internal/*`, `macos-setup-wizard/Contents/Resources/src/*`, `src/core/configuration_manager.py`, `src/utils/*`, `src/gui/*`, `src/services/*`, `src/utils/json_changelog_manager.py`, `demo_project/*`, `features/*`, `scripts/api_key_manager.py`, `scripts/pre_publish_check.py`
+`setup_installer.py`, `cli_installer.py`, `gui_installer.py`, `drag_drop_installer.py`, `setup_wizard.py`, `installation_type_selector.py`, `drag_drop_area.py`, `progress_indicator.py`, `app_settings.py`, `installation_config.py`, `permissions_handler.py`, `path_resolver.py`, `system_checker.py`, `create_clean_background.py`, `create_background.py`, `create_enterprise_background.py`, `src/services/gemini_client.py`, `tests/test_macos_installer.py` (kısmi)
 
 
 ## ANALİZ GÖREVİ:
 
 ### 1. YAPISAL ANALİZ:
 
-Etkilenen bileşenler ve katmanlar şunlardır:  API katmanı (`api` dizini), macOS kurulum sihirbazı (`macos-setup-wizard` dizini),  ana uygulama (`src` dizini), demo projeleri ve özellikler (`demo_project`, `features`), ve yardımcı komut dosyaları (`scripts`).  Özellikle, `gemini_client.py`, `ConfigurationManager` sınıfının eklenmesiyle önemli bir değişikliğe uğramıştır. Bu, API anahtarlarının merkezi ve güvenli bir şekilde yönetilmesini sağlar.  Daha önce muhtemelen ortam değişkenlerinden okunan API anahtarları artık bu sınıf aracılığıyla yönetiliyor.  `macos-setup-wizard` ise GUI, CLI ve sürükle bırak olmak üzere üç farklı kurulum yöntemi destekleyecek şekilde yeniden yapılandırılmıştır.  Bu, modüler bir yapıya işaret ederken, aynı zamanda `_internal` ve `Contents/Resources/src` alt dizinlerinde görülen kod tekrarı problemini de ortaya koymaktadır.  API katmanında blueprint'lerin otomatik kaydı, kodun daha organize ve sürdürülebilir olmasını sağlar.  Genel olarak, değişiklikler çok katmanlı bir mimariye sahip projenin çeşitli kısımlarını etkilemiştir.
+* **Etkilenen Bileşenler ve Katmanlar:** Değişiklikler, macOS kurulum sihirbazının tüm katmanlarını etkilemiştir: Kurulum Motoru, Kullanıcı Arayüzü (UI), Konfigürasyon, Yardımcı Fonksiyonlar ve Arka Plan Oluşturma.  Ek olarak, Gemini API entegrasyonu ile servis katmanı ve test katmanı da etkilenmiştir.  Özellikle `setup_installer.py` (kurulum motorunun giriş noktası) ve `ui` alt dizini (GUI bileşenleri) önemli ölçüde değiştirilmiştir.  `src/services/gemini_client.py` dosyası ise Gemini API entegrasyonunu eklemiştir ve `tests/test_macos_installer.py` dosyası da güncellenmiştir.
+
+* **Mimari Değişikliklerin Etkisi:**  Kod, daha modüler bir mimariye (MVC veya MVVM benzeri) geçirilmiştir.  Alt dizinler ve modüller kullanarak, her bir bileşenin sorumluluğu daha net bir şekilde tanımlanmıştır.  `gemini_client.py` dosyasına eklenen `ConfigurationManager` sınıfı, API anahtarının merkezi bir konumdan yönetilmesini sağlar ve Dependency Injection tasarım desenini kullanır.  Bu, konfigürasyonun daha yönetilebilir ve test edilebilir olmasını sağlar.
+
+* **Kod Organizasyonundaki İyileştirmeler:**  Kodun alt dizinler halinde düzenlenmesi, okunabilirliği ve sürdürülebilirliği artırmıştır.  Her bir modülün belirli bir görevi yerine getirmesi, tek sorumluluk ilkesine uygundur.  `__init__.py` dosyalarının varlığı, paket yönetimini kolaylaştırır.  `gemini_client.py`'deki hata yönetimi ve loglama iyileştirilmiştir.
+
 
 ### 2. İŞLEVSEL ETKİ:
 
-**Eklenen Özellikler:** Google Gemini API entegrasyonu, macOS kurulum sihirbazı için üç farklı kurulum yöntemi (GUI, CLI, sürükle bırak), iyileştirilmiş değişiklik günlüğü yönetimi,  ve olası yeni bir konfigürasyon GUI'si.
+* **Eklenen Özellikler:** Sürükle-bırak kurulumu (`drag_drop_installer.py`, `ui/components/drag_drop_area.py`) ve Google Gemini API entegrasyonu (`src/services/gemini_client.py`).
 
-**Değiştirilen Özellikler:**  Gemini API entegrasyonu ve API anahtarının yönetimi (ortam değişkenlerinden `ConfigurationManager` sınıfına geçiş).
+* **Değiştirilen Özellikler:** Kurulum sihirbazı, CLI ve GUI kurulumu arasında daha esnek geçişlere izin verecek şekilde değiştirilmiştir. Kurulum tipinin seçimi iyileştirilmiştir.  Gemini API entegrasyonu için API anahtarının yönetimi, ortam değişkenlerinden `ConfigurationManager` sınıfına taşınmıştır.
 
-**Kaldırılan Özellikler:** Açıkça kaldırılan bir özellik yok.
+* **Kaldırılan Özellikler:** Belirgin bir şekilde kaldırılan özellik yoktur.
 
-Kullanıcı deneyimi, macOS kurulum sihirbazındaki yeni kurulum seçenekleri ve olası yeni konfigürasyon GUI'si ile iyileştirilmiştir.  Performans, büyük dosya işleme iyileştirmeleri ve kod optimizasyonu sayesinde olumlu yönde etkilenebilir.  Güvenlik,  `ConfigurationManager` ile API anahtarlarının güvenli yönetimiyle artırılmıştır.  Güvenilirlik, gelişmiş hata yönetimi ve loglama ile iyileştirilmiştir. Yayın öncesi kontrol komut dosyasının varlığı da güvenilirliği artırır.
+* **Kullanıcı Deneyimi:** Sürükle-bırak özelliği ve geliştirilmiş GUI, kullanıcı deneyimini iyileştirir.  İlerleme göstergesi, kullanıcıya geri bildirim sağlar.
+
+* **Performans, Güvenlik ve Güvenilirlik:** Modüler kod, potansiyel hataları izole etmeye yardımcı olur ve güvenilirliği artırır.  `ConfigurationManager` kullanımı, API anahtarının güvenliğini artırır.  Büyük dosya işlemedeki iyileştirmeler performansı olumlu etkileyebilir.  Hata yönetimi ve loglama iyileştirmeleri güvenilirliği artırır.
+
 
 ### 3. TEKNİK DERİNLİK:
 
-Uygulanan tasarım desenleri arasında Singleton (eğer `ConfigurationManager` tek bir örnek oluşturuyorsa), Dependency Injection (bağımlılık enjeksiyonu) ve Flask'taki Blueprint deseni bulunmaktadır.  Kod kalitesi, daha iyi hata yönetimi, loglama ve daha organize bir kod yapısı ile geliştirilmiştir.  Ancak, `macos-setup-wizard`'daki kod tekrarı bu iyileştirmeleri kısmen gölgede bırakmaktadır. Yeni bir bağımlılık olarak `google.generativeai` kütüphanesi eklenmiştir.
+* **Tasarım Desenleri:** Modülerlik (Tek Sorumluluk İlkesi), Fabrika Deseni (farklı kurulum tipleri için dolaylı olarak), Singleton veya Dependency Injection ( `ConfigurationManager` sınıfı için).
+
+* **Kod Kalitesi ve Sürdürülebilirlik:** Kodun modüler yapısı, alt dizinler halinde düzenlenmesi ve iyileştirilmiş hata yönetimi, kod kalitesini ve sürdürülebilirliğini artırır.
+
+* **Yeni Bağımlılıklar:** PyQt5 (GUI), PIL/Pillow (arka plan resimleri), `google.generativeai` (Gemini API).
+
 
 ### 4. SONUÇ YORUMU:
 
-Bu değişiklikler, projenin uzun vadeli değerini artırır.  Gemini API entegrasyonu, yeni işlevsellikler ekler ve gelecekte daha fazla geliştirmeye olanak tanır.  `ConfigurationManager` kullanımı güvenliği ve yönetilebilirliği iyileştirir.  Modüler tasarım, gelecekteki geliştirmeleri kolaylaştırır. Ancak, `macos-setup-wizard`'daki kod tekrarı teknik borcu artırmaktadır ve öncelikli olarak ele alınmalıdır.  Daha kapsamlı testler (özellikle `test_macos_installer.py` için eksik kodun tamamlanmasıyla) gereklidir.  Genel olarak, değişiklikler projenin sürdürülebilirliğini ve kalitesini artırmaya yöneliktir, ancak teknik borcu azaltmak için ek çalışmalar gereklidir.
+* **Uzun Vadeli Değer ve Etki:**  Bu değişiklikler, kurulum sihirbazının işlevselliğini, kullanıcı deneyimini ve sürdürülebilirliğini önemli ölçüde artırmıştır.  Yeni özellikler ve geliştirilmiş mimari, gelecekteki geliştirmeleri kolaylaştırır.
+
+* **Teknik Borcun Etkilenmesi:**  Kodun daha düzenli ve daha iyi organize edilmesiyle teknik borç azalmıştır.
+
+* **Gelecekteki Geliştirmelere Hazırlık:** Modüler mimari, yeni özelliklerin eklenmesini ve hata düzeltmelerini kolaylaştırır.  Ancak,  PyQt5 ve `google.generativeai` bağımlılıkları nedeniyle,  kullanıcıların sistemlerinde bu kütüphanelerin kurulu olup olmadığının kontrol edilmesi ve gerekirse kurulumun yönetilmesi önemlidir.  Ayrıca,  `tests/test_macos_installer.py` dosyasının eksik kısmının tamamlanması, test kapsamının artırılması ve güvenilirliğin daha da iyileştirilmesi için gereklidir.
 
 ## 🛠️ Kurulum (Installation)
 
@@ -200,7 +219,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**Last updated**: June 12, 2025 by Summarizer Framework v6.1.0
+**Last updated**: June 12, 2025 by Summarizer Framework v6.2.0
 *This README is automatically generated and updated based on project activity.*
 
 > *"Automatically maintained with AI-powered analysis"*
