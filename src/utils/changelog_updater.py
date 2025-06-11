@@ -11,6 +11,8 @@ from .file_tracker import (  # Import for getting changed files
     create_file_backups,
 )
 from .json_changelog_manager import JsonChangelogManager, ImpactLevel, ChangeType
+from .readme_generator import update_readme
+from .version_manager import VersionManager
 
 logger_changelog = logging.getLogger(__name__)
 
@@ -204,6 +206,83 @@ def update_changelog(project_root: Optional[Path] = None):
             f"Error creating file backups: {e}",
             exc_info=True)
 
+    # Update README.md automatically with AI enhancement
+    try:
+        print("   📝 Updating README.md with current project state...")
+        
+        # Get AI client for README enhancement
+        ai_client = None
+        try:
+            from ..services.request_manager import RequestManager
+            request_manager = RequestManager()
+            ai_client = request_manager.get_client("GeminiClient")
+        except:
+            pass  # Continue without AI enhancement
+            
+        readme_updated = update_readme(project_root, ai_client)
+        if readme_updated:
+            print("   ✅ README.md automatically updated")
+        else:
+            print("   ⚠️  README.md update skipped")
+            
+    except Exception as e:
+        print(f"   ⚠️  Could not update README.md: {e}")
+        logger_changelog.error(f"Error updating README.md: {e}", exc_info=True)
+
+    # Professional Version Management
+    try:
+        print("   🏷️  Analyzing changes for version management...")
+        version_manager = VersionManager(project_root)
+        
+        # Auto-increment version based on change impact
+        current_version = version_manager.get_current_version()
+        
+        # Determine increment type based on impact level and change analysis
+        increment_type = "patch"  # Default
+        if impact_level == ImpactLevel.CRITICAL:
+            increment_type = "major"
+        elif impact_level == ImpactLevel.HIGH:
+            increment_type = "minor" 
+        elif impact_level == ImpactLevel.MEDIUM:
+            increment_type = "minor"
+        else:
+            increment_type = "patch"
+            
+        # Auto-increment based on changes for better version management
+        new_version = version_manager.auto_increment_based_on_changes(
+            changed_files, impact_level.value
+        )
+        
+        if new_version != current_version:
+            print(f"   📈 Version updated: {current_version} → {new_version}")
+            print(f"   🎯 Change Impact: {impact_level.value} ({increment_type} increment)")
+            
+            # Update version in package.json
+            if version_manager.update_version_in_files(new_version):
+                print(f"   ✅ package.json updated to v{new_version}")
+            else:
+                print(f"   ⚠️  Failed to update package.json")
+            
+            # Get version codename
+            major, minor, patch = version_manager.parse_version(new_version)
+            codename = version_manager._get_version_codename(major, minor)
+            if codename:
+                print(f"   💫 Codename: {codename}")
+                
+            # Create git tag for new version
+            try:
+                version_manager.create_git_tag(new_version)
+                print(f"   🏷️  Git tag created: v{new_version}")
+            except Exception as tag_error:
+                print(f"   ⚠️  Could not create git tag: {tag_error}")
+                
+        else:
+            print(f"   ✅ Version maintained: {current_version}")
+            
+    except Exception as e:
+        print(f"   ⚠️  Version management failed: {e}")
+        logger_changelog.error(f"Error in version management: {e}", exc_info=True)
+
 
 def _create_initial_project_entry(json_manager, project_root: Path):
     """Create professional initial project entry for new projects"""
@@ -324,6 +403,29 @@ Projenizde her değişiklik yaptığınızda, akıllı özetler otomatik oluştu
     print("      • CHANGELOG.md - Human readable changelog")  
     print("      • changelog.json - Structured data format")
     print("      • .summarizer/ - Internal tracking files")
+    
+    # Create initial README.md for new project
+    try:
+        print("      • README.md - Auto-generated project documentation")
+        
+        # Get AI client for enhanced README
+        ai_client = None
+        try:
+            from ..services.request_manager import RequestManager
+            request_manager = RequestManager()
+            ai_client = request_manager.get_client("GeminiClient")
+        except:
+            pass  # Continue without AI enhancement
+            
+        readme_created = update_readme(project_root, ai_client)
+        if readme_created:
+            print("   📝 Professional README.md created")
+        else:
+            print("   ⚠️  README.md creation skipped")
+            
+    except Exception as e:
+        print(f"   ⚠️  Could not create README.md: {e}")
+        logger_changelog.warning(f"Error creating initial README.md: {e}")
     
     logger_changelog.info(f"Initial project entry created: {entry_id}")
     print(f"   ✅ Project initialized successfully!")

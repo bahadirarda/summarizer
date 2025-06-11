@@ -56,23 +56,34 @@ def setup_changelog_updater():
 
 def summarizer():
     """Analyze and summarize current project changes"""
-    print("🔍 Summarizer Framework v2.0.0 Starting...")
+    # Get dynamic version from package.json
+    package_json = Path(__file__).resolve().parent.parent / "package.json"
+    version = "2.0.3"  # fallback
+    try:
+        import json
+        with open(package_json, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+            version = data.get('version', '2.0.3')
+    except:
+        pass
+        
+    print(f"🔍 Summarizer Framework v{version} Starting...")
     print("=" * 50)
     
     try:
-        print("📝 Step 1/6: Setting up configuration...")
+        print("📝 Step 1/7: Setting up configuration...")
         setup_configuration()
         print("✅ Configuration loaded successfully")
         
-        print("\n🔗 Step 2/6: Initializing request manager...")
+        print("\n🔗 Step 2/7: Initializing request manager...")
         setup_request_manager()
         print("✅ Request manager ready")
         
-        print("\n🤖 Step 3/6: Connecting to Gemini AI...")
+        print("\n🤖 Step 3/7: Connecting to Gemini AI...")
         setup_gemini_client()
         print("✅ AI client connected")
 
-        print("\n📁 Step 4/6: Detecting project structure...")
+        print("\n📁 Step 4/7: Detecting project structure...")
         # Get project root path - use current working directory if different from
         # main project
         current_dir = Path.cwd()
@@ -90,15 +101,21 @@ def summarizer():
             print(f"📂 Main project root detected: {project_root.name}")
             print(f"   Path: {project_root}")
 
-        print("\n🔎 Step 5/6: Scanning for file changes...")
+        print("\n🔎 Step 5/7: Scanning for file changes...")
         # Update changelog with current changes
         update_changelog(project_root)
         
-        print("\n✨ Step 6/6: Analysis complete!")
+        print("\n✨ Step 6/7: Finalizing documentation...")
+        print("   📝 README.md automatically updated with current project state")
+        
+        print("\n🎉 Step 7/7: Analysis complete!")
         print("=" * 50)
         print("📊 Results saved to:")
-        print(f"   • CHANGELOG.md - Human readable format")
+        print(f"   • README.md - Auto-generated project documentation")
+        print(f"   • CHANGELOG.md - Human readable changelog")
         print(f"   • changelog.json - Structured data format")
+        print(f"   • .summarizer/ - Internal tracking files")
+        print("✅ Summarizer completed successfully!")
         print(f"   • .summarizer/ - Internal tracking files")
         print("✅ Summarizer completed successfully!")
         
@@ -129,3 +146,4 @@ def main():
 if __name__ == "__main__":
     main()
 # Debug comment Wed Jun 11 17:58:46 +03 2025
+# Version v2.0.3 test

@@ -3,6 +3,128 @@
 Bu dosya otomatik olarak generate edilmiştir.
 Düzenlemeler için `changelog.json` dosyasını kullanın.
 
+## 2025-06-11 19:46:59
+
+```
+## src/utils/version_manager.py Dosyasındaki Değişikliklerin Analizi
+
+**1. YAPISAL ANALİZ:**  Bu değişiklik sadece `src/utils/version_manager.py` dosyasını etkiler; servis katmanında yer alan bir yardımcı modülüdür.  Mimari değişiklik yoktur. Kod organizasyonu açısından, versiyon yönetimi işlevleri daha yapılandırılmış ve `VersionManager` sınıfı içinde gruplandırılmıştır.  `auto_increment_based_on_changes` fonksiyonunun  `changed_files` parametresi ile versiyon artırımını dosya değişikliklerine bağlaması, daha akıllı bir versiyonlama sağlar.
+
+**2. İŞLEVSEL ETKİ:**  `auto_version_management` fonksiyonu eklenerek otomatik versiyon artırım mekanizması getirilmiştir.  Bu, `impact_level` ve `ai_summary` parametrelerini kullanarak değişikliklerin kapsamına göre (major, minor, patch) versiyon numarasını otomatik olarak günceller.  Kullanıcı deneyimi doğrudan etkilenmez, ancak geliştirme süreci hızlanır ve versiyonlama hataları azalır. Performans etkisi ihmal edilebilir düzeydedir.
+
+**3. TEKNİK DERINLIK:**  `VersionManager` sınıfı, tek sorumluluk prensibine uygun bir tasarım deseni örneğidir.  Kod kalitesi, versiyonlama mantığının ayrıştırılması ve daha okunabilir hale getirilmesiyle iyileştirilmiştir.  Yeni bağımlılık veya teknoloji eklenmemiştir; mevcut `json`, `logging`, `pathlib` gibi kütüphaneler kullanılmaya devam edilmektedir.
+
+**4. SONUÇ YORUMU:** Bu değişiklikler, versiyon yönetimini otomatikleştirerek geliştirici verimliliğini artırır ve insan hatası riskini azaltır. Projenin teknik borcu, otomatik versiyonlama sayesinde azalır.  Gelecekteki geliştirmeler için daha sağlam ve sürdürülebilir bir versiyonlama sistemi oluşturulmuştur.  Değişiklikler, özellikle büyük ve sık güncellenen projelerde uzun vadede önemli bir zaman ve kaynak tasarrufu sağlayacaktır.
+```
+
+**Değişen Dosyalar:** src/utils/version_manager.py
+**Etki Seviyesi:** High
+**Değişiklik Tipi:** Feature
+**Etiketler:** manager, utils, version-manager, api
+
+---
+
+## 2025-06-11 19:46:36
+
+`src/utils/version_manager.py` dosyasındaki değişiklikler, projenin versiyon yönetim sistemini otomatikleştirmeyi ve geliştirmeyi amaçlamaktadır.  Değişiklikler, versiyon numarasının `package.json` dosyasından okunmasını, semantik versiyonlamaya uygun olarak artırılmasını ve değişikliklere göre otomatik olarak güncellenmesini sağlar.  `auto_increment_based_on_changes` fonksiyonu, dosya değişikliklerini analiz ederek (örneğin, "feature", "add_" gibi ifadeleri arayarak) versiyon artış tipini (major, minor, patch) belirler.  Bu,  bir versiyon artırımının yalnızca gerçek işlevsel değişikliklere bağlı olarak yapılacağı anlamına gelir, böylece daha temiz bir versiyonlama geçmişi elde edilir.  Sonuç olarak, proje daha sürdürülebilir ve bakımı kolay hale gelirken, teknik borç azalır ve gelecekteki geliştirmeler için daha sağlam bir temel oluşturulur.
+
+**Değişen Dosyalar:** src/utils/version_manager.py
+**Etki Seviyesi:** High
+**Değişiklik Tipi:** Feature
+**Satır Değişiklikleri:** +37
+**Etiketler:** utils, manager, version-manager
+
+---
+
+## 2025-06-11 19:46:05
+
+## Değişiklik Analizi Özeti:
+
+Bu kod değişiklikleri, bir yazılım projesinin otomatik dokümantasyon ve değişiklik takibi yeteneklerini geliştiriyor.  `src/main.py`,  `src/utils/changelog_updater.py` ve `src/utils/version_manager.py` dosyalarındaki değişiklikler, projenin çalışma akışını ve çıktılarını etkiliyor.
+
+### 1. YAPISAL ANALİZ:
+
+Değişiklikler, üç katmanı etkiliyor: Ana iş mantığı (`src/main.py`), yardımcı araçlar (`src/utils/changelog_updater.py`) ve servis katmanı (`src/utils/version_manager.py`).  `main.py`'deki güncellemeler, changelog güncelleme adımını iş akışına dahil ediyor. `changelog_updater.py`,  changelog oluşturma ve güncelleme mantığını kapsamlı bir şekilde genişletiyor;  `ImpactLevel` ve `ChangeType` gibi yeni sınıflar ve `demo_framework_analysis` gibi yeni fonksiyonlar ekleniyor. Bu, daha ayrıntılı ve anlamlı changelog kayıtları oluşturulmasını sağlıyor.  Mimari değişiklik, changelog yönetimini daha modüler ve genişletilebilir hale getiriyor.  Kod organizasyonu, sorumlulukların daha iyi ayrıştırılmasıyla iyileştiriliyor.
+
+
+### 2. İŞLEVSEL ETKİ:
+
+Yeni özellikler olarak, otomatik changelog oluşturma ve güncelleme, dosya değişikliklerinin analizi ve farklı etki seviyelerinin (CRITICAL, HIGH, MEDIUM, LOW) belirlenmesi eklendi. Kullanıcı deneyimi, otomatik olarak güncellenen README ve CHANGELOG dosyalarıyla iyileştiriliyor. Performans etkisi, changelog güncelleme sürecinin verimliliğine bağlı. Güvenlik ve güvenilirlik üzerinde doğrudan bir etki gözlenmiyor.
+
+
+### 3. TEKNİK DERINLIK:
+
+`changelog_updater.py`'de,  JSON tabanlı bir changelog yönetimi için  `JsonChangelogManager` sınıfı kullanılıyor.  Bu,  tasarım desenleri açısından,  Factory Pattern veya Strategy Pattern'in bir varyasyonunu temsil edebilir (hangi pattern kullanıldığı net değil, ama çoklu changelog formatı desteği için esneklik sunar). Kod kalitesi, modülerlik ve okunabilirlik açısından iyileştiriliyor.  Yeni bağımlılık eklenmediği gözüküyor.
+
+
+### 4. SONUÇ YORUMU:
+
+Bu değişiklikler, projenin sürdürülebilirliğini ve geliştirme sürecini önemli ölçüde iyileştiriyor.  Otomatik dokümantasyon, geliştirme zamanını kısaltıyor ve  hata olasılığını azaltıyor.  Teknik borç, daha iyi kod organizasyonu ve dokümantasyon sayesinde azalıyor. Gelecekteki geliştirmeler için daha sağlam ve genişletilebilir bir temel oluşturuluyor.  Projenin uzun vadeli değeri,  daha iyi işbirliği ve  bakım kolaylığı ile artıyor.
+
+**Değişen Dosyalar:** src/main.py, src/utils/version_manager.py, src/utils/changelog_updater.py
+**Etki Seviyesi:** Critical
+**Değişiklik Tipi:** Feature
+**Etiketler:** api, main, version-manager, manager, utils, changelog-updater
+
+---
+
+## 2025-06-11 19:45:37
+
+Bu değişiklik seti, bir yazılım projesinin otomatik dokümantasyon ve sürüm yönetimi yeteneklerini geliştiriyor.  `src/main.py` dosyasındaki değişiklikler, projenin başlangıç aşamalarına otomatik changelog güncelleme adımını ekliyor.  `src/utils/changelog_updater.py` dosyası, AI özetine ve değiştirilen dosyalara dayalı olarak detaylı changelog girdileri oluşturma yeteneği kazandı.  `src/utils/version_manager.py` dosyasında yapılan değişiklikler (kod kesiti eksik olduğundan detaylı analiz yapılamadı) muhtemelen sürüm numarası yönetimi ve changelog entegrasyonunu iyileştirmeyi hedefliyor.  Sonuç olarak, geliştirilmiş dokümantasyon, daha iyi sürüm kontrolü ve daha kolay bakım sağlanmıştır. Teknik borç azalmış, gelecekteki geliştirmeler için daha sağlam bir temel oluşturulmuştur.  Yeni bir bağımlılık eklenmediği gözlemlenmiştir.  Kullanıcı deneyimi changelog ve README güncellemelerinin otomatikleşmesiyle dolaylı olarak iyileştirilmiştir.
+
+**Değişen Dosyalar:** src/main.py, src/utils/version_manager.py, src/utils/changelog_updater.py
+**Etki Seviyesi:** Low
+**Değişiklik Tipi:** Feature
+**Satır Değişiklikleri:** +265
+**Etiketler:** utils, changelog-updater, main, version-manager, manager
+
+---
+
+## 2025-06-11 19:34:18
+
+## src/main.py Dosyasındaki Değişikliklerin Analizi
+
+### 1. YAPISAL ANALİZ:
+
+Değişiklikler,  `src/main.py` dosyasındaki ana uygulama mantığını etkilemiştir.  Sistem bileşenleri (ConfigurationManager, RequestManager, GeminiClient, changelog_updater) birbirleriyle etkileşim halindedir ve bu etkileşim ana fonksiyon (`main()`) içinde düzenlenmiştir. Mimari değişiklik gözlenmiyor; mevcut mimariye yeni özellikler eklenmiştir.  Kod organizasyonu, fonksiyonların daha açıklayıcı isimlerle ve açık yorumlarla iyileştirilmiştir (örneğin, `setup_configuration()` fonksiyonu).  
+
+
+### 2. İŞLEVSEL ETKİ:
+
+Önemli bir işlevsel değişiklik,  `update_changelog()` fonksiyonunun eklenmesiyle projedeki değişikliklerin otomatik olarak günlüğe kaydedilmesidir. Bu, kullanıcı deneyimini doğrudan etkilemezken, geliştiriciler için önemli bir iyileştirmedir.  Performans üzerinde gözle görülür bir etki yok; güvenlik ve güvenilirlik etkilenmemiştir.  Kısacası, değişikliklerin büyük bir kısmı, projenin dokümantasyon ve yönetim süreçlerini geliştirmeye odaklanmıştır.
+
+
+### 3. TEKNİK DERINLIK:
+
+Özel bir tasarım deseni kullanımı gözlenmiyor. Kod kalitesi, fonksiyonların daha açık ve okunabilir hale getirilmesiyle iyileştirilmiştir.  Yeni bağımlılıklar eklenmemiştir; mevcut bağımlılıklar (`logging`, `pathlib`, proje içi modüller) kullanılmaya devam edilmiştir. Kod sürdürülebilirliği, açık yorumlar ve fonksiyonların mantıksal olarak ayrıştırılmasıyla iyileştirilmiştir.
+
+
+### 4. SONUÇ YORUMU:
+
+Bu değişiklikler, projenin uzun vadeli sürdürülebilirliğini ve yönetilebilirliğini artırmaktadır.  Teknik borç azalmamıştır, ancak yeni borç birikimini önleyici adımlar atılmıştır (changelog güncellemesi).  Gelecekteki geliştirmelere hazırlık olarak,  changelog'un otomatik güncellenmesi,  değişikliklerin izlenmesini ve yönetimini kolaylaştıracaktır.  Projenin dokümantasyonu geliştirilmiş ve proje yönetimi kolaylaştırılmıştır.
+
+**Değişen Dosyalar:** src/main.py
+**Etki Seviyesi:** High
+**Değişiklik Tipi:** Feature
+**Satır Değişiklikleri:** +1
+**Etiketler:** manager, api, config, client, main
+
+---
+
+## 2025-06-11 19:33:11
+
+## Yazılım Projesi Değişiklik Analizi Özeti
+
+Bu değişiklik seti, projedeki dokümantasyon ve değişiklik takibi süreçlerini önemli ölçüde iyileştiriyor.  `src/main.py` dosyasındaki güncellemeler,  proje konfigürasyonunun ve ilgili servislerin (`RequestManager`, `GeminiClient`) başlatılmasını düzenliyor.  `src/utils/changelog_updater.py` ve `src/utils/readme_generator.py` dosyalarındaki güncellemeler ise otomatik changelog ve README.md dosyası güncellemelerini sağlayan yeni bir alt sistem ekliyor.  Bu, geliştirme sürecinin şeffaflığını ve izlenebilirliğini artırıyor.  Projenin mimarisi, changelog ve README oluşturma işlemlerini ayrı bir `utils` paketine taşıyarak daha modüler hale getirilmiş.  Yeni eklenen `JsonChangelogManager` sınıfı, changelog verilerinin JSON formatında tutulmasını sağlayarak gelecekteki otomasyon ve entegrasyon çalışmalarını kolaylaştırıyor.  Teknik borç azalmış ve gelecekteki geliştirmeler için daha sağlam bir temel oluşturulmuştur.  Kullanıcı deneyimi doğrudan etkilenmemiş, ancak geliştiriciler için daha düzenli ve güncel dokümantasyon sunulmaktadır.
+
+**Değişen Dosyalar:** src/main.py, src/utils/readme_generator.py, src/utils/changelog_updater.py
+**Etki Seviyesi:** Low
+**Değişiklik Tipi:** Feature
+**Satır Değişiklikleri:** +553
+**Etiketler:** manager, client, utils, readme-generator, main, changelog-updater
+
+---
+
 ## 2025-06-11 18:56:24
 
 Bu değişiklikler, bir yazılım projesinin dosya izleme ve değişiklik günlüğü oluşturma yeteneklerini geliştirir.  `src/main.py`, konfigürasyon yönetimini ve çeşitli servislerin başlatılmasını ele alırken, `src/utils/file_tracker.py` ve `src/utils/changelog_updater.py` dosya değişikliklerini tespit edip  `CHANGELOG.md` ve `changelog.json` dosyalarına güncellemeleri ekleyen yardımcı modüllerdir.  `changelog_updater.py`'deki değişiklikler, değişikliklerin etki seviyesini otomatik olarak tespit ederek (örneğin, "critical", "major" kelimelerini arayarak) daha detaylı ve anlamlı bir değişiklik günlüğü oluşturulmasını sağlar.  `main.py`'deki güncelleme, proje kök dizinini daha doğru belirleyerek daha güvenilir bir dosya taraması sağlar.  Sonuç olarak, bu değişiklikler projenin sürdürülebilirliğini artırır, hata ayıklamayı kolaylaştırır ve geliştirme sürecini şeffaf hale getirir. Teknik borç azalır ve gelecekteki geliştirmeler için daha sağlam bir temel oluşturulur.  Yeni bir bağımlılık eklenmemiştir.
