@@ -3,6 +3,54 @@
 Bu dosya otomatik olarak generate edilmiştir.
 Düzenlemeler için `changelog.json` dosyasını kullanın.
 
+## 2025-06-12 00:03:06
+
+### 1. YAPISAL ANALİZ:
+
+Bu değişiklikler, projenin servis ve test katmanlarını etkilemiştir.  `src/services/gemini_client.py` dosyasındaki değişiklikler servis katmanındaki Gemini API entegrasyonunu etkilerken, `tests/test_macos_installer.py` dosyasındaki değişiklikler macOS kurulumu için test süitini genişletmektedir.
+
+**Mimari Değişikliklerin Etkisi:**  `gemini_client.py` dosyasına `ConfigurationManager` sınıfının eklenmesi, API anahtarının yönetimini merkezi bir konuma taşıyarak mimariye bir iyileştirme getirmiştir. Daha önce muhtemelen ortam değişkenlerinden doğrudan okunan API anahtarı artık `ConfigurationManager` sınıfı aracılığıyla yönetiliyor. Bu, konfigürasyonun daha yönetilebilir ve test edilebilir olmasını sağlar.  Ayrıca,  `RequestManager` sınıfına kaydolma işlemi,  `GeminiClient` nesnesinin yaşam döngüsü yönetimini iyileştirerek,  istemcinin diğer servislerle daha iyi entegre olmasını sağlar.
+
+**Kod Organizasyonundaki İyileştirmeler:**  `ConfigurationManager` sınıfının kullanımı, konfigürasyon verilerinin merkezi bir yerden yönetilmesini sağlayarak kodun daha düzenli ve okunabilir olmasını sağlamıştır.  `gemini_client.py` içindeki hata yönetimi (try-except bloğu) iyileştirilmiş ve loglama daha ayrıntılı hale getirilmiştir.  Bu, hata ayıklama ve bakım sürecini kolaylaştırır.  Büyük dosyaların işlenmesindeki iyileştirmeler (dosya içeriğinin `max_lines_per_file` ile sınırlanması) performansı ve kaynak kullanımını iyileştirmeyi amaçlamaktadır.
+
+
+### 2. İŞLEVSEL ETKİ:
+
+**Eklenen Özellikler:**  `gemini_client.py` dosyasına Google Gemini API'sine bağlanma ve bu API'yi kullanarak metin üretme yeteneği eklenmiştir.  API anahtarının `ConfigurationManager` üzerinden alınması da yeni bir özellik olarak değerlendirilebilir.
+
+**Değiştirilen Özellikler:**  Gemini API entegrasyonunun `ConfigurationManager` üzerinden yönetilmesi, önceki doğrudan ortam değişkeni kullanımından farklı bir işlevsellik sunmaktadır.
+
+**Kaldırılan Özellikler:**  Belirgin bir şekilde kaldırılan özellik bulunmamaktadır.
+
+
+**Kullanıcı Deneyimi:**  Kullanıcı deneyimi doğrudan etkilenmemiştir, ancak arka planda Gemini API entegrasyonu sayesinde daha gelişmiş işlevsellikler sunulabilir. Örneğin,  yazılım, daha gelişmiş metin üretme yetenekleri sunabilir.
+
+**Performans, Güvenlik ve Güvenilirlik:**  Büyük dosyaların işlenmesindeki iyileştirmeler performansı olumlu yönde etkileyebilir.  `ConfigurationManager` kullanımı, API anahtarının güvenliğini artırır çünkü anahtar artık kodda sabit olarak değil, daha güvenli bir konfigürasyon mekanizmasıyla yönetilir.  Hata yönetimi ve loglama iyileştirmeleri ise yazılımın güvenilirliğini artırır.
+
+
+### 3. TEKNİK DERİNLİK:
+
+**Tasarım Desenleri:**  `ConfigurationManager` sınıfının kullanımı,  **Singleton** tasarım desenine (eğer `ConfigurationManager` tek bir örnek oluşturuyorsa) veya en azından **Dependency Injection** tasarım desenine örnek oluşturur. Bu, konfigürasyonun merkezi bir noktadan yönetilmesini ve kodun bağımlılıklarını azaltmasını sağlar.
+
+**Kod Kalitesi ve Sürdürülebilirlik:**  Kod kalitesi, daha iyi hata yönetimi, loglama ve `ConfigurationManager` kullanımıyla geliştirilmiştir.  Bu değişiklikler, kodun daha okunabilir, bakımı daha kolay ve daha sürdürülebilir olmasını sağlar.
+
+**Yeni Bağımlılıklar:**  `google.generativeai` kütüphanesi, Gemini API ile entegrasyon için yeni bir bağımlılık olarak eklenmiştir.
+
+
+### 4. SONUÇ YORUMU:
+
+Bu değişiklikler, projenin uzun vadeli değerini artırır.  Gemini API entegrasyonu, yazılıma yeni yetenekler kazandırmış ve gelecekte daha gelişmiş özelliklerin eklenmesine olanak tanıyacaktır.  `ConfigurationManager` kullanımı, konfigürasyonun daha kolay yönetilmesini ve güvenliğini artırmıştır.
+
+Projenin teknik borcu, daha iyi kod organizasyonu, hata yönetimi ve loglama ile azaltılmıştır.  Bu değişiklikler, gelecekteki geliştirmeleri kolaylaştıracak ve daha sürdürülebilir bir kod tabanı oluşturacaktır.  Ayrıca,  testlerdeki iyileştirmeler yazılımın kalitesini ve güvenilirliğini artırmaya yöneliktir.  Ancak, `tests/test_macos_installer.py`'nin sadece bir kısmı gösterildiği için bu testlerin kapsamı tam olarak değerlendirilemiyor.  Daha kapsamlı testler, teknik borcu daha da azaltabilir.
+
+**Değişen Dosyalar:** src/services/gemini_client.py, tests/test_macos_installer.py
+**Etki Seviyesi:** High
+**Değişiklik Tipi:** Feature
+**Satır Değişiklikleri:** +198
+**Etiketler:** gemini-client, test-macos-installer, config, services, manager, tests, client, api
+
+---
+
 ## 2025-06-11 23:45:19
 
 ### 1. YAPISAL ANALİZ:
