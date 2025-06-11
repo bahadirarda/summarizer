@@ -60,6 +60,7 @@ class VersionManager:
     
     def auto_increment_based_on_changes(self, changed_files: list, impact_level: str) -> str:
         """Auto-increment version based on change analysis"""
+        current_version_before_update = self.get_current_version() # Get version before any changes
         
         # Analyze changes to determine increment type
         if self._has_breaking_changes(changed_files, impact_level):
@@ -71,13 +72,16 @@ class VersionManager:
             
         new_version = self.increment_version(increment_type)
         
+        logger.info(f"Attempting to update version from {current_version_before_update} to {new_version} (type: {increment_type})")
+
         # Actually update the version in files
         if self.update_version_in_files(new_version):
-            logger.info(f"Auto-incremented version: {self.get_current_version()} -> {new_version} ({increment_type})")
+            # If update_version_in_files was successful, new_version is now the current version
+            logger.info(f"Successfully auto-incremented version: {current_version_before_update} -> {new_version} ({increment_type})")
             return new_version
         else:
-            logger.error(f"Failed to update version files")
-            return self.get_current_version()
+            logger.error(f"Failed to update version files. Version remains {current_version_before_update}")
+            return current_version_before_update # Return the version as it was before attempting update
         
     def create_git_tag(self, version: str) -> bool:
         """Create git tag for version"""
@@ -119,20 +123,29 @@ class VersionManager:
         """Update version in package.json and other relevant files"""
         try:
             # Update package.json
-            if self.package_json_path.exists():
-                with open(self.package_json_path, 'r', encoding='utf-8') as f:
-                    package_data = json.load(f)
-                    
-                package_data['version'] = new_version
+            if not self.package_json_path.exists():
+                logger.error(f"package.json not found at {self.package_json_path}")
+                return False
+
+            with open(self.package_json_path, 'r', encoding='utf-8') as f:
+                package_data = json.load(f)
                 
-                with open(self.package_json_path, 'w', encoding='utf-8') as f:
-                    json.dump(package_data, f, indent=2, ensure_ascii=False)
-                    
-                logger.info(f"Updated version in package.json to {new_version}")
-                return True
+            package_data['version'] = new_version
+            
+            with open(self.package_json_path, 'w', encoding='utf-8') as f:
+                json.dump(package_data, f, indent=2, ensure_ascii=False)
                 
+            logger.info(f"Successfully updated version in package.json to {new_version}")
+            return True
+            
+        except FileNotFoundError:
+            logger.error(f"Error: package.json not found at {self.package_json_path} during update.")
+            return False
+        except json.JSONDecodeError as e:
+            logger.error(f"Error decoding package.json: {e}")
+            return False
         except Exception as e:
-            logger.error(f"Error updating version in files: {e}")
+            logger.error(f"An unexpected error occurred while updating version in files: {e}")
             return False
     
     def get_version_info(self) -> dict:

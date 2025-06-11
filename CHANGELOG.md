@@ -3,6 +3,45 @@
 Bu dosya otomatik olarak generate edilmiştir.
 Düzenlemeler için `changelog.json` dosyasını kullanın.
 
+## 2025-06-11 21:33:45
+
+### 1. YAPISAL ANALİZ:
+
+Değişiklikler yalnızca `src/utils/version_manager.py` dosyasını etkiliyor. Bu dosya, projenin servis katmanında yer alan ve versiyon yönetiminden sorumlu bir yardımcı (utility) modülüdür.  Mimari değişiklik yok, sadece mevcut `VersionManager` sınıfının işlevselliği genişletilmiş. Kod organizasyonunda belirgin bir iyileştirme gözlenmiyor, ancak mevcut kodun daha kapsamlı hale getirildiği ve hata yönetiminin iyileştirildiği söylenebilir.  `auto_increment_based_on_changes` fonksiyonunun eklenmesi ve mevcut fonksiyonların daha detaylı hale getirilmesi, kodun daha modüler ve okunabilir olmasına katkıda bulunmuş olabilir. Ancak, sağlanan kodun sadece bir parçası olduğu için kesin bir yargıya varmak mümkün değil.  Özellikle `... [Truncated 159 lines] ...` kısmındaki kodun eksikliği, tam bir yapısal analiz yapmayı engelliyor.
+
+### 2. İŞLEVSEL ETKİ:
+
+Aşağıdaki işlevsel değişiklikler yapılmış:
+
+* **Yeni Özellik:** `auto_increment_based_on_changes` fonksiyonu eklenmiştir. Bu fonksiyon, dosyalarda yapılan değişikliklere dayanarak otomatik olarak versiyon numarasını güncelleme yeteneği katıyor.  Değişikliklerin kapsamını (`impact_level`) ve yapay zeka özetini (`ai_summary`) girdi olarak alarak daha akıllı bir versiyon güncelleme mekanizması sunuyor.  Bu, geliştiricilerin manuel olarak versiyon numarasını güncellemek zorunda kalma sıklığını azaltır.
+
+* **Değiştirilen Özellikler:** `get_current_version`, `parse_version` ve `increment_version` fonksiyonları daha sağlam hale getirilmiştir.  `try-except` blokları eklenerek olası hataların daha iyi yönetilmesi sağlanmıştır.  Varsayılan versiyon değeri (`2.0.3`)  hata durumlarında geri döndürülmesi, uygulamanın çökmesini engeller.
+
+
+* **Kaldırılan Özellikler:**  Sağlanan kod parçasında kaldırılan özellik yok.
+
+Kullanıcı deneyimi doğrudan etkilenmez, çünkü bu değişiklikler arka planda gerçekleştirilir. Ancak, otomatik versiyon yönetimi sayesinde geliştiricilerin iş yükü azalır ve versiyonlama hatalarının önüne geçilir. Performans üzerindeki etki, kodun ne kadar karmaşık olduğuna ve değişikliklerin kapsamına bağlıdır. Güvenlik ve güvenilirlik açısından, hata yönetiminin iyileştirilmesi olumlu bir etki yaratır.
+
+### 3. TEKNİK DERİNLİK:
+
+* **Tasarım Desenleri:**  `VersionManager` sınıfı, tek sorumluluk prensibini (Single Responsibility Principle) takip eden bir örnektir. Versiyon yönetimiyle ilgili tüm işlevleri tek bir yerde toplar.
+
+* **Kod Kalitesi ve Sürdürülebilirlik:**  Hata yönetimi iyileştirilmiş, kod daha okunabilir ve anlaşılır hale getirilmiştir.  `typing` modülünün kullanımı, kodun daha güvenilir ve bakımı daha kolay olmasını sağlar.  Ancak, tam kodu görmeden kod kalitesi ve sürdürülebilirlik hakkında kesin bir yorum yapmak zordur.
+
+* **Yeni Bağımlılıklar:**  Sağlanan kod parçasında yeni bağımlılık eklenmesi gözlenmiyor.
+
+### 4. SONUÇ YORUMU:
+
+Bu değişiklikler, projenin uzun vadeli sürdürülebilirliğine olumlu katkıda bulunur. Otomatik versiyon yönetimi, geliştirme sürecini hızlandırır ve insan hatası olasılığını azaltır.  Teknik borç azalmış olabilir, çünkü versiyonlama işlemi daha otomatikleştirilmiştir.  Gelecekteki geliştirmelere hazırlık yapılmış, çünkü kod daha modüler ve esnek hale getirilmiştir. Ancak, `auto_increment_based_on_changes` fonksiyonunun  `impact_level` ve `ai_summary` parametrelerinin nasıl kullanıldığı ve hangi kriterlere göre versiyon artışının yapıldığı kodun geri kalanında belirtilmediği için tam değerlendirmesi mümkün değildir.  Tam kodun incelenmesi daha kapsamlı bir sonuç yorumu için gereklidir.
+
+**Değişen Dosyalar:** src/utils/version_manager.py
+**Etki Seviyesi:** High
+**Değişiklik Tipi:** Feature
+**Satır Değişiklikleri:** +13
+**Etiketler:** manager, version-manager, api, utils
+
+---
+
 ## 2025-06-11 21:08:51
 
 ### 1. YAPISAL ANALİZ:
