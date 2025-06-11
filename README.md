@@ -1,5 +1,7 @@
 # project.110620251156: Gelişmiş Versiyon Yönetimi ve Otomatik Changelog Oluşturma
 
+> ⚠️ **GÜVENLİK UYARISI**: Bu projede API anahtarları ve diğer hassas bilgiler `.env` dosyasında saklanır. `.env` dosyasını asla version control'e eklemeyin! Sadece `.env.example` dosyasını paylaşın.
+
 🎉 Bu proje, yazılım geliştirme sürecinizi hızlandırmak ve iyileştirmek için tasarlanmıştır!  Versiyon yönetimini otomatikleştiren ve AI destekli otomatik changelog oluşturma özelliği sunan önemli güncellemeler içeriyor.  🚀
 
 ## Özellikler ✨
