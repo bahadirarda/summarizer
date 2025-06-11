@@ -64,23 +64,9 @@ def update_changelog(project_root: Optional[Path] = None):
     changed_files = []
     try:
         print("   🔍 Scanning for changed files...")
-        # First try 'src' directory (for main project)
-        if (project_root / "src").exists():
-            changed_files = get_changed_files_since_last_run(
-                project_root, "src")
-            print(f"   📂 Scanning src/ directory")
-        # If no src directory, scan current directory for Python files
-        else:
-            # Look for any Python files in the current directory
-            python_files = list(project_root.glob("*.py"))
-            if python_files:
-                # For demo projects, track all Python files in the root
-                changed_files = get_changed_files_since_last_run(
-                    project_root, ".")
-                print(f"   📂 Scanning root directory ({len(python_files)} Python files)")
-            else:
-                print("   ⚠️  No Python files found to track")
-                logger_changelog.info("No Python files found to track.")
+        # Use dynamic directory discovery (no manual directory specification needed)
+        changed_files = get_changed_files_since_last_run(project_root)
+        print(f"   📂 Dynamically scanning all Python directories")
 
         if changed_files:
             print(f"   ✅ Found {len(changed_files)} changed files:")
