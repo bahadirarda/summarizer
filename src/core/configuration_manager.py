@@ -19,8 +19,14 @@ class ConfigurationManager:
     def __init__(self, config_dir: Optional[Path] = None):
         self.logger = logging.getLogger(__name__)
 
-        # Paths
-        self.config_dir = config_dir or Path.cwd() / "config"
+        # Paths - Use .summarizer instead of config
+        if config_dir is None:
+            summarizer_dir = Path.cwd() / ".summarizer"
+            summarizer_dir.mkdir(exist_ok=True)
+            self.config_dir = summarizer_dir
+        else:
+            self.config_dir = config_dir
+            
         self.schema_file = self.config_dir / "configuration_schema.json"
         self.settings_file = self.config_dir / "user_settings.json"
         self.env_file = Path.cwd() / ".env"

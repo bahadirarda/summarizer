@@ -1,3 +1,11 @@
+#!/usr/bin/env python3
+"""
+🔧 Configuration Management
+
+This module handles configuration for the Summarizer Framework.
+Enhanced with better error handling and environment support.
+"""
+
 import logging
 import os
 import warnings

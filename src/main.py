@@ -1,5 +1,3 @@
-import suppress_warnings  # Import first to suppress warnings
-
 import logging
 from pathlib import Path
 
@@ -58,14 +56,23 @@ def setup_changelog_updater():
 
 def summarizer():
     """Analyze and summarize current project changes"""
-    print("🤖 Analyzing project changes...")
-
+    print("🔍 Summarizer Framework v2.0.0 Starting...")
+    print("=" * 50)
+    
     try:
-        # Setup necessary services
+        print("📝 Step 1/6: Setting up configuration...")
         setup_configuration()
+        print("✅ Configuration loaded successfully")
+        
+        print("\n🔗 Step 2/6: Initializing request manager...")
         setup_request_manager()
+        print("✅ Request manager ready")
+        
+        print("\n🤖 Step 3/6: Connecting to Gemini AI...")
         setup_gemini_client()
+        print("✅ AI client connected")
 
+        print("\n📁 Step 4/6: Detecting project structure...")
         # Get project root path - use current working directory if different from
         # main project
         current_dir = Path.cwd()
@@ -76,16 +83,28 @@ def summarizer():
         if current_dir != main_project_root and not str(
                 current_dir).startswith(str(main_project_root / "src")):
             project_root = current_dir
-            print(f"📁 Using working directory as project root: {project_root}")
+            print(f"📂 Working directory detected: {project_root.name}")
+            print(f"   Path: {project_root}")
         else:
             project_root = main_project_root
-            print(f"📁 Using main project root: {project_root}")
+            print(f"📂 Main project root detected: {project_root.name}")
+            print(f"   Path: {project_root}")
 
+        print("\n🔎 Step 5/6: Scanning for file changes...")
         # Update changelog with current changes
         update_changelog(project_root)
-        print("✅ Changelog updated!")
+        
+        print("\n✨ Step 6/6: Analysis complete!")
+        print("=" * 50)
+        print("📊 Results saved to:")
+        print(f"   • CHANGELOG.md - Human readable format")
+        print(f"   • changelog.json - Structured data format")
+        print(f"   • .summarizer/ - Internal tracking files")
+        print("✅ Summarizer completed successfully!")
+        
     except Exception as e:
-        print(f"❌ Error: {e}")
+        print(f"\n❌ Error occurred: {e}")
+        print("💡 Try running with debug mode for more details")
 
     print()
 
@@ -109,3 +128,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+# Debug comment Wed Jun 11 17:58:46 +03 2025

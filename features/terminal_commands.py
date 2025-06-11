@@ -23,15 +23,16 @@ def create_terminal_command():
     if sys.platform == "win32":  # Windows
         script_content = f'''@echo off
 REM Summarizer Framework Terminal Command
-cd /d "{project_root}"
+REM This script runs summarizer from current working directory
+set PYTHONPATH={project_root};%PYTHONPATH%
 python "{summarizer_py}" %*
 '''
         script_name = "summarizer.bat"
     else:  # Unix-like (macOS, Linux)
         script_content = f'''#!/bin/bash
 # Summarizer Framework Terminal Command
-cd "{project_root}"
-python3 "{summarizer_py}" "$@"
+# This script runs summarizer from current working directory
+PYTHONPATH="{project_root}:$PYTHONPATH" python3 "{summarizer_py}" "$@"
 '''
         script_name = "summarizer"
     

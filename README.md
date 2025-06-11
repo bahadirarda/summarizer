@@ -1,15 +1,33 @@
 # 🚀 Summarizer Framework v2.0
 
-> **AI-Powered Project Summarizer with Enterprise GUI and Terminal Commands**
+> **AI-Powered Project Summarizer with Step-by-Step Feedback and Hidden File Management**
 
-A powerful, modular framework that automatically analyzes your project changes, generates intelligent summaries using AI, and provides both GUI and terminal interfaces for easy configuration and usage.
+A powerful, modular framework that automatically analyzes your project changes, generates intelligent summaries using AI, and provides detailed step-by-step feedback during execution. Features enterprise GUI, terminal commands, and clean project structure with hidden internal files.
 
-## ✨ Features
+## ✨ New in v2.0
+
+### 🔍 **Step-by-Step Execution Feedback**
+- **Real-time Progress**: See exactly what the summarizer is doing at each step
+- **Detailed Console Output**: Track file scanning, AI analysis, and changelog generation
+- **Professional Progress Indicators**: Clear visual feedback with emojis and status messages
+
+### 📁 **Clean Project Structure**
+- **Hidden Internal Files**: All system files stored in `.summarizer/` directory
+- **User-Friendly Workspace**: Only `CHANGELOG.md` and `changelog.json` visible to users
+- **Automatic Setup**: Framework manages all internal structures transparently
+
+### 🎉 **New Project Initialization**
+- **Professional Welcome**: Beautiful initial changelog entries for new projects
+- **Project Type Detection**: Automatically detects Python, Web, or General project types
+- **Setup Guidance**: Helpful instructions and next steps for new users
+
+## ✨ Core Features
 
 ### 🤖 AI-Powered Analysis
 - **Smart Change Detection**: Automatically tracks file modifications and generates meaningful summaries
 - **Gemini AI Integration**: Uses Google's Gemini AI for intelligent code analysis and summary generation
 - **Multi-format Output**: JSON changelog and Markdown documentation
+- **Impact Level Detection**: Automatically categorizes changes as Low/Medium/High/Critical
 
 ### 🎨 Enterprise GUI
 - **Modern Flat Design**: Professional, Microsoft-inspired interface
@@ -19,6 +37,7 @@ A powerful, modular framework that automatically analyzes your project changes, 
 
 ### 💻 Terminal Commands
 - **Global Commands**: Use `summarizer` from anywhere in your terminal
+- **Universal Support**: Works in any directory structure (main project, subdirectories, new projects)
 - **Screenshot Analysis**: AI-powered screenshot analysis with `summarizer ss`
 - **Interactive Setup**: Step-by-step configuration with `summarizer --setup`
 
@@ -61,12 +80,12 @@ summarizer --check
 #### Python Import (Simplest)
 ```python
 import summarizer
-summarizer()  # Analyzes current project
+summarizer()  # Analyzes current project with step-by-step feedback
 ```
 
 #### Terminal Commands
 ```bash
-# Basic analysis
+# Basic analysis with detailed feedback
 summarizer
 
 # Screenshot analysis
@@ -78,6 +97,51 @@ summarizer ss firefox
 summarizer --setup
 summarizer --gui
 summarizer --status
+```
+
+## 🎯 Example Output
+
+When you run `summarizer`, you'll see detailed step-by-step feedback:
+
+```
+🔍 Summarizer Framework v2.0.0 Starting...
+==================================================
+📝 Step 1/6: Setting up configuration...
+✅ Configuration loaded successfully
+
+🔗 Step 2/6: Initializing request manager...
+✅ Request manager ready
+
+🤖 Step 3/6: Connecting to Gemini AI...
+✅ AI client connected
+
+📁 Step 4/6: Detecting project structure...
+📂 Working directory detected: demo_project
+   Path: /path/to/demo_project
+
+🔎 Step 5/6: Scanning for file changes...
+   🔍 Scanning for changed files...
+   📂 Scanning root directory (2 Python files)
+   ✅ Found 1 changed files:
+      • simple_demo.py
+   📊 Analyzing line changes...
+   📈 Line changes: +5 added, -0 removed
+   🤖 Generating AI analysis...
+   ✨ AI analysis completed successfully
+   📝 Summary: Added new function for data processing...
+   🎯 Impact level: medium
+   💾 Saving changelog entry...
+   ✅ Changelog entry created (ID: abc12345...)
+   🔄 Creating backup files for future comparison...
+   ✅ Backup files created
+
+✨ Step 6/6: Analysis complete!
+==================================================
+📊 Results saved to:
+   • CHANGELOG.md - Human readable format
+   • changelog.json - Structured data format
+   • .summarizer/ - Internal tracking files
+✅ Summarizer completed successfully!
 ```
 
 ## 📋 Detailed Usage
@@ -138,6 +202,31 @@ The GUI provides:
 - 🎯 **Real-time Validation**: Instant feedback on settings
 - 📁 **Environment Variables**: Easy management of project settings
 
+## 📁 Project Structure
+
+The Summarizer Framework maintains a clean workspace by storing all internal files in a hidden directory:
+
+```
+your-project/
+├── CHANGELOG.md              # Human-readable changelog
+├── changelog.json            # Structured changelog data
+├── .summarizer/              # Hidden framework files
+│   ├── .file_states.json     # File change tracking
+│   ├── user_settings.json    # Configuration settings
+│   ├── configuration_schema.json
+│   └── file_backups/         # Backup files for comparison
+├── your-code-files.py
+└── other-project-files
+```
+
+### Universal Directory Support
+
+The framework works everywhere:
+- ✅ **Main Projects**: Full src/ directory scanning
+- ✅ **Sub-projects**: Individual directory tracking  
+- ✅ **New Projects**: Automatic initialization with welcome messages
+- ✅ **Any Directory**: Universal Python file detection
+
 ## 🛠️ Configuration
 
 ### API Key Setup
@@ -187,6 +276,34 @@ summarizer-framework/
 │   └── 🎨 gui_installer.py       # GUI installation
 └── 📚 demo_project/              # Example usage
 ```
+
+## 🎉 New Project Initialization
+
+When you run `summarizer` in a new directory, it automatically creates a professional welcome entry:
+
+### For Python Projects:
+```markdown
+🚀 **YourProject Projesi Başlatıldı**
+
+**Proje Türü**: Python Projesi  
+**Başlatılma Tarihi**: 11 Haziran 2025  
+**Summarizer Framework**: v2.0.0
+
+**📋 Proje Özeti:**
+Bu proje, Summarizer Framework ile otomatik değişiklik takibi ve AI destekli analiz için yapılandırıldı. 
+
+**🔧 Aktif Özellikler:**
+- ✅ Otomatik dosya değişiklik takibi
+- ✅ AI destekli kod analizi (Gemini AI)
+- ✅ JSON ve Markdown changelog oluşturma
+- ✅ Etki seviyesi ve değişiklik tipi otomatik tespiti
+```
+
+### For Web Projects:
+Automatically detects web projects (package.json, index.html) and creates appropriate welcome messages.
+
+### For General Projects:
+Creates a universal welcome entry for any other project type.
 
 ## 🔧 Advanced Usage
 
