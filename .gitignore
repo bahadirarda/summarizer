@@ -89,9 +89,12 @@ logs
 *.log
 
 # Environment files
+.env
 .env.local
 .env.production
 .env.test
+# Keep .env.example for documentation
+!.env.example
 .tox/
 .nox/
 .coverage
