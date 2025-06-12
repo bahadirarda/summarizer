@@ -319,3 +319,7 @@ sys.modules[__name__] = new_module
 # Entry point for script execution
 if __name__ == "__main__":
     new_module.main()
+
+
+# TODO: Her pushtan sonra otomatik olarak release boyutunda olabilecek bir güncelleme ise release olduğunu anlasın vs. geliştir kanka.
+# TODO: Kişisel know-how havuzu oluşturabilmek için lazım. Ya login oluşturulmuş olacak ya da summerizer edilmiş olacak. Dökümantasyon, VSCode Extension, using style: Page -> Write just Login than snippet tarzı veri gelişi.
