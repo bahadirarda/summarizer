@@ -118,7 +118,7 @@ import summarizer
 # Mevcut projeyi analiz et. 
 # Bu kullanım `summarizer --help` çıktısındaki örneğe dayanmaktadır.
 # `summarizer.py` dosyasının kendisinin veya paketinin `summarizer()` çağrısını uygun şekilde ele aldığı varsayılır.
-summarizer.summarizer() 
+summarizer() 
 ```"""
 
 CONTRIBUTING_SECTION = """## 🤝 Contributing
