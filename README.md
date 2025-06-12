@@ -1,63 +1,62 @@
-# 🚀 project.110620251156
-> README.md dosyasını otomatik olarak güncelleyen ve macOS için bir özetleyici yazılımının kurulum sihirbazını içeren, Google Gemini API entegrasyonuna sahip bir web projesi.
-
+# 🚀 macOS Özetleyici Yazılımı Kurulum Sihirbazı
+> Kullanıcı dostu bir arayüzle macOS için özetleyici yazılımını kolayca kurmanıza olanak sağlayan güçlü bir kurulum sihirbazı.
 
 ## 📊 Proje Durumu
-Proje aktif geliştirme aşamasındadır.  Son değişiklikler, README dosyasının iyileştirilmesi, macOS kurulum sihirbazının geliştirilmesi ve Google Gemini API entegrasyonunu içermektedir.  Sürükle-bırak kurulum desteği eklenmiştir.  Genel olarak, proje daha kullanıcı dostu, güvenilir ve sürdürülebilir hale getirilmiştir.
-
+Proje aktif geliştirme aşamasındadır.  Son güncellemeler, kullanıcı deneyimini iyileştiren ve kurulum sürecini daha güvenilir hale getiren önemli geliştirmeler içeriyor.  Sürükle ve bırak kurulum desteği eklendi.  GUI ve CLI kurulum seçenekleri arasında sorunsuz geçiş sağlanıyor.
 
 ## ✨ Özellikler
-* **Otomatik README Güncelleme:** Proje, README.md dosyasını otomatik olarak günceller.  Son değişikliklerin etkilerine göre dağılımını gösteren yeni bir bölüm eklenmiştir.
-* **macOS Kurulum Sihirbazı:** Kullanıcı dostu bir arayüzle macOS için kolay kurulum sağlar.  CLI, GUI ve sürükle-bırak kurulum yöntemlerini destekler.
-* **Google Gemini API Entegrasyonu:**  Google Gemini API'sini kullanarak metin üretme yeteneği sunar.  API anahtarı, güvenli bir konfigürasyon yöneticisi tarafından yönetilir.
-* **Gelişmiş Hata Yönetimi:**  Daha sağlam ve hataya dayanıklı bir kod yapısıyla geliştirilmiştir.
-* **Modüler Kod Yapısı:**  Daha temiz, okunabilir ve bakımı kolay bir kod tabanına sahiptir.
+* **Kullanıcı Dostu GUI:** PyQt5 tabanlı görsel kurulum arayüzü.
+* **Komut Satırı Arabirimi (CLI):**  Esneklik için komut satırı kurulum desteği.
+* **Sürükle ve Bırak Kurulumu:** Yeni ve kolay bir kurulum yöntemi.
+* **Gelişmiş Hata Yönetimi:**  Daha sağlam ve bilgilendirici hata mesajları.
+* **Otomatik Framework Versiyon Tespiti:** README dosyasında proje framework versiyonunun doğru tespiti.
+* **Güncellenen README:** Otomatik olarak güncellenen, proje değişikliklerini ve etkilerini gösteren README dosyası.
 
 
 ## Değişen Dosyalar:
-`src/utils/readme_generator.py`, `setup_installer.py`, `cli_installer.py`, `gui_installer.py`, `drag_drop_installer.py`, `ui/components/setup_wizard.py`, `ui/components/installation_type_selector.py`, `ui/components/drag_drop_area.py`, `ui/components/progress_indicator.py`, `config/app_settings.py`, `config/installation_config.py`, `utils/permissions_handler.py`, `utils/path_resolver.py`, `utils/system_checker.py`, `create_clean_background.py`, `create_background.py`, `create_enterprise_background.py`, `src/services/gemini_client.py`, `tests/test_macos_installer.py`
+`macos-setup-wizard/setup_installer.py`, `macos-setup-wizard/cli_installer.py`, `macos-setup-wizard/gui_installer.py`, `macos-setup-wizard/drag_drop_installer.py`, `macos-setup-wizard/ui/`, `src/utils/readme_generator.py`
 
 
 ## ANALİZ GÖREVİ:
 
 ### 1. YAPISAL ANALİZ:
 
-- **Etkilenen Bileşenler ve Katmanlar:** Üç farklı proje değişikliği analiz edilmiştir. Birinci değişiklik, `src/utils/readme_generator.py` dosyasını ve dolaylı olarak `JsonChangelogManager`'ı etkilemiştir. İkinci değişiklik, macOS kurulum sihirbazını kapsayan geniş bir alanı etkilemiştir:  `setup_installer.py`, `cli_installer.py`, `gui_installer.py`, `drag_drop_installer.py`, `ui` alt dizini içindeki tüm dosyalar, `config` alt dizini, `utils` alt dizini ve arka plan oluşturma ile ilgili dosyalar. Üçüncü değişiklik, `src/services/gemini_client.py` ve `tests/test_macos_installer.py` dosyalarını etkilemiştir.
+* **Etkilenen Bileşenler ve Katmanlar:**  Değişiklikler, macOS kurulum sihirbazının tüm katmanlarını etkilemiştir.  `macos-setup-wizard` dizini içindeki `setup_installer.py` (kurulum motorunun giriş noktası), `cli_installer.py`, `gui_installer.py` ve yeni eklenen `drag_drop_installer.py` dosyaları doğrudan etkilenmiştir.  `ui` alt dizini (GUI), `config` alt dizini (ayarlar), `utils` alt dizini (yardımcı fonksiyonlar) ve arka plan görüntü oluşturma ile ilgili dosyalar dolaylı olarak etkilenmiştir.  `src/utils/readme_generator.py` dosyasındaki değişiklikler ise README dosyasının oluşturulmasını ve güncellenmesini etkilemiştir.
 
-- **Mimari Değişikliklerin Etkisi:** Birinci değişiklikte mimari etkisi minimaldir, mevcut araç geliştirilmiştir. İkinci değişiklikte, macOS kurulum sihirbazı için MVVM veya MVC benzeri bir mimariye geçiş gözlemlenmiştir.  Bu, kodun modülerliğini ve sürdürülebilirliğini artırmıştır. Üçüncü değişiklikte, `ConfigurationManager` sınıfının eklenmesi, API anahtarının yönetimini merkezi bir konuma taşıyarak mimariyi iyileştirmiştir.
+* **Mimari Değişikliklerin Etkisi:** Mimari, modüler bir yapıya doğru evrilmiştir.  Başlangıçta muhtemelen tek bir dosyada bulunan kurulum mantığı, farklı kurulum tipleri için ayrı modüllere (CLI, GUI, Drag-and-Drop) ayrılmıştır.  Bu, "Strategy Pattern"e benzer bir yaklaşımı göstermektedir.  MVC veya MVVM mimarisine benzer bir yapıya geçiş yapılmış ve bu da sürdürülebilirliği ve test edilebilirliği artırmıştır.
 
-- **Kod Organizasyonundaki İyileştirmeler:**  Tüm değişikliklerde kod organizasyonunda iyileştirmeler yapılmıştır.  `readme_generator.py` dosyasında fonksiyonlar daha modüler hale getirilmiş ve `generate_complete_readme_content` fonksiyonu README içeriğinin tek bir noktadan oluşturulmasını sağlamıştır. macOS kurulum sihirbazında alt dizinler ve modüller kullanımı ile daha düzenli bir yapı oluşturulmuştur. `gemini_client.py` dosyasında ise `ConfigurationManager` sınıfı konfigürasyon yönetimini iyileştirmiştir.
+* **Kod Organizasyonundaki İyileştirmeler:** Kod, alt dizinler ve modüller halinde daha iyi organize edilmiştir.  Hata yönetimi iyileştirilmiş, özellikle `try...except` blokları genişletilmiştir.  `readme_generator.py` dosyasında, `_get_framework_version` fonksiyonu, daha sağlam bir versiyon tespiti için üst dizinleri kontrol edecek şekilde geliştirilmiştir.  README içeriği tek bir noktadan (`generate_complete_readme_content` fonksiyonu) oluşturularak okunabilirlik artırılmıştır.
 
 
 ### 2. İŞLEVSEL ETKİ:
 
-- **Eklenen Özellikler:** README'ye yeni bölümler (impact_counts, Tracking Features) eklenmiştir. macOS kurulumuna sürükle-bırak özelliği eklenmiştir. Google Gemini API entegrasyonu eklenmiştir.
+* **Eklenen Özellikler:** Sürükle ve bırak kurulumu eklenmiştir.  GUI kurulumu eklenmiş ve PyQt5 entegrasyonu yapılmıştır. README'ye değişikliklerin etkilerinin dağılımını gösteren bir bölüm eklenmiştir ("impact_counts") ve projedeki değişikliklerin izlenmesiyle ilgili özellikleri özetleyen bir bölüm eklenmiştir ("Tracking Features").  `--cli` argümanı ile komut satırı kurulumu seçeneği eklenmiştir.
 
-- **Değiştirilen Özellikler:** README oluşturma süreci optimize edilmiştir. macOS kurulum sihirbazı, kurulum tipi seçimi açısından daha esnek hale getirilmiştir. Gemini API entegrasyonunun yönetimi, ortam değişkenlerinden `ConfigurationManager`'a taşınmıştır.
+* **Değiştirilen Özellikler:**  GUI ve CLI kurulumları arasında daha esnek geçişler sağlanmıştır.  PyQt5 bulunmadığında otomatik olarak CLI'ya geçiş yapılır. README oluşturma süreci optimize edilmiştir.
 
-- **Kaldırılan Özellikler:**  Belirgin bir özellik kaldırılmamıştır.
+* **Kaldırılan Özellikler:** Açıkça kaldırılan bir özellik yoktur.
 
-- **Kullanıcı Deneyimi:**  Kullanıcı deneyimi, özellikle macOS kurulumu için sürükle-bırak özelliği ve daha iyi organize edilmiş GUI ile iyileştirilmiştir.  README'nin daha güncel ve bilgilendirici olması da kullanıcı deneyimine olumlu katkı sağlamıştır.
+* **Kullanıcı Deneyimi:** Kullanıcı deneyimi, GUI kurulumunun eklenmesi, sürükle ve bırak desteği ve geliştirilmiş hata mesajları ile önemli ölçüde iyileştirilmiştir.
 
-- **Performans, Güvenlik veya Güvenilirlik:**  `readme_generator.py`'deki değişiklikler minimal bir performans iyileşmesine yol açabilir.  macOS kurulum sihirbazındaki modüler yapı ve `gemini_client.py`'deki `ConfigurationManager` kullanımı güvenilirliği ve güvenliği artırmıştır.  Büyük dosya işlemedeki iyileştirmeler performansı artırabilir.
+* **Performans, Güvenlik veya Güvenilirlik:** GUI kurulumu CLI'ya göre daha yavaş olabilir, ancak bu beklenen bir durumdur.  Geliştirilmiş hata yönetimi ve modüler yapı güvenilirliği artırır.  Güvenlik açısından belirgin bir değişiklik yok, ancak izinlerin yönetimi konusunda iyileştirmeler yapılmış olabilir.
 
 
-### 3. TEKNİK DERİNLİK:
+### 3. TEKNİK DERINLIK:
 
-- **Tasarım Desenleri:**  `readme_generator.py`'deki değişiklikler "Ayrıştırma/Separation of Concerns" ilkesini yansıtır. macOS kurulum sihirbazında, modülerlik ve tek sorumluluk ilkesine uygun bir tasarım yaklaşımı izlenmiştir.  `gemini_client.py`'de ise Singleton veya Dependency Injection tasarım desenleri kullanılmıştır.
+* **Tasarım Desenleri:** Strategy Pattern (farklı kurulum tipleri için farklı stratejiler), dolaylı olarak Factory Pattern (farklı kurulum tiplerinin oluşturulması) ve Separation of Concerns (sorumlulukların ayrılması) prensipleri kullanılmıştır.
 
-- **Kod Kalitesi ve Sürdürülebilirlik:**  Tüm değişiklikler kod kalitesini ve sürdürülebilirliğini artırmıştır.  Modüler yapı, daha iyi hata yönetimi ve loglama, kodun okunabilirliğini, bakımı ve gelecekteki geliştirmeleri kolaylaştırmıştır.
+* **Kod Kalitesi ve Sürdürülebilirlik:** Kod kalitesi, modüler tasarım, geliştirilmiş hata yönetimi ve daha iyi kod organizasyonu ile önemli ölçüde iyileştirilmiştir.  Bu, kodun sürdürülebilirliğini ve bakımını kolaylaştırır.
 
-- **Yeni Bağımlılıklar veya Teknolojiler:**  `google.generativeai` kütüphanesi Gemini API entegrasyonu için eklenmiştir.  macOS kurulum sihirbazı PyQt5 kullanmaktadır ve arka plan oluşturma muhtemelen PIL veya Pillow kütüphanesini kullanmaktadır.
+* **Yeni Bağımlılıklar veya Teknolojiler:** PyQt5 (GUI için) ve muhtemelen PIL/Pillow (arka plan görüntü oluşturma için) yeni bağımlılıklar olarak eklenmiştir.
 
 
 ### 4. SONUÇ YORUMU:
 
-- **Uzun Vadeli Değer ve Etki:**  Bu değişiklikler, projenin uzun vadeli sürdürülebilirliğini ve kalitesini önemli ölçüde artırmıştır.  Daha güncel bir README, daha kullanıcı dostu bir macOS kurulum sihirbazı ve Google Gemini API entegrasyonu, projenin değerini artırmaktadır.
+* **Uzun Vadeli Değer ve Etki:** Bu değişiklikler, projenin uzun vadeli sürdürülebilirliğini ve kullanıcı deneyimini artırmıştır.  Daha modüler ve daha iyi organize edilmiş kod, gelecekteki geliştirmeleri kolaylaştıracaktır.  Kullanıcılar için daha kullanıcı dostu bir kurulum süreci sunulmuştur.
 
-- **Teknik Borcun Etkilenmesi:**  Projenin teknik borcu, daha modüler ve okunabilir kod yapısı sayesinde azaltılmıştır.  Daha iyi hata yönetimi ve loglama da bu azalmaya katkıda bulunmuştur.
+* **Projenin Teknik Borcu:** Projenin teknik borcu, daha iyi kod organizasyonu ve hata yönetimi sayesinde azaltılmıştır.
 
-- **Gelecekteki Geliştirmelere Hazırlık:**  Modüler yapı ve iyileştirilmiş kod kalitesi, gelecekteki özellik eklemelerini ve hata düzeltmelerini kolaylaştıracaktır.  Özellikle, Gemini API entegrasyonu gelecekte daha gelişmiş özelliklerin eklenmesine olanak tanır.
+* **Gelecekteki Geliştirmelere Hazırlık:** Modüler yapı, gelecekte yeni kurulum yöntemlerinin veya özelliklerin kolayca eklenmesine olanak tanır.  Ancak, PyQt5 bağımlılığı nedeniyle dağıtım stratejisi gözden geçirilmelidir.  Alternatif çözümler (örneğin, PyQt5'in otomatik kurulumu veya alternatif bir GUI kütüphanesi) değerlendirilmelidir.
 
 ## 🛠️ Kurulum (Installation)
 
@@ -218,7 +217,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**Last updated**: June 12, 2025 by Summarizer Framework v7.0.0
+**Last updated**: June 12, 2025 by Summarizer Framework v7.1.0
 *This README is automatically generated and updated based on project activity.*
 
 > *"Automatically maintained with AI-powered analysis"*

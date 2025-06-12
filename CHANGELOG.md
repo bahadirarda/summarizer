@@ -3,6 +3,43 @@
 Bu dosya otomatik olarak generate edilmiştir.
 Düzenlemeler için `changelog.json` dosyasını kullanın.
 
+## 2025-06-12 13:15:16
+
+### 1. YAPISAL ANALİZ:
+
+Değişiklikler, `macos-setup-wizard/setup_installer.py` dosyasında yoğunlaşmıştır. Bu dosya, kurulum programının giriş noktasıdır ve hem komut satırı arayüzü (CLI) hem de grafiksel kullanıcı arayüzü (GUI) kurulumlarını yönetir.  Sistemin katmanları açısından bakıldığında, değişiklikler esas olarak sunum katmanını (GUI veya CLI) ve kurulum mantığını içeren uygulama katmanını etkilemiştir.  Mimari değişiklik yok denecek kadar azdır; mevcut mimari korunmuştur.  Ancak, hata yönetimi ve GUI başarısızlığı durumunda CLI'a geri dönüş mekanizması eklenmiştir. Kod organizasyonu açısından, hata yakalama blokları daha sağlam hale getirilmiştir.  `try...except` blokları, hem `ImportError` hem de genel `Exception` durumlarını ele alarak daha kapsamlı bir hata yönetimi sağlamaktadır.  CLI ve GUI kurulumları arasında daha net bir ayrım sağlanmıştır.
+
+
+### 2. İŞLEVSEL ETKİ:
+
+Temel işlevsellik değişmemiştir; program hala kullanıcı veya sistem düzeyinde kurulum sağlar. Ancak, şu değişiklikler yapılmıştır:
+
+* **GUI Kurulumu Geliştirmesi:** PyQt5 kullanarak GUI kurulumu eklenmiştir. Bu, kullanıcılara daha kullanıcı dostu bir kurulum deneyimi sunar.  Ancak, PyQt5'in bulunmaması durumunda CLI'a otomatik geri dönüş mekanizması eklenmiştir. Bu, PyQt5 kurulu olmayan sistemlerde kurulumun başarısız olmasını engeller.
+* **Hata Yönetimi Geliştirmesi:**  `try...except` blokları genişletilerek, PyQt5 içe aktarma hataları ve GUI kurulumunun beklenmedik şekilde başarısız olması durumları ele alınmıştır.  Bu, daha sağlam ve kullanıcı dostu bir kurulum süreci sağlar.  Kullanıcıya daha bilgilendirici hata mesajları verilir ve CLI'a otomatik olarak geçiş yapılır.
+* **Komut Satırı Seçeneği:**  `--cli` argümanı sayesinde, kullanıcılar komut satırı üzerinden kurulum yapabilirler.  `sys.stdout.isatty()` kontrolü sayesinde,  standart çıktı bir terminale yönlendirilmediğinde (örneğin, bir scriptten çağrıldığında) otomatik olarak CLI kurulumu başlatılır. Bu esneklik sunar.
+
+Kullanıcı deneyimi, GUI seçeneği eklenmesiyle iyileştirilmiştir.  Hata yönetimindeki iyileştirmeler de kullanıcı deneyimini olumlu yönde etkiler, çünkü olası hatalar daha iyi yönetilir ve kullanıcıya bildirilir.  Performans açısından, GUI kurulumu CLI'ya göre daha yavaş olabilir; ancak, bu beklenen bir durumdur ve hata yönetimi nedeniyle genel performansın önemli ölçüde etkilenmesi beklenmez.  Güvenlik ve güvenilirlik açısından önemli bir değişiklik yoktur.
+
+
+### 3. TEKNİK DERINLIK:
+
+* **Tasarım Desenleri:**  Temel olarak,  "Strategy Pattern" (Strateji Deseni) kullanılmıştır.  CLI ve GUI kurulumları, farklı stratejiler olarak uygulanmıştır ve `setup_installer.py` bunları koşullu olarak seçer.
+* **Kod Kalitesi ve Sürdürülebilirlik:** Kod kalitesi, daha iyi hata yönetimi ve daha net bir kod yapısıyla iyileştirilmiştir.  Bu, kodun sürdürülebilirliğini artırır.
+* **Yeni Bağımlılıklar:** PyQt5 kütüphanesi yeni bir bağımlılık olarak eklenmiştir.  Bu kütüphane, GUI kurulumunu sağlamak için gereklidir.
+
+
+### 4. SONUÇ YORUMU:
+
+Bu değişiklikler, kurulum programının kullanıcı deneyimini ve güvenilirliğini önemli ölçüde artırmıştır.  PyQt5 entegrasyonu, daha kullanıcı dostu bir kurulum seçeneği sunar.  Geliştirilmiş hata yönetimi, beklenmedik durumları daha iyi ele alır ve olası başarısızlıkları önler.  Uzun vadede, bu değişiklikler projenin sürdürülebilirliğini artıracak ve daha geniş bir kullanıcı kitlesine ulaşılmasını sağlayacaktır.  Projenin teknik borcu, daha iyi hata yönetimi ve kod organizasyonu sayesinde azaltılmıştır.  Gelecekteki geliştirmeler için, modüler bir yapı oluşturulmuştur; yeni kurulum yöntemleri kolayca eklenebilir.  PyQt5 bağımlılığı, projenin dağıtımını etkileyebilir; bu nedenle, bu bağımlılığın yönetimi ve olası alternatifler göz önünde bulundurulmalıdır.
+
+**Değişen Dosyalar:** macos-setup-wizard/setup_installer.py
+**Etki Seviyesi:** High
+**Değişiklik Tipi:** Other
+**Satır Değişiklikleri:** +61
+**Etiketler:** gui, macos-setup-wizard, api, setup-installer
+
+---
+
 ## 2025-06-12 13:08:45
 
 ### 1. YAPISAL ANALİZ:
