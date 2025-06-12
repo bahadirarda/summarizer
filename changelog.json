@@ -3,10 +3,39 @@
     "version": "1.0",
     "project_name": "Summarizer Framework",
     "created_at": "2025-06-11T16:09:37.067316",
-    "last_updated": "2025-06-12T13:15:16.322779",
-    "total_entries": 30
+    "last_updated": "2025-06-12T13:20:43.930322",
+    "total_entries": 31
   },
   "entries": [
+    {
+      "id": "entry_20250612_132043",
+      "timestamp": "2025-06-12T13:20:43.929597",
+      "ai_summary": "### 1. YAPISAL ANALİZ:\n\nDeğişiklikler, Summarizer Framework'ün dört ana bileşenini etkilemiştir: GUI (Kullanıcı Arayüzü), API Sunucusu, Yardımcı Araçlar ve Ana İş Mantığı.\n\n* **GUI:** `gui_launcher.py` ve `install_gui.py` dosyalarındaki değişiklikler, GUI'nin başlatılmasını ve kurulumunu etkiler. `gui_launcher.py`, projenin kök dizinini doğru bir şekilde tespit ederek `flet` kütüphanesinin kullanımını sağlıyor.  `install_gui.py` dosyasının içeriği kısaltılmış olduğundan, GUI kurulum işleminin detaylarını tam olarak analiz etmek mümkün değil. Ancak, dosya adından ve yorum satırlarından, GUI bileşenlerinin kurulumunu ve terminal komutlarının ayarlanmasını sağladığı anlaşılıyor.\n\n* **API Sunucusu:** `api_server.py` dosyasındaki değişiklikler, API sunucusunun başlatılma ve çalışma şeklini etkilemez.  Ancak, sunucunun başlatılması sırasında `src/main` modülünden `summarizer()` fonksiyonunun çağrılması, ana iş mantığı ile API sunucusu arasında bir bağlantı olduğunu gösteriyor. Bu, ana iş mantığındaki değişikliklerin API sunucusunun çıktısını da dolaylı olarak etkileyebileceği anlamına gelir.\n\n* **Yardımcı Araçlar:** `src/utils/file_tracker.py` dosyası, dosya izleme ve yedekleme işlevselliğini sağlıyor.  Kodun büyük bir kısmı kırpılmış olsa da,  `_discover_python_directories` ve `create_file_backups` fonksiyonlarının varlığı, projenin Python dosyalarını otomatik olarak tespit edip yedeklerini oluşturduğunu göstermektedir.  `get_aggregate_line_stats` fonksiyonu ise kod değişikliklerinin istatistiksel analizini yapmaktadır.  Bu, projenin geliştirme sürecinde kod değişikliklerini takip etmek ve analiz etmek için bir mekanizma kullandığını gösterir.\n\n* **Ana İş Mantığı:** `summarizer.py` dosyasındaki değişiklikler (içerik verilmediği için detaylı analiz yapılamaz)  ana işlevselliği doğrudan etkiler.  Bu dosyada yapılan değişiklikler, özetleme algoritmasının veya iş mantığının değiştirilmesi anlamına gelebilir.\n\n\nMimari açısından bakıldığında, değişiklikler mevcut mimariyi önemli ölçüde değiştirmemektedir.  Ancak, `src/main` modülünün `api_server.py` tarafından çağrılması,  modüler bir tasarım olduğunu ve işlevsel bileşenlerin birbirleriyle nasıl etkileşimde bulunduğunu göstermektedir.  `file_tracker.py` dosyası ise kod tabanının izlenmesi ve yedeklenmesi için kullanılan yardımcı bir bileşendir ve bu da geliştirme sürecinin düzenliliğini sağlar.\n\n\nKod organizasyonu açısından, proje, katmanlı bir mimari (GUI, API, yardımcı araçlar, ana iş mantığı) kullanmaktadır. Bu, kodun daha düzenli ve bakımı kolay olmasını sağlar.  `src` dizini altında alt dizinlerin kullanımı,  kodun daha iyi organize edilmesine katkıda bulunur.\n\n\n### 2. İŞLEVSEL ETKİ:\n\n`summarizer.py` dosyasındaki değişikliklerin ayrıntıları verilmediği için,  ana işlevsellikteki değişiklikleri kesin olarak belirlemek mümkün değildir. Ancak, `file_tracker.py`'deki değişiklikler, kod değişikliklerinin izlenmesi ve yedeklenmesi işlevselliğini ekler veya geliştirir.  Bu, geliştirme sürecinin daha güvenli ve izlenebilir olmasını sağlar.\n\nGUI'deki değişiklikler (tam içerik bilinmediği için) muhtemelen kullanıcı deneyimini etkiler.  Yeni özellikler eklenebilir, mevcut özellikler iyileştirilebilir veya arayüzün görünümü değiştirilebilir.\n\nAPI sunucusunda işlevsel bir değişiklik görülmemektedir. Ancak,  `summarizer()` fonksiyonunun çağrılması,  API sunucusunun ana iş mantığıyla  birlikte çalıştığını gösterir. Bu nedenle, `summarizer.py`'deki değişiklikler, API'nin sunduğu verileri ve işlevselliği dolaylı olarak etkileyebilir.\n\nPerformans, güvenlik veya güvenilirlik üzerindeki etkiler,  `summarizer.py` ve `gui_launcher.py` dosyalarındaki değişikliklerin kapsamına ve doğasına bağlıdır.  `file_tracker.py` dosyasındaki değişiklikler,  yedekleme işlemleri nedeniyle performans üzerinde küçük bir etkiye sahip olabilir, ancak bu etki genellikle ihmal edilebilir düzeydedir.\n\n\n### 3. TEKNİK DERINLIK:\n\nDeğişikliklerin ayrıntıları yetersiz olduğundan, uygulanan tasarım desenlerini kesin olarak belirlemek zordur. Ancak,  katmanlı mimari ve modüler tasarım unsurları gözlemlenmektedir.\n\nKod kalitesi ve sürdürülebilirlik,  `file_tracker.py`'nin eklenmesi veya güncellenmesiyle iyileştirilmiştir.  Bu dosya, kod değişikliklerini izlemek ve yedekleme oluşturmak suretiyle,  hata ayıklama ve geri alma işlemlerini kolaylaştırır.  Bu, kod kalitesini ve sürdürülebilirliği artırır.\n\nYeni bağımlılıklar,  `gui_launcher.py` dosyasındaki `flet` kütüphanesinin kullanımı ile eklenmiştir.  Bu kütüphane GUI'nin oluşturulması için gereklidir.\n\n### 4. SONUÇ YORUMU:\n\nBu değişikliklerin uzun vadeli değeri,  `summarizer.py` dosyasındaki değişikliklerin doğasına bağlıdır.  Eğer ana işlevselliği iyileştiren veya yeni özellikler ekleyen değişikliklerse,  uzun vadeli değer yüksek olacaktır.  `file_tracker.py` dosyasındaki değişiklikler,  geliştirme sürecinin kalitesini ve verimliliğini artırarak uzun vadeli bir değer sağlar.\n\nProjenin teknik borcu,  `file_tracker.py`'nin eklenmesiyle azaltılabilir, çünkü bu dosya, kod değişikliklerini izleyerek ve yedekleme oluşturarak gelecekteki hataların önlenmesine yardımcı olur.  Ancak,  `summarizer.py` dosyasındaki değişikliklerin doğasına bağlı olarak teknik borç artmış da olabilir.\n\nGelecekteki geliştirmelere hazırlık,  modüler tasarım ve katmanlı mimari ile sağlanır.  Bu,  yeni özellikler eklemek veya mevcut özellikleri değiştirmek için daha kolay bir yapı sağlar.  `file_tracker.py` dosyasının eklenmesi, gelecekteki değişiklikleri daha iyi izleme ve yönetme yeteneği sağlar.  Ancak, detaylı kod değişiklikleri olmadan kesin bir değerlendirme yapılamaz.",
+      "changed_files": [
+        "gui_launcher.py",
+        "api_server.py",
+        "install_gui.py",
+        "summarizer.py",
+        "src/utils/file_tracker.py"
+      ],
+      "impact_level": "high",
+      "change_type": "feature",
+      "tags": [
+        "utils",
+        "gui-launcher",
+        "gui",
+        "install-gui",
+        "api-server",
+        "summarizer",
+        "api",
+        "file-tracker"
+      ],
+      "file_count": 5,
+      "lines_added": 521,
+      "lines_removed": 0,
+      "commit_hash": null,
+      "author": null
+    },
     {
       "id": "entry_20250612_131516",
       "timestamp": "2025-06-12T13:15:16.322525",

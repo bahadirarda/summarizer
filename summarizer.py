@@ -3,6 +3,7 @@
 🚀 Summarizer Framework - Enhanced Entry Point
 
 This module provides multiple ways to use the summarizer:
+# Test change for file tracking - v7.0.0
 
 Terminal Commands:
     summarizer                    # Run basic summarizer
