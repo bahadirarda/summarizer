@@ -295,7 +295,7 @@ Examples:
         else:
             print()
             print("🔧 Quick setup options:")
-            print("   summarizer --setup    # Interactive setup")
+            print("   summarizer --setup    # Interactive setup.")
             print("   summarizer --gui      # GUI configuration")
             return False
 
@@ -323,3 +323,5 @@ if __name__ == "__main__":
 
 # TODO: Her pushtan sonra otomatik olarak release boyutunda olabilecek bir güncelleme ise release olduğunu anlasın vs. geliştir kanka.
 # TODO: Kişisel know-how havuzu oluşturabilmek için lazım. Ya login oluşturulmuş olacak ya da summerizer edilmiş olacak. Dökümantasyon, VSCode Extension, using style: Page -> Write just Login than snippet tarzı veri gelişi.
+# BiG TODO: Summarizer Eye: bir göz gibi çalışacak, sürekli kodu analiz edecek, değişiklikleri takip edecek, yeni özellikler önericek, kodu optimize edecek. AI destekli bir göz.
+# TODO:  Add to new option in context menu to run summarizer on current file or selection
