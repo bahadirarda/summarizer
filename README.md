@@ -1,62 +1,60 @@
-# 🚀 macOS Özetleyici Yazılımı Kurulum Sihirbazı
-> Kullanıcı dostu bir arayüzle macOS için özetleyici yazılımını kolayca kurmanıza olanak sağlayan güçlü bir kurulum sihirbazı.
+# 🚀 project.110620251156
+> Özetleme yetenekleri sunan modern bir web uygulaması.  Verimli ve güvenilir bir şekilde metin özetleme işlemleri gerçekleştirir.
 
 ## 📊 Proje Durumu
-Proje aktif geliştirme aşamasındadır.  Son güncellemeler, kullanıcı deneyimini iyileştiren ve kurulum sürecini daha güvenilir hale getiren önemli geliştirmeler içeriyor.  Sürükle ve bırak kurulum desteği eklendi.  GUI ve CLI kurulum seçenekleri arasında sorunsuz geçiş sağlanıyor.
+Proje aktif geliştirme aşamasındadır.  Son güncellemeler, kullanıcı arayüzü iyileştirmeleri, gelişmiş hata yönetimi ve otomatik kod izleme ve yedekleme sistemini içermektedir.  README dosyası da otomatik güncelleme yeteneği kazanmıştır.  Güncellemeler, projenin stabilitesini, güvenilirliğini ve sürdürülebilirliğini artırmaya odaklanmıştır.
 
 ## ✨ Özellikler
-* **Kullanıcı Dostu GUI:** PyQt5 tabanlı görsel kurulum arayüzü.
-* **Komut Satırı Arabirimi (CLI):**  Esneklik için komut satırı kurulum desteği.
-* **Sürükle ve Bırak Kurulumu:** Yeni ve kolay bir kurulum yöntemi.
-* **Gelişmiş Hata Yönetimi:**  Daha sağlam ve bilgilendirici hata mesajları.
-* **Otomatik Framework Versiyon Tespiti:** README dosyasında proje framework versiyonunun doğru tespiti.
-* **Güncellenen README:** Otomatik olarak güncellenen, proje değişikliklerini ve etkilerini gösteren README dosyası.
+* Metin özetleme
+* Kullanıcı dostu arayüz (GUI)
+* Komut satırı arayüzü (CLI) desteği
+* Otomatik kod yedekleme ve izleme
+* Gelişmiş hata yönetimi
+* Otomatik README güncelleme
 
 
 ## Değişen Dosyalar:
-`macos-setup-wizard/setup_installer.py`, `macos-setup-wizard/cli_installer.py`, `macos-setup-wizard/gui_installer.py`, `macos-setup-wizard/drag_drop_installer.py`, `macos-setup-wizard/ui/`, `src/utils/readme_generator.py`
+`gui_launcher.py`, `install_gui.py`, `api_server.py`, `src/utils/file_tracker.py`, `summarizer.py`, `macos-setup-wizard/setup_installer.py`, `src/utils/readme_generator.py`
 
 
 ## ANALİZ GÖREVİ:
 
 ### 1. YAPISAL ANALİZ:
 
-* **Etkilenen Bileşenler ve Katmanlar:**  Değişiklikler, macOS kurulum sihirbazının tüm katmanlarını etkilemiştir.  `macos-setup-wizard` dizini içindeki `setup_installer.py` (kurulum motorunun giriş noktası), `cli_installer.py`, `gui_installer.py` ve yeni eklenen `drag_drop_installer.py` dosyaları doğrudan etkilenmiştir.  `ui` alt dizini (GUI), `config` alt dizini (ayarlar), `utils` alt dizini (yardımcı fonksiyonlar) ve arka plan görüntü oluşturma ile ilgili dosyalar dolaylı olarak etkilenmiştir.  `src/utils/readme_generator.py` dosyasındaki değişiklikler ise README dosyasının oluşturulmasını ve güncellenmesini etkilemiştir.
+Birden fazla commit'in analizi sunulduğu için, her bir commit'in yapısını ayrı ayrı inceleyeceğiz:
 
-* **Mimari Değişikliklerin Etkisi:** Mimari, modüler bir yapıya doğru evrilmiştir.  Başlangıçta muhtemelen tek bir dosyada bulunan kurulum mantığı, farklı kurulum tipleri için ayrı modüllere (CLI, GUI, Drag-and-Drop) ayrılmıştır.  Bu, "Strategy Pattern"e benzer bir yaklaşımı göstermektedir.  MVC veya MVVM mimarisine benzer bir yapıya geçiş yapılmış ve bu da sürdürülebilirliği ve test edilebilirliği artırmıştır.
+**Commit 1 (Summarizer Framework Değişiklikleri):**  Bu commit, Summarizer Framework'ün dört ana bileşenini (GUI, API Sunucusu, Yardımcı Araçlar, Ana İş Mantığı) etkilemiştir.  Mimari temelde değişmemiş, ancak `src/main` modülünün `api_server.py` tarafından çağrılması, daha modüler bir yapıya işaret etmektedir.  Kod organizasyonu açısından, katmanlı bir mimari (GUI, API, yardımcı araçlar, ana iş mantığı) kullanımı ve `src` dizini altındaki alt dizinler, kodun daha iyi organize edilmesini sağlamaktadır.  `file_tracker.py` dosyasının eklenmesiyle kod izleme ve yedekleme mekanizması entegre edilmiştir.
 
-* **Kod Organizasyonundaki İyileştirmeler:** Kod, alt dizinler ve modüller halinde daha iyi organize edilmiştir.  Hata yönetimi iyileştirilmiş, özellikle `try...except` blokları genişletilmiştir.  `readme_generator.py` dosyasında, `_get_framework_version` fonksiyonu, daha sağlam bir versiyon tespiti için üst dizinleri kontrol edecek şekilde geliştirilmiştir.  README içeriği tek bir noktadan (`generate_complete_readme_content` fonksiyonu) oluşturularak okunabilirlik artırılmıştır.
+**Commit 2 (macOS Kurulum Sihirbazı Değişiklikleri):** Bu commit, `macos-setup-wizard/setup_installer.py` dosyasına odaklanmıştır.  Değişiklikler esas olarak sunum (GUI/CLI) ve uygulama katmanlarını etkilemiştir. Mimari açısından önemli bir değişiklik yoktur.  Ancak, hata yönetimi iyileştirilmiş ve PyQt5 desteği eklenerek GUI kurulumu mümkün hale getirilmiştir.  CLI ve GUI kurulumları arasında daha net bir ayrım yapılmış ve PyQt5 bulunmaması durumunda CLI'a otomatik geçiş sağlanmıştır. Kod organizasyonu, daha sağlam `try...except` blokları ile iyileştirilmiştir.
+
+**Commit 3 (README Generator Değişiklikleri):** Bu commit, sadece `src/utils/readme_generator.py` dosyasını etkilemiştir.  Mimari değişiklik minimaldir; mevcut yardımcı araç geliştirilmiştir. Kod organizasyonu,  `_get_framework_version` fonksiyonunun geliştirilmesi ve `generate_complete_readme_content` fonksiyonunun eklenmesiyle iyileştirilmiştir.  Bu iyileştirmeler, daha sağlam bir versiyon tespiti ve daha okunabilir bir kod yapısı sağlamaktadır.
 
 
 ### 2. İŞLEVSEL ETKİ:
 
-* **Eklenen Özellikler:** Sürükle ve bırak kurulumu eklenmiştir.  GUI kurulumu eklenmiş ve PyQt5 entegrasyonu yapılmıştır. README'ye değişikliklerin etkilerinin dağılımını gösteren bir bölüm eklenmiştir ("impact_counts") ve projedeki değişikliklerin izlenmesiyle ilgili özellikleri özetleyen bir bölüm eklenmiştir ("Tracking Features").  `--cli` argümanı ile komut satırı kurulumu seçeneği eklenmiştir.
+**Commit 1:** `summarizer.py` değişiklikleri nedeniyle ana işlevsellikteki değişiklikler tam olarak belirlenememektedir.  Ancak, `file_tracker.py`'nin eklenmesi, kod değişikliklerinin izlenmesi ve yedeklenmesi işlevselliğini eklemiştir.  GUI değişiklikleri muhtemelen kullanıcı deneyimini etkilemiş ancak ayrıntılar bilinmemektedir. API sunucusunda işlevsel bir değişiklik yoktur, ancak `summarizer()` fonksiyonunun çağrılması, ana iş mantığıyla etkileşimi göstermektedir.
 
-* **Değiştirilen Özellikler:**  GUI ve CLI kurulumları arasında daha esnek geçişler sağlanmıştır.  PyQt5 bulunmadığında otomatik olarak CLI'ya geçiş yapılır. README oluşturma süreci optimize edilmiştir.
+**Commit 2:** Temel işlevsellik değişmemiştir. Ancak, PyQt5 destekli GUI kurulumu eklenmiş, hata yönetimi geliştirilmiş ve CLI seçeneği iyileştirilmiştir.  Kullanıcı deneyimi, GUI ve daha iyi hata mesajları ile iyileşmiştir.  Performans açısından, GUI kurulumu daha yavaş olabilir. Güvenlik ve güvenilirlikte önemli bir değişiklik yoktur.
 
-* **Kaldırılan Özellikler:** Açıkça kaldırılan bir özellik yoktur.
-
-* **Kullanıcı Deneyimi:** Kullanıcı deneyimi, GUI kurulumunun eklenmesi, sürükle ve bırak desteği ve geliştirilmiş hata mesajları ile önemli ölçüde iyileştirilmiştir.
-
-* **Performans, Güvenlik veya Güvenilirlik:** GUI kurulumu CLI'ya göre daha yavaş olabilir, ancak bu beklenen bir durumdur.  Geliştirilmiş hata yönetimi ve modüler yapı güvenilirliği artırır.  Güvenlik açısından belirgin bir değişiklik yok, ancak izinlerin yönetimi konusunda iyileştirmeler yapılmış olabilir.
+**Commit 3:** README.md dosyasına otomatik olarak eklenen yeni bölümler (impact_counts ve Tracking Features) eklenmiştir.  Framework versiyon tespiti iyileştirilmiş ve README oluşturma süreci optimize edilmiştir.  Kullanıcı deneyimi doğrudan etkilenmemiş, ancak güncellenmiş README daha iyi bir deneyim sağlar. Performans üzerinde minimal bir iyileşme, güvenilirlikte ise artış vardır.
 
 
 ### 3. TEKNİK DERINLIK:
 
-* **Tasarım Desenleri:** Strategy Pattern (farklı kurulum tipleri için farklı stratejiler), dolaylı olarak Factory Pattern (farklı kurulum tiplerinin oluşturulması) ve Separation of Concerns (sorumlulukların ayrılması) prensipleri kullanılmıştır.
+**Commit 1:** Katmanlı mimari ve modüler tasarım unsurları gözlemlenmektedir. Kod kalitesi ve sürdürülebilirlik, `file_tracker.py` ile iyileştirilmiştir.  `flet` kütüphanesi yeni bir bağımlılık olarak eklenmiştir.
 
-* **Kod Kalitesi ve Sürdürülebilirlik:** Kod kalitesi, modüler tasarım, geliştirilmiş hata yönetimi ve daha iyi kod organizasyonu ile önemli ölçüde iyileştirilmiştir.  Bu, kodun sürdürülebilirliğini ve bakımını kolaylaştırır.
+**Commit 2:** "Strategy Pattern" kullanılmıştır (CLI ve GUI kurulum stratejileri). Kod kalitesi, daha iyi hata yönetimi ve daha net kod yapısıyla iyileştirilmiştir. PyQt5 kütüphanesi yeni bir bağımlılık olarak eklenmiştir.
 
-* **Yeni Bağımlılıklar veya Teknolojiler:** PyQt5 (GUI için) ve muhtemelen PIL/Pillow (arka plan görüntü oluşturma için) yeni bağımlılıklar olarak eklenmiştir.
+**Commit 3:** Belirgin bir tasarım deseni değişikliği yoktur, ancak ayrıştırma ilkesi uygulanmıştır. Kod kalitesi ve sürdürülebilirlik iyileştirilmiştir. Yeni bağımlılık eklenmemiştir.
 
 
 ### 4. SONUÇ YORUMU:
 
-* **Uzun Vadeli Değer ve Etki:** Bu değişiklikler, projenin uzun vadeli sürdürülebilirliğini ve kullanıcı deneyimini artırmıştır.  Daha modüler ve daha iyi organize edilmiş kod, gelecekteki geliştirmeleri kolaylaştıracaktır.  Kullanıcılar için daha kullanıcı dostu bir kurulum süreci sunulmuştur.
+**Commit 1:** Uzun vadeli değer, `summarizer.py` değişikliklerine bağlıdır.  `file_tracker.py` uzun vadeli değer sağlar. Teknik borç, `file_tracker.py` ile azaltılabilir, ancak `summarizer.py` değişiklikleri bunu artırmış olabilir. Modüler tasarım ve katmanlı mimari, gelecekteki geliştirmelere hazırlık sağlar.
 
-* **Projenin Teknik Borcu:** Projenin teknik borcu, daha iyi kod organizasyonu ve hata yönetimi sayesinde azaltılmıştır.
+**Commit 2:** Bu değişiklikler, kullanıcı deneyimini ve güvenilirliği önemli ölçüde artırmıştır.  Teknik borç azaltılmıştır.  Modüler yapı, gelecekteki geliştirmelere hazırlık sağlar. PyQt5 bağımlılığı, dağıtımı etkileyebilir.
 
-* **Gelecekteki Geliştirmelere Hazırlık:** Modüler yapı, gelecekte yeni kurulum yöntemlerinin veya özelliklerin kolayca eklenmesine olanak tanır.  Ancak, PyQt5 bağımlılığı nedeniyle dağıtım stratejisi gözden geçirilmelidir.  Alternatif çözümler (örneğin, PyQt5'in otomatik kurulumu veya alternatif bir GUI kütüphanesi) değerlendirilmelidir.
+**Commit 3:** Bu değişiklikler, README'nin güncelliğini ve bilgilendiriciliğini artırarak uzun vadeli değer sağlar. Teknik borç azaltılmıştır.  README güncelleme süreci daha otomatik ve yönetilebilir hale getirilmiştir.  Genel olarak, projenin kalitesi ve sürdürülebilirliği olumlu yönde etkilenmiştir.
 
 ## 🛠️ Kurulum (Installation)
 
@@ -217,7 +215,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**Last updated**: June 12, 2025 by Summarizer Framework v7.1.0
+**Last updated**: June 12, 2025 by Summarizer Framework v7.2.0
 *This README is automatically generated and updated based on project activity.*
 
 > *"Automatically maintained with AI-powered analysis"*

@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 def _discover_python_directories(project_root_path: Path) -> list[str]:
     """
-    Automatically discovers all subdirectories that contain Python files.
+    Automatically discovers all directories (including root) that contain Python files.
     
     Args:
         project_root_path: Root path of the project
@@ -38,7 +38,21 @@ def _discover_python_directories(project_root_path: Path) -> list[str]:
         "*.egg-info"
     }
     
-    # Walk through all directories and find those containing Python files
+    # First, check if the root directory itself contains Python files
+    root_has_python = False
+    try:
+        for py_file in project_root_path.glob("*.py"):
+            if py_file.is_file() and not py_file.name.startswith('.'):
+                root_has_python = True
+                break
+    except (PermissionError, OSError) as e:
+        logger.warning(f"Could not scan root directory {project_root_path}: {e}")
+    
+    if root_has_python:
+        python_dirs.add(".")  # Add root directory
+        logger.info(f"Found Python files in root directory")
+    
+    # Walk through all subdirectories and find those containing Python files
     for item in project_root_path.iterdir():
         if not item.is_dir():
             continue
@@ -108,22 +122,33 @@ def get_changed_files_since_last_run(
 
     # Process each watch directory
     for watch_dir in watch_dirs:
-        tracked_dir_path = project_root_path / watch_dir
+        if watch_dir == ".":
+            # Handle root directory specially - only scan immediate Python files
+            tracked_dir_path = project_root_path
+            file_pattern = "*.py"
+            file_iterator = tracked_dir_path.glob(file_pattern)
+        else:
+            # Handle subdirectories normally - scan recursively
+            tracked_dir_path = project_root_path / watch_dir
+            if not tracked_dir_path.is_dir():
+                logger.warning(
+                    f"Watch directory {tracked_dir_path} does not exist. "
+                    f"Skipping {watch_dir}."
+                )
+                continue
+            file_iterator = tracked_dir_path.rglob("*.py")
 
-        if not tracked_dir_path.is_dir():
-            logger.warning(
-                f"Watch directory {tracked_dir_path} does not exist. "
-                f"Skipping {watch_dir}."
-            )
-            continue
-
-        for file_path_obj in tracked_dir_path.rglob("*.py"):
+        for file_path_obj in file_iterator:
             if "__pycache__" in str(
                     file_path_obj.parts):  # Check parts for __pycache__
                 continue
             
             # Skip .summarizer directory to avoid infinite recursion
             if SUMMARIZER_DIR in str(file_path_obj.parts):
+                continue
+            
+            # For root directory, skip hidden files
+            if watch_dir == "." and file_path_obj.name.startswith('.'):
                 continue
 
             try:
