@@ -1,58 +1,58 @@
-# 🚀 project.110620251156
-> Güçlü bir komut satırı aracı ve özelleştirilebilir bir GUI'ye sahip, metin özetleme uygulaması. Ekran görüntüsü alma ve farklı uygulamaları destekleme özelliği ile zenginleştirildi.
+# 🚀 Summarizer Framework
+> ✨ Güçlü bir metin özetleme aracı ve kullanıcı dostu bir arayüz sunan, genişletilebilir bir çerçeve.
 
 ## 📊 Proje Durumu
-Geliştirme aşamasında.  Son değişiklikler, hem komut satırı aracını hem de GUI'yi iyileştiriyor.  Bazı bölümlerde tamamlanmamış kod bulunmaktadır ve bu durum kapsamlı bir değerlendirmeyi engellemektedir.  Teknik borç unsurları bulunmaktadır (mutlak yol kullanımı).
+Proje aktif geliştirme aşamasındadır.  Son değişiklikler, kodun modülerliğini ve sürdürülebilirliğini önemli ölçüde artırmıştır.  GUI ve komut satırı arayüzü iyileştirilmiş, hata yönetimi güçlendirilmiş ve yeni özelliklerin eklenmesine yönelik altyapı oluşturulmuştur.  Ancak, `gui_launcher.py` dosyasında kullanılan mutlak yollar taşınabilirlik sorunlarına yol açabileceğinden, bu bir teknik borç olarak kalmaktadır.
 
 ## ✨ Özellikler
-- Metin özetleme
-- Komut satırı arayüzü
-- Grafik kullanıcı arayüzü (GUI)
-- Ekran görüntüsü alma (Chrome, Firefox, VS Code)
-- Çeşitli komut satırı seçenekleri ( `--setup`, `--gui`, `ss chrome`, `ss firefox`, `ss code` )
-- Gelecek özellik: AI destekli "Summarizer Eye" (planlama aşamasında)
+* 📄 Metin özetleme yeteneği.
+* 🖥️ Kullanıcı dostu bir grafik arayüz (GUI).
+* ⌨️ Komut satırı arayüzü (CLI) ile esnek kontrol.
+* 📸 Ekran görüntüsü alma ve analiz etme (Chrome, Firefox, Code editörleri için destek).
+* 🛠️ Genişletilebilir mimari, kolay özellik ekleme olanağı.
+* 📈 Gelişmiş hata yönetimi ve kullanıcı geri bildirimleri.
 
 
 ## Değişen Dosyalar:
-`gui_launcher.py`, `summarizer.py`, `features` dizini altındaki modüller (`parameter_checker`, `screenshot`, `terminal_commands`, `gui_installer`).
+`install_gui.py`, `gui_launcher.py`, `summarizer.py`
 
 
 ## ANALİZ GÖREVİ:
 
 ### 1. YAPISAL ANALİZ:
 
-- **Hangi sistem bileşenleri ve katmanlar etkilendi?**  Değişiklikler, esas olarak sunum katmanı (GUI, `gui_launcher.py`) ve iş mantığı katmanı (`summarizer.py` ve `features` dizini altındaki modüller) üzerinde yoğunlaşmıştır.  `summarizer.py` dosyasındaki değişiklikler, uygulamanın çekirdeğini oluşturan ana iş mantığını ve komut satırı arayüzünü etkilemiştir.
+* **Hangi sistem bileşenleri ve katmanlar etkilendi?**  Değişiklikler, projenin sunum (GUI), iş mantığı ve veri erişim katmanlarını etkilemiştir. `install_gui.py`, GUI kurulumunu yönetir. `gui_launcher.py`, GUI'yi başlatır. `summarizer.py`,  özetleme iş mantığını ve CLI'yı içerir.  `features` dizini altında bulunan modüller (`gui_installer.py`, `terminal_commands.py`, `parameter_checker`, `screenshot`) iş mantığının farklı kısımlarını kapsar.
 
-- **Mimari değişikliklerin etkisi nedir?**  `summarizer.py` dosyası, daha modüler bir yapıya doğru evrilmiştir. `features` dizini altında farklı işlevsellikler (parametre kontrolü, ekran görüntüsü alma, GUI yönetimi, terminal komutları) ayrı modüller halinde organize edilmiştir. Bu, Tek Sorumluluk İlkesi'ne (Single Responsibility Principle) uyumu artırır ve sürdürülebilirliği iyileştirir.  Ancak, bazı log dosyalarındaki kesinti nedeniyle tüm mimari değişiklikler tam olarak anlaşılamamıştır.  `CallableModule` sınıfının eklenmesi, `summarizer.py`'nin hem kütüphane olarak import edilebilmesini hem de komut satırı aracı olarak çalıştırılabilmesini sağlar (bir çeşit façade veya adapter pattern'ı andırmaktadır).
+* **Mimari değişikliklerin etkisi nedir?**  `install_gui.py` dosyasının modülerleştirilmesi, GUI ve terminal komutu kurulumunun ayrı modüllere taşınmasıyla,  sistem mimarisinde  "Ayrıştırma (Separation of Concerns)" ilkesinin uygulanması sağlanmıştır. Bu, daha iyi organizasyon, daha yüksek test edilebilirlik ve sürdürülebilirliğe yol açmıştır.  `summarizer.py`'deki değişiklikler ise,  özetleyici modülünün hem kütüphane olarak kullanılabilmesini hem de bağımsız bir komut satırı aracı olarak çalıştırılabilmesini sağlayan daha modüler bir yapıya işaret eder.  Bu,  `CallableModule` sınıfının kullanımıyla sağlanmış olabilir.
 
-- **Kod organizasyonunda hangi iyileştirmeler yapıldı?**  `summarizer.py` dosyası, modülerlik açısından önemli bir iyileştirme göstermiştir. `features` dizini altındaki modüllerin kullanımı, kodun daha düzenli ve anlaşılır olmasını sağlar.  `gui_launcher.py` dosyasında ise belirgin bir kod organizasyon iyileştirmesi gözlenmemektedir. Ancak, hata yakalama mekanizmasının geliştirilmesi (try-except blokları) kodun okunabilirliğini ve sürdürülebilirliğini artırmıştır.
+* **Kod organizasyonunda hangi iyileştirmeler yapıldı?**  `install_gui.py` dosyası, GUI ve terminal kurulumlarını ayrı modüllere ayırarak daha düzenli hale getirilmiştir. `summarizer.py`,  `features` dizini altındaki modüllerle birlikte,  tek sorumluluk ilkesine (Single Responsibility Principle) daha yakın bir yapıya kavuşmuştur.  Hata yakalama mekanizmalarının iyileştirilmesi (try-except blokları) de kodun okunabilirliğini ve sürdürülebilirliğini artırmıştır.
 
 
 ### 2. İŞLEVSEL ETKİ:
 
-- **Hangi özellikler eklendi, değiştirildi veya kaldırıldı?**  `screenshot` komutu, farklı uygulamalar (Chrome, Firefox, VS Code) için ekran görüntüsü alma yeteneği ile genişletilmiştir.  Yeni komut satırı seçenekleri (`--setup`, `--gui`, `ss chrome`, `ss firefox`, `ss code`) eklenmiştir.  Esas olarak yeni özellikler eklenmiştir, mevcut özellikler geliştirilmiştir,  hiçbir özellik kaldırılmamıştır.
+* **Hangi özellikler eklendi, değiştirildi veya kaldırıldı?**  Yeni bir ekran görüntüsü alma özelliği eklenmiştir (`screenshot` ve `ss` komutları). Bu özellik, Chrome, Firefox ve Code editörlerini hedefleyebilir.  Mevcut kurulum süreci iyileştirilmiş ve hata mesajları daha bilgilendirici hale getirilmiştir.  `summarizer.py`'ye yeni komut satırı seçenekleri eklenmiştir.
 
-- **Kullanıcı deneyimi nasıl etkilendi?** Kullanıcı deneyimi, özellikle komut satırı arayüzü açısından iyileştirilmiştir. Daha fazla seçenek ve daha kullanıcı dostu bir arayüz sunulmuştur.  GUI'nin başlatılması da daha sağlam hale getirilmiştir, flet kütüphanesi yoksa bilgilendirici hata mesajı gösterilmektedir.
+* **Kullanıcı deneyimi nasıl etkilendi?** Kullanıcı deneyimi, daha ayrıntılı geri bildirim mesajları, daha kullanıcı dostu komut satırı seçenekleri ve GUI başlatma işleminin iyileştirilmesiyle olumlu yönde etkilenmiştir.  `flet` kütüphanesinin eksikliği durumunda bilgilendirici bir hata mesajı gösterilmesi, kullanıcıya daha iyi bir deneyim sunar.
 
-- **Performans, güvenlik veya güvenilirlik üzerindeki etkiler?** Ekran görüntüsü alma özelliğinin eklenmesi, sistem kaynaklarının kullanımında hafif bir artışa yol açabilir.  Güvenlik ve güvenilirlik üzerindeki etki, eksik kod parçaları nedeniyle tam olarak değerlendirilememektedir.  Ancak, hata yakalama mekanizmasının geliştirilmesi güvenilirliği dolaylı olarak artırmaktadır.
+* **Performans, güvenlik veya güvenilirlik üzerindeki etkiler?** Performans üzerinde önemli bir etki beklenmemektedir. Güvenlik veya güvenilirlikte doğrudan bir etki görülmemektedir; ancak hata yakalama mekanizmalarının eklenmesi dolaylı olarak güvenilirliği artırmıştır. Ekran görüntüsü alma özelliği, sistem kaynak kullanımını biraz artırabilir.
 
 
 ### 3. TEKNİK DERINLIK:
 
-- **Hangi tasarım desenleri uygulandı veya değiştirildi?**  `CallableModule` sınıfı, bir tasarım deseni örneğidir (façade veya adapter pattern'ına benzer).  Bu tasarım deseni, `summarizer.py`'nin hem kütüphane hem de komut satırı aracı olarak kullanılabilmesini sağlar.  Başka bir tasarım deseni uygulanmamıştır veya değiştirilmemiştir.
+* **Hangi tasarım desenleri uygulandı veya değiştirildi?**  `summarizer.py`'de,  `CallableModule` sınıfının kullanımı muhtemelen bir façade pattern'ın varyasyonu veya benzer bir tasarım deseni örneğidir.  Modülerleştirme yaklaşımı, ayrıştırma prensibinin (separation of concerns) bir uygulamasıdır.
 
-- **Kod kalitesi ve sürdürülebilirlik nasıl gelişti?**  `summarizer.py`'nin modüler yapısı ve hata yönetiminin iyileştirilmesi, kod kalitesini ve sürdürülebilirliğini artırmıştır.  Ancak, tamamlanmamış kod parçaları, bu değerlendirmeyi sınırlamaktadır.
+* **Kod kalitesi ve sürdürülebilirlik nasıl gelişti?** Kod kalitesi ve sürdürülebilirlik,  modüler yapının benimsenmesi, daha açıklayıcı hata mesajlarının eklenmesi ve hata yönetiminin iyileştirilmesi ile önemli ölçüde geliştirilmiştir. Kod daha okunabilir ve anlaşılır hale gelmiştir.
 
-- **Yeni bağımlılıklar veya teknolojiler eklendi mi?**  Yeni bir bağımlılık eklenmemiştir.  Mevcut `flet` kütüphanesi GUI için kullanılmaktadır ve `argparse` kütüphanesi komut satırı argümanlarının işlenmesi için kullanılmaktadır.  Ekran görüntüsü alma özelliği için muhtemelen sistem kütüphaneleri kullanılmıştır.
+* **Yeni bağımlılıklar veya teknolojiler eklendi mi?** Yeni bir bağımlılık eklenmemiştir, ancak  `flet` kütüphanesi GUI için gereklidir ve  `gui_launcher.py` bu bağımlılığı kontrol etmektedir. Ekran görüntüsü alma işlemi için sistem kütüphaneleri kullanılmış olabilir.
 
 
 ### 4. SONUÇ YORUMU:
 
-- **Bu değişikliklerin uzun vadeli değeri ve etkisi nedir?**  Değişiklikler, uygulamanın kullanışlılığını ve esnekliğini artırmıştır.  Modüler yapı, gelecekteki geliştirmeleri ve bakımı kolaylaştırır.  Yeni komut satırı seçenekleri ve ekran görüntüsü alma özelliği, uygulamanın daha çok yönlü olmasını sağlar.
+* **Bu değişikliklerin uzun vadeli değeri ve etkisi nedir?**  Bu değişikliklerin uzun vadeli değeri, projenin sürdürülebilirliğini ve ölçeklenebilirliğini artırmasıdır. Kodun daha modüler ve daha iyi organize edilmesi, gelecekteki geliştirmelerin daha hızlı ve daha az hata ile yapılmasını sağlayacaktır. Yeni eklenen özellikler, aracın işlevselliğini genişletmiştir.
 
-- **Projenin teknik borcu nasıl etkilendi?**  `gui_launcher.py` dosyasında kullanılan mutlak yol, taşınabilirlik sorunlarına yol açabilecek bir teknik borç olarak kalmaktadır.  Ayrıca, tamamlanmamış kod parçaları da teknik borç olarak kabul edilmelidir.  Ancak, kodun daha modüler hale getirilmesi bazı teknik borçları azaltmıştır.
+* **Projenin teknik borcu nasıl etkilendi?**  Kodun daha iyi organize edilmesiyle teknik borç azalmıştır. Ancak, `gui_launcher.py` dosyasında mutlak yol kullanımı, taşınabilirlik sorunlarına yol açabilecek bir teknik borç olarak kalmaktadır.
 
-- **Gelecekteki geliştirmelere nasıl hazırlık yapıldı?**  Modüler yapı ve iyileştirilmiş hata yönetimi, gelecekteki geliştirmeleri kolaylaştırır.  `TODO` yorumları, gelecekte AI destekli "Summarizer Eye" özelliğinin eklenmesi planını göstermektedir.  Ancak, bu planın hayata geçirilmesi için gerekli kaynaklar ve teknik zorluklar değerlendirilmelidir.
+* **Gelecekteki geliştirmelere nasıl hazırlık yapıldı?**  Modüler yapı ve iyi dokümantasyon, gelecekteki özellik eklemelerini ve bakım işlemlerini kolaylaştıracaktır.  `TODO` yorumları, gelecekteki geliştirme planlarına (örneğin, AI destekli "Summarizer Eye" özelliği) işaret etmektedir.
 
 ## 🛠️ Kurulum (Installation)
 
@@ -213,7 +213,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**Last updated**: June 16, 2025 by Summarizer Framework v7.5.0
+**Last updated**: June 16, 2025 by Summarizer Framework v7.6.0
 *This README is automatically generated and updated based on project activity.*
 
 > *"Automatically maintained with AI-powered analysis"*
