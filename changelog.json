@@ -3,10 +3,72 @@
     "version": "1.0",
     "project_name": "Summarizer Framework",
     "created_at": "2025-06-11T16:09:37.067316",
-    "last_updated": "2025-06-12T13:20:43.930322",
-    "total_entries": 31
+    "last_updated": "2025-06-16T13:48:07.334861",
+    "total_entries": 34
   },
   "entries": [
+    {
+      "id": "entry_20250616_134807",
+      "timestamp": "2025-06-16T13:48:07.333489",
+      "ai_summary": "### 1. YAPISAL ANALİZ:\n\nDeğişiklikler yalnızca `gui_launcher.py` dosyasını etkilemiştir. Bu dosya, projedeki grafik kullanıcı arayüzünü (GUI) başlatmaktan sorumludur.  Sistem bileşenleri açısından bakıldığında, sadece sunum katmanı (GUI) etkilenmiştir.  Mimari değişiklik yok gibidir; mevcut mimariye yeni bir özellik eklenmemiştir.  Esas olarak, GUI'nin başlatılması ve hata yönetimi iyileştirilmiştir. Kod organizasyonunda gözle görülür bir iyileştirme bulunmamakla birlikte, hata yakalama mekanizmasının daha sağlam hale getirilmesi  (try-except blokları) kodun daha okunabilir ve sürdürülebilir olmasına katkıda bulunur.  Proje kök dizininin `sys.path`'e eklenmesi, bağımsız çalıştırılabilirliği sağlar ve bağımlılık yönetimini basitleştirir. Ancak bu, mutlak yol kullanımı nedeniyle taşınabilirliği azaltır.  İdealde, bağıl yollar veya ortam değişkenleri kullanılmalıdır.\n\n\n### 2. İŞLEVSEL ETKİ:\n\nYeni bir özellik eklenmemiştir.  Değişikliklerin ana işlevi, GUI başlatma işlemini daha sağlam ve kullanıcı dostu hale getirmektir.  `flet` kütüphanesinin eksik olması durumunda kullanıcıya bilgilendirici bir hata mesajı gösterilmesi, kullanıcı deneyimini iyileştirir.  Daha önce bu durumun nasıl ele alındığı bilinmediği için kullanıcı deneyimindeki iyileştirme net bir şekilde belirtilemez, ancak mevcut durum daha iyi bir kullanıcı deneyimi sunmaktadır.  Performans üzerinde gözle görülür bir etki yoktur. Güvenlik veya güvenilirlik açısından da doğrudan bir etki söz konusu değildir. Hata yakalama mekanizmasının eklenmesi, uygulamanın beklenmedik hatalardan dolayı çökmesini engellemeye yardımcı olur, dolayısıyla güvenilirliği dolaylı olarak artırır.\n\n\n### 3. TEKNİK DERINLIK:\n\nÖzel bir tasarım deseni uygulanmamıştır veya değiştirilmemiştir.  Kod, basit bir fonksiyonel yaklaşım kullanmaktadır.  Hata yönetimi (try-except) iyileştirilmiştir, bu da kod kalitesini ve sürdürülebilirliğini artırır.  Kodun okunabilirliği ve anlaşılırlığı iyileştirilmiştir.  `flet` kütüphanesine bağımlılık vardır.  Bu bağımlılık, `install_gui.py` betiği aracılığıyla yönetilmektedir.  Ancak, bağımlılık yönetimi için daha gelişmiş bir sistem (örneğin, `pip` ile gereksinim dosyası kullanımı) tercih edilebilirdi.\n\n\n### 4. SONUÇ YORUMU:\n\nBu değişikliklerin uzun vadeli değeri, GUI başlatma işleminin daha sağlam ve kullanıcı dostu olmasıdır.  Bu, uygulamanın genel güvenilirliğini ve bakım kolaylığını artırır.  Projenin teknik borcu, GUI başlatma süreciyle ilgili potansiyel sorunların çözülmesiyle azalmıştır.  Hata mesajlarının iyileştirilmesi ve bağımlılıkların daha açık hale getirilmesi, gelecekteki geliştiriciler için daha kolay bir çalışma ortamı sağlar.  Ancak, mutlak yol kullanımı gelecekteki taşınabilirlik sorunlarına yol açabilir ve bu durum teknik borç olarak kabul edilebilir.  Gelecekteki geliştirmelere hazırlık olarak, daha sağlam bir hata yönetimi ve daha iyi bir bağımlılık yönetimi sistemi uygulanması önerilir.  `install_gui.py`'nin içeriğinin incelenmesi ve gerekirse bağımlılık yönetimi için daha kapsamlı bir çözümün uygulanması faydalı olacaktır.",
+      "changed_files": [
+        "gui_launcher.py"
+      ],
+      "impact_level": "high",
+      "change_type": "other",
+      "tags": [
+        "gui",
+        "api",
+        "gui-launcher"
+      ],
+      "file_count": 1,
+      "lines_added": 38,
+      "lines_removed": 0,
+      "commit_hash": null,
+      "author": null
+    },
+    {
+      "id": "entry_20250616_134642",
+      "timestamp": "2025-06-16T13:46:42.982404",
+      "ai_summary": "### 1. YAPISAL ANALİZ:\n\nDeğişiklikler, projenin iki ana bileşenini etkilemiştir:  GUI (Grafik Kullanıcı Arayüzü) ve ana iş mantığı. `gui_launcher.py` dosyası GUI başlatıcısıdır ve `summarizer.py` dosyası ise özetleme işleminin ve komut satırı arayüzünün  temelini oluşturmaktadır.  Mimari değişiklik, `summarizer.py` dosyasında önemli ölçüde kendini göstermektedir.  Önceki sürümün yapısı tam olarak bilinmese de,  `summarizer.py`'daki değişiklikler, kodun daha modüler ve sürdürülebilir bir yapıya doğru evrildiğini göstermektedir.  `features` dizini altında yer alan modüller ( `parameter_checker`, `screenshot`, `terminal_commands`, `gui_installer` ) işlevselliği daha iyi organize etmekte ve tek sorumluluk ilkesine (Single Responsibility Principle) uymayı hedeflemektedir.  `summarizer.py` dosyasında, `CallableModule` sınıfının kullanımı dikkat çekmektedir. Bu, muhtemelen  `summarizer` modülünün hem kütüphane olarak import edilebilmesini hem de komut satırı aracı olarak çalıştırılabilmesini sağlamak amacıyla yapılmış bir tasarım seçeneğidir.  Kod organizasyonunda yapılan bu iyileştirmeler, uzun vadede bakım ve geliştirmeyi kolaylaştıracaktır.  `gui_launcher.py` dosyasında ise, proje kök dizininin mutlak yol ile belirtilmesi, taşınabilirliği azaltan bir unsurdur.  Bu kısmın göreceli yollarla veya ortam değişkenleri ile ele alınması daha iyi bir uygulama olurdu.\n\n### 2. İŞLEVSEL ETKİ:\n\n`summarizer.py` dosyasındaki değişiklikler, özetleme aracına yeni komut satırı seçenekleri eklemiştir.  `screenshot` ve `ss` komutları, ekran görüntüsü alma ve analiz etme işlevselliğini eklemiştir.  Bunun yanında, hedef uygulamaya özgü ekran görüntüleri (`chrome`, `firefox`, `code`) alma özelliği de eklenmiştir.  Kullanıcı deneyimi, komut satırı arayüzünün zenginleştirilmesiyle iyileştirilmiştir; daha fazla seçenek sunulması ve daha kullanıcı dostu hale getirilmesi sağlanmıştır.  `gui_launcher.py` dosyasındaki değişiklikler, GUI'nin başlatılmasını basitleştirmiş ve GUI bileşenlerinin eksikliğinin daha iyi ele alınmasını sağlamıştır.  Performans, güvenlik ve güvenilirlik üzerindeki etki, yapılan değişikliklerin kapsamı göz önüne alındığında sınırlıdır. Eklenen ekran görüntüsü alma özelliği, sistem kaynaklarını biraz daha fazla kullanabilir.\n\n### 3. TEKNİK DERINLIK:\n\n`summarizer.py` dosyasında, modülerlik ve tek sorumluluk ilkesine dayalı bir yapı gözlemlenmektedir.  `CallableModule` sınıfının kullanımı, bir tasarım deseni örneğidir (muhtemelen bir façade pattern'ın varyasyonu veya kendi özel bir tasarım deseni). Kod kalitesi, işlevselliğin daha iyi organize edilmesi ve modüler bir yapıya geçilmesiyle iyileşmiştir. Sürdürülebilirlik artmıştır çünkü kodun farklı bölümleri daha bağımsız ve daha kolay anlaşılabilir hale getirilmiştir.  Yeni bağımlılıklar veya teknolojiler eklenmesi açısından, `flet` kütüphanesi GUI için gereklidir ve  `gui_launcher.py`  dosyası bunun olup olmadığını kontrol etmektedir.  Ekran görüntüsü alma özelliği için sistem kütüphanelerinin kullanıldığı tahmin edilebilir.\n\n### 4. SONUÇ YORUMU:\n\nBu değişiklikler, projenin uzun vadeli değerini artırmıştır.  Modüler yapı,  bakım ve geliştirmeyi kolaylaştırır.  Yeni eklenen komut satırı seçenekleri, aracın daha kullanışlı ve çok yönlü olmasını sağlar.  Projenin teknik borcu, kodun daha iyi organize edilmesiyle azalmıştır.  `TODO` yorumları, gelecekteki geliştirmelere yönelik planları göstermektedir (örneğin, AI destekli bir \"Summarizer Eye\" özelliği).  Ancak, `gui_launcher.py` dosyasındaki mutlak yol kullanımı, taşınabilirliği azaltan bir teknik borç olarak kalmaktadır.  Genel olarak, yapılan değişiklikler projenin kalitesini, sürdürülebilirliğini ve kullanıcı deneyimini iyileştirmiştir.  Ekran görüntüsü özelliği ise, araca yeni bir işlevsellik katmıştır ve farklı kullanım senaryolarına olanak sağlamaktadır.",
+      "changed_files": [
+        "gui_launcher.py",
+        "summarizer.py"
+      ],
+      "impact_level": "high",
+      "change_type": "other",
+      "tags": [
+        "gui-launcher",
+        "gui",
+        "api",
+        "summarizer"
+      ],
+      "file_count": 2,
+      "lines_added": 368,
+      "lines_removed": 0,
+      "commit_hash": null,
+      "author": null
+    },
+    {
+      "id": "entry_20250612_144124",
+      "timestamp": "2025-06-12T14:41:24.182080",
+      "ai_summary": "### 1. YAPISAL ANALİZ:\n\nDeğişiklikler öncelikle `summarizer.py` dosyasında yoğunlaşmıştır. Bu dosya, uygulamanın giriş noktası ve ana kontrol mekanizmasını içerir. Sistem bileşenleri açısından bakıldığında, değişiklikler  `src.main`, `features` dizinindeki modüller ve bunların `summarizer.py` içindeki entegrasyonunu etkilemiştir.  Mimari açıdan, monolitik bir yapı korunmuş olsa da,  `features` dizini altında farklı özelliklerin (parametre kontrolü, ekran görüntüsü alma, GUI yönetimi, terminal komutları)  modüler bir şekilde ayrılması sürdürülmüş ve daha da geliştirilmiştir.  Kod organizasyonu iyileştirilmiş gibi görünmüyor, daha çok yeni özelliklerin eklenmesi ve mevcut özelliklerin genişletilmesi söz konusu.  `CallableModule` sınıfının eklenmesi dikkat çekicidir; bu, uygulamanın hem komut satırı argümanları ile hem de Python modülü olarak import edilerek çalıştırılabilmesini sağlar. Ancak kodun bu kısmı,  anlatımın tamamlanmamış bir kısmıdır ve `...[Truncated 228 lines]...` ile kesintiye uğramıştır. Bu yüzden tam bir yapısal analiz yapılamaz.  Eksik satırlar,  `CallableModule` sınıfının tam işlevselliğini ve olası diğer yapısal değişiklikleri içerebilir.\n\n### 2. İŞLEVSEL ETKİ:\n\nEklenen özellikler arasında, belirli uygulamalar için (Chrome, Firefox, VS Code) ekran görüntüsü alma yeteneği öne çıkıyor.  Mevcut `screenshot` komutu daha esnek hale getirilmiş.  Kullanıcı deneyimi, komut satırı arayüzü üzerinden daha fazla kontrol imkanı sağlayacak şekilde iyileştirilmiştir.  Daha fazla komut ( `--setup`, `--gui`, `ss chrome`, `ss firefox`, `ss code` ) eklenmesiyle kullanım kolaylığı hedeflenmiştir.  Performans, güvenlik veya güvenilirlik üzerindeki etki, eksik kod nedeniyle kesin olarak değerlendirilemez.  Ancak, yeni özelliklerin eklenmesiyle birlikte performans üzerinde hafif bir azalma veya kaynak tüketimi artışı olması olasıdır.  Güvenlik ve güvenilirlik açısından,  eklenen kodun güvenlik açıklarına yol açıp açmadığının incelenmesi gerekir;  bunun için eksik kodun analizi zorunludur.\n\n### 3. TEKNİK DERINLIK:\n\nKodda, komut satırı argümanlarının işlenmesi için `argparse` kütüphanesi kullanılmaktadır.  `CallableModule` sınıfının eklenmesi,  bir tasarım deseni olarak değerlendirilebilir (bir nevi Adapter veya Proxy deseni gibi davranabilir);  bu, modülün hem bir fonksiyon hem de bir modül olarak davranmasına olanak tanır. Kod kalitesi ve sürdürülebilirlik açısından, modülerlik sayesinde geliştirme ve bakımı kolaylaştırılmış olabilir. Ancak, eksik kod nedeniyle kesin bir değerlendirme yapmak mümkün değildir.  Yeni bağımlılıklar eklenmediği anlaşılmaktadır; mevcut kütüphaneler kullanılmıştır.\n\n### 4. SONUÇ YORUMU:\n\nBu değişikliklerin uzun vadeli değeri,  uygulamanın kullanım kolaylığını ve esnekliğini artırmasına bağlıdır.  Eklenen ekran görüntüsü alma özelliği ve daha gelişmiş komut satırı seçenekleri, kullanıcılara daha fazla kontrol ve özelleştirme imkanı sağlar.  Teknik borç açısından,  kodun bazı bölümlerinin tamamlanmamış olması ve eksik kodun varlığı bir risk teşkil eder.  `TODO` yorumlarında belirtilen  AI destekli özellik ekleme planları, projenin gelecekteki geliştirmelerine yönelik bir hazırlık göstermektedir. Ancak bu planların gerçekleştirilmesi,  teknik zorluklar ve kaynak gereksinimleri açısından değerlendirilmelidir.  Genel olarak,  değişiklikler uygulamanın işlevselliğini genişletse de, eksik kod nedeniyle tam bir değerlendirme yapmak ve olası riskleri tespit etmek mümkün değildir.  Eksik kodun tamamlanması ve kodun kapsamlı bir şekilde incelenmesi gerekmektedir.",
+      "changed_files": [
+        "summarizer.py"
+      ],
+      "impact_level": "high",
+      "change_type": "other",
+      "tags": [
+        "api",
+        "summarizer",
+        "gui"
+      ],
+      "file_count": 1,
+      "lines_added": 328,
+      "lines_removed": 0,
+      "commit_hash": null,
+      "author": null
+    },
     {
       "id": "entry_20250612_132043",
       "timestamp": "2025-06-12T13:20:43.929597",
