@@ -1,60 +1,58 @@
 # 🚀 project.110620251156
-> Özetleme yetenekleri sunan modern bir web uygulaması.  Verimli ve güvenilir bir şekilde metin özetleme işlemleri gerçekleştirir.
+> Güçlü bir komut satırı aracı ve özelleştirilebilir bir GUI'ye sahip, metin özetleme uygulaması. Ekran görüntüsü alma ve farklı uygulamaları destekleme özelliği ile zenginleştirildi.
 
 ## 📊 Proje Durumu
-Proje aktif geliştirme aşamasındadır.  Son güncellemeler, kullanıcı arayüzü iyileştirmeleri, gelişmiş hata yönetimi ve otomatik kod izleme ve yedekleme sistemini içermektedir.  README dosyası da otomatik güncelleme yeteneği kazanmıştır.  Güncellemeler, projenin stabilitesini, güvenilirliğini ve sürdürülebilirliğini artırmaya odaklanmıştır.
+Geliştirme aşamasında.  Son değişiklikler, hem komut satırı aracını hem de GUI'yi iyileştiriyor.  Bazı bölümlerde tamamlanmamış kod bulunmaktadır ve bu durum kapsamlı bir değerlendirmeyi engellemektedir.  Teknik borç unsurları bulunmaktadır (mutlak yol kullanımı).
 
 ## ✨ Özellikler
-* Metin özetleme
-* Kullanıcı dostu arayüz (GUI)
-* Komut satırı arayüzü (CLI) desteği
-* Otomatik kod yedekleme ve izleme
-* Gelişmiş hata yönetimi
-* Otomatik README güncelleme
+- Metin özetleme
+- Komut satırı arayüzü
+- Grafik kullanıcı arayüzü (GUI)
+- Ekran görüntüsü alma (Chrome, Firefox, VS Code)
+- Çeşitli komut satırı seçenekleri ( `--setup`, `--gui`, `ss chrome`, `ss firefox`, `ss code` )
+- Gelecek özellik: AI destekli "Summarizer Eye" (planlama aşamasında)
 
 
 ## Değişen Dosyalar:
-`gui_launcher.py`, `install_gui.py`, `api_server.py`, `src/utils/file_tracker.py`, `summarizer.py`, `macos-setup-wizard/setup_installer.py`, `src/utils/readme_generator.py`
+`gui_launcher.py`, `summarizer.py`, `features` dizini altındaki modüller (`parameter_checker`, `screenshot`, `terminal_commands`, `gui_installer`).
 
 
 ## ANALİZ GÖREVİ:
 
 ### 1. YAPISAL ANALİZ:
 
-Birden fazla commit'in analizi sunulduğu için, her bir commit'in yapısını ayrı ayrı inceleyeceğiz:
+- **Hangi sistem bileşenleri ve katmanlar etkilendi?**  Değişiklikler, esas olarak sunum katmanı (GUI, `gui_launcher.py`) ve iş mantığı katmanı (`summarizer.py` ve `features` dizini altındaki modüller) üzerinde yoğunlaşmıştır.  `summarizer.py` dosyasındaki değişiklikler, uygulamanın çekirdeğini oluşturan ana iş mantığını ve komut satırı arayüzünü etkilemiştir.
 
-**Commit 1 (Summarizer Framework Değişiklikleri):**  Bu commit, Summarizer Framework'ün dört ana bileşenini (GUI, API Sunucusu, Yardımcı Araçlar, Ana İş Mantığı) etkilemiştir.  Mimari temelde değişmemiş, ancak `src/main` modülünün `api_server.py` tarafından çağrılması, daha modüler bir yapıya işaret etmektedir.  Kod organizasyonu açısından, katmanlı bir mimari (GUI, API, yardımcı araçlar, ana iş mantığı) kullanımı ve `src` dizini altındaki alt dizinler, kodun daha iyi organize edilmesini sağlamaktadır.  `file_tracker.py` dosyasının eklenmesiyle kod izleme ve yedekleme mekanizması entegre edilmiştir.
+- **Mimari değişikliklerin etkisi nedir?**  `summarizer.py` dosyası, daha modüler bir yapıya doğru evrilmiştir. `features` dizini altında farklı işlevsellikler (parametre kontrolü, ekran görüntüsü alma, GUI yönetimi, terminal komutları) ayrı modüller halinde organize edilmiştir. Bu, Tek Sorumluluk İlkesi'ne (Single Responsibility Principle) uyumu artırır ve sürdürülebilirliği iyileştirir.  Ancak, bazı log dosyalarındaki kesinti nedeniyle tüm mimari değişiklikler tam olarak anlaşılamamıştır.  `CallableModule` sınıfının eklenmesi, `summarizer.py`'nin hem kütüphane olarak import edilebilmesini hem de komut satırı aracı olarak çalıştırılabilmesini sağlar (bir çeşit façade veya adapter pattern'ı andırmaktadır).
 
-**Commit 2 (macOS Kurulum Sihirbazı Değişiklikleri):** Bu commit, `macos-setup-wizard/setup_installer.py` dosyasına odaklanmıştır.  Değişiklikler esas olarak sunum (GUI/CLI) ve uygulama katmanlarını etkilemiştir. Mimari açısından önemli bir değişiklik yoktur.  Ancak, hata yönetimi iyileştirilmiş ve PyQt5 desteği eklenerek GUI kurulumu mümkün hale getirilmiştir.  CLI ve GUI kurulumları arasında daha net bir ayrım yapılmış ve PyQt5 bulunmaması durumunda CLI'a otomatik geçiş sağlanmıştır. Kod organizasyonu, daha sağlam `try...except` blokları ile iyileştirilmiştir.
-
-**Commit 3 (README Generator Değişiklikleri):** Bu commit, sadece `src/utils/readme_generator.py` dosyasını etkilemiştir.  Mimari değişiklik minimaldir; mevcut yardımcı araç geliştirilmiştir. Kod organizasyonu,  `_get_framework_version` fonksiyonunun geliştirilmesi ve `generate_complete_readme_content` fonksiyonunun eklenmesiyle iyileştirilmiştir.  Bu iyileştirmeler, daha sağlam bir versiyon tespiti ve daha okunabilir bir kod yapısı sağlamaktadır.
+- **Kod organizasyonunda hangi iyileştirmeler yapıldı?**  `summarizer.py` dosyası, modülerlik açısından önemli bir iyileştirme göstermiştir. `features` dizini altındaki modüllerin kullanımı, kodun daha düzenli ve anlaşılır olmasını sağlar.  `gui_launcher.py` dosyasında ise belirgin bir kod organizasyon iyileştirmesi gözlenmemektedir. Ancak, hata yakalama mekanizmasının geliştirilmesi (try-except blokları) kodun okunabilirliğini ve sürdürülebilirliğini artırmıştır.
 
 
 ### 2. İŞLEVSEL ETKİ:
 
-**Commit 1:** `summarizer.py` değişiklikleri nedeniyle ana işlevsellikteki değişiklikler tam olarak belirlenememektedir.  Ancak, `file_tracker.py`'nin eklenmesi, kod değişikliklerinin izlenmesi ve yedeklenmesi işlevselliğini eklemiştir.  GUI değişiklikleri muhtemelen kullanıcı deneyimini etkilemiş ancak ayrıntılar bilinmemektedir. API sunucusunda işlevsel bir değişiklik yoktur, ancak `summarizer()` fonksiyonunun çağrılması, ana iş mantığıyla etkileşimi göstermektedir.
+- **Hangi özellikler eklendi, değiştirildi veya kaldırıldı?**  `screenshot` komutu, farklı uygulamalar (Chrome, Firefox, VS Code) için ekran görüntüsü alma yeteneği ile genişletilmiştir.  Yeni komut satırı seçenekleri (`--setup`, `--gui`, `ss chrome`, `ss firefox`, `ss code`) eklenmiştir.  Esas olarak yeni özellikler eklenmiştir, mevcut özellikler geliştirilmiştir,  hiçbir özellik kaldırılmamıştır.
 
-**Commit 2:** Temel işlevsellik değişmemiştir. Ancak, PyQt5 destekli GUI kurulumu eklenmiş, hata yönetimi geliştirilmiş ve CLI seçeneği iyileştirilmiştir.  Kullanıcı deneyimi, GUI ve daha iyi hata mesajları ile iyileşmiştir.  Performans açısından, GUI kurulumu daha yavaş olabilir. Güvenlik ve güvenilirlikte önemli bir değişiklik yoktur.
+- **Kullanıcı deneyimi nasıl etkilendi?** Kullanıcı deneyimi, özellikle komut satırı arayüzü açısından iyileştirilmiştir. Daha fazla seçenek ve daha kullanıcı dostu bir arayüz sunulmuştur.  GUI'nin başlatılması da daha sağlam hale getirilmiştir, flet kütüphanesi yoksa bilgilendirici hata mesajı gösterilmektedir.
 
-**Commit 3:** README.md dosyasına otomatik olarak eklenen yeni bölümler (impact_counts ve Tracking Features) eklenmiştir.  Framework versiyon tespiti iyileştirilmiş ve README oluşturma süreci optimize edilmiştir.  Kullanıcı deneyimi doğrudan etkilenmemiş, ancak güncellenmiş README daha iyi bir deneyim sağlar. Performans üzerinde minimal bir iyileşme, güvenilirlikte ise artış vardır.
+- **Performans, güvenlik veya güvenilirlik üzerindeki etkiler?** Ekran görüntüsü alma özelliğinin eklenmesi, sistem kaynaklarının kullanımında hafif bir artışa yol açabilir.  Güvenlik ve güvenilirlik üzerindeki etki, eksik kod parçaları nedeniyle tam olarak değerlendirilememektedir.  Ancak, hata yakalama mekanizmasının geliştirilmesi güvenilirliği dolaylı olarak artırmaktadır.
 
 
 ### 3. TEKNİK DERINLIK:
 
-**Commit 1:** Katmanlı mimari ve modüler tasarım unsurları gözlemlenmektedir. Kod kalitesi ve sürdürülebilirlik, `file_tracker.py` ile iyileştirilmiştir.  `flet` kütüphanesi yeni bir bağımlılık olarak eklenmiştir.
+- **Hangi tasarım desenleri uygulandı veya değiştirildi?**  `CallableModule` sınıfı, bir tasarım deseni örneğidir (façade veya adapter pattern'ına benzer).  Bu tasarım deseni, `summarizer.py`'nin hem kütüphane hem de komut satırı aracı olarak kullanılabilmesini sağlar.  Başka bir tasarım deseni uygulanmamıştır veya değiştirilmemiştir.
 
-**Commit 2:** "Strategy Pattern" kullanılmıştır (CLI ve GUI kurulum stratejileri). Kod kalitesi, daha iyi hata yönetimi ve daha net kod yapısıyla iyileştirilmiştir. PyQt5 kütüphanesi yeni bir bağımlılık olarak eklenmiştir.
+- **Kod kalitesi ve sürdürülebilirlik nasıl gelişti?**  `summarizer.py`'nin modüler yapısı ve hata yönetiminin iyileştirilmesi, kod kalitesini ve sürdürülebilirliğini artırmıştır.  Ancak, tamamlanmamış kod parçaları, bu değerlendirmeyi sınırlamaktadır.
 
-**Commit 3:** Belirgin bir tasarım deseni değişikliği yoktur, ancak ayrıştırma ilkesi uygulanmıştır. Kod kalitesi ve sürdürülebilirlik iyileştirilmiştir. Yeni bağımlılık eklenmemiştir.
+- **Yeni bağımlılıklar veya teknolojiler eklendi mi?**  Yeni bir bağımlılık eklenmemiştir.  Mevcut `flet` kütüphanesi GUI için kullanılmaktadır ve `argparse` kütüphanesi komut satırı argümanlarının işlenmesi için kullanılmaktadır.  Ekran görüntüsü alma özelliği için muhtemelen sistem kütüphaneleri kullanılmıştır.
 
 
 ### 4. SONUÇ YORUMU:
 
-**Commit 1:** Uzun vadeli değer, `summarizer.py` değişikliklerine bağlıdır.  `file_tracker.py` uzun vadeli değer sağlar. Teknik borç, `file_tracker.py` ile azaltılabilir, ancak `summarizer.py` değişiklikleri bunu artırmış olabilir. Modüler tasarım ve katmanlı mimari, gelecekteki geliştirmelere hazırlık sağlar.
+- **Bu değişikliklerin uzun vadeli değeri ve etkisi nedir?**  Değişiklikler, uygulamanın kullanışlılığını ve esnekliğini artırmıştır.  Modüler yapı, gelecekteki geliştirmeleri ve bakımı kolaylaştırır.  Yeni komut satırı seçenekleri ve ekran görüntüsü alma özelliği, uygulamanın daha çok yönlü olmasını sağlar.
 
-**Commit 2:** Bu değişiklikler, kullanıcı deneyimini ve güvenilirliği önemli ölçüde artırmıştır.  Teknik borç azaltılmıştır.  Modüler yapı, gelecekteki geliştirmelere hazırlık sağlar. PyQt5 bağımlılığı, dağıtımı etkileyebilir.
+- **Projenin teknik borcu nasıl etkilendi?**  `gui_launcher.py` dosyasında kullanılan mutlak yol, taşınabilirlik sorunlarına yol açabilecek bir teknik borç olarak kalmaktadır.  Ayrıca, tamamlanmamış kod parçaları da teknik borç olarak kabul edilmelidir.  Ancak, kodun daha modüler hale getirilmesi bazı teknik borçları azaltmıştır.
 
-**Commit 3:** Bu değişiklikler, README'nin güncelliğini ve bilgilendiriciliğini artırarak uzun vadeli değer sağlar. Teknik borç azaltılmıştır.  README güncelleme süreci daha otomatik ve yönetilebilir hale getirilmiştir.  Genel olarak, projenin kalitesi ve sürdürülebilirliği olumlu yönde etkilenmiştir.
+- **Gelecekteki geliştirmelere nasıl hazırlık yapıldı?**  Modüler yapı ve iyileştirilmiş hata yönetimi, gelecekteki geliştirmeleri kolaylaştırır.  `TODO` yorumları, gelecekte AI destekli "Summarizer Eye" özelliğinin eklenmesi planını göstermektedir.  Ancak, bu planın hayata geçirilmesi için gerekli kaynaklar ve teknik zorluklar değerlendirilmelidir.
 
 ## 🛠️ Kurulum (Installation)
 
@@ -215,7 +213,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**Last updated**: June 12, 2025 by Summarizer Framework v7.2.0
+**Last updated**: June 16, 2025 by Summarizer Framework v7.5.0
 *This README is automatically generated and updated based on project activity.*
 
 > *"Automatically maintained with AI-powered analysis"*
