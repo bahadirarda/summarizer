@@ -3,6 +3,32 @@
 Bu dosya otomatik olarak generate edilmiştir.
 Düzenlemeler için `changelog.json` dosyasını kullanın.
 
+## 2025-06-16 13:52:51
+
+### 1. YAPISAL ANALİZ:
+
+Değişiklikler sadece `install_gui.py` dosyasını etkilemiştir. Bu dosya, Summarizer Framework'ün GUI ve terminal komutlarının kurulumunu yöneten bir betiği temsil eder.  Sistem mimarisinde büyük bir değişiklik gözlemlenmemektedir.  Ancak, kodun modülerliği artırılmıştır.  `features` dizini altında bulunan `gui_installer.py` ve `terminal_commands.py` dosyalarına bağımlılık eklenerek, kurulum işlemi daha iyi organize edilmiş ve daha sürdürülebilir hale getirilmiştir.  Bu, `install_gui.py` dosyasının ana işlevini (kurulumu yönetme) korurken,  GUI ve terminal komutu kurulumunun ayrı modüllerde ele alınmasını sağlar. Bu, kodun daha okunabilir, test edilebilir ve bakımı yapılabilen bir hale gelmesine katkıda bulunur.  Mimari değişikliğin etkisi,  kodun daha iyi bir organizasyon ve modülerlik kazandığı ve gelecekte yeni özelliklerin eklenmesinin daha kolay olacağı şeklindedir.
+
+### 2. İŞLEVSEL ETKİ:
+
+Yeni bir özellik eklenmemiştir, ancak mevcut kurulum süreci iyileştirilmiştir.  `install_gui.py` artık GUI ve terminal komutlarının kurulumunu ayrı fonksiyonlar aracılığıyla yönetir. Bu, hata ayıklamayı ve  her bir bileşenin ayrı ayrı test edilmesini kolaylaştırır. Kurulumun başarılı veya başarısız olması durumunda kullanıcıya daha net ve bilgilendirici mesajlar verilir.  Kullanıcı deneyimi, daha ayrıntılı geri bildirim ve kurulumun ilerleyişini gösteren adımlar ile iyileştirilmiştir.  Performans açısından,  önemli bir değişiklik beklenmemektedir.  Güvenlik ve güvenilirlik açısından da, bu değişikliğin doğrudan bir etkisi yoktur, ancak kodun modüler yapısı, gelecekte güvenlik açıklarının daha kolay tespit edilmesini ve giderilmesini sağlayabilir.
+
+### 3. TEKNİK DERINLIK:
+
+Bu değişikliklerde belirgin bir tasarım deseni kullanımı gözlemlenmemektedir. Ancak,  modülleştirme yaklaşımı, bir tür ayrıştırma (separation of concerns) prensibinin uygulanmasına işaret etmektedir.  Kod kalitesi, fonksiyonların ayrı modüllere taşınması ve daha açıklayıcı hata mesajlarının eklenmesiyle artmıştır. Sürdürülebilirlik,  kodun daha okunabilir ve daha kolay anlaşılır olmasıyla iyileştirilmiştir. Yeni bir bağımlılık eklenmemiştir; `features` dizini altındaki modüller önceden mevcut veya proje kapsamında geliştirme aşamasında geliştirilmiş modüllerdir.
+
+### 4. SONUÇ YORUMU:
+
+Bu değişikliklerin uzun vadeli değeri, kodun daha iyi organize edilmesi, daha sürdürülebilir ve daha kolay bakımı yapılabilmesidir.  Gelecekteki özellik eklemeleri ve hata düzeltmeleri daha kolay ve daha hızlı gerçekleştirilebilecektir.  Projenin teknik borcu,  kodun daha iyi organize edilmesiyle azalmıştır.  Bu değişiklikler,  gelecekteki geliştirmelere hazırlık yapmak için önemli bir adımdır.  Daha modüler ve  iyi dokümante edilmiş bir kod tabanı, gelecekteki geliştirme çabalarını hızlandıracak ve daha az hata riskine yol açacaktır.  Kısacası,  bu değişiklikler,  projenin uzun vadeli sürdürülebilirliğini ve ölçeklenebilirliğini artırmayı amaçlamaktadır.
+
+**Değişen Dosyalar:** install_gui.py
+**Etki Seviyesi:** High
+**Değişiklik Tipi:** Other
+**Satır Değişiklikleri:** +73
+**Etiketler:** api, gui, install-gui
+
+---
+
 ## 2025-06-16 13:48:07
 
 ### 1. YAPISAL ANALİZ:
