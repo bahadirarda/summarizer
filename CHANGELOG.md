@@ -3,6 +3,32 @@
 Bu dosya otomatik olarak generate edilmiştir.
 Düzenlemeler için `changelog.json` dosyasını kullanın.
 
+## 2025-06-17 16:25:41
+
+### 1. YAPISAL ANALİZ:
+
+Değişiklikler sadece `gui_launcher.py` dosyasını etkilemiştir. Bu dosya, projenin grafik kullanıcı arayüzünü (GUI) başlatmakla sorumlu olan bir giriş noktasıdır.  Sistem bileşenleri arasında sadece GUI katmanı etkilenmiştir.  Mimari değişiklik yok gibidir, mevcut mimari korunmuştur.  Kod organizasyonunda belirgin bir iyileştirme gözlemlenmemektedir, ancak hata yönetimi (try-except bloğu) daha sağlam hale getirilmiştir.  `project_root` değişkeninin kullanımı, projenin farklı ortamlarda çalışabilirliğini artırmaya yönelik bir adımdır, ancak bu, mimariyi değiştirmez.  `sys.path.insert(0, str(project_root))` satırı, projenin kök dizinini Python'ın arama yoluna ekleyerek, `src` dizini altındaki modüllerin import edilmesini mümkün kılar.
+
+### 2. İŞLEVSEL ETKİ:
+
+Eklenen, değiştirilen veya kaldırılan özellik yok.  Mevcut GUI başlatma işlevi geliştirilmiştir.  Özellikle, GUI bileşenlerinin eksikliği durumunda kullanıcıya daha bilgilendirici bir hata mesajı gösterilmektedir (`ImportError` durumunda).  Bu, kullanıcı deneyimini iyileştirir çünkü kullanıcı, sorunun kaynağını ve çözüm yolunu anlar. Performans üzerinde kayda değer bir etkisi yoktur, güvenlik veya güvenilirlik üzerinde ise olumlu bir etki vardır (daha sağlam hata yönetimi sayesinde).
+
+### 3. TEKNİK DERINLIK:
+
+Belirgin bir tasarım deseni değişikliği veya uygulaması yoktur. Kod kalitesi, hata yönetiminin iyileştirilmesiyle artmıştır.  Daha sağlam hata yakalama mekanizması, beklenmedik hataların daha iyi yönetilmesini sağlar ve uygulamanın çökmesini önlemeye yardımcı olur.  Yeni bir bağımlılık eklenmemiştir, ancak mevcut `flet` kütüphanesinin kurulu olması gerekmektedir.  Bu bağımlılık `install_gui.py` betiği ile yönetildiği anlaşılıyor.
+
+### 4. SONUÇ YORUMU:
+
+Bu değişikliklerin uzun vadeli değeri, daha sağlam ve kullanıcı dostu bir GUI başlatma işlemidir.  Bu, projenin bakımını kolaylaştırır ve kullanıcı hatalarını azaltır. Projenin teknik borcu, daha iyi hata yönetimi sayesinde azalmıştır.  Gelecekteki geliştirmelere hazırlık olarak, GUI başlatma süreci modüler ve daha yönetilebilir hale getirilmiştir.  Ancak, `project_root` değişkeninin sabit kod olarak kullanımı, projenin taşınabilirliğini sınırlıyor; bu bir potansiyel teknik borç olarak değerlendirilebilir.  Daha iyi bir çözüm, konfigürasyon dosyası kullanarak veya ortam değişkenleri aracılığıyla `project_root` yolunu belirlemek olabilir.
+
+**Değişen Dosyalar:** gui_launcher.py
+**Etki Seviyesi:** High
+**Değişiklik Tipi:** Other
+**Satır Değişiklikleri:** +38
+**Etiketler:** gui, api, gui-launcher
+
+---
+
 ## 2025-06-17 16:21:45
 
 ### 1. YAPISAL ANALİZ:
