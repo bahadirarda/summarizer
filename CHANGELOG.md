@@ -3,6 +3,32 @@
 Bu dosya otomatik olarak generate edilmiştir.
 Düzenlemeler için `changelog.json` dosyasını kullanın.
 
+## 2025-06-17 17:04:19
+
+### 1. YAPISAL ANALİZ:
+
+Değişiklikler sadece `gui_launcher.py` dosyasını etkilemiştir. Bu dosya, özetleme programının grafik kullanıcı arayüzünü (GUI) başlatan bağımsız bir başlatıcı görevi görür.  Sistem bileşenleri arasında sadece GUI katmanı etkilenmiştir.  Mimari açıdan bir değişiklik gözlemlenmemektedir;  GUI başlatma işlemi daha açık ve hataya dayanıklı hale getirilmiştir. Kod organizasyonunda küçük bir iyileştirme yapılmıştır:  `try...except` blokları hata yönetimini iyileştirerek daha okunabilir ve sürdürülebilir bir kod yapısı oluşturmuştur.  `project_root` değişkeninin tanımlanması ve `sys.path.insert` kullanımı, projenin farklı dizinlerden çalıştırılmasını daha sağlam hale getirmiştir.  Bu, projenin yapısına bağlı olarak,  `src.gui.modern_config_gui` modülüne erişim yolunu daha net bir şekilde tanımlar.
+
+### 2. İŞLEVSEL ETKİ:
+
+Yeni bir özellik eklenmemiştir, mevcut GUI başlatma işlemi iyileştirilmiştir.  Özellikle, GUI bileşenlerinin eksik olması durumunda kullanıcıya daha bilgilendirici bir hata mesajı gösterilmektedir.  Bu, `ImportError` durumunda kullanıcıya `install_gui.py` betiğini çalıştırması gerektiği açıkça belirtilerek, sorun giderme sürecini kolaylaştırır. Kullanıcı deneyimi, daha iyi hata mesajları ile olumlu yönde etkilenmiştir.  Performans açısından önemli bir değişiklik yoktur, ancak hata yönetiminin iyileştirilmesi, programın daha güvenilir çalışmasını sağlar. Güvenlik veya güvenilirlik üzerinde doğrudan bir etkisi gözlenmemektedir.
+
+### 3. TEKNİK DERINLIK:
+
+Bu değişiklikte belirgin bir tasarım deseni değişikliği veya uygulanması yoktur.  Ancak, hata yönetimi için `try...except` bloklarının kullanımı, iyi bir yazılım geliştirme uygulamasıdır.  Kod kalitesi, daha açık ve daha iyi hata yönetimi ile geliştirilmiştir.  Sürdürülebilirlik, daha okunabilir ve daha kolay hata ayıklanabilir kod ile artmıştır.  Yeni bir bağımlılık eklenmemiştir; `flet` kütüphanesi zaten proje gereksinimleri arasında mevcuttur.  `install_gui.py` betiği, GUI bileşenlerinin bağımlılığını yönetir.
+
+### 4. SONUÇ YORUMU:
+
+Bu değişikliklerin uzun vadeli değeri, daha sağlam ve kullanıcı dostu bir GUI başlatma mekanizması sağlamaktır.  Projenin teknik borcu, daha iyi hata yönetimi ve okunabilir kod ile azaltılmıştır.  Gelecekteki geliştirmelere hazırlık, özellikle `sys.path` manipülasyonu ve hata işleme mekanizmasıyla daha iyi yapılandırılmış bir kod yapısı ile sağlanmıştır.  Bu, gelecekteki GUI güncellemelerinin daha kolay ve güvenilir bir şekilde uygulanmasını mümkün kılacaktır.  Değişiklikler, projenin uzun vadeli sürdürülebilirliğini artırmaya yönelik küçük ama önemli adımlardır.
+
+**Değişen Dosyalar:** gui_launcher.py
+**Etki Seviyesi:** High
+**Değişiklik Tipi:** Other
+**Satır Değişiklikleri:** +38
+**Etiketler:** gui, api, gui-launcher, config
+
+---
+
 ## 2025-06-17 16:25:41
 
 ### 1. YAPISAL ANALİZ:
