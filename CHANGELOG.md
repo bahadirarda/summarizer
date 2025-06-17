@@ -3,6 +3,64 @@
 Bu dosya otomatik olarak generate edilmiştir.
 Düzenlemeler için `changelog.json` dosyasını kullanın.
 
+## 2025-06-17 17:09:27
+
+### 1. YAPISAL ANALİZ:
+
+Değişiklik, `install_gui.py` dosyasını etkilemiştir. Bu dosya, Summarizer Framework'ün kurulum işlemini yöneten bir betiktir. Sistemin `features` adlı bir alt dizininde bulunan `gui_installer.py` ve `terminal_commands.py` dosyalarına bağımlıdır.  Bu, bir katmanlı mimari (monolitik) yaklaşımın göstergesidir.  Herhangi bir mimari değişiklik gözlemlenmemiştir; ancak, kodun daha modüler hale getirilmesi için bir temel oluşturulmuştur.  `features` dizinindeki modüller, farklı kurulum adımlarını bağımsız fonksiyonlar olarak ayırır. Bu, gelecekte daha kolay genişletilebilir ve bakımı yapılabilen bir yapıya olanak tanır. Kod organizasyonunda, fonksiyonel ayrımın sağlanması yoluyla bir iyileştirme söz konusudur.  Kurulum işlemi, GUI ve terminal komutlarının kurulumu gibi ayrı aşamalara bölünmüştür. Bu, hata ayıklama ve bakım açısından büyük bir kolaylık sağlar.
+
+
+### 2. İŞLEVSEL ETKİ:
+
+Bu değişiklik, Summarizer Framework'ün kurulum sürecini iyileştirmeyi amaçlamaktadır.  Özellikle, kullanıcıya GUI bileşenlerinin kurulumunu ve terminal komutlarının eklenmesini içeren daha kapsamlı bir kurulum deneyimi sunmaktadır.  Esasen, GUI kurulumu eklenmiştir.  Kullanıcı deneyimi, daha ayrıntılı ve bilgilendirici çıktı mesajlarıyla iyileştirilmiştir.  Kullanıcıya, her adımda ne olduğunu açıkça bildiren ve olası hatalar konusunda uyarılar veren mesajlar gösterilmektedir.  Kurulumun başarı veya başarısızlık durumuna göre farklı mesajlar verilmesi, kullanıcıya daha net bir geri bildirim sağlar.  Performans açısından büyük bir değişiklik beklenmez, çünkü eklenen fonksiyonlar temel IO işlemlerini ve modül yüklemelerini içerir.  Güvenlik ve güvenilirlik açısından, kodda doğrudan bir değişiklik gözlemlenmemektedir. Ancak, modüler yapının artırılması, gelecekte güvenlik açıklarının daha kolay tespit edilmesine ve düzeltilmesine yardımcı olabilir.
+
+
+### 3. TEKNİK DERINLIK:
+
+Kodda belirgin bir tasarım deseni değişikliği gözlemlenmemektedir. Ancak, fonksiyonların ayrı modüllere ayrılması, bir tür "separation of concerns" prensibinin uygulanmasına işaret etmektedir. Kod kalitesi, ayrı fonksiyonlara bölünme ve daha açıklayıcı hata mesajları sayesinde gelişmiştir.  Sürdürülebilirlik, modüler yapı ve hata yönetimi sayesinde artmıştır.  Yeni bir bağımlılık veya teknoloji eklenmemiştir; mevcut `features` dizini altındaki modüller kullanılmaktadır.  Bu, mevcut projenin altyapısına uyum sağlamayı amaçlamaktadır.
+
+
+### 4. SONUÇ YORUMU:
+
+Bu değişiklikler, Summarizer Framework'ün kurulum sürecini geliştiren ve kullanıcı deneyimini iyileştiren önemli adımlar içermektedir.  Uzun vadeli değer, daha kullanıcı dostu bir kurulum deneyimi ve daha iyi sürdürülebilir bir kod tabanında yatmaktadır. Projenin teknik borcu, modüler bir yapıya geçilmesiyle azaltılmıştır.  Gelecekteki geliştirmelere hazırlık, modüler yapının esnekliği ve genişletilebilirliği sayesinde sağlanmıştır. Yeni GUI bileşenlerinin veya terminal komutlarının eklenmesi, mevcut yapıyı bozmadan kolayca gerçekleştirilebilir.  Ancak, `features` alt dizinindeki modüllerin daha detaylı bir dokümantasyon ile desteklenmesi, gelecekteki bakım ve geliştirmeyi daha da kolaylaştıracaktır.
+
+**Değişen Dosyalar:** install_gui.py
+**Etki Seviyesi:** High
+**Değişiklik Tipi:** Other
+**Satır Değişiklikleri:** +73
+**Etiketler:** install-gui, api, gui
+
+---
+
+## 2025-06-17 17:07:28
+
+### 1. YAPISAL ANALİZ:
+
+Değişiklikler yalnızca `install_gui.py` dosyasını etkilemiştir. Bu dosya, Summarizer Framework'ün GUI ve terminal komutlarının kurulumunu yöneten bir betiktir. Sistemin diğer bileşenleri veya katmanları doğrudan etkilenmemiştir.  Mimari değişiklik yok denecek kadar azdır;  mevcut bir betiğin işlevselliği genişletilmiştir. Kod organizasyonunda küçük bir iyileştirme gözlemlenmiştir:  `try...except` bloklarının kullanımı, olası hata durumlarını daha iyi ele almayı sağlar ve betiğin daha sağlam olmasını garantiler.  Ancak, bu iyileştirme, büyük ölçekli bir mimari değişiklik değil, mevcut kodun daha iyi korunmasını sağlayan küçük bir refactor'dur.
+
+
+### 2. İŞLEVSEL ETKİ:
+
+Bu değişikliklerle, GUI ve terminal komutlarının kurulum işlemi daha kullanıcı dostu ve bilgilendirici hale getirilmiştir.  Özellikler eklenmedi, ancak mevcut kurulum işlemi iyileştirildi.  Daha önceki versiyonun hata yönetimi daha zayıf olabilirken,  yeni versiyon `try...except` bloklarının kullanımıyla daha sağlam bir hata yönetimi sunmaktadır.  Kullanıcı deneyimi, daha ayrıntılı çıktı mesajları sayesinde iyileştirilmiştir.  Kullanıcılar, kurulumun her adımının durumunu ve olası hataları daha net bir şekilde görebilirler.  Performans üzerinde kayda değer bir etki beklemek mümkün değildir. Güvenlik ve güvenilirlik açısından, hata yönetiminin iyileştirilmesi küçük bir artış sağlayabilir.  Ancak, bu değişikliklerin güvenlik açısından büyük bir etkisi yoktur.
+
+
+### 3. TEKNİK DERINLIK:
+
+Belirgin bir tasarım deseni değişikliği veya uygulanması yoktur.  Kod kalitesi, hata yönetiminin iyileştirilmesiyle geliştirilmiştir.  Kodun sürdürülebilirliği,  daha okunabilir ve daha iyi hata yönetimi sayesinde artmıştır.  Yeni bağımlılıklar veya teknolojiler eklenmemiştir.  `features.gui_installer` ve `features.terminal_commands` modüllerine bağımlılık mevcuttur, ancak bu bağımlılıklar zaten mevcuttu ve bu değişiklikle yeni bir bağımlılık eklenmemiştir.
+
+
+### 4. SONUÇ YORUMU:
+
+Bu değişikliklerin uzun vadeli değeri, daha sağlam ve kullanıcı dostu bir kurulum süreci sunmasıdır.  Projenin teknik borcu, hata yönetiminin iyileştirilmesiyle azaltılmıştır.  Gelecekteki geliştirmelere hazırlık olarak,  kod daha sağlam ve daha sürdürülebilir hale getirilmiştir.  Yeni özellikler eklemek veya mevcut özellikleri geliştirmek daha kolay olacaktır. Ancak bu değişiklikler temelde bakım ve iyileştirme odaklı olup, büyük ölçekli bir yenilik sunmamaktadır.  Örneğin,  daha kapsamlı bir loglama sistemi eklemek veya kurulum sürecinin farklı işletim sistemleriyle uyumluluğunu artırmak gibi gelecek geliştirmeler için bir temel oluşturmuştur.
+
+**Değişen Dosyalar:** install_gui.py
+**Etki Seviyesi:** High
+**Değişiklik Tipi:** Other
+**Satır Değişiklikleri:** +73
+**Etiketler:** install-gui, api, gui
+
+---
+
 ## 2025-06-17 17:04:19
 
 ### 1. YAPISAL ANALİZ:

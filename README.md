@@ -1,56 +1,58 @@
-# 🚀 project.110620251156
-> Modern bir yapılandırma GUI'sini başlatan, kullanıcı dostu ve hataya dayanıklı bir Python tabanlı web projesi.
+# 🚀 Summarizer Framework Kurulumu
+> Summarizer Framework'ün kullanıcı dostu ve hataya dayanıklı bir kurulum deneyimi sağlayan iyileştirilmiş kurulum betikleri.
 
 ## 📊 Proje Durumu
-Proje aktif olarak geliştirilmektedir. Son değişiklikler, GUI başlatıcısının (`gui_launcher.py`) hata yönetimini ve kullanıcı deneyimini iyileştirmeye odaklanmıştır.  Yeni bir özellik eklenmemiş, ancak mevcut işlevsellik önemli ölçüde güçlendirilmiştir.
+Proje aktif olarak geliştirilmekte ve bakım altındadır. Son güncellemeler, kurulum sürecinin kullanıcı deneyimini ve güvenilirliğini artırmaya odaklanmıştır.  GUI tabanlı kurulumun eklenmesi ve hata yönetiminin iyileştirilmesiyle daha sağlam bir kurulum deneyimi sunulmaktadır.
 
 ## ✨ Özellikler
-- Modern bir grafik kullanıcı arayüzü (GUI) ile yapılandırma imkanı.
-- Hataya dayanıklı ve kullanıcı dostu bir GUI başlatıcı.
-- Eksik GUI bileşenleri durumunda bilgilendirici hata mesajları.
-- `flet` kütüphanesi ile geliştirilmiş kullanıcı arayüzü.
+- GUI tabanlı kurulum desteği (yeni)
+- Geliştirilmiş hata mesajları ve hata yönetimi
+- Daha bilgilendirici kurulum çıktısı
+- Terminal komutlarıyla kurulum desteği
+- Modüler kod yapısı
 
 
 ## Değişen Dosyalar:
-`gui_launcher.py`
+- `install_gui.py`: Summarizer Framework'ün GUI ve terminal komutlarının kurulumunu yöneten betik.
+- `gui_launcher.py`: Summarizer Framework'ün GUI'sini başlatan bağımsız bir başlatıcı.
 
 
 ## ANALİZ GÖREVİ:
 
 ### 1. YAPISAL ANALİZ:
 
-- **Etkilenen Bileşenler ve Katmanlar:** Sadece GUI (Sunum Katmanı) etkilenmiştir.  `gui_launcher.py` dosyası, projenin GUI'sini başlatan bağımsız bir bileşendir ve diğer sistem bileşenleriyle doğrudan etkileşimi yoktur.
+- **Hangi sistem bileşenleri ve katmanlar etkilendi?**  Değişiklikler öncelikli olarak `install_gui.py` ve `gui_launcher.py` dosyalarını etkilemiştir. Bu dosyalar, Summarizer Framework'ün kurulum ve GUI başlatma süreçlerini yönetir.  Sistemin GUI katmanı doğrudan etkilenirken, diğer katmanlar dolaylı olarak (daha iyi hata yönetimi ve modülerlik sayesinde) faydalanmıştır. `features` dizini altındaki `gui_installer.py` ve `terminal_commands.py` dosyaları da kullanılmaktadır, fakat bunlar doğrudan değiştirilmemiştir.
 
-- **Mimari Değişikliklerin Etkisi:**  Mimari açıdan önemli bir değişiklik yoktur. Mevcut mimari korunmuş ve genişletilmemiştir.  Değişiklikler mevcut GUI başlatma mekanizmasını iyileştirmeye odaklanmıştır.
+- **Mimari değişikliklerin etkisi nedir?** Mimari açıdan büyük bir değişiklik yoktur.  Sistem genelinde monolitik bir yaklaşım korunmuştur. Ancak, `install_gui.py` dosyasının `features` dizini altındaki modüllere bağımlılığı, kodun daha modüler bir yapıya doğru evrilmesi için önemli bir adım oluşturmaktadır. Bu, gelecekte daha karmaşık fonksiyonların eklenmesini kolaylaştıracaktır.
 
-- **Kod Organizasyonundaki İyileştirmeler:** Kod organizasyonunda önemli bir değişiklik olmasa da, `try...except` blokları eklenerek hata yönetimi önemli ölçüde iyileştirilmiştir.  `project_root` değişkeninin tanımlanması ve `sys.path.insert` kullanımı, projenin farklı dizinlerden çalıştırılmasını daha güvenilir hale getirmiş, modül import yolunu daha açık hale getirmiştir. Bu, özellikle farklı geliştirme ortamlarında veya farklı proje dizin yapılarında çalıştırma için önemli bir iyileştirmedir.
+- **Kod organizasyonunda hangi iyileştirmeler yapıldı?**  `install_gui.py` ve `gui_launcher.py` dosyalarında, hata yönetimini iyileştirmek için `try...except` blokları kullanılmıştır.  Fonksiyonel ayrım, `features` dizini altında farklı modüllere fonksiyonların dağıtılmasıyla güçlendirilmiştir. `gui_launcher.py` dosyasında `project_root` değişkeninin tanımlanması ve `sys.path.insert` kullanımı, farklı dizinlerden çalıştırma için daha sağlam bir yol sağlamıştır.
 
 
 ### 2. İŞLEVSEL ETKİ:
 
-- **Eklenen, Değiştirilen veya Kaldırılan Özellikler:** Yeni bir özellik eklenmemiştir.  Mevcut GUI başlatma işlevinin hata yönetimi iyileştirilmiştir.
+- **Hangi özellikler eklendi, değiştirildi veya kaldırıldı?** Yeni bir GUI tabanlı kurulum özelliği eklenmiştir. Mevcut terminal komutu kurulumu daha iyi entegre edilmiştir.  Esas olarak, mevcut kurulum işlemi iyileştirilmiş ve daha kullanıcı dostu hale getirilmiştir. Hiçbir özellik kaldırılmamıştır.
 
-- **Kullanıcı Deneyiminin Etkilenmesi:** Kullanıcı deneyimi olumlu yönde etkilenmiştir.  `ImportError` gibi hatalar oluştuğunda, kullanıcıya daha açıklayıcı ve yardımcı hata mesajları gösterilmektedir.  Kullanıcı, sorunun kaynağını ve çözüm yolunu ( `install_gui.py` betiğini çalıştırmak) anlar.
+- **Kullanıcı deneyimi nasıl etkilendi?** Kullanıcı deneyimi, daha kapsamlı ve bilgilendirici hata mesajları sayesinde önemli ölçüde iyileştirilmiştir.  Kullanıcılar, kurulumun her adımında ne olduğunu daha net bir şekilde anlar ve olası sorunlar hakkında uyarılır. GUI tabanlı kurulum, kullanıcı dostu bir arayüz sağlayarak kurulum sürecini daha kolay hale getirir.
 
-- **Performans, Güvenlik veya Güvenilirlik Üzerindeki Etkiler:** Performans üzerinde önemli bir değişiklik yoktur. Güvenlik üzerinde doğrudan bir etkisi gözlemlenmemiştir.  Ancak, iyileştirilmiş hata yönetimi, programın güvenilirliğini artırmıştır.  Programın beklenmedik hatalar nedeniyle çökme olasılığı azaltılmıştır.
+- **Performans, güvenlik veya güvenilirlik üzerindeki etkiler?** Performans üzerinde önemli bir değişiklik beklenmez. Güvenlik açısından doğrudan bir değişiklik yoktur, ancak daha iyi hata yönetimi ve modüler yapı, gelecekte güvenlik açıklarının tespit edilmesini ve düzeltilmesini kolaylaştıracaktır. Güvenilirlik ise daha sağlam hata yönetimi sayesinde artmıştır.
 
 
 ### 3. TEKNİK DERINLIK:
 
-- **Tasarım Desenleri:**  `try...except` blokları kullanımı, temel bir hata yönetimi tasarım deseni olan istisna yakalama (exception handling) tasarım desenini kullanmaktadır.  Yeni bir tasarım deseni uygulanmamıştır.
+- **Hangi tasarım desenleri uygulandı veya değiştirildi?** Belirgin bir tasarım deseni değişikliği veya uygulanması yoktur. Ancak, fonksiyonların ayrı modüllere ayrılması, "separation of concerns" prensibinin uygulanmasına işaret etmektedir.
 
-- **Kod Kalitesi ve Sürdürülebilirliğinin Gelişimi:** Kod kalitesi ve sürdürülebilirlik, daha iyi hata yönetimi ve daha okunabilir kod ile geliştirilmiştir.  Daha açıklayıcı hata mesajları, hata ayıklama sürecini kolaylaştırır.
+- **Kod kalitesi ve sürdürülebilirlik nasıl gelişti?** Kod kalitesi, daha açıklayıcı hata mesajları, daha iyi hata yönetimi ve modüler yapı sayesinde gelişmiştir.  Sürdürülebilirlik, modüler yapı, daha okunabilir kod ve gelişmiş hata yönetimi sayesinde artmıştır.
 
-- **Yeni Bağımlılıklar veya Teknolojiler:** Yeni bir bağımlılık eklenmemiştir.  Mevcut `flet` kütüphanesi kullanılmaya devam edilmektedir.
+- **Yeni bağımlılıklar veya teknolojiler eklendi mi?** Hayır, yeni bir bağımlılık eklenmemiştir. Mevcut `features` dizini altındaki modüller ve `flet` kütüphanesi kullanılmaya devam edilmektedir.
 
 
 ### 4. SONUÇ YORUMU:
 
-- **Uzun Vadeli Değer ve Etki:** Bu değişikliklerin uzun vadeli değeri, daha sağlam ve kullanıcı dostu bir GUI başlatma mekanizması sağlamaktır.  Bu, projenin bakımını kolaylaştırır ve kullanıcı hatalarını azaltır.
+- **Bu değişikliklerin uzun vadeli değeri ve etkisi nedir?** Bu değişikliklerin uzun vadeli değeri, daha kullanıcı dostu ve güvenilir bir kurulum süreci sağlamaktır.  Daha iyi bir kullanıcı deneyimi, daha az destek talebi ve daha hızlı benimseme anlamına gelir. Modüler yapı, gelecekteki geliştirmeleri ve bakımı kolaylaştıracaktır.
 
-- **Projenin Teknik Borcunun Etkilenmesi:** Projenin teknik borcu, daha iyi hata yönetimi ve daha okunabilir kod ile azaltılmıştır. Ancak, `project_root` değişkeninin mutlak yol olarak tanımlanması, taşınabilirliği kısıtlayan bir potansiyel teknik borç olarak kalmaktadır.  Bu değişkenin konfigürasyon dosyası veya ortam değişkenleri ile yönetilmesi önerilir.
+- **Projenin teknik borcu nasıl etkilendi?** Projenin teknik borcu, daha iyi hata yönetimi ve modüler bir yapıya geçişle azaltılmıştır.
 
-- **Gelecekteki Geliştirmelere Hazırlık:**  İyileştirilmiş hata yönetimi ve daha modüler bir kod yapısı, gelecekteki GUI güncellemelerinin daha kolay ve güvenilir bir şekilde uygulanmasını mümkün kılacaktır.  `sys.path` manipülasyonu, gelecekteki bağımlılıkların eklenmesi için daha esnek bir yaklaşım sağlar.
+- **Gelecekteki geliştirmelere nasıl hazırlık yapıldı?** Modüler yapı, gelecekteki geliştirmeleri kolaylaştıracaktır.  Yeni GUI bileşenlerinin veya terminal komutlarının eklenmesi daha kolay ve daha güvenli olacaktır.  Daha kapsamlı bir loglama sistemi eklemek veya farklı işletim sistemleriyle uyumluluğu artırmak gibi gelecek geliştirmeler için bir temel oluşturulmuştur.
 
 ## 🛠️ Kurulum (Installation)
 
@@ -211,7 +213,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**Last updated**: June 17, 2025 by Summarizer Framework v7.11.0
+**Last updated**: June 17, 2025 by Summarizer Framework v7.13.0
 *This README is automatically generated and updated based on project activity.*
 
 > *"Automatically maintained with AI-powered analysis"*
