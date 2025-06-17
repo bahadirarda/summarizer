@@ -3,6 +3,35 @@
 Bu dosya otomatik olarak generate edilmiştir.
 Düzenlemeler için `changelog.json` dosyasını kullanın.
 
+## 2025-06-17 17:22:15
+
+### 1. YAPISAL ANALİZ:
+
+Değişiklikler, `install_gui.py` dosyasıyla sınırlı olup, Summarizer Framework'ün kurulum sürecini etkiler.  Sistem bileşenleri olarak GUI ve terminal komutları yer alır.  Katmanlar açısından bakıldığında, kurulum katmanı doğrudan etkilenmiştir. Mimari değişiklik yok denecek kadar azdır. Mevcut mimariye yeni bir fonksiyonellik eklenmemiştir; sadece kurulum sürecinin daha kullanıcı dostu hale getirilmesi amaçlanmıştır. Kod organizasyonu açısından, `features` adlı bir alt dizin içindeki modüllerden (`gui_installer`, `terminal_commands`) fonksiyonların çağrılması ile daha modüler bir yapıya geçiş yapılmıştır. Bu, kodun okunabilirliğini ve sürdürülebilirliğini artırır,  farklı bileşenlerin bağımsız olarak geliştirilmesine olanak tanır.
+
+
+### 2. İŞLEVSEL ETKİ:
+
+Eklenen veya kaldırılan özellik yok. Ancak, var olan kurulum işlemi iyileştirilmiştir.  `install_gui.py` betiği, GUI bileşenlerinin ve terminal komutlarının kurulumunu adım adım gerçekleştirir.  Her adımın başarısızlığı ayrı olarak bildirilir ve kurulumun genel başarısı doğru bir şekilde değerlendirilir. Kullanıcı deneyimi, adım adım ilerleme gösterimi ve olası hatalar için açıklayıcı mesajlar sayesinde önemli ölçüde iyileştirilmiştir.  Kullanıcıya, kurulumun başarılı olup olmadığı net bir şekilde iletilir ve sonraki adımlar için yönlendirme yapılır.  Performans üzerindeki etkisi ihmal edilebilir düzeydedir, çünkü değişiklikler ağırlıklı olarak hata yönetimi ve çıktı düzenlemeyle ilgilidir. Güvenlik veya güvenilirlik üzerinde doğrudan bir etkisi yoktur.
+
+
+### 3. TEKNİK DERINLIK:
+
+Belirgin bir tasarım deseni değişikliği gözlemlenmemiştir. Ancak, kodun modülerliği artırılmış ve hata yönetimi iyileştirilmiştir.  `try-except` blokları kullanarak olası `ImportError` ve genel `Exception` durumları ele alınmıştır. Bu, kodun daha sağlam ve hataya karşı daha dayanıklı olmasını sağlar. Kod kalitesi ve sürdürülebilirlik, modüler tasarım ve daha iyi hata yönetimi sayesinde iyileştirilmiştir.  Yeni bir bağımlılık eklenmemiştir. Mevcut `pathlib` kütüphanesi zaten kullanılmaktadır.  `features` alt dizinindeki modüllerin dışarıdan gelen bağımlılıkları olabilir ancak bu `install_gui.py` dosyasının kapsamı dışındadır.
+
+
+### 4. SONUÇ YORUMU:
+
+Bu değişikliklerin uzun vadeli değeri, daha kullanıcı dostu ve daha sağlam bir kurulum sürecidir.  Kullanıcılar kurulum durumunu daha iyi anlayacak ve olası sorunları kolayca teşhis edebilecektir. Projenin teknik borcu, daha modüler ve daha iyi dokümante edilmiş bir kod yapısıyla azalmıştır.  Gelecekteki geliştirmeler için, yeni GUI bileşenleri veya terminal komutları eklemek daha kolay olacaktır, çünkü modüler tasarım bu tür eklemeleri kolaylaştırır.  Bu değişikliklerin, daha büyük bir kullanıcı kitlesine ulaşma ve daha geniş bir kabul görme potansiyeli vardır, çünkü kurulum süreci daha az hata vermeye meyilli ve daha anlaşılırdır.
+
+**Değişen Dosyalar:** install_gui.py
+**Etki Seviyesi:** High
+**Değişiklik Tipi:** Other
+**Satır Değişiklikleri:** +73
+**Etiketler:** gui, install-gui, api
+
+---
+
 ## 2025-06-17 17:04:19
 
 ### 1. YAPISAL ANALİZ:
