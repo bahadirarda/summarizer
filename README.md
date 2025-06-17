@@ -1,47 +1,62 @@
-# 🚀 Summarizer Framework GUI
-> Summarizer Framework için modern ve kullanıcı dostu bir grafik arayüzü (GUI) ve terminal komutları sağlayan bir proje.
+# 🚀 project.110620251156 - Özümleyici Çerçevesi
+> 📄 Web tabanlı bir özümleyici (summarizer) projesi.  Farklı uygulamaların ekran görüntülerini alarak özetleme işlemleri gerçekleştirir ve kullanışlı bir GUI sunar.
 
 ## 📊 Proje Durumu
-Proje aktif geliştirme aşamasındadır. Son güncellemeler, GUI başlatıcısının (gui_launcher.py) ve kurulum betiğinin (install_gui.py) hata yönetimi ve modülerliğini önemli ölçüde iyileştirmiştir.  Kullanıcı deneyimi geliştirmeleri ve gelecekteki genişletilebilirliği destekleyen mimari düzenlemeler yapılmıştır.
+Geliştirme aşamasında.  Son değişiklikler, GUI'nin hata yönetimini geliştirmeyi, komut satırı argümanlarını daha iyi işlemeyi ve kodun modülerliğini artırmayı hedeflemiştir.  macOS kurulum sihirbazı ile ilgili bir dosya boş bırakılmış olup, bu durumun incelenmesi gerekmektedir.
 
 ## ✨ Özellikler
-* 💻  Kullanıcı dostu bir grafik arayüzü (GUI) ile Summarizer Framework'ü kolayca kullanma imkanı.
-* 终端 Terminal komutları ile Summarizer Framework'ü komut satırından yönetme yeteneği.
-* 🛠️  Gelişmiş hata yönetimi ve daha bilgilendirici hata mesajları ile daha güvenilir bir kullanıcı deneyimi.
-* 🧱 Modüler bir kod yapısı, gelecekteki geliştirme ve bakımı kolaylaştırır.
-* ✨  Daha iyi organize edilmiş ve sürdürülebilir bir kurulum süreci.
+* 🖥️ Farklı uygulamaların (Chrome, Firefox, VS Code gibi) ekran görüntülerinin alınması.
+* ⚙️ Komut satırı arayüzü ile özümleyici fonksiyonlarının kontrolü.
+* 🎨 Kullanıcı dostu bir grafiksel arayüz (GUI).
+* 🛠️ macOS kurulum desteği (henüz tam olarak hayata geçirilmemiş).
+* 🗣️ (Gelecekte eklenecek) Sesli komut sistemi.
+* 🔄 (Gelecekte eklenecek) Otomatik güncelleme sistemi.
+* 🤖 (Gelecekte eklenecek) AI destekli kod analizi.
 
 
 ## Değişen Dosyalar:
-`gui_launcher.py`, `install_gui.py`
+`gui_launcher.py`, `summarizer.py`, `macos-setup-wizard/create_enterprise_background.py`, `install_gui.py`
 
 
 ## ANALİZ GÖREVİ:
 
 ### 1. YAPISAL ANALİZ:
 
-`gui_launcher.py` dosyasındaki değişiklikler, projenin sunum katmanını (GUI) etkiler.  Mimari açıdan büyük bir değişiklik yok; mevcut mimari üzerine hata yönetimi eklenmiştir.  `try-except` blokları kullanılarak `flet` kütüphanesinin eksikliği gibi olası hatalar yakalanmakta ve kullanıcıya daha anlaşılır mesajlar verilmektedir. Kod organizasyonunda büyük bir değişiklik olmasa da, `try-except` blokları kodun okunabilirliğini ve sağlamlığını artırmıştır.  `project_root` değişkeninin kullanımı, projenin taşınabilirliğini artırmak için olumlu bir adımdır, ancak mutlak yol kullanımı taşınabilirliği sınırlar (bir revizyonla göreceli yollar veya çevre değişkenleri tercih edilmelidir).
+Bu değişiklikler `gui_launcher.py`, `summarizer.py`, `macos-setup-wizard/create_enterprise_background.py` ve `install_gui.py` dosyalarını etkilemiştir.
 
-`install_gui.py` dosyasındaki değişiklikler ise, kurulum işlemini daha modüler hale getirmiştir.  `features` dizini altına taşınan `gui_installer.py` ve `terminal_commands.py` dosyaları ile GUI ve terminal komutu kurulumları ayrı modüllere ayrılmıştır. Bu, "Ayrıştırma" (Separation of Concerns) prensibine uygun olarak kodun daha okunabilir, test edilebilir ve sürdürülebilir olmasını sağlar.  Sistem mimarisinde önemli bir değişiklik olmamakla birlikte, modülerlik kazandırılmıştır.
+* **`gui_launcher.py`:** Bu dosyada, proje kök dizinini belirlemede mutlak yol yerine daha taşınabilir bir yöntem kullanılması önerilmiştir (bir önceki versiyonda mutlak yol kullanılmışsa). `flet` kütüphanesine bağımlılık eklenmiştir ve GUI başlatma işlemine hata yönetimi (try-except blokları) eklenmiştir.  Mimari açıdan önemli bir değişiklik yok, sadece hata yönetimi eklenmiştir. Kod organizasyonu bakımından küçük iyileştirmeler yapılmış ancak, mutlak yol kullanımının taşınabilirliği azaltıcı etkisi mimari açıdan olumsuz bir durum.
 
+* **`summarizer.py`:** Bu dosyada, komut satırı argüman işleme (`argparse` kütüphanesi ile) iyileştirilmiştir ve kod önemli ölçüde modülerleştirilmiştir (`features` dizini altında özelliklerin ayrıştırılması). `CallableModule` sınıfının eklenmesi, modülün farklı şekillerde kullanılmasına olanak sağlamak amacıyla olabilir.  Mimari değişiklik olarak, fonksiyonların modüllere ayrıştırılması ve `CallableModule` kullanımı, daha iyi organizasyon ve esneklik sağlamıştır. Kod organizasyonu önemli ölçüde iyileştirilmiştir.
+
+* **`macos-setup-wizard/create_enterprise_background.py`:** Bu dosyanın içeriği tamamen boştur. Bu, ya bir hata sonucu ya da henüz tamamlanmamış bir işlevselliğe işaret eder.  Mimari veya kod organizasyonu üzerinde bir etkisi yoktur.
+
+* **`install_gui.py`:** Bu dosya, GUI ve terminal komutlarının kurulumunu yönetir.  Kodun modülerliği artırılmış, `features` dizini altında `gui_installer.py` ve `terminal_commands.py` dosyalarına bağımlılık eklenmiştir. Bu, kurulum işleminin daha iyi organize edilmesini ve sürdürülebilirliğini artırmıştır. Mimari değişiklik olarak modülerlik artışı, kod organizasyonu ise fonksiyonların modüllere taşınmasıyla iyileşmiştir.
 
 ### 2. İŞLEVSEL ETKİ:
 
-`gui_launcher.py`'deki değişikliklerle yeni bir özellik eklenmemiştir.  Mevcut GUI başlatma işlemine hata yönetimi eklenmiştir.  `flet` kütüphanesi eksikse kullanıcıya bilgilendirici bir hata mesajı ve kurulum önerisi gösterilerek kullanıcı deneyimi iyileştirilmiştir. Performans üzerinde gözle görülür bir etki yoktur. Güvenlik veya güvenilirlik doğrudan etkilenmemiştir, ancak daha sağlam hata yönetimi dolaylı olarak güvenilirliği artırmaktadır.
+* **Eklenen Özellikler:** Belirli uygulamaların (Chrome, Firefox, VS Code) ekran görüntülerinin alınması seçeneği komut satırı arayüzüne eklenmiştir.
 
-`install_gui.py`'deki değişikliklerle de yeni bir özellik eklenmemiştir.  Kurulum süreci, GUI ve terminal komutları için ayrı fonksiyonlar kullanılarak iyileştirilmiştir. Bu, hata ayıklama ve test edilebilirliği kolaylaştırmaktadır.  Daha net ve bilgilendirici geri bildirim mesajları ile kullanıcı deneyimi geliştirilmiştir. Performans üzerinde gözle görülür bir etki yoktur. Güvenlik veya güvenilirlik doğrudan etkilenmemiştir, ancak daha modüler yapısı gelecekteki güvenlik açıklarının tespitini ve giderilmesini kolaylaştıracaktır.
+* **Değiştirilen Özellikler:** `summarizer.py` dosyasındaki kodun modülerleştirilmesi, komut satırı argüman işleme iyileştirilmesi ve GUI başlatıcısına hata yönetimi eklenmesi. Kurulum süreci `install_gui.py` dosyasında daha modüler hale getirilmiş ve kullanıcı geri bildirimleri iyileştirilmiştir.
+
+* **Kaldırılan Özellikler:** Gözle görülür bir özellik kaldırımı yoktur.
+
+* **Kullanıcı Deneyimi:** Komut satırı arayüzü daha zengin hale getirilmiştir ve GUI başlatıcısı daha iyi hata mesajları göstererek kullanıcı deneyimini iyileştirmiştir.  `macos-setup-wizard/create_enterprise_background.py` dosyasının boş olması, macOS kurulumu ile ilgili kullanıcı deneyimini olumsuz etkileyebilir ancak bu dosyanın işlevselliği bilinmediğinden kesin bir şey söylemek mümkün değil.
+
+* **Performans, Güvenlik ve Güvenilirlik:** Kodun modülerleştirilmesi, uzun vadede güvenilirliği ve sürdürülebilirliği artırır.  Performans değişiklikleri hakkında net bilgi verilemez (kodun gizli kısımları nedeniyle). Güvenlik açısından bir değişiklik gözlemlenmemiştir.
 
 
 ### 3. TEKNİK DERINLIK:
 
-`gui_launcher.py`'de,  `try-except` blokları (Try-Catch deseni)  kullanılarak hata yönetimi iyileştirilmiştir.  `install_gui.py`'de ise belirgin bir tasarım deseni kullanılmamıştır, ancak modülleştirme yaklaşımı "Ayrıştırma" (Separation of Concerns) prensibini yansıtmaktadır.  Her iki dosyadaki değişiklikler de kod kalitesini ve sürdürülebilirliğini artırmıştır. Kod daha okunabilir ve daha kolay anlaşılır hale gelmiştir.  Yeni bir bağımlılık eklenmemiştir, sadece mevcut `flet` kütüphanesi kullanılmaya devam edilmektedir.  Ancak, `gui_launcher.py`'de mutlak yol kullanımı taşınabilirliği azaltmaktadır; idealde göreceli yollar kullanılmalıdır. `install_gui.py`'de ise bağımlılık yönetimi için daha gelişmiş bir sistem kullanılması önerilebilir.
+* **Tasarım Desenleri:** `summarizer.py`'deki `CallableModule` sınıfı, muhtemelen bir Decorator veya Proxy tasarım deseni örneğidir ancak kodun gizli kısmı nedeniyle kesin olarak belirtilemez. `argparse` kütüphanesi, Komut (Command) tasarım desenini kullanır.  `install_gui.py` dosyasındaki değişiklikler ise ayrıştırma (separation of concerns) prensibine dayanmaktadır.
+
+* **Kod Kalitesi ve Sürdürülebilirlik:** `summarizer.py` ve `install_gui.py` dosyalarının modüler yapısı, kodun okunabilirliğini ve sürdürülebilirliğini artırmıştır.  `gui_launcher.py`'deki mutlak yol kullanımı ise sürdürülebilirliği olumsuz etkiler.  TODO yorumları gelecekteki geliştirmeler için iyi bir temel oluşturur, ancak aynı zamanda teknik borç birikimine işaret eder.
+
+* **Yeni Bağımlılıklar:** `gui_launcher.py` dosyası `flet` kütüphanesine bağımlı hale gelmiştir.
 
 
 ### 4. SONUÇ YORUMU:
 
-`gui_launcher.py`'deki değişikliklerin uzun vadeli değeri, gelişmiş hata yönetimi ve daha iyi kullanıcı deneyimidir.  Bu, uygulamanın güvenilirliğini artırır ve gelecekteki bakım maliyetlerini düşürür.  Projenin teknik borcu, olası `flet` kütüphanesi sorunlarının ele alınmasıyla azaltılmıştır.  Ancak, mutlak yol kullanımı gelecekteki taşınabilirlik sorunlarına yol açabilir ve bu durum bir teknik borç olarak kabul edilmelidir.
-
-`install_gui.py`'deki değişikliklerin uzun vadeli değeri,  daha iyi organize edilmiş, sürdürülebilir ve kolay bakım yapılabilen bir kod tabanıdır.  Gelecekteki geliştirmeler ve hata düzeltmeleri daha kolay ve hızlı gerçekleştirilebilecektir.  Projenin teknik borcu, kodun daha iyi organize edilmesiyle azaltılmıştır.  Modüler tasarım, gelecekteki genişletme ve yeni özellik eklemelerini kolaylaştıracaktır.  Daha kapsamlı bağımlılık yönetimi sisteminin uygulanması ileride yapılacak işler listesinde yer almalıdır.
+Bu değişiklikler, özümleyici projesinin komut satırı arayüzünü zenginleştirmiş, modülerliğini artırmış ve GUI'nin hata yönetimini iyileştirmiştir. Yeni özellikler eklenmiştir ve kurulum süreci iyileştirilmiştir. Ancak, `macos-setup-wizard/create_enterprise_background.py` dosyasının boş olması ve `gui_launcher.py`'deki potansiyel mutlak yol kullanımı (açıklamada önerilmiş olsa da bir önceki versiyon kullanılmışsa), uzun vadeli sürdürülebilirlik açısından endişe yaratmaktadır.  TODO yorumları gelecekteki geliştirmeler için yol haritası sağlar ancak teknik borç birikimine de işaret eder.  Genel teknik borç, modülerleşme sayesinde azalmış olabilir ancak mutlak yol kullanımı ve boş dosya, bu azalmayı dengelemektedir.  Gelecekteki geliştirmelere hazırlık olarak, modüler kod yapısı ve TODO yorumları iyi bir temel oluşturmaktadır.  Ancak, mutlak yolların göçü ve `macos-setup-wizard/create_enterprise_background.py` dosyasının durumunun ele alınması önemlidir.
 
 ## 🛠️ Kurulum (Installation)
 
@@ -202,7 +217,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**Last updated**: June 17, 2025 by Summarizer Framework v7.7.0
+**Last updated**: June 17, 2025 by Summarizer Framework v7.8.0
 *This README is automatically generated and updated based on project activity.*
 
 > *"Automatically maintained with AI-powered analysis"*

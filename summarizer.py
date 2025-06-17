@@ -326,5 +326,7 @@ if __name__ == "__main__":
 # TODO: Kişisel know-how havuzu oluşturabilmek için lazım. Ya login oluşturulmuş olacak ya da summerizer edilmiş olacak. Dökümantasyon, VSCode Extension, using style: Page -> Write just Login than snippet tarzı veri gelişi.
 # BiG TODO: Summarizer Eye: bir göz gibi çalışacak, sürekli kodu analiz edecek, değişiklikleri takip edecek, yeni özellikler önericek, kodu optimize edecek. AI destekli bir göz.
 # TODO:  Add to new option in context menu to run summarizer on current file or selection
-# TODO: summarizer ss <comment> - screenshot with comment özelliği ekle
+# TODO: summarizer ss <comment> - screenshot with comment özelliği ekle (Commente göre yorumlasın.)
+# BiG TODO: Summarizer Enter: sesli komut sistemiyle terminal kullanımı. Cihaz ile tam erişim halinde iletişime geçme konusunda ilk versiyon.
+# TODO: Summarizer Updater : otomatik olarak güncellemeleri kontrol etme ve yükleme. Yeni sürüm çıktığında kullanıcıyı bilgilendir.
 
