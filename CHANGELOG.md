@@ -3,6 +3,35 @@
 Bu dosya otomatik olarak generate edilmiştir.
 Düzenlemeler için `changelog.json` dosyasını kullanın.
 
+## 2025-06-17 13:45:57
+
+### 1. YAPISAL ANALİZ:
+
+Değişiklikler sadece `gui_launcher.py` dosyasını etkilemiştir. Bu dosya, projenin grafiksel kullanıcı arayüzünü (GUI) başlatmakla sorumlu olan bağımsız bir başlatıcı görevi görür.  Sistem bileşenleri arasında,  GUI'yi çalıştırmak için gerekli olan `flet` kütüphanesine ve `src.gui.modern_config_gui` modülüne bağımlılık vardır.  Mimari değişiklik yok gibidir, sadece mevcut GUI başlatma mantığına hata yönetimi eklenmiştir.  Kod organizasyonunda belirgin bir iyileştirme gözlenmez, ancak `try-except` blokları eklenmesiyle kodun daha sağlam ve hata toleranslı hale geldiği söylenebilir.  `project_root` değişkeninin kullanımı, proje yolunun sabit kodlanmış olmaması ve daha taşınabilir bir yapı oluşturması açısından pozitif bir gelişmedir.
+
+
+### 2. İŞLEVSEL ETKİ:
+
+Bu değişiklikler, GUI başlatıcısının hata yönetim yeteneğini önemli ölçüde geliştirmiştir. Özellik ekleme veya kaldırma söz konusu değildir.  Önceki sürümde `flet` kütüphanesinin eksik olması durumunda hata fırlatması muhtemelken, güncellenen sürümde kullanıcıya daha anlaşılır bir hata mesajı gösterilmekte ve `install_gui.py` dosyasının çalıştırılması önerilmektedir.  Kullanıcı deneyimi, `flet` kütüphanesi eksikse daha bilgilendirici bir hata mesajı ile iyileştirilmiştir.  Performans üzerinde gözle görülür bir etki yoktur. Güvenlik veya güvenilirlik üzerinde doğrudan bir etki gözlenmez, ancak hata yönetiminin iyileştirilmesi dolaylı olarak güvenilirliği artırır.
+
+
+### 3. TEKNİK DERINLIK:
+
+Bu değişikliklerde belirli bir tasarım deseni uygulanmamıştır veya değiştirilmemiştir.  Ancak, `try-except` bloklarının kullanımı, hata yönetimi için yaygın bir yaklaşım olan "Try-Catch" tasarım deseninin basit bir uygulamasıdır. Kod kalitesi, hata yönetimi eklenmesiyle iyileşmiştir.  Kod daha okunabilir ve daha sağlam hale gelmiştir.  Sürdürülebilirlik, daha iyi hata mesajları ve hata işleme yoluyla artmıştır. Yeni bir bağımlılık eklenmemiştir; sadece zaten mevcut olan `flet` kütüphanesi kullanılmaya devam edilmektedir.
+
+
+### 4. SONUÇ YORUMU:
+
+Bu değişikliklerin uzun vadeli değeri, gelişmiş hata yönetimi ve iyileştirilmiş kullanıcı deneyiminden kaynaklanmaktadır. Projenin teknik borcu, daha sağlam ve daha sürdürülebilir bir GUI başlatıcısı ile azaltılmıştır.  Bu değişiklikler, gelecekteki geliştirmeler için sağlam bir temel oluşturmaktadır.  Özellikle, `flet` kütüphanesiyle ilgili olası sorunları ele alarak, gelecekteki geliştirmelerin daha az kesintiye uğramasını sağlar.  GUI'nin daha robust ve kullanıcı dostu olmasını sağlar, bu da uzun vadede bakım maliyetlerini düşürecektir.
+
+**Değişen Dosyalar:** gui_launcher.py
+**Etki Seviyesi:** High
+**Değişiklik Tipi:** Other
+**Satır Değişiklikleri:** +38
+**Etiketler:** gui-launcher, api, gui, config
+
+---
+
 ## 2025-06-16 13:52:51
 
 ### 1. YAPISAL ANALİZ:
