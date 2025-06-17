@@ -25,7 +25,7 @@ def main():
         # Import and launch GUI
         from src.gui.modern_config_gui import run_configuration_gui
         
-        print("🎨 Launching Summarizer Configuration GUI...")
+        print("🎨 Launching Summarizer Configuration GUI..")
         run_configuration_gui()
         
     except KeyboardInterrupt:
