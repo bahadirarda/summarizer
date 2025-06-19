@@ -3,10 +3,32 @@
     "version": "1.0",
     "project_name": "Summarizer Framework",
     "created_at": "2025-06-11T16:09:37.067316",
-    "last_updated": "2025-06-20T01:56:12.037749",
-    "total_entries": 60
+    "last_updated": "2025-06-20T02:00:39.841287",
+    "total_entries": 61
   },
   "entries": [
+    {
+      "id": "entry_20250620_020039",
+      "timestamp": "2025-06-20T02:00:39.840933",
+      "ai_summary": "### 1. YAPISAL ANALİZ:\n\nDeğişiklikler, `src/utils/changelog_updater.py` dosyasını etkilemiştir. Bu dosya, projedeki değişiklikleri izleyen, changelog'a yeni girişler ekleyen ve versiyon numarasını güncelleyen bir yardımcı araçtır.  Sistemin yardımcı araçlar katmanını etkilemektedir. Mimari değişiklik yok gibidir, fakat mevcut işlevselliğin genişletilmesi söz konusudur.  Kod organizasyonunda belirgin bir iyileştirme görülmemektedir, ancak kodun daha okunabilir olması için bazı düzenlemeler yapılmış olabilir (tam kod mevcut olmadığı için kesin yorum yapmak zor).  `changelog_updater.py` dosyası, farklı modüllerden ( `file_tracker`, `json_changelog_manager`, `readme_generator`, `version_manager`, `git_manager`)  fonksiyonları kullanarak sorumlulukları paylaştırmaktadır. Bu, iyi bir modülerlik örneğidir.\n\n### 2. İŞLEVSEL ETKİ:\n\nYeni özellikler eklenmiştir veya mevcut özellikler geliştirilmiştir.  Özellikle:\n\n* **Otomatik versiyon artışı:**  Impact Level'a göre (Critical, High, Medium, Low) versiyon numarası otomatik olarak artırılır.  Bu özellik, manuel versiyon yönetimini ortadan kaldırarak daha hızlı ve tutarlı bir sürüm kontrolü sağlar.\n* **AI destekli özetleme:**  Değişikliklerin otomatik özetlenmesi için bir AI aracı kullanılması (Gemini Client'ın kullanımı). Bu, changelog girişlerinin oluşturulmasını otomatikleştirir ve daha az zaman almasını sağlar.  AI başarısız olursa, varsayılan bir özet kullanılır.\n* **Dal yönetimi:**  `main` veya `master` dalında değişiklik yapılırsa, kullanıcıdan yeni bir dal oluşturması istenir.  AI tarafından önerilen bir dal adı veya kullanıcı tarafından girilen bir isim kullanılabilir. Bu, ana dalların korunmasını ve daha temiz bir geliştirme sürecini sağlar.\n* **Güvenlik kontrolleri:** CI kontrollerinin çalıştırılması, kod kalitesini ve potansiyel sorunları erken tespit etmeyi amaçlar.\n\n\nKullanıcı deneyimi, otomasyon sayesinde iyileşmiştir. Changelog oluşturma ve versiyon güncelleme işlemleri daha kolay ve hızlı hale gelmiştir.  Performans üzerindeki etki, kullanılan AI aracının performansına ve CI scriptinin süresine bağlıdır. Güvenlik ve güvenilirlik, CI kontrolleri ve dal yönetimi sayesinde artmıştır.\n\n### 3. TEKNİK DERİNLİK:\n\nKodda belirgin bir tasarım deseni değişikliği yok, mevcut modüler yapı korunmuş.  Kod kalitesi ve sürdürülebilirlik, otomasyon ve daha iyi hata yönetimi (try-except blokları) sayesinde geliştirilmiştir. Yeni bir bağımlılık olan bir AI aracı (Gemini Client) eklenmiştir.  `urllib.parse`, `subprocess` gibi kütüphaneler kullanılmıştır.  Tip belirtmeleri (`typing` modülü) kullanılarak kodun okunabilirliği ve bakımı kolaylaştırılmıştır.  Loglama mekanizmasının kullanılması, hata ayıklama ve izlemeyi kolaylaştırır.\n\n### 4. SONUÇ YORUMU:\n\nBu değişiklikler, geliştirme sürecinin verimliliğini ve güvenilirliğini artırmaktadır.  Uzun vadeli değer, daha hızlı ve daha tutarlı sürüm yönetimi, daha iyi changelog oluşturma ve daha az manuel çalışma anlamına gelir. Projenin teknik borcu, otomasyon sayesinde azalmış olabilir (özellikle manuel changelog ve versiyon yönetimine ilişkin borç).  Gelecekteki geliştirmeler için daha iyi bir temel oluşturulmuştur.  AI entegrasyonu, gelecekte daha gelişmiş otomasyon özelliklerinin eklenmesine olanak tanır. Ancak, AI aracına bağımlılık, olası bir risk faktörüdür ve AI aracının güvenilirliği ve maliyetleri göz önünde bulundurulmalıdır.  Ayrıca, CI scriptinin eksikliği veya başarısızlığı, kod kalitesinin düşmesine neden olabilir.",
+      "changed_files": [
+        "src/utils/changelog_updater.py"
+      ],
+      "impact_level": "critical",
+      "change_type": "feature",
+      "tags": [
+        "manager",
+        "changelog-updater",
+        "utils",
+        "api",
+        "client"
+      ],
+      "file_count": 1,
+      "lines_added": 12,
+      "lines_removed": 0,
+      "commit_hash": null,
+      "author": null
+    },
     {
       "id": "entry_20250620_015612",
       "timestamp": "2025-06-20T01:56:12.037339",
