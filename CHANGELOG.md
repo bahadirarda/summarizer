@@ -3,6 +3,284 @@
 Bu dosya otomatik olarak generate edilmiştir.
 Düzenlemeler için `changelog.json` dosyasını kullanın.
 
+## 2025-06-19 16:26:05
+
+### 1. YAPISAL ANALİZ:
+
+Değişiklikler, özetleme çerçevesinin üç ana bileşenini etkilemiştir: ana iş mantığı (`summarizer.py`), servis katmanı (`src/services/gemini_client.py`) ve yardımcı fonksiyonlar (`src/utils/version_manager.py`).  Ancak `version_manager.py` dosyasının içeriği verilmediği için bu dosyadaki değişikliklerin analizi yapılamaz.
+
+`summarizer.py` dosyasında, komut satırı argümanlarının işlenmesi ve farklı özetleme modlarının yönetimi için daha yapılandırılmış bir yaklaşım benimsenmiştir.  `argparse` modülünün kullanımı, komut satırı seçeneklerinin daha temiz ve anlaşılır bir şekilde tanımlanmasını ve işlenmesini sağlar.  Fonksiyonellik, `features` paketindeki modüllere ayrıştırılmış, bu da kodun daha modüler ve sürdürülebilir olmasını sağlar.  Her özellik (parametre kontrolü, ekran görüntüsü alma, GUI, terminal komutları) kendi modülünde kapsüllenmiştir. Bu, kodun yeniden kullanılabilirliğini ve bakımını kolaylaştırır.  `CallableModule` sınıfının kullanımı, `summarizer.py` dosyasının hem bir komut satırı aracı hem de bir Python modülü olarak çalıştırılmasına olanak tanır.  Bu,  kullanım esnekliği sağlar.
+
+`src/services/gemini_client.py` dosyası, Gemini API'si ile etkileşimi yöneten bir servis katmanı sunmaktadır.  Bu dosya, Gemini API anahtarının yönetimi, hata yakalama mekanizmaları ve istem oluşturma gibi işlevsellikleri içerir.  Kod, bir istem oluşturmadan önce içeriğin uzunluğunu kontrol ederek, uzun metinleri kısaltarak Gemini API'sinin sınırlamalarına uyum sağlar.  Loglama mekanizması sayesinde, işlemlerin izlenmesi ve sorun giderme kolaylaşır.
+
+Mimari değişiklikler, programın daha modüler ve genişletilebilir bir yapıya kavuşmasını sağlamıştır.  Her bir özellik, bağımsız bir modülde geliştirilebilir ve test edilebilir. Bu, büyük ölçekli geliştirme ve bakım için oldukça önemlidir.  Kod organizasyonundaki iyileştirmeler, okunabilirliği, anlaşılırlığı ve bakım kolaylığını artırmıştır.
+
+
+### 2. İŞLEVSEL ETKİ:
+
+Eklenen özellikler:  `summarizer.py` dosyasındaki değişiklikler, farklı uygulamaların ekran görüntülerinin alınmasını ve analizini sağlayan (`screenshot`, `ss`  ve uygulamaya özel seçenekler) yeni komut satırı seçenekleri eklemiştir.  GUI tabanlı bir konfigürasyon aracı (`--gui`) eklenmiştir.  `summarizer` komutu,  `--setup` seçeneği ile interaktif bir kurulum deneyimi sunmaktadır.  `--status` seçeneğiyle sistemin genel durumunu kontrol etme özelliği eklenmiştir.
+
+Değiştirilen özellikler:  Ana özetleme işlevi, `_summarizer` fonksiyonuna taşınmış ve daha modüler hale getirilmiştir.  Komut satırı argümanlarının işlenmesi `argparse` kütüphanesiyle iyileştirilmiştir.
+
+Kaldırılan özellikler: Belirgin bir özellik kaldırımı gözlenmemiştir.
+
+Kullanıcı deneyimi:  Kullanıcılar, daha fazla komut satırı seçeneğiyle, farklı ihtiyaçlarına göre özetleyiciyi daha esnek bir şekilde kullanabilirler.  GUI'nin eklenmesi, görsel bir arayüz ile konfigürasyonu kolaylaştırmaktadır. Interaktif kurulum ile daha kullanıcı dostu bir deneyim sağlanmıştır.
+
+Performans, güvenlik veya güvenilirlik:  `src/services/gemini_client.py`'deki değişiklikler, Gemini API'sinin kullanımıyla ilgili performans ve güvenilirliğin iyileştirilmesine katkıda bulunabilir.  Hata yakalama mekanizmaları ve loglama, güvenilirliği artırır.  Ancak, bu değişikliklerin performans ve güvenilirliğe kesin etkisini ölçmek için daha fazla bilgiye ihtiyaç vardır.
+
+
+### 3. TEKNİK DERINLIK:
+
+Uygulamaya alınan tasarım desenleri:  `summarizer.py` dosyasındaki değişiklikler,  komut satırı seçeneklerinin işlenmesinde `argparse` kütüphanesi aracılığıyla,  Command Pattern'i kullanır.  Modüllerin ayrıştırılması,  Modülleme prensibine uygundur.  `src/services/gemini_client.py` dosyası ise,  Singleton Pattern'e benzer bir yaklaşım göstermektedir (RequestManager'ın tek bir örneğinin kullanılması).
+
+
+Kod kalitesi ve sürdürülebilirlik:  Kodun daha modüler ve okunabilir hale getirilmesi, kod kalitesini ve sürdürülebilirliği artırmıştır.  Fonksiyonların ve modüllerin iyi tanımlanmış sorumlulukları vardır ve bu durum bakımını kolaylaştırır.  Loglama mekanizmalarının kullanımı hata ayıklamayı kolaylaştırmaktadır.
+
+Yeni bağımlılıklar veya teknolojiler:  `argparse` kütüphanesi eklenmiş olabilir (zaten mevcutsa yeni bir bağımlılık eklenmemiştir).  Gemini API'sinin entegrasyonu yeni bir teknoloji/bağımlılıktır.
+
+
+### 4. SONUÇ YORUMU:
+
+Bu değişiklikler, özetleme çerçevesinin işlevselliğini ve sürdürülebilirliğini önemli ölçüde artırmıştır.  Yeni özellikler eklenmiştir, kullanıcı deneyimi iyileştirilmiştir ve kod daha düzenli ve bakımı kolay hale getirilmiştir.  Gemini API entegrasyonu, projenin yeteneklerini genişletir.
+
+Projenin teknik borcu, kodun daha düzenli ve modüler hale getirilmesiyle azalmıştır.  Modüler tasarım, gelecekteki geliştirmeleri kolaylaştıracak ve yeni özelliklerin eklenmesini daha yönetilebilir hale getirecektir.  Güzel dokümantasyonun varlığı da teknik borcu azaltır.
+
+Gelecekteki geliştirmelere hazırlık:  Modüler tasarım, yeni özelliklerin eklenmesi için iyi bir temel oluşturur.  Her özellik bağımsız bir modülde geliştirilebilir ve entegre edilebilir.  Loglama ve hata yakalama mekanizmaları,  gelecekte ortaya çıkabilecek sorunların tespitini ve çözümünü kolaylaştıracaktır.  Ancak, Gemini API'sine bağımlılık,  API'nin gelecekteki değişikliklerine karşı bir risk oluşturur.  Bu riski azaltmak için, API etkileşimini soyutlayan bir katman eklenmesi düşünülebilir.
+
+**Değişen Dosyalar:** summarizer.py, src/utils/version_manager.py, src/services/gemini_client.py
+**Etki Seviyesi:** High
+**Değişiklik Tipi:** Feature
+**Satır Değişiklikleri:** +341
+**Etiketler:** client, manager, services, utils, gemini-client, api, version-manager, gui, summarizer
+
+---
+
+## 2025-06-19 16:22:00
+
+### 1. YAPISAL ANALİZ:
+
+Değişiklikler, projenin `src/utils` dizini altında bulunan iki yardımcı araç dosyasını etkiliyor: `version_manager.py` ve `changelog_updater.py`. Bu, sistemin yardımcı araçlar ve servis katmanı bileşenlerini kapsıyor. Mimari değişiklikler minimal olup, mevcut bileşenlerin işlevselliğini genişletmeye odaklanıyor.  `version_manager.py` dosyasındaki değişiklikler, versiyon yönetimi ve kod adlarının belirlenmesiyle ilgili işlevselliği artırırken, `changelog_updater.py` dosyasındaki değişiklikler, changelog güncelleme sürecinin daha kapsamlı ve otomatik hale gelmesini sağlıyor.  Kod organizasyonunda belirgin bir iyileştirme gözlenmese de, fonksiyonların daha iyi ayrıştırılması ve hata yönetiminin iyileştirilmesi gibi ince iyileştirmeler olabilir (tam kod mevcut olmadığı için kesin olarak söylemek mümkün değil).  `VersionManager` sınıfının genişletilmesi, kodun daha modüler hale gelmesine katkıda bulunabilir.
+
+
+### 2. İŞLEVSEL ETKİ:
+
+`version_manager.py` dosyasındaki değişiklikler, versiyon bilgisinin elde edilmesi,  semantik versiyonların ayrıştırılması ve kod adlarının belirlenmesiyle ilgili ek işlevsellik sağlıyor.  Özellikle kod adı belirleme fonksiyonunun (`get_codename`) eklenmesi, versiyon numaralarına anlamlı isimler atanmasını mümkün kılıyor.  Bu, geliştiriciler ve kullanıcılar için daha anlaşılır bir versiyonlama sistemi sunuyor.  `changelog_updater.py` dosyasındaki değişiklikler ise changelog'a otomatik olarak giriş ekleme sürecini iyileştiriyor.  `_detect_impact_level` fonksiyonunun eklenmesi veya iyileştirilmesi, değişikliklerin etki seviyesinin (kritik, yüksek, orta, düşük) otomatik olarak tespit edilmesini sağlıyor. Bu, changelog'ların daha tutarlı ve bilgilendirici olmasını sağlıyor.  Kullanıcı deneyimi doğrudan etkilenmese de, daha iyi versiyonlama ve changelog yönetimi, yazılımın kullanımı ve bakımı açısından olumlu bir etkiye sahip olabilir. Performans, güvenlik ve güvenilirlik açısından doğrudan bir etki gözlenmiyor, ancak daha iyi hata yönetimi dolaylı olarak güvenilirliği artırabilir.
+
+
+### 3. TEKNİK DERINLIK:
+
+Kısmi kod örneğinden anlaşıldığı kadarıyla,  `VersionManager` sınıfı, tek sorumluluk prensibine (Single Responsibility Principle) uygun olarak tasarlanmış gibi görünüyor.  `changelog_updater.py` dosyasında da, fonksiyonların belirli görevleri yerine getirmesi için ayrıştırılması görülüyor.  Yeni bir tasarım deseni uygulanmış gibi görünmüyor, ancak mevcut tasarım desenlerinin (örneğin, `VersionManager` sınıfı gibi) daha iyi uygulanması ve daha modüler bir yapı sağlanması söz konusu olabilir. Kod kalitesi ve sürdürülebilirlik, hata yönetiminin iyileştirilmesi ve fonksiyonların daha iyi ayrıştırılmasıyla artmış olabilir.  Yeni bir bağımlılık eklendiği gözlenmiyor; mevcut bağımlılıklar ( `json`, `logging`, `pathlib`, `subprocess`, `re`, `datetime` gibi) kullanılmaya devam ediliyor.
+
+
+### 4. SONUÇ YORUMU:
+
+Bu değişiklikler, projenin versiyonlama ve changelog yönetimi süreçlerini önemli ölçüde iyileştiriyor.  Daha otomatik ve tutarlı bir changelog oluşturma süreci, geliştirme ekibi için zaman kazandırırken, daha bilgilendirici changeloglar kullanıcılar için faydalı olacaktır.  Kod adı belirleme özelliği, versiyon numaralarını daha anlaşılır hale getirerek kullanıcı deneyimini geliştirir.  Uzun vadede, bu değişiklikler projenin sürdürülebilirliğini artırır ve gelecekteki geliştirmeleri kolaylaştırır.  Teknik borç, daha iyi kod organizasyonu ve hata yönetimi sayesinde azalmış olabilir.  Yeni fonksiyonların eklenmesi, gelecekteki özellik eklemelerini ve hataların düzeltilmesini kolaylaştırır ve projenin genişletilmesine daha iyi bir alt yapı oluşturur.  Ancak, tam kod bulunmadığı için bu değerlendirmeler kısmi olabilir. Daha kapsamlı bir analiz için tüm kodun incelenmesi gereklidir.
+
+**Değişen Dosyalar:** src/utils/version_manager.py, src/utils/changelog_updater.py
+**Etki Seviyesi:** High
+**Değişiklik Tipi:** Feature
+**Satır Değişiklikleri:** +52
+**Etiketler:** changelog-updater, api, version-manager, manager, utils
+
+---
+
+## 2025-06-19 16:20:47
+
+### 1. YAPISAL ANALİZ:
+
+Değişiklikler,  `summarizer.py` (ana giriş noktası) ve `src/main.py` (ana iş mantığı) dosyalarını etkilemiştir.  Sistem,  `summarizer.py`'nin komut satırı arayüzü (CLI) ve  `src/main.py`'nin özelleştirilebilir özetleme işlevselliğini içeren iki ana bileşenden oluşmaktadır.  `features` dizini altında bulunan modüller (örneğin, `parameter_checker`, `screenshot`, `terminal_commands`, `gui_installer`) ise  `summarizer.py` tarafından çağrılan işlevleri içerir.  Bu modüler tasarım, değişikliklerin etkilerini sınırlandırır ve kod sürdürülebilirliğini artırır.
+
+Mimari değişiklik, dosya değişikliklerinin izlenmesi ve işlenmesi özelliğinin eklenmesiyle kendini göstermektedir.  `summarizer.py`'de,  `get_changed_files_since_last_run` fonksiyonunun çağrılması ile proje kök dizinindeki dosya değişiklikleri kontrol edilir. Bu fonksiyonun detayları gösterilmemiş olsa da,  bir önceki çalıştırmadan bu yana değişiklik gösteren dosyaların tespit edilmesi ve bu bilgilerin `update_changelog` fonksiyonuna iletilmesi işlemini yaptığı anlaşılmaktadır. Bu,  önceki sürümlerle karşılaştırıldığında daha kapsamlı bir versiyon kontrolü ve güncelleme mekanizması anlamına gelir.
+
+Kod organizasyonunda önemli iyileştirmeler gözlenmektedir.  Fonksiyonellik,  modüller halinde ayrılmış ve her bir modül belirli bir görevi yerine getirir.  Bu, kodun daha okunabilir, bakımı kolay ve test edilebilir olmasını sağlar.  `summarizer.py`,  farklı işlevleri  `features` altındaki modüllerden import ederek tek bir giriş noktasından yönetir. Bu,  sistemin genişletilebilirliğini ve sürdürülebilirliğini artırır.
+
+
+### 2. İŞLEVSEL ETKİ:
+
+Eklenen en önemli özellik, projede yapılan dosya değişikliklerini tespit etme ve buna göre CHANGELOG ve README dosyalarını güncelleme yeteneğidir.  `get_changed_files_since_last_run` ve `update_changelog` fonksiyonları bu işlemi gerçekleştirir.  `update_changelog` fonksiyonunun AI özetleme yeteneği de söz konusudur (kodda açıkça belirtilmese de).
+
+Kullanıcı deneyimi, komut satırı argümanları aracılığıyla farklı işlevlere erişim sağlayan ve gelişmiş bir konfigürasyon GUI'sini destekleyen bir CLI sayesinde iyileştirilmiştir.  Eklenen  `screenshot` komutu, belirli uygulamaların ekran görüntüsünü almayı ve analiz etmeyi sağlar.
+
+Performans,  dosya değişikliklerinin taranması ve CHANGELOG'un güncellenmesi nedeniyle hafif bir artış gösterebilir.  Ancak,  bu artışın önem derecesi, proje boyutuna ve dosya sayısına bağlıdır.  Güvenlik ve güvenilirlik açısından belirgin bir değişiklik gözlenmemektedir.
+
+
+### 3. TEKNİK DERINLIK:
+
+Kodda,  modüler tasarım deseni kullanılmıştır.  Farklı işlevler,  bağımsız modüllere ayrılmıştır.  Ayrıca,  `argparse` kütüphanesi komut satırı argümanlarının işlenmesi için kullanılmıştır.  `ConfigurationManager` sınıfının varlığı,  proje konfigürasyonunun yönetimi için bir yapı sağladığını göstermektedir.  `VersionManager` sınıfı ise versiyon kontrolünü ele almaktadır.
+
+Kod kalitesi ve sürdürülebilirliği,  modüler tasarım ve iyi dokümantasyon sayesinde artmıştır.  Kodun okunabilirliği ve bakımı daha kolay hale gelmiştir.
+
+Yeni bağımlılıkların olup olmadığı tam olarak belirtilemiyor çünkü kodun bir kısmı kısaltılmış. Ancak,  `pathlib`, `argparse`, `logging` gibi kütüphanelerin kullanıldığı zaten biliniyor.  AI özetleme özelliğinin eklenmesi,  ya mevcut bir kütüphanenin kullanılmasını (örneğin, bir büyük dil modeli API'si) ya da yeni bir bağımlılığın eklenmesini gerektirir.
+
+
+### 4. SONUÇ YORUMU:
+
+Bu değişiklikler, projenin versiyon kontrolü ve dokümantasyon güncelleme süreçlerini otomatikleştirir.  Bu,  geliştirme ekibinin verimliliğini artırır ve  hata olasılığını azaltır.  Uzun vadede,  bu özellikler, projenin bakımını ve genişletilmesini kolaylaştırır.
+
+Projenin teknik borcu,  modüler tasarım ve iyi kodlama uygulamaları sayesinde azalmış olabilir.  Ancak,  AI özetleme özelliğinin uygulanması,  yeni teknik borçlar oluşturabilir.
+
+Gelecekteki geliştirmeler için,  bu değişiklikler iyi bir temel oluşturmaktadır.  Sistem,  yeni özellikler eklemek ve mevcut özellikleri geliştirmek için daha kolay bir şekilde genişletilebilir.  Özellikle,  dosya değişikliklerini analiz eden ve CHANGELOG'u güncelleyen mekanizma,  gelecekteki versiyon yönetimi işlemlerini büyük ölçüde basitleştirecektir.
+
+**Değişen Dosyalar:** summarizer.py, src/main.py
+**Etki Seviyesi:** High
+**Değişiklik Tipi:** Feature
+**Satır Değişiklikleri:** +480
+**Etiketler:** manager, summarizer, api, gui, config, main
+
+---
+
+## 2025-06-19 16:17:21
+
+### 1. YAPISAL ANALİZ:
+
+Değişiklikler, `summarizer.py` ve `src/utils/changelog_updater.py` dosyalarını etkilemiştir.  `summarizer.py` dosyası projenin ana giriş noktasıdır ve komut satırı arayüzünü, GUI'yi ve temel özetleme işlevselliğini içerir. `src/utils/changelog_updater.py` ise changelog ve README dosyalarını güncelleyen yardımcı bir modüldür.
+
+Mimari açıdan bakıldığında, değişiklikler mevcut mimariye yeni bir işlevsellik katmanı eklemiştir.  `summarizer.py` içindeki kod, dosya değişikliklerini tespit eden (`get_changed_files_since_last_run`), changelog'ı ve README'yi güncelleyen (`update_changelog`) ve sürüm yönetimi (`VersionManager`) ile ilgili yeni işlevselliklere sahiptir.  Bu işlevsellik,  `src/utils/changelog_updater.py`  modülündeki fonksiyonlarla entegre olarak çalışır.  Bu ekleme,  projenin otomasyon yeteneklerini önemli ölçüde artırmaktadır.
+
+Kod organizasyonu açısından,  `summarizer.py`  dosyası çeşitli özellikler (`features`) altındaki modüllerle daha modüler hale getirilmiştir. Bu, kodun okunabilirliğini ve sürdürülebilirliğini artırır.  `features` dizini altında  `parameter_checker`, `screenshot`, `terminal_commands`,  ve `gui_installer` gibi  modüllerin varlığı,  işlevselliğin daha iyi ayrıştırılmasını gösterir. Ancak, `summarizer.py` dosyasının hala oldukça uzun olması (kesilmiş kısım göz önüne alındığında), ileride daha fazla modülerliğin sağlanmasının faydalı olacağını göstermektedir.
+
+
+### 2. İŞLEVSEL ETKİ:
+
+Yeni eklenen önemli bir özellik, otomatik changelog ve README güncellemeleridir.  `get_changed_files_since_last_run` fonksiyonu, son çalıştırmadan bu yana yapılan dosya değişikliklerini tespit eder.  `update_changelog` fonksiyonu,  bu değişikliklere bağlı olarak changelog ve README dosyalarını günceller. Bu, geliştirme sürecinin otomasyonunu artırır ve manuel güncelleme ihtiyacını azaltır.
+
+Kullanıcı deneyimi açısından,  komut satırı arayüzüne yeni komutlar eklenmiştir (`screenshot`, `ss` ve alt komutları). Bu, kullanıcıların belirli uygulamaların ekran görüntülerini alıp analiz etmelerine olanak tanır.  GUI'nin varlığı da kullanıcıların konfigürasyonları daha kullanıcı dostu bir arayüz üzerinden yapmalarını sağlar.
+
+Performans, güvenlik veya güvenilirlik açısından,  kodda performansı doğrudan etkileyen bir değişiklik görünmemektedir. Ancak,  dosya sistemini taramak ve AI özetleme işlemlerini gerçekleştirmek, büyük projelerde performans düşüşüne neden olabilir.  Güvenlik açısından,  eklenen özellikler doğrudan bir güvenlik riski oluşturmaz, ancak üçüncü taraf kütüphanelerin güvenliği her zaman kontrol edilmelidir.
+
+
+### 3. TEKNİK DERİNLİK:
+
+Kodda,  `JsonChangelogManager`, `VersionManager` gibi sınıflar ve  `ImpactLevel`, `ChangeType` gibi enum'lar kullanılmıştır. Bu,  kodun daha okunaklı ve sürdürülebilir olmasına katkıda bulunur.  `update_changelog` fonksiyonu,  changelog girişlerini oluşturmak için AI özetleme kullanmaktadır (kodda açıkça belirtilmemiş olsa da, fonksiyonun adı ve işlevi bunu ima etmektedir).  Bu,  changelog'ların daha kapsamlı ve bilgilendirici olmasını sağlar.
+
+Kod kalitesi,  modülerlik ve açıklayıcı değişken adlarının kullanımıyla genel olarak iyidir.  Ancak,  `summarizer.py` dosyasının uzunluğu,  daha fazla modülerliğin ve alt fonksiyonlara ayrılmanın faydalı olacağını göstermektedir.
+
+Yeni bağımlılıklar,  AI özetleme için kullanılan kütüphane (kodda açıkça belirtilmemiş) ve diğer yardımcı kütüphaneler olabilir.  Bu bağımlılıklar hakkında daha fazla bilgi,  daha kapsamlı bir analiz için gereklidir.
+
+
+### 4. SONUÇ YORUMU:
+
+Bu değişiklikler, projenin otomasyon yeteneklerini önemli ölçüde artırmıştır.  Otomatik changelog ve README güncellemeleri,  geliştirme sürecinin verimliliğini artırır ve insan hatası riskini azaltır.  Eklenen komut satırı ve GUI seçenekleri,  kullanıcı deneyimini iyileştirir.
+
+Projenin teknik borcu,  `summarizer.py` dosyasının uzunluğu nedeniyle biraz artmış olabilir.  Bu dosyanın daha fazla modülerleştirilmesi,  gelecekteki bakım ve geliştirmeyi kolaylaştıracaktır.
+
+Bu değişiklikler,  gelecekteki geliştirmelere hazırlık yapmaktadır.  Modüler tasarım,  yeni özelliklerin kolayca eklenmesini ve mevcut özelliklerin değiştirilmesini sağlar.  AI özetleme özelliğinin kullanımı,  projenin geliştirme sürecine daha fazla otomasyon ekleme potansiyelini göstermektedir.  Ancak, üçüncü taraf kütüphanelere olan bağımlılıklar,  gelecekte sürüm uyumsuzluklarına neden olabilir.  Bu risk, bağımlılıkları düzenli olarak güncelleyerek ve sürüm yönetimi stratejilerini iyileştirerek azaltılabilir.
+
+**Değişen Dosyalar:** summarizer.py, src/utils/changelog_updater.py
+**Etki Seviyesi:** High
+**Değişiklik Tipi:** Feature
+**Satır Değişiklikleri:** +463 -5
+**Etiketler:** utils, changelog-updater, api, manager, gui, summarizer
+
+---
+
+## 2025-06-19 16:16:40
+
+### 1. YAPISAL ANALİZ:
+
+Değişiklikler, `summarizer.py` dosyasında yoğunlaşmıştır ve projenin ana giriş noktasını etkilemektedir.  Sistem, temelde komut satırı arayüzü (CLI) üzerinden çalışan bir özetleyici framework'üdür.  Bu framework,  `src.main`, `features` (parametre kontrolü, ekran görüntüsü alma, terminal komutları, GUI) gibi alt modüllerden oluşur. Değişiklikler, ana giriş noktasının işlevselliğini genişletmiş ve alt modüllerle olan etkileşimini daha düzenli hale getirmiştir.
+
+Mimari değişikliklerin etkisi, daha modüler ve bakımı kolay bir yapı oluşturmaktır.  `features` dizini altındaki modüllerin daha iyi ayrıştırılması, kodun okunabilirliğini ve test edilebilirliğini artırır.  Her özellik bağımsız olarak geliştirilebilir ve güncellenebilir.
+
+Kod organizasyonunda, özellikle komut satırı argümanlarının işlenmesi ve farklı özelliklerin çağrılması daha düzenli hale getirilmiştir (argparse kütüphanesi'nin kullanımı ima edilmektedir).  `main` fonksiyonunun alt fonksiyonlara ayrıştırılması da kod okunabilirliğini ve sürdürülebilirliğini iyileştirir.  `get_changed_files_since_last_run` fonksiyonunun eklenmesiyle, dosya değişikliklerinin izlenmesi için daha yapılandırılmış bir yaklaşım benimsenmiştir.  Ek olarak,  proje kök dizini ve versiyon yönetiminin daha açık bir şekilde ele alınması, projenin daha kolay yönetilebilirliğini sağlar.
+
+### 2. İŞLEVSEL ETKİ:
+
+Eklenen en önemli özellik, projedeki dosya değişikliklerini tespit edip changelog ve README dosyalarını güncelleyen bir mekanizmadır. Bu, `get_changed_files_since_last_run` ve `update_changelog` fonksiyonları ile sağlanmıştır.  Bu sayede, her çalıştırmada dosyalarda yapılan değişikliklerin otomatik olarak changelog'a eklenmesi ve README dosyasının güncellenmesi sağlanmıştır.
+
+Kullanıcı deneyimi, özellikle proje geliştirme sürecinde önemli ölçüde iyileşmiştir.  Artık changelog ve README dosyalarının manuel olarak güncellenmesi gerekmemektedir.  Komut satırı arayüzü üzerinden  `summarizer screenshot` gibi daha spesifik komutlar eklenmesi de kullanıcı deneyimini geliştirmektedir.
+
+Performans açısından, dosya değişikliklerinin taranması ve changelog'un güncellenmesi ek bir yük getirecektir.  Ancak, kodda performans optimizasyonlarına dair bir bilgi verilmediği için kesin bir değerlendirme yapmak zordur. Güvenlik ve güvenilirlik açısından, kodda görünen değişiklikler bu alanları doğrudan etkilemez.  Ancak,  dosya sistemine erişim içeren fonksiyonların güvenli bir şekilde yazılmış olduğundan emin olunmalıdır (örneğin, dosya erişim haklarının doğru şekilde kontrol edilmesi).
+
+### 3. TEKNİK DERINLIK:
+
+Argümanların işlenmesi için `argparse` kütüphanesi kullanılmaktadır (dolaylı olarak anlaşılabilir).  Bu, iyi bir tasarım örneğidir.  Versiyon yönetimi için `VersionManager` sınıfı kullanılmış gibi görünmektedir (kodda belirtilmiştir).  Bu sınıf, projenin versiyonunu takip etmeyi kolaylaştırır.  Dosya değişikliklerinin izlenmesi için, muhtemelen bir önceki çalışma durumunun kayıt altına alınması ve dosya zaman damgalarının karşılaştırılması gibi bir yöntem kullanılmıştır.  Kod kalitesi ve sürdürülebilirliğin iyileştirilmesi, kodun daha modüler ve okunabilir bir hale getirilmesiyle sağlanmıştır.
+
+Yeni bağımlılıkların eklendiğine dair bir bilgi yoktur.  Mevcut bağımlılıklar hakkında bilgi verilmemiştir.
+
+### 4. SONUÇ YORUMU:
+
+Bu değişiklikler, projenin uzun vadeli değerini önemli ölçüde artırmaktadır.  Otomatik changelog ve README güncellemeleri, geliştirme sürecini hızlandırır ve dokümantasyonun güncel kalmasını sağlar.  Bu, proje geliştiricileri ve kullanıcıları için önemli bir faydadır.  Projenin teknik borcu, daha modüler ve daha iyi organize edilmiş bir kod yapısı sayesinde azaltılmıştır.  Dosya değişikliklerinin izlenmesi, gelecekteki hata ayıklama ve bakımı kolaylaştırır.
+
+Bu değişiklikler, gelecekteki geliştirmelere hazırlık yapmaktadır.  Modüler tasarım, yeni özelliklerin eklenmesini kolaylaştırır.  Versiyon yönetimi ve dosya değişikliklerinin izlenmesi, projenin daha kolay yönetilmesini sağlar.  Ancak, daha detaylı bir hata yönetimi ve test stratejisi, gelecek geliştirmeler için daha da önemlidir.  Loglama mekanizmasının yeterli olup olmadığı da gözden geçirilmelidir.  `logger` objesine yapılan referans, kapsamlı loglama yapısının varlığını göstermektedir.
+
+**Değişen Dosyalar:** summarizer.py
+**Etki Seviyesi:** High
+**Değişiklik Tipi:** Other
+**Satır Değişiklikleri:** +462
+**Etiketler:** api, summarizer, gui, manager
+
+---
+
+## 2025-06-19 16:06:11
+
+### 1. YAPISAL ANALİZ:
+
+Değişiklikler, projenin `src/utils` alt dizinindeki iki yardımcı modülü etkiliyor: `version_manager.py` ve `changelog_updater.py`.  Bu, yardımcı fonksiyonlar ve servis katmanlarını kapsayan bir yapıya işaret ediyor.  `version_manager.py` sürüm yönetimi ile ilgili işlevselliği sağlarken, `changelog_updater.py` ise değişiklik günlüğünün güncellenmesiyle görevlidir.  Her iki modül de projenin genel işleyişinde kritik roller oynuyor.  Mimari açıdan büyük bir değişiklik gözlemlenmiyor; ancak iki modül arasında daha sıkı bir entegrasyonun (örneğin, `changelog_updater`'ın sürüm bilgilerini `version_manager`'dan alması) sağlandığı tahmin edilebilir.  Kod organizasyonu açısından, mevcut kodun daha modüler bir yapıya doğru geliştirildiği gözlemlenebilir.  Her modülün kendi özel fonksiyonlarına sahip olması, kodun daha okunabilir ve bakımı kolay hale gelmesini sağlar.  Ancak, sunulan kod parçası sınırlı olduğundan, daha kapsamlı bir organizasyonel iyileştirme olup olmadığını kesin olarak söylemek mümkün değil.
+
+### 2. İŞLEVSEL ETKİ:
+
+`version_manager.py` dosyasındaki değişiklikler, sürüm bilgisi alma ve yorumlama yeteneklerini geliştiriyor.  Mevcut versiyonu `package.json` dosyasından okuma ve semantik sürüm numarasını parçalama fonksiyonları iyileştirilmiş olabilir.  Ayrıca, `get_current_branch` fonksiyonunun eklenmesiyle Git dallarını tespit etme özelliği eklenmiş.  Bu, sürümleme sürecini daha otomatik hale getirir ve farklı dallarda geliştirilen sürümler arasında daha iyi izlenebilirlik sağlar.  `changelog_updater.py` dosyasındaki değişiklikler, değişiklik günlüğüne yeni giriş ekleme sürecinde iyileştirmeler getirebilir.  `_detect_impact_level` fonksiyonunun detayları incelendiğinde, değişikliklerin etki seviyesini (kritik, yüksek, orta, düşük) otomatik olarak tespit etme yeteneği eklenmiştir.  Bu, değişikliklerin önemini daha iyi sınıflandırmaya ve geliştiricilerin daha hızlı bir şekilde önceliklendirme yapmalarına olanak tanır.  Kullanıcı deneyimi doğrudan etkilenmese de, geliştirme süreci hızlanır ve daha iyi izlenebilir hale gelir.  Performans üzerindeki etki muhtemelen önemsizdir, ancak çok büyük projelerde, sürüm kontrolü ve günlüğün otomatik yönetimi performans iyileşmesi sağlayabilir. Güvenlik ve güvenilirlik açısından doğrudan bir etki gözlemlenmemektedir.
+
+### 3. TEKNİK DERINLIK:
+
+Kodda, özellikle `VersionManager` sınıfında, nesne yönelimli programlama prensipleri kullanılmıştır.  `JsonChangelogManager` sınıfı da benzer bir yapıyı takip ediyor gibi gözüküyor.  Değişikliklerin ayrıntılı incelenmesi olmadan tasarım desenlerinin değişip değişmediğini kesin olarak söylemek mümkün değil.  Ancak, modüler tasarım, hata yönetimi (try-except blokları) ve açıklayıcı isimlendirme gibi iyi kodlama uygulamaları gözlemlenmektedir.  Kod kalitesi ve sürdürülebilirlik, daha modüler bir yaklaşım ve gelişmiş hata yönetimi ile artmıştır.  Yeni bir bağımlılık eklendiğine dair bir bilgi yok, ancak mevcut bağımlılıklar (örneğin, `subprocess`, `json`, `pathlib`, `logging`) daha etkin bir şekilde kullanılıyor olabilir.
+
+### 4. SONUÇ YORUMU:
+
+Bu değişiklikler, yazılım geliştirme sürecinin verimliliğini ve izlenebilirliğini artırmayı amaçlıyor.  Uzun vadeli değer, daha tutarlı sürüm yönetimi, daha iyi değişiklik izleme ve geliştiricilerin daha hızlı geri bildirim almasıdır.  Projenin teknik borcu, otomasyon ve modülerliğin artmasıyla azalmış olabilir.  Bu değişiklikler, gelecekteki geliştirmeler için daha sağlam bir temel oluşturur; çünkü sürümleme, değişiklik takibi ve hata yönetimi daha iyi organize edilmiştir.  Ancak, tam etkiyi anlamak için, eksik kod parçalarının analiz edilmesi ve bu değişikliklerin projenin genel mimarisi ve işleyişi içindeki rolünün daha detaylı bir şekilde incelenmesi gereklidir.
+
+**Değişen Dosyalar:** src/utils/version_manager.py, src/utils/changelog_updater.py
+**Etki Seviyesi:** High
+**Değişiklik Tipi:** Feature
+**Satır Değişiklikleri:** +61 -21
+**Etiketler:** api, changelog-updater, manager, utils, version-manager
+
+---
+
+## 2025-06-19 10:46:11
+
+### 1. YAPISAL ANALİZ:
+
+Değişiklikler, Summarizer Framework'ün iki temel bileşenini etkilemiştir: **Kullanıcı Arayüzü (GUI)** ve **Ana İş Mantığı**.  `install_gui.py` dosyasındaki değişiklikler, GUI kurulum sürecini ve ilgili terminal komutlarını kapsarken, `summarizer.py` dosyasındaki değişiklikler, ana programın işlevselliğini, komut satırı argüman işlemeyi ve modül yapısını etkilemiştir.
+
+Mimari açıdan, önemli bir değişiklik, `summarizer.py`'daki modülün bir `CallableModule` sınıfı kullanılarak dinamik olarak değiştirilmesidir. Bu, `summarizer` fonksiyonunun doğrudan çağırılabilir bir modül olarak sunulmasını sağlar.  Bu değişiklik, modülün hem bir komut satırı aracı hem de bir Python kütüphanesi olarak kullanılabilmesini kolaylaştırır.  Kod organizasyonunda ise özellikle `features` dizini altında bulunan modüllerin işlevsel olarak daha iyi gruplandırıldığını ve kodun daha modüler hale getirildiğini gözlemleyebiliriz.  `summarizer.py` dosyasının boyutu oldukça büyük ve bazı bölümleri kısaltılmış olsa da, bu modüler yaklaşım, uzun vadede sürdürülebilirliği artıracaktır.  `install_gui.py` dosyasındaki değişiklikler ise, GUI kurulumunun daha yapılandırılmış ve hata yönetimi açısından daha sağlam olmasını sağlamıştır.
+
+
+### 2. İŞLEVSEL ETKİ:
+
+**Eklenen Özellikler:**  Değişikliklerin en belirgin etkisi, GUI kurulumunun ve kullanımının daha iyi entegre edilmesidir.  `install_gui.py`, GUI bileşenlerinin kurulumunu ve terminal komutlarının ayarlanmasını otomatikleştirir.  Bunun yanında, `summarizer.py`, `summarizer --gui` komutu aracılığıyla GUI'nin başlatılmasını destekler.  Ek olarak,  `summarizer ss chrome` gibi uygulamaya özgü ekran görüntüsü alma yeteneği eklenmiş olabilir (kodun kesilmiş kısmından tam olarak anlaşılamamaktadır).
+
+**Değiştirilen Özellikler:**  `summarizer.py`'deki komut satırı argüman işleme mekanizması iyileştirilmiştir.  Daha kullanıcı dostu ve hataya daha dayanıklı bir şekilde argümanlar işlenir.  Eski kodda bulunan bazı tekrar eden bölümler, modüler yaklaşımla ortadan kaldırılmış olabilir.
+
+**Kaldırılan Özellikler:** Belirgin bir şekilde kaldırılan özellik yoktur.
+
+**Kullanıcı Deneyimi:** Kullanıcı deneyimi, özellikle GUI'nin eklenmesi ve terminal komutlarının daha iyi düzenlenmesiyle iyileştirilmiştir.  Kurulum süreci daha kolay ve anlaşılır hale getirilmiştir.  Daha fazla komutun eklenmesi ve argüman işlemedeki iyileştirmeler, kullanıcılara daha fazla esneklik sunar.
+
+**Performans, Güvenlik ve Güvenilirlik:**  Performans üzerinde önemli bir etki gözlenmez.  Güvenlik açısından,  kodun modüler yapıda olması ve hata yönetiminin iyileştirilmesi olumlu bir etkiye sahiptir.  Güvenilirlik açısından da, GUI kurulumunun hata yönetimi ile daha sağlam hale gelmesi, programın daha az arıza ile çalışmasını sağlar.
+
+
+### 3. TEKNİK DERİNLİK:
+
+**Tasarım Desenleri:**  `summarizer.py`'de, modüler tasarım deseni (modüllerin `features` dizini altında gruplandırılması) kullanılmıştır.  Ayrıca, komut satırı argümanlarının işlenmesinde, bir komut tasarım deseni veya benzeri bir yaklaşım kullanılmış olabilir.  `CallableModule` sınıfının kullanımı ise, modülün farklı şekillerde (komut satırı, kütüphane) kullanılabilmesini sağlayan bir tasarım yaklaşımıdır.
+
+**Kod Kalitesi ve Sürdürülebilirlik:**  Kod kalitesi, modüler yaklaşım ve hata yönetiminin iyileştirilmesiyle artmıştır.  Kodun daha okunabilir, daha kolay anlaşılır ve sürdürülebilir olması beklenir.
+
+**Yeni Bağımlılıklar ve Teknolojiler:**  Yeni bağımlılıkların eklenip eklenmediği kodun kısaltılmış hali nedeniyle kesin olarak belirtilemez.  Ancak, GUI'nin eklenmesi, yeni GUI kütüphanelerinin eklendiğini düşündürmektedir.
+
+
+### 4. SONUÇ YORUMU:
+
+Bu değişiklikler, Summarizer Framework'ün kullanışlılığını ve sürdürülebilirliğini önemli ölçüde artırmaktadır.  GUI'nin eklenmesi, daha geniş bir kullanıcı kitlesine ulaşılmasını sağlayacak ve kullanımı kolaylaştıracaktır.  Modüler yaklaşım, gelecekteki geliştirmeleri kolaylaştıracak ve kodun bakımını basitleştirecektir.  Projenin teknik borcu, kodun daha iyi organize edilmesi ve hata yönetiminin iyileştirilmesiyle azalmıştır.  Özellikle `TODO` notlarında belirtilen gelecek geliştirmeler (sesli komut, otomatik güncelleme, AI destekli kod analizi) için sağlam bir temel oluşturulmuştur.  Uzun vadede, bu değişiklikler projenin daha sağlam, daha kullanışlı ve daha kolay geliştirilebilir olmasını sağlayacaktır.
+
+**Değişen Dosyalar:** install_gui.py, summarizer.py
+**Etki Seviyesi:** High
+**Değişiklik Tipi:** Other
+**Satır Değişiklikleri:** +405
+**Etiketler:** install-gui, gui, api, summarizer
+
+---
+
 ## 2025-06-19 10:42:18
 
 ### 1. YAPISAL ANALİZ:

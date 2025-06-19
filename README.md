@@ -1,58 +1,65 @@
-# 🚀 Summarizer Framework GUI Installer
-> Summarizer Framework'ün kullanıcı dostu bir arayüzle kurulumunu sağlayan bir GUI tabanlı kurulum aracı.  🎉
+# 🚀 project.110620251156 - Akıllı Özetleyici
+> Çeşitli kaynaklardan metin özetleme, ekran görüntüsü alma ve changelog güncelleme gibi özelliklere sahip, modüler ve genişletilebilir bir web projesi.
 
 ## 📊 Proje Durumu
-Proje, kurulum sürecinin kullanıcı deneyimini iyileştirmeye odaklanan güncellemelerle aktif olarak geliştirilmektedir.  Son değişiklikler, hata yönetimini güçlendirmeye, kullanıcı geri bildirimlerini artırmaya ve kurulum sürecini daha şeffaf hale getirmeye yöneliktir.  Toplamda üç ayrı commit incelendi ve bunlar `install_gui.py` ve `gui_launcher.py` dosyalarında değişikliklere neden oldu.  Proje stabil ve kullanıma hazırdır.
+Proje aktif geliştirme aşamasındadır.  Son değişiklikler,  kodun modülerliğini, sürdürülebilirliğini ve kullanıcı deneyimini önemli ölçüde iyileştirmiştir.  Yeni özellikler eklenmiş,  hata yönetimi geliştirilmiş ve versiyonlama süreci otomatikleştirilmiştir.  Gemini API entegrasyonu,  projenin yeteneklerini genişletmektedir.
 
 
 ## ✨ Özellikler
-- GUI tabanlı kurulum:  Kolay ve sezgisel bir arayüz ile Summarizer Framework'ü kurun.
-- Adım adım ilerleme gösterimi: Kurulumun her aşamasında net geri bildirim alın.
-- Geliştirilmiş hata yönetimi:  Açıklayıcı hata mesajları ve çözüm önerileriyle sorunları hızlıca tespit edin.
-- Kullanıcı dostu hata raporlama:  Başarısızlık durumunda detaylı bilgilerle daha kolay hata ayıklama.
-- Modüler kod yapısı:  Gelecekteki genişletmeler için sağlam bir temel.
+* 📄 Çeşitli kaynaklardan metin özetleme (AI destekli)
+* 📸 Uygulama ekran görüntüleri alma ve analiz etme
+* ⚙️ Komut satırı arayüzü (CLI) ile esnek kontrol
+* 🖥️ Görsel konfigürasyon için GUI
+* 🔄 Otomatik changelog güncelleme
+* 🔢 Gelişmiş versiyon yönetimi ve kod adı ataması
+* 📦 Modüler ve genişletilebilir mimari
+* 📈 Durum izleme
 
 
 ## Değişen Dosyalar:
-`install_gui.py`, `gui_launcher.py`
+`summarizer.py`, `src/services/gemini_client.py`, `src/utils/version_manager.py`, `src/utils/changelog_updater.py`, `src/main.py` ve `features` dizini altındaki modüller.  Tam değişiklik listesi ve kod değişikliklerinin ayrıntıları eksik olduğundan, bu liste tamamlanamamıştır.
 
 
 ## ANALİZ GÖREVİ:
 
 ### 1. YAPISAL ANALİZ:
 
-- **Hangi sistem bileşenleri ve katmanlar etkilendi?**  Değişiklikler esas olarak Summarizer Framework'ün kurulum katmanını etkilemiştir. `install_gui.py`, GUI ve terminal komutlarının kurulumunu yönetirken, `gui_launcher.py` ise GUI'nin başlatılmasından sorumludur.  Her iki dosyada yapılan değişiklikler, GUI ve terminal komutları bileşenlerini doğrudan etkiler.
+- **Etkilenen Bileşenler ve Katmanlar:** Değişiklikler, ana iş mantığını (`summarizer.py`, `src/main.py`), servis katmanını (`src/services/gemini_client.py`), yardımcı fonksiyonları (`src/utils/version_manager.py`, `src/utils/changelog_updater.py`) ve yeni özellik modüllerini (`features` dizini) etkilemiştir.  Sistem, modüler bir mimariye sahip olup,  her bir modül belirli bir görevi yerine getirir.
 
-- **Mimari değişikliklerin etkisi nedir?**  Mimari genel olarak değişmeden kalmıştır.  Ancak, `install_gui.py` dosyasında `features` adlı bir alt dizin oluşturularak (`gui_installer`, `terminal_commands` modülleri)  modüler bir yapıya geçiş yapılmıştır. Bu, kodun daha iyi organize edilmesini, sürdürülebilirliğini ve bağımsız geliştirilebilirliğini sağlar. Mimariye yeni bir fonksiyonellik eklenmemiştir.
+- **Mimari Değişikliklerin Etkisi:**  En önemli mimari değişiklik,  kodun modülerliğinin artırılmasıdır.  Özellikle `summarizer.py`,  farklı işlevleri `features` dizini altındaki modüllerden import ederek tek bir giriş noktasından yönetir. Bu,  sistemin genişletilebilirliğini ve sürdürülebilirliğini artırır.  `VersionManager` ve `changelog_updater.py` gibi yardımcı araçların geliştirilmesi de sistemin versiyonlama ve güncelleme süreçlerini iyileştirmiştir.
 
-- **Kod organizasyonunda hangi iyileştirmeler yapıldı?** `install_gui.py` dosyasında,  `features` alt dizini oluşturularak  modülerlik artırılmıştır.  `gui_launcher.py` de ise `project_root` değişkeninin tanımlanması ve `sys.path.insert` kullanımı, projenin farklı dizinlerden çalıştırılmasını daha kolay ve güvenilir hale getirmiştir. Her iki dosyada da  `try-except` blokları eklenerek hata yönetimi iyileştirilmiştir.
+- **Kod Organizasyonundaki İyileştirmeler:** Kod, fonksiyonların ve modüllerin daha iyi ayrıştırılmasıyla daha düzenli ve okunabilir hale getirilmiştir.  `argparse` kütüphanesinin kullanımı, komut satırı argümanlarının işlenmesini kolaylaştırırken,  her bir özelliğin kendi modülünde kapsüllenmesi,  kodun yeniden kullanılabilirliğini ve bakımını kolaylaştırır.  `CallableModule` sınıfının kullanımı,  `summarizer.py`'nin hem komut satırı aracı hem de Python modülü olarak çalıştırılmasına olanak tanır.
 
 
 ### 2. İŞLEVSEL ETKİ:
 
-- **Hangi özellikler eklendi, değiştirildi veya kaldırıldı?**  Hiçbir özellik eklenmedi veya kaldırılmadı. Mevcut kurulum ve GUI başlatma işlemleri iyileştirilmiştir.
+- **Eklenen Özellikler:** Ekran görüntüsü alma (`screenshot`, `ss` seçenekleri ve uygulamaya özel seçenekler), GUI tabanlı konfigürasyon (`--gui`), interaktif kurulum (`--setup`), sistem durumu kontrolü (`--status`), otomatik changelog güncelleme ve kod adı belirleme.
 
-- **Kullanıcı deneyimi nasıl etkilendi?** Kullanıcı deneyimi önemli ölçüde iyileştirilmiştir.  Daha bilgilendirici hata mesajları, adım adım ilerleme gösterimi ve her adımın başarılı olup olmadığına dair geri bildirimler, kullanıcının kurulum sürecini daha iyi anlamasını ve sorunları daha kolay çözmesini sağlar.
+- **Değiştirilen Özellikler:** Ana özetleme işlevi daha modüler hale getirilmiştir (`_summarizer` fonksiyonuna taşınmıştır). Komut satırı argümanlarının işlenmesi `argparse` ile iyileştirilmiştir.
 
-- **Performans, güvenlik veya güvenilirlik üzerindeki etkiler?** Performans üzerindeki etki ihmal edilebilir düzeydedir. Güvenlik veya güvenilirlik doğrudan etkilenmemiştir; aksine, iyileştirilmiş hata yönetimi sayesinde güvenilirlik artmıştır.
+- **Kaldırılan Özellikler:** Açıkça kaldırılan bir özellik gözlenmemiştir.
+
+- **Kullanıcı Deneyimi:**  Kullanıcılar daha fazla komut satırı seçeneği ve GUI ile daha esnek ve kullanıcı dostu bir deneyime sahiptir.  Otomatik changelog güncellemeleri ve kod adları da kullanıcılar için faydalıdır.
+
+- **Performans, Güvenlik veya Güvenilirlik:**  `gemini_client.py`'deki hata yakalama ve loglama mekanizmaları güvenilirliği artırır.  Dosya değişikliklerinin taranması performansı hafifçe etkileyebilir, ancak bu etki projenin boyutuna bağlıdır.  Güvenlikle ilgili belirgin bir değişiklik gözlenmemiştir.
 
 
 ### 3. TEKNİK DERINLIK:
 
-- **Hangi tasarım desenleri uygulandı veya değiştirildi?** Belirgin bir tasarım deseni değişikliği veya uygulanması yoktur.  Ancak, modülerlik ilkesinin uygulanması kodun daha sürdürülebilir olmasını sağlar.
+- **Tasarım Desenleri:** Command Pattern (`argparse` ile komut satırı işleme), Modülerlik prensibi (fonksiyon ve modül ayrıştırılması), Singleton Pattern'e benzer bir yaklaşım (`gemini_client.py`'deki RequestManager).
 
-- **Kod kalitesi ve sürdürülebilirlik nasıl gelişti?** Kod kalitesi ve sürdürülebilirlik,  `try-except` blokları ile iyileştirilmiş hata yönetimi, modüler kod yapısı ve daha açıklayıcı kod ile artmıştır. Daha okunabilir ve anlaşılır bir kod tabanına sahip olunması, gelecekteki bakımı ve geliştirmeyi kolaylaştırır.
+- **Kod Kalitesi ve Sürdürülebilirlik:** Modüler tasarım,  iyi dokümantasyon ve loglama mekanizmaları kod kalitesini ve sürdürülebilirliğini artırmıştır.  Fonksiyonlar ve modüller iyi tanımlanmış sorumluluklara sahiptir, bu da bakımını kolaylaştırır.
 
-- **Yeni bağımlılıklar veya teknolojiler eklendi mi?** Hayır, yeni bağımlılıklar eklenmemiştir.
+- **Yeni Bağımlılıklar veya Teknolojiler:** `argparse` kütüphanesi kullanılmış (varsa yeni bağımlılık eklenmemiştir), Gemini API entegrasyonu yeni bir bağımlılıktır.  AI özetleme için başka kütüphaneler de kullanılmış olabilir, ancak bu belgelere yansımamıştır.
 
 
 ### 4. SONUÇ YORUMU:
 
-- **Bu değişikliklerin uzun vadeli değeri ve etkisi nedir?**  Uzun vadede, daha kullanıcı dostu ve daha güvenilir bir kurulum süreci sağlanır.  Bu, daha geniş bir kullanıcı kitlesine ulaşılmasını ve projenin daha kolay kabul görmesini sağlar.
+- **Uzun Vadeli Değer ve Etki:** Bu değişiklikler projenin sürdürülebilirliğini, genişletilebilirliğini ve kullanıcı deneyimini önemli ölçüde iyileştirmiştir.  Otomatik changelog güncelleme ve gelişmiş versiyonlama,  geliştirme sürecini hızlandırırken,  modüler tasarım gelecekteki geliştirmeleri kolaylaştırır.
 
-- **Projenin teknik borcu nasıl etkilendi?** Projenin teknik borcu, daha modüler ve daha iyi dokümante edilmiş bir kod yapısı ile azalmıştır.  İyileştirilmiş hata yönetimi, gelecekte ortaya çıkabilecek sorunların daha kolay çözülmesini sağlar.
+- **Teknik Borcun Etkilenmesi:** Kodun daha düzenli ve modüler hale getirilmesi, teknik borcu azaltmıştır.  Ancak, Gemini API'sine bağımlılık bir risk oluşturur ve bu riski azaltmak için API etkileşimini soyutlayan bir katman eklenmelidir.
 
-- **Gelecekteki geliştirmelere nasıl hazırlık yapıldı?** Modüler tasarım, gelecekte yeni GUI bileşenleri veya terminal komutları eklemek için daha esnek bir yapı sağlar.  Geliştirilmiş hata yönetimi ve daha ayrıntılı loglama (önerilen bir iyileştirme), gelecekteki hata ayıklama ve sorun giderme süreçlerini kolaylaştırır.
+- **Gelecekteki Geliştirmelere Hazırlık:** Modüler tasarım,  yeni özelliklerin eklenmesi için iyi bir temel oluşturur.  Loglama ve hata yakalama mekanizmaları,  gelecekteki sorunların tespitini ve çözümünü kolaylaştırır.  Gemini API'sine bağımlılık riski göz önünde bulundurularak, gelecekte farklı API'lerle uyumluluk sağlanmalıdır.
 
 ## 🛠️ Kurulum (Installation)
 
@@ -213,7 +220,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**Last updated**: June 19, 2025 by Summarizer Framework v7.13.0
+**Last updated**: June 19, 2025 by Summarizer Framework v7.15.5
 *This README is automatically generated and updated based on project activity.*
 
 > *"Automatically maintained with AI-powered analysis"*

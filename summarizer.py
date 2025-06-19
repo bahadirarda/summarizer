@@ -26,7 +26,7 @@ import sys
 import argparse
 from pathlib import Path
 from types import ModuleType
-from types import ModuleType
+import logging
 
 # Import the main summarizer function
 from src.main import summarizer as _summarizer
@@ -121,7 +121,9 @@ class CallableModule(ModuleType):
             print("   summarizer --setup")
             return False
         
-        return _summarizer(*args, **kwargs)
+        # Pass the current working directory to the main logic
+        project_root_str = str(Path.cwd())
+        return _summarizer(project_root_str=project_root_str, *args, **kwargs)
 
     def main(self):
         """Entry point when running as script"""
@@ -287,12 +289,11 @@ Examples:
             return screenshot_command(parsed_args.args)
         
         # Default behavior - run summarizer
-        print("🚀 Summarizer Framework")
-        print("=" * 30)
-        
-        # Check parameters and run if OK
+        # This is the main entry point for the core logic
         if print_parameter_guidance():
-            return _summarizer()
+            # Pass the current working directory to the main logic
+            project_root_str = str(Path.cwd())
+            return _summarizer(project_root_str=project_root_str)
         else:
             print()
             print("🔧 Quick setup options:")
@@ -319,14 +320,4 @@ sys.modules[__name__] = new_module
 
 # Entry point for script execution
 if __name__ == "__main__":
-    new_module.main()
-
-
-# TODO: Her pushtan sonra otomatik olarak release boyutunda olabilecek bir güncelleme ise release olduğunu anlasın vs. geliştir kanka.
-# TODO: Kişisel know-how havuzu oluşturabilmek için lazım. Ya login oluşturulmuş olacak ya da summerizer edilmiş olacak. Dökümantasyon, VSCode Extension, using style: Page -> Write just Login than snippet tarzı veri gelişi.
-# BiG TODO: Summarizer Eye: bir göz gibi çalışacak, sürekli kodu analiz edecek, değişiklikleri takip edecek, yeni özellikler önericek, kodu optimize edecek. AI destekli bir göz.
-# TODO:  Add to new option in context menu to run summarizer on current file or selection
-# TODO: summarizer ss <comment> - screenshot with comment özelliği ekle (Commente göre yorumlasın.)
-# BiG TODO: Summarizer Enter: sesli komut sistemiyle terminal kullanımı. Cihaz ile tam erişim halinde iletişime geçme konusunda ilk versiyon.
-# TODO: Summarizer Updater : otomatik olarak güncellemeleri kontrol etme ve yükleme. Yeni sürüm çıktığında kullanıcıyı bilgilendir.
-
+    new_module.main() 

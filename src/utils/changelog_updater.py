@@ -53,32 +53,23 @@ def _detect_impact_level(summary: str, changed_files: list) -> ImpactLevel:
 def update_changelog(project_root: Optional[Path] = None):
     """Update changelog with AI-generated summaries using JSON format"""
     if project_root is None:
-        project_root = Path(__file__).resolve().parent.parent.parent
+        project_root = Path.cwd()
         logger_changelog.warning(
-            f"project_root not provided to update_changelog, guessed as {project_root}")
+            f"project_root not provided to update_changelog, defaulting to current working directory: {project_root}")
 
     # Initialize JSON changelog manager
     json_manager = JsonChangelogManager(project_root)
 
-    # Get changed files - check for different possible source directories
-    changed_files = []
+    # Get changed files
     try:
         print("   🔍 Scanning for changed files...")
-        # Use dynamic directory discovery (no manual directory specification needed)
         changed_files = get_changed_files_since_last_run(project_root)
         print(f"   📂 Dynamically scanning all Python directories")
 
-        if changed_files:
-            print(f"   ✅ Found {len(changed_files)} changed files:")
-            for file in changed_files:
-                print(f"      • {file}")
-            logger_changelog.info(
-                f"Detected changed files since last run: {changed_files}"
-            )
-        else:
+        if not changed_files:
             print("   📝 No file changes detected")
             logger_changelog.info("No file changes detected since last run.")
-            # Check if this is a new project that needs initialization
+            
             changelog_file = project_root / "CHANGELOG.md"
             json_file = project_root / "changelog.json"
             
@@ -86,16 +77,20 @@ def update_changelog(project_root: Optional[Path] = None):
                 print("   🎉 Initializing new project...")
                 logger_changelog.info("Initializing new project with welcome entry.")
                 _create_initial_project_entry(json_manager, project_root)
-                return
             else:
                 print("   ✅ Project up to date - no changes to track")
-                # No changes in existing project
-                return
+            return # Exit the function if no files have changed
+
+        print(f"   ✅ Found {len(changed_files)} changed files:")
+        for file in changed_files:
+            print(f"      • {file}")
+        logger_changelog.info(
+            f"Detected changed files since last run: {changed_files}"
+        )
     except Exception as e:
         logger_changelog.error(
             f"Error detecting changed files for changelog: {e}", exc_info=True
         )
-        # Return if there's an error, don't create fake entries
         return
 
     # Analyze line changes
@@ -220,48 +215,49 @@ def update_changelog(project_root: Optional[Path] = None):
         print("   🏷️  Analyzing changes for version management...")
         version_manager = VersionManager(project_root)
         
-        # Auto-increment version based on change impact
         current_version = version_manager.get_current_version()
-        
-        # Determine increment type based on impact level and change analysis
-        increment_type = "patch"  # Default
-        if impact_level == ImpactLevel.CRITICAL:
-            increment_type = "major"
-        elif impact_level == ImpactLevel.HIGH:
-            increment_type = "minor" 
-        elif impact_level == ImpactLevel.MEDIUM:
-            increment_type = "minor"
-        else:
-            increment_type = "patch"
+        branch_name = version_manager.get_current_branch()
+        print(f"   📋 Current version: v{current_version}, Branch: {branch_name}")
+
+        # Determine version based on the new branch-based logic
+        new_version, old_version, increment_type = version_manager.auto_increment_based_on_branch()
+
+        if new_version != old_version:
+            print(f"   📈 Version update determined by branch '{branch_name}': {old_version} → {new_version} ({increment_type} increment)")
             
-        # Auto-increment based on changes for better version management
-        new_version = version_manager.auto_increment_based_on_changes(
-            changed_files, impact_level.value
-        )
-        
-        if new_version != current_version:
-            print(f"   📈 Version updated: {current_version} → {new_version}")
-            print(f"   🎯 Change Impact: {impact_level.value} ({increment_type} increment)")
-            
-            # Get version codename
-            major, minor, patch = version_manager.parse_version(new_version)
-            codename = version_manager._get_version_codename(major, minor)
-            if codename:
-                print(f"   💫 Codename: {codename}")
-                
-            # Create git tag for new version
-            try:
-                version_manager.create_git_tag(new_version)
-                print(f"   🏷️  Git tag created: v{new_version}")
-            except Exception as tag_error:
-                print(f"   ⚠️  Could not create git tag: {tag_error}")
+            # Update the actual files
+            if version_manager.update_version_in_files(new_version):
+                print(f"   ✅ Version files updated to {new_version}")
+
+                # Get version codename
+                major, minor, _ = version_manager.parse_version(new_version)
+                # Pass gemini_client to get an AI-powered codename
+                codename = version_manager._get_version_codename(major, minor, new_version, gemini_client=gemini_client)
+                if codename:
+                    print(f"   💫 Codename: {codename}")
+                    
+                # Create git tag for the new version, now with the codename
+                try:
+                    if version_manager.create_git_tag(new_version, codename=codename):
+                        print(f"   🏷️  Git tag created: v{new_version}")
+                    else:
+                        print(f"   ℹ️  Git tag v{new_version} already exists or failed to create.")
+                except Exception as tag_error:
+                    print(f"   ⚠️  Could not create git tag: {tag_error}")
+            else:
+                print(f"   ⚠️  Failed to update version files. Version remains {old_version}")
+                new_version = old_version # Rollback version variable if update fails
                 
         else:
-            print(f"   ✅ Version maintained: {current_version}")
+            print(f"   ✅ Version maintained at {current_version} based on branch analysis.")
             
     except Exception as e:
         print(f"   ⚠️  Version management failed: {e}")
         logger_changelog.error(f"Error in version management: {e}", exc_info=True)
+
+    # Final cleanup and summary
+    print("\n" + "=" * 50)
+    print("✅ Changelog generation process completed successfully.")
 
 
 def _create_initial_project_entry(json_manager, project_root: Path):

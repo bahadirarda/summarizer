@@ -196,6 +196,27 @@ class ConfigurationManager:
 
         return True, ""
 
+    def get_config(self) -> Dict[str, Any]:
+        """
+        Returns a consolidated configuration dictionary.
+        This combines OS environment variables and user settings.
+        """
+        # Start with a copy of the base user settings
+        config = self.settings.copy()
+        
+        # Load environment variables from OS
+        os_env = dict(os.environ)
+        
+        # Merge OS environment variables. Settings from file take precedence.
+        env_vars = {**os_env, **config.get("environment_variables", {})}
+        config["environment_variables"] = env_vars
+        
+        # For convenience, add the API key at the top level if it's not there
+        if 'gemini_api_key' not in config:
+            config['gemini_api_key'] = self.get_api_key()
+
+        return config
+
     def apply_profile(self, profile_name: str) -> bool:
         """Apply a predefined configuration profile"""
         profiles = self.schema.get("profiles", {})
