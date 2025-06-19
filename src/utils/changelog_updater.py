@@ -344,30 +344,21 @@ def update_changelog(project_root: Optional[Path] = None):
         elif impact_level == ImpactLevel.MEDIUM:
             increment_type = "minor"
 
-        # Use the new centralized incrementer
-        new_version, old_version = version_manager.auto_increment(increment_type)
+        # Use the new centralized incrementer to get version and codename in one step
+        new_version, old_version, codename = version_manager.auto_increment(increment_type, gemini_client)
 
         if new_version != old_version and version_manager.update_version_in_files(new_version):
             print(f"   📈 Version updated: {old_version} → {new_version}")
             print(f"   🎯 Change Impact: {impact_level.value} ({increment_type} increment)")
 
-            # Get version codename
-            major, minor, _ = version_manager.parse_version(new_version)
-            codename = version_manager._get_version_codename(major, minor, new_version, gemini_client)
             if codename:
                 print(f"   💫 Codename: {codename}")
-                
-            # Create git tag for new version
-            try:
-                version_manager.create_git_tag(new_version, codename=codename)
-                print(f"   🏷️  Git tag created: v{new_version}")
-            except Exception as tag_error:
-                print(f"   ⚠️  Could not create git tag: {tag_error}")
 
-            # Pre-commit CI checks for main/develop branches
-            current_branch_name = git_manager.get_current_branch()
-            if current_branch_name in ['main', 'develop', 'staging']:
-                print(f"\n   🔬 Running pre-commit CI checks for '{current_branch_name}' branch...")
+            branch_for_pr = git_manager.get_current_branch()
+
+            # If we are on a release/hotfix branch, check if its version is outdated.
+            if branch_for_pr.startswith(('release/', 'hotfix/')):
+                print(f"\n   🔬 Running pre-commit CI checks for '{branch_for_pr}' branch...")
                 if not _run_ci_checks(project_root):
                     if not _ask_user("   ⚠️  CI checks failed. Continue with commit anyway?"):
                         print("   ⚪️ Commit aborted by user.")
@@ -381,33 +372,53 @@ def update_changelog(project_root: Optional[Path] = None):
 
             # Commit changes to git
             if not git_manager.is_working_directory_clean():
-                prompt_message = f"   ❔ Summarizer updated project files. Commit these maintenance changes to '{current_branch_name}'?"
+                prompt_message = f"   ❔ Summarizer updated project files. Commit these maintenance changes to '{branch_for_pr}'?"
                 if _ask_user(prompt_message):
                     commit_message = f"chore(summarizer): Auto-update to v{new_version}\n\n{summary}"
                     if not (git_manager.stage_all() and git_manager.commit(commit_message)):
                         print("   ❌ Failed to commit maintenance changes. Aborting next git actions.")
                         return
 
-            # Handle GitFlow and CI checks
-            branch_for_pr = git_manager.get_current_branch()
+            # --- DECOUPLED PUSH AND PULL REQUEST FLOW ---
+            
+            # Determine the target branch for potential push/PR
             target_branch = None
             if branch_for_pr.startswith(('feature/', 'bugfix/')): target_branch = 'develop'
-            elif branch_for_pr == 'develop': target_branch = 'staging'
             elif branch_for_pr.startswith('release/'): target_branch = 'main'
             elif branch_for_pr.startswith('hotfix/'): target_branch = 'main'
-            
+            # Core branches like 'develop' and 'staging' can also be pushed
+            elif branch_for_pr in ['develop', 'staging']: target_branch = branch_for_pr # Target itself for a direct push
+
+            # Step 1: Always ask to push if there's a logical remote target
             if target_branch:
-                # This is a feature, bugfix, or release branch that needs a PR.
-                _handle_pull_request_flow(project_root, git_manager, branch_for_pr, target_branch, summary)
-            elif branch_for_pr in ['main', 'develop', 'staging']:
-                # This is a core branch. After a maintenance commit, we should just push.
-                if _ask_user(f"   ❔ Push the maintenance commit directly to '{branch_for_pr}'?"):
+                if _ask_user(f"   ❔ Push the changes on '{branch_for_pr}' to remote?"):
                     print(f"   🚀 Pushing changes to '{branch_for_pr}'...")
-                    success, output = git_manager.push(branch_for_pr)
-                    if success:
-                        print("   ✅ Successfully pushed to remote.")
-                    else:
+                    push_success, output = git_manager.push(branch_for_pr)
+                    if not push_success:
                         print(f"   ❌ Push failed. Git Error:\n{output}")
+                        return # Stop if push fails
+                    
+                    print("   ✅ Successfully pushed to remote.")
+
+                    # Step 2: Only after a successful push, ask to create a PR if applicable
+                    # (i.e., not for direct pushes to develop/staging)
+                    pr_target_map = {
+                        'feature/': 'develop',
+                        'bugfix/': 'develop',
+                        'release/': 'main',
+                        'hotfix/': 'main'
+                    }
+                    
+                    pr_target = None
+                    for prefix, target in pr_target_map.items():
+                        if branch_for_pr.startswith(prefix):
+                            pr_target = target
+                            break
+                    
+                    if pr_target:
+                        _handle_pull_request_flow(project_root, git_manager, branch_for_pr, pr_target, summary)
+                else:
+                    print("   ⚪️ Push skipped by user.")
             else:
                  print(f"   ⚪️ No standard GitFlow action defined for branch '{branch_for_pr}'.")
 

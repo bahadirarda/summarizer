@@ -3,6 +3,51 @@
 Bu dosya otomatik olarak generate edilmiştir.
 Düzenlemeler için `changelog.json` dosyasını kullanın.
 
+## 2025-06-20 01:38:43
+
+### 1. YAPISAL ANALİZ:
+
+Değişiklikler, `src/utils` dizini altında bulunan iki yardımcı modülü etkiliyor: `version_manager.py` ve `changelog_updater.py`.  Bu, "Yardımcı Araçlar" ve "Servis Katmanı" olarak sınıflandırılmış olsa da, her iki dosya da aslında yardımcı fonksiyonlar sağlayan yardımcı modüllerdir.  Mimari açıdan büyük bir değişiklik yok; değişiklikler mevcut işlevselliğin genişletilmesi ve iyileştirilmesi üzerine odaklanıyor.
+
+`version_manager.py` dosyası, versiyon yönetimiyle ilgili fonksiyonları içerir.  Mevcut kodda versiyon bilgisi `package.json` dosyasından okunuyor.  Eksik veya hatalı `package.json` dosyası durumlarında varsayılan bir değer döndürülmesi iyileştirilmiş.  Ayrıca, semantik versiyonlama (`major`, `minor`, `patch`) bilgisinin ayrıştırılması ve kod adının belirlenmesi gibi ek fonksiyonlar mevcut.  `_has_breaking_changes` fonksiyonu, yapılan değişikliklerin kırıcı olup olmadığını tespit etmek için eklendi. Bu fonksiyon, değiştirilen dosyaları ve etki düzeyini parametre olarak alıyor ve kırıcı değişikliklere işaret eden dosya adlarını kontrol ediyor.
+
+`changelog_updater.py` dosyası ise değişiklik günlüğünün güncellenmesiyle ilgili fonksiyonları barındırıyor.  `_detect_impact_level` fonksiyonu, özet metni ve değiştirilen dosyaların listesine dayanarak değişikliğin etki düzeyini (kritik, yüksek, düşük) otomatik olarak tespit etmek için geliştirilmiştir.  Bu fonksiyon, anahtar kelimeler ve değiştirilen dosya sayısı gibi faktörleri dikkate almaktadır.  Dosya tipi tespiti de eklenerek, proje türü (web, python, genel) otomatik olarak belirlenmektedir.  Bu, değişiklik günlüğünün daha akıllı ve özelleştirilebilir bir şekilde yönetilmesini sağlar.  Kod organizasyonunda, fonksiyonların daha iyi ayrıştırılması ve okunabilirlik açısından iyileştirmeler yapılmış gibi görünmektedir.
+
+
+### 2. İŞLEVSEL ETKİ:
+
+* **Eklenen Özellikler:**  `version_manager.py`'de semantik versiyon ayrıştırma ve kod adı belirleme fonksiyonları eklendi. `changelog_updater.py`'de otomatik etki düzeyi tespiti ve proje tipi tespiti fonksiyonları eklendi.  Bu, versiyonlama ve değişiklik günlüğü yönetimini otomatikleştirir ve geliştiricilerin iş yükünü azaltır.
+
+* **Değiştirilen Özellikler:**  `version_manager.py`'deki `get_current_version` fonksiyonu, hata yönetimi ve varsayılan değer kullanımı açısından iyileştirildi.  Daha sağlam ve hata toleranslı hale getirildi. `changelog_updater.py` dosyasında güncelleme işlemi daha akıllı bir şekilde yapılıyor.
+
+* **Kaldırılan Özellikler:**  Belirgin bir özellik kaldırılması gözlenmiyor.
+
+* **Kullanıcı Deneyimi:** Kullanıcı deneyimi doğrudan etkilenmiyor.  Değişiklikler arka planda gerçekleşiyor ve geliştirici deneyimini iyileştiriyor.
+
+* **Performans, Güvenlik, Güvenilirlik:**  Performans üzerinde büyük bir etki beklenmiyor.  Güvenilirlik, daha sağlam hata yönetimi sayesinde artmıştır.  Güvenlik açısından doğrudan bir etki yok.
+
+
+### 3. TEKNİK DERİNLİK:
+
+* **Tasarım Desenleri:**  Belirgin bir tasarım deseni değişikliği veya uygulaması gözlenmiyor.  Ancak, fonksiyonların daha iyi ayrıştırılması ve sorumlulukların daha net bir şekilde dağıtılması, daha iyi bir kod yapısına işaret ediyor.
+
+* **Kod Kalitesi ve Sürdürülebilirlik:**  Kod kalitesi, daha iyi hata yönetimi, daha okunabilir fonksiyonlar ve daha iyi modülerlik sayesinde geliştirilmiştir.  Sürdürülebilirlik, daha temiz ve daha iyi organize edilmiş kod sayesinde artmıştır.
+
+* **Yeni Bağımlılıklar:**  Yeni bağımlılık eklenmedi.
+
+
+### 4. SONUÇ YORUMU:
+
+Bu değişiklikler, versiyon yönetimi ve değişiklik günlüğü güncelleme süreçlerini otomatikleştirerek ve iyileştirerek uzun vadeli değer sağlar.  Geliştirme sürecini hızlandırır, hataları azaltır ve kod sürdürülebilirliğini artırır. Projenin teknik borcu, daha sağlam ve daha iyi organize edilmiş kod sayesinde azalmıştır.  Otomatik etki düzeyi tespiti ve proje tipi tespiti gibi eklenen özellikler, gelecekteki geliştirmelere daha iyi hazırlık yapılması sağlar.  Değişiklikler, sistemin daha sağlam, daha sürdürülebilir ve daha kolay geliştirilebilir olmasını sağlar.  Bu, gelecekteki bakım ve geliştirme maliyetlerini düşürecektir.
+
+**Değişen Dosyalar:** src/utils/version_manager.py, src/utils/changelog_updater.py
+**Etki Seviyesi:** High
+**Değişiklik Tipi:** Feature
+**Satır Değişiklikleri:** +16
+**Etiketler:** manager, utils, changelog-updater, version-manager, api
+
+---
+
 ## 2025-06-20 01:31:38
 
 ### 1. YAPISAL ANALİZ:

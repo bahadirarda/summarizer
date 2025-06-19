@@ -1,7 +1,7 @@
 import json
 import logging
 from pathlib import Path
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Any
 from datetime import datetime
 import subprocess
 import re
@@ -135,17 +135,22 @@ class VersionManager:
 
         return new_version, current_version, increment_type
 
-    def auto_increment(self, increment_type: str) -> Tuple[str, str]:
+    def auto_increment(self, increment_type: str, gemini_client: Any = None) -> Tuple[str, str, str]:
         """
-        Increments the version based on the provided type ('major', 'minor', 'patch').
-        Returns the new version and the old version.
+        Increments the version based on the provided type, generates a codename,
+        and returns the new version, old version, and the codename.
         """
         old_version = self.get_current_version()
         new_version = self.increment_version(old_version, increment_type)
+        
+        # Generate codename as part of the atomic versioning step
+        major, minor, _ = self.parse_version(new_version)
+        codename = self._get_version_codename(major, minor, new_version, gemini_client)
+
         logger.info(
-            f"Incrementing version: {old_version} -> {new_version} (type: {increment_type})"
+            f"Incrementing version: {old_version} -> {new_version} (type: {increment_type}, codename: {codename})"
         )
-        return new_version, old_version
+        return new_version, old_version, codename
 
     def auto_increment_based_on_changes(self, changed_files: list, impact_level: str) -> str:
         """Auto-increment version based on change analysis"""
