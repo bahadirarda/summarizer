@@ -67,7 +67,13 @@ def _handle_pull_request_flow(project_root: Path, git_manager: GitManager, curre
         return
 
     # --- ROBUST PRE-PR CHECK ---
-    # 1. Fetch the latest state from the remote to avoid race conditions.
+    # 1. Verify the target branch exists on the remote before proceeding.
+    if not git_manager.remote_branch_exists(target_branch):
+        print(f"   ❌ Target branch '{target_branch}' does not exist on the remote repository.")
+        print(f"      Please make sure the branch has been pushed to the remote.")
+        return
+
+    # 2. Fetch the latest state from the remote to avoid race conditions.
     print("   ⏱️  Synchronizing with remote repository...")
     git_manager.fetch_updates()
 
