@@ -60,21 +60,25 @@ def _run_ci_checks(project_root: Path) -> bool:
 
 def _handle_pull_request_flow(project_root: Path, git_manager: GitManager, current_branch: str, target_branch: str, pr_body: str, gemini_client: Any = None):
     """
-    Handles ONLY the pull request creation, assuming the branch is pushed and ready.
+    Handles ONLY the pull request creation, using a robust check-and-create process.
     """
     if not _ask_user(f"   ❔ Create a Pull Request from '{current_branch}' to '{target_branch}'?"):
         print("   ⚪️ Pull request creation skipped by user.")
         return
 
-    # Give the remote a moment to process the push
+    # --- ROBUST PRE-PR CHECK ---
+    # 1. Fetch the latest state from the remote to avoid race conditions.
     print("   ⏱️  Synchronizing with remote repository...")
-    time.sleep(3) 
     git_manager.fetch_updates()
 
-    # Final check: ensure there's a diff before creating the PR
+    # 2. Check if there's an actual difference between the remote branches.
     if not git_manager.has_diff_between_branches(f"origin/{target_branch}", f"origin/{current_branch}"):
-        print(f"   ⚪️ No new unique commits found between '{current_branch}' and '{target_branch}'. No PR needed.")
+        print(f"   ⚪️ No new unique commits found on '{current_branch}' to merge into '{target_branch}'.")
+        print("      A Pull Request is not necessary.")
         return
+    
+    print("   ✅ Found new changes to merge. Proceeding with Pull Request creation.")
+    # --- END OF CHECK ---
 
     print("   🤖 Generating AI-powered pull request details...")
     pr_title, new_pr_body = git_manager.generate_pull_request_details(pr_body, gemini_client)
