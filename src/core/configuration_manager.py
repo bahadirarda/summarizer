@@ -301,8 +301,26 @@ class ConfigurationManager:
             self.logger.error(f"Error importing from .env: {e}")
 
     def get_api_key(self) -> Optional[str]:
-        """Convenience method to get the GEMINI_API_KEY."""
-        return self.get_field_value("GEMINI_API_KEY")
+        """
+        Gets the GEMINI_API_KEY, prompting the user if it's not found.
+        The key is then saved for future sessions.
+        """
+        api_key = self.get_field_value("GEMINI_API_KEY")
+        if not api_key:
+            print("   🔑 GEMINI_API_KEY not found in settings or environment.")
+            try:
+                api_key = getpass.getpass("      Please enter it now to continue (it will be saved): ")
+                if api_key and len(api_key) > 10:  # Basic validation
+                    self.set_api_key(api_key)
+                    print("   ✅ API Key accepted and saved for future use.")
+                    return api_key
+                else:
+                    print("   ❌ Invalid API Key entered. Please run setup or set it manually.")
+                    return None
+            except (EOFError, KeyboardInterrupt):
+                print("\n   🚫 API key entry cancelled.")
+                return None
+        return api_key
 
     def set_api_key(self, api_key: str) -> None:
         """Convenience method to set the GEMINI_API_KEY."""
