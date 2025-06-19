@@ -42,18 +42,27 @@ def _create_branch_from_issue(project_root: Path, git_manager: GitManager, issue
     sanitized_title = re.sub(r'[\s_]+', '-', sanitized_title)
     branch_name = f"{branch_prefix}/{issue_number}-{sanitized_title[:50]}"
 
-    print(f"   🌿 Creating branch '{branch_name}'...")
-    if git_manager.create_branch(branch_name, from_branch='develop'):
-        next_command = f"git checkout {branch_name}"
-        command_file_path = project_root / ".summarizer" / "next_command.sh"
-        try:
-            with open(command_file_path, "w") as f:
-                f.write(f"{next_command}\n")
-            print(f"   ✅ Branch created. Your shell will now switch to '{branch_name}'.")
-        except Exception as e:
-            print(f"   ❌ Could not create next_command.sh file: {e}")
+    next_command = f"git checkout {branch_name}"
+
+    if git_manager.branch_exists(branch_name):
+        print(f"   ✅ Branch '{branch_name}' already exists.")
+        if not _ask_user("   ❔ Do you want to switch to it to continue your work?"):
+            print("   OK. Staying on the current branch.")
+            return
     else:
-        print(f"   ❌ Failed to create branch. It might already exist.")
+        print(f"   🌿 Creating branch '{branch_name}'...")
+        if not git_manager.create_branch(branch_name, from_branch='develop'): # Always branch from develop
+             print(f"   ❌ Failed to create branch '{branch_name}'.")
+             return
+    
+    # If we are here, we either created the branch or user wants to switch to existing one.
+    command_file_path = project_root / ".summarizer" / "next_command.sh"
+    try:
+        with open(command_file_path, "w") as f:
+            f.write(f"{next_command}\n")
+        print(f"   ✅ Task initiated. Your shell will now switch to '{branch_name}'.")
+    except Exception as e:
+        print(f"   ❌ Could not create next_command.sh file: {e}")
 
 
 def _handle_issue_selection(project_root: Path, git_manager: GitManager) -> bool:

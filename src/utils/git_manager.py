@@ -172,6 +172,11 @@ class GitManager:
         # The 'git' command needs to be split from its arguments for subprocess
         return self._run_git_command(['commit', '-m', message]) is not None
 
+    def branch_exists(self, branch_name: str) -> bool:
+        """Checks if a branch with the given name already exists."""
+        output = self._run_git_command(['branch', '--list', branch_name])
+        return bool(output)
+
     def ensure_project_structure(self) -> bool:
         """
         Interactively ensures the git repository and branch structure are set up correctly.
