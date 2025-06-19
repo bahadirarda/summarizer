@@ -1,60 +1,60 @@
-# 🚀 Summarizer Framework
-> Akıllı özetleme ve doküman analiz aracı.  Gelişmiş CLI ve GUI desteği ile hızlı ve verimli doküman işleme.
+# 🚀 project.110620251156
+> Git işlemlerini yöneten ve otomatik pull request oluşturma, changelog güncelleme gibi gelişmiş işlevler sunan bir yardımcı kütüphane.  Özetleme framework'ü için gelişmiş CLI ve GUI desteği de içermektedir.
 
 ## 📊 Proje Durumu
-Proje aktif geliştirme aşamasındadır.  Son değişiklikler, kullanıcı deneyimini iyileştiren yeni özellikler,  kod tabanının sürdürülebilirliğini artıran mimari iyileştirmeler ve  geliştirme süreçlerini destekleyen yardımcı araçların eklenmesini içermektedir. Google Gemini API entegrasyonu güvenlik ve performans iyileştirmeleri sağlamıştır.  Gelecekteki geliştirmeler için roadmap hazırlanmış olup, otomatik güncelleme mekanizması ve kişisel bilgi havuzunun oluşturulması planlanmaktadır.
+Proje aktif geliştirme aşamasındadır. Son değişiklikler, geliştirici üretkenliğini artırmaya ve geliştirme sürecini otomatikleştirmeye odaklanmıştır.  Yeni özellikler eklenmiş ve mevcut kod tabanının sürdürülebilirliği ve okunabilirliği iyileştirilmiştir.
 
 
 ## ✨ Özellikler
-* **Akıllı Özetleme:**  Uzun dokümanları özetler.
-* **Komut Satırı Arayüzü (CLI):**  Kolay ve hızlı doküman işleme.  `screenshot` ve `ss` komutlarıyla ekran görüntüsü alma. `--setup`, `--gui`, `--status` komutlarıyla konfigürasyon ve sistem durumu yönetimi.
-* **Grafiksel Kullanıcı Arayüzü (GUI):**  Kullanıcı dostu konfigürasyon seçenekleri.
-* **Çoklu Uygulama Desteği:**  Ekran görüntüsü alma işlemi Chrome, Firefox ve VS Code gibi uygulamalar için özelleştirilebilir.
-* **Google Gemini API Entegrasyonu:**  Gelişmiş metin oluşturma ve analiz yetenekleri.
-* **Değişiklik Günlüğü Yönetimi:**  Otomatik değişiklik günlüğü güncelleme.
-* **Demo Framework Analizi:**  Proje analizi ve changelog oluşturma için yardımcı araç.
+* **Otomatik Pull Request Oluşturma:** GitHub CLI (`gh`) kullanarak otomatik pull request oluşturma.
+* **Pull Request Detaylarının Alınması:** Pull request'in başlık ve açıklamasını almak için fonksiyon.
+* **Ekran Görüntüsü Alma:** CLI komutları (`screenshot`, `ss`) ile farklı uygulamalardan ekran görüntüsü alma.
+* **GUI Desteği:** Konfigürasyon için GUI arayüzü.
+* **Gelişmiş CLI:** `--setup`, `--gui`, `--status` gibi yeni ve geliştirilmiş CLI komutları.
+* **Otomatik Changelog Güncelleme:** Changelog güncelleme işleminin iyileştirilmesi ve otomatikleştirilmesi.
+* **Demo Framework Analizi:** Proje kök dizininde otomatik changelog girişi oluşturma.
 
 
 ## Değişen Dosyalar:
-`summarizer.py`, `features` dizini altındaki dosyalar (`parameter_checker.py`, `terminal_commands.py`, `__init__.py`), `src/main.py`, `src/core/configuration_manager.py`, `src/utils` dizini altındaki dosyalar (`version_manager.py`, `git_manager.py`, `changelog_updater.py`), `tests/test_main.py`, `src/services/gemini_client.py`
+`src/utils/git_manager.py`, `summarizer.py`, `features` dizini altındaki dosyalar (`parameter_checker.py`, `terminal_commands.py`, `__init__.py`), `src/main.py`, `src/core/configuration_manager.py`, `src/utils` dizini altındaki dosyalar (`version_manager.py`, `git_manager.py`, `changelog_updater.py`), `tests/test_main.py`
 
 
 ## ANALİZ GÖREVİ:
 
 ### 1. YAPISAL ANALİZ:
 
-* **Etkilenen Bileşenler ve Katmanlar:** Değişiklikler, Summarizer Framework'ün neredeyse tüm katmanlarını etkilemiştir.  `summarizer.py` (ana giriş noktası ve CLI), `features` dizini (özellikler: parametre kontrolü, terminal komutları, GUI), `src/main.py` (özetleme mantığı), `src/core/configuration_manager.py` (konfigürasyon yönetimi), `src/utils` dizini (yardımcı araçlar: sürüm yönetimi, Git entegrasyonu, değişiklik günlüğü güncelleme), `tests/test_main.py` (testler) ve `src/services/gemini_client.py` (Gemini API ile etkileşim) dosyaları doğrudan etkilenmiştir.
+* **Etkilenen Bileşenler ve Katmanlar:** Değişiklikler, üç farklı modülü etkilemiştir.  Birincisi, `src/utils/git_manager.py` dosyasında bulunan ve Git işlemlerini yöneten yardımcı modül. İkincisi, neredeyse tüm katmanlarını etkileyen bir özetleme framework'ü.  Üçüncüsü ise `src/utils/changelog_updater.py` dosyasında bulunan changelog güncelleme yardımcı aracı.  Özetleme framework'ündeki değişiklikler, servis katmanı (`src/utils`), çekirdek katmanı (`src/core`), özellik katmanı (`features`) ve sunum katmanı (`summarizer.py`, `src/main.py`)  dahil olmak üzere geniş kapsamlıdır.
 
-* **Mimari Değişikliklerin Etkisi:**  Mimari, daha modüler ve genişletilebilir bir yapıya doğru evrilmiştir.  `features` dizini, özelliklerin bağımsız olarak geliştirilmesini ve sürdürülmesini kolaylaştırır. `CallableModule` sınıfının `summarizer.py` içinde kullanımı, sistemin hem komut satırı aracı hem de Python kütüphanesi olarak kullanılmasını mümkün kılar.  Google Gemini API entegrasyonu, Dependency Injection tasarım deseni ile daha modüler ve test edilebilir bir yapı oluşturmuştur.
+* **Mimari Değişikliklerin Etkisi:** `git_manager.py` dosyasındaki değişiklikler mevcut mimariyi değiştirmeden, yeni fonksiyonlar ekleyerek geliştirme odaklıdır. Özetleme framework'ü ise modüler bir yapıya doğru evrilmiştir. `features` dizininin kullanımı, özelliklerin bağımsız olarak geliştirilmesini ve sürdürülmesini kolaylaştırır. `changelog_updater.py` dosyasındaki değişiklikler de mevcut mimariye yeni bir fonksiyon ekleme şeklindedir.
 
-* **Kod Organizasyonundaki İyileştirmeler:** Kod, `features` dizini altında modüler olarak düzenlenmiştir. Bu, okunabilirliği, sürdürülebilirliği ve bakımı kolaylaştırır. API anahtarının `ConfigurationManager` üzerinden yönetilmesi, güvenliği ve sürdürülebilirliği artırmıştır.
+* **Kod Organizasyonundaki İyileştirmeler:** `git_manager.py` dosyasında `_run_external_command` ve `_run_git_command` yardımcı fonksiyonlarının kullanımı ile kod daha modüler ve okunabilir hale getirilmiştir. Özetleme framework'ünde `features` dizininin kullanımı, özelliklerin modüler olarak düzenlenmesini ve sürdürülebilirliğini artırmıştır. `changelog_updater.py` dosyasında `demo_framework_analysis` fonksiyonunun eklenmesi, işlevselliği daha modüler hale getirmiştir.
 
 
 ### 2. İŞLEVSEL ETKİ:
 
-* **Eklenen, Değiştirilen veya Kaldırılan Özellikler:**  Ekran görüntüsü alma (`screenshot`, `ss` komutları) özelliği eklenmiştir ve farklı uygulamalar için özelleştirilebilir hale getirilmiştir. GUI tabanlı konfigürasyon desteği (`--gui`) eklenmiştir.  `--setup` ve `--status` komutları eklenerek konfigürasyon ve sistem durumu yönetimi kolaylaştırılmıştır.  Değişiklik günlüğü güncelleme işlemi iyileştirilmiş ve otomatikleştirilmiştir.  `demo_framework_analysis` fonksiyonu eklenerek otomatik changelog girişi oluşturma özelliği eklenmiştir.  `GeminiClient` sınıfına `generate_simple_text` fonksiyonu eklenerek basit metin oluşturma yeteneği sağlanmıştır.
+* **Eklenen, Değiştirilen veya Kaldırılan Özellikler:**  `git_manager.py`: Otomatik pull request oluşturma (`create_pull_request`) ve pull request detaylarının alınması (`get_pr_details`) fonksiyonları eklenmiştir. Özetleme framework'ü: Ekran görüntüsü alma (`screenshot`, `ss`), GUI tabanlı konfigürasyon desteği (`--gui`), geliştirilmiş `--setup` ve `--status` komutları eklenmiştir. `changelog_updater.py`:  `demo_framework_analysis` fonksiyonu eklenmiştir.
 
-* **Kullanıcı Deneyiminin Etkilenmesi:** Kullanıcı deneyimi, yeni komutlar ve GUI desteğiyle önemli ölçüde iyileştirilmiştir.  Kullanıcılar daha fazla seçeneğe sahiptir ve konfigürasyonu daha kolay yönetebilirler.
+* **Kullanıcı Deneyiminin Etkilenmesi:** Otomatik pull request oluşturma ve gelişmiş CLI komutları sayesinde kullanıcı deneyimi önemli ölçüde iyileştirilmiştir. GUI desteği de konfigürasyon işlemini kolaylaştırmıştır.
 
-* **Performans, Güvenlik veya Güvenilirlik Üzerindeki Etkiler:** Ekran görüntüsü alma işleminin performansı, alınacak ekran görüntüsünün boyutuna ve uygulamaya bağlı olarak değişebilir.  API anahtarının `.env` dosyasından veya ortam değişkenlerinden alınması güvenliği artırmıştır.  Yeni özelliklerin güvenlik açıkları açısından test edilmesi ve güvenilirliğinin sağlanması önemlidir.  `demo_framework_analysis` fonksiyonunun performans, güvenlik ve güvenilirlik üzerindeki etkisi ihmal edilebilir düzeydedir.
+* **Performans, Güvenlik veya Güvenilirlik Üzerindeki Etkiler:** `git_manager.py` değişiklikleri ihmal edilebilir düzeyde performans etkisi yaratır. Özetleme framework'ünde ekran görüntüsü alma işleminin performansı alınacak ekran görüntüsünün boyutuna ve uygulamaya bağlıdır.  Güvenlik açısından, `subprocess` modülünün güvenli kullanımı ve `gh` CLI'nın kontrolü önemlidir.  Yeni özelliklerin güvenlik açıkları açısından test edilmesi gereklidir. `changelog_updater.py` değişikliklerinin performans, güvenlik veya güvenilirlik üzerinde ihmal edilebilir düzeyde etkisi vardır.
 
 
 ### 3. TEKNİK DERINLIK:
 
-* **Tasarım Desenleri:** "Command Pattern" genişletilmiş olarak kullanılmıştır. Her terminal komutu bir komut nesnesi olarak temsil edilir.  Dependency Injection tasarım deseni, `GeminiClient` sınıfı ve `ConfigurationManager` sınıfı arasında uygulanmıştır.
+* **Tasarım Desenleri:** `git_manager.py`: Soyutlama (Abstraction) prensibi kullanılmıştır. Özetleme framework'ü: Genişletilmiş Command Pattern kullanımı. Her terminal komutu bir komut nesnesi olarak temsil edilir.
 
-* **Kod Kalitesi ve Sürdürülebilirlik:** Kod kalitesi, modülerlik ve okunabilirliğin iyileştirilmesiyle artmıştır.  Yorumların daha detaylı olması ve kodun daha iyi yapılandırılması, sürdürülebilirliği artırır.  API anahtarının merkezi yönetimi ve hata işleme mekanizmalarının eklenmesi kod kalitesini iyileştirmiştir.
+* **Kod Kalitesi ve Sürdürülebilirlik:**  Tüm değişiklikler iyi yorumlanmış ve okunabilir kod ile yazılmıştır. Tip ipuçları kullanımı kod anlaşılırlığını artırmıştır. Hata yönetimi ve loglama iyileştirilmiştir. Modüler tasarım kod sürdürülebilirliğini artırmıştır.
 
-* **Yeni Bağımlılıklar veya Teknolojiler:** `google.generativeai` kütüphanesi Google Gemini API entegrasyonu için eklenmiştir.  `changelog_updater.py` muhtemelen JSON dosyası yönetimi için bir kütüphane kullanmaktadır.  Mevcut bağımlılıkların güncellenmiş versiyonlarının kullanımı da olasıdır.
+* **Yeni Bağımlılıklar:**  `git_manager.py`: GitHub CLI (`gh`).  Özetleme framework'ü ve `changelog_updater.py` için yeni bağımlılık eklenmediği belirtilmiş ancak mevcut bağımlılıkların güncellenmiş versiyonlarının kullanımı olasıdır.
 
 
 ### 4. SONUÇ YORUMU:
 
-* **Uzun Vadeli Değer ve Etki:** Bu değişiklikler, daha kullanıcı dostu bir arayüz, gelişmiş işlevsellik ve daha iyi sürdürülebilir bir kod tabanı sunmaktadır.  Ekran görüntüsü alma özelliği ve Google Gemini API entegrasyonu önemli katkılardır.  Modüler tasarım, gelecekte yeni özelliklerin eklenmesini kolaylaştıracaktır.
+* **Uzun Vadeli Değer ve Etki:**  Değişiklikler geliştirici üretkenliğini artıran, geliştirme sürecini iyileştiren ve kodun sürdürülebilirliğini artıran değerli eklemelerdir. Otomatik pull request oluşturma ve changelog güncelleme gibi tekrarlayan görevlerin otomatikleştirilmesi zaman tasarrufu sağlar.
 
-* **Teknik Borcun Etkilenmesi:** Kodun daha iyi yapılandırılması ve dokümantasyonun iyileştirilmesiyle teknik borç azalmıştır.  Ancak, `TODO` yorumlarında belirtilen otomatik güncelleme mekanizması ve kişisel know-how havuzunun oluşturulması gibi konular gelecekteki geliştirmeler için önemlidir.
+* **Teknik Borcun Etkilenmesi:**  Modüler tasarım ve iyileştirilmiş kod kalitesi sayesinde projenin teknik borcu azalmıştır.
 
-* **Gelecekteki Geliştirmelere Hazırlık:** Modüler tasarım ve genişletilebilir mimari, gelecekteki geliştirmelere hazırlık olarak önemli bir adımdır. Yeni özelliklerin eklenmesi daha kolay ve daha az riskli hale gelmiştir.  `RequestManager` entegrasyonu, farklı servislerle kolay entegrasyon olanağı sağlayacaktır.
+* **Gelecekteki Geliştirmelere Hazırlık:**  Modüler tasarım ve genişletilebilir mimari, gelecekte yeni özelliklerin eklenmesini kolaylaştıracaktır.  Ancak, `TODO` yorumlarında belirtilen konuların (otomatik güncelleme mekanizması, kişisel know-how havuzu) ele alınması önemlidir.
 
 ## 🛠️ Kurulum (Installation)
 
@@ -215,7 +215,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**Last updated**: June 20, 2025 by Summarizer Framework v12.5.0
+**Last updated**: June 20, 2025 by Summarizer Framework v12.6.0
 *This README is automatically generated and updated based on project activity.*
 
 > *"Automatically maintained with AI-powered analysis"*

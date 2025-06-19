@@ -226,6 +226,40 @@ class GitManager:
             logger.error(f"AI PR detail generation failed: {e}")
             return default_title, default_body
 
+    def create_pull_request(
+        self, title: str, body: str, base_branch: str, head_branch: str
+    ) -> Optional[str]:
+        """Creates a pull request on GitHub using the 'gh' CLI and returns the PR URL."""
+        # Ensure gh is installed
+        success, _ = self._run_external_command(["gh", "--version"])
+        if not success:
+            print(
+                "   ⚠️  GitHub CLI ('gh') not found. Cannot create pull request automatically."
+                "\n   To enable, install from: https://cli.github.com"
+            )
+            return None
+
+        command = [
+            "gh",
+            "pr",
+            "create",
+            "--title",
+            title,
+            "--body",
+            body,
+            "--base",
+            base_branch,
+            "--head",
+            head_branch,
+        ]
+        success, output = self._run_external_command(command)
+        if success:
+            # The output of a successful `gh pr create` is the URL of the new PR
+            return output
+        else:
+            logger.error(f"Failed to create pull request. Raw output:\n{output}")
+            return None
+
     def checkout(self, branch_name: str) -> bool:
         """Checks out the specified branch."""
         success, _ = self._run_git_command(["checkout", branch_name])
