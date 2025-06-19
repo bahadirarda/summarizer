@@ -343,43 +343,53 @@ def update_changelog(project_root: Optional[Path] = None):
             if codename:
                 print(f"   💫 Codename: {codename}")
                 
+            git_manager = GitManager(project_root)
+            current_branch = git_manager.get_current_branch()
+            branch_for_pr = current_branch
+
+            # If we are on a release/hotfix branch, check if its version is outdated.
+            # If so, create a new branch for the new version and check it out.
+            if current_branch.startswith(('release/', 'hotfix/')):
+                match = re.match(r"^(release|hotfix)\/v(\d+\.\d+\.\d+)", current_branch)
+                if match and match.group(2) != new_version:
+                    new_branch_name = f"{match.group(1)}/v{new_version}"
+                    if _ask_user(f"   ❔ On outdated branch. Create & switch to '{new_branch_name}'?"):
+                        if git_manager.create_branch(new_branch_name) and git_manager.checkout(new_branch_name):
+                            print(f"   ✅ Switched to new branch: {new_branch_name}")
+                            branch_for_pr = new_branch_name
+                        else:
+                            print(f"   ❌ Failed to create or switch to the new branch. Aborting PR flow.")
+                            return
+                    else:
+                        print("   ⚪️ PR flow aborted by user. Changes remain on the old branch.")
+                        return
+
             # Create git tag for new version
             try:
                 version_manager.create_git_tag(new_version, codename=codename)
                 print(f"   🏷️  Git tag created: v{new_version}")
             except Exception as tag_error:
                 print(f"   ⚠️  Could not create git tag: {tag_error}")
-                
+
             # Commit changes to git
-            git_manager = GitManager(project_root)
             if not git_manager.is_working_directory_clean():
                 if _ask_user("   ❔ Summarizer updated project files. Commit these maintenance changes?"):
-                    # Use the AI summary for the commit message for more context
-                    commit_message = f"chore(summarizer): Auto-update based on recent changes\n\n{summary}"
+                    commit_message = f"chore(summarizer): Auto-update to v{new_version}\n\n{summary}"
                     if not (git_manager.stage_all() and git_manager.commit(commit_message)):
                         print("   ❌ Failed to commit maintenance changes. Aborting next git actions.")
                         return
 
             # Handle GitFlow and CI checks
-            branch_name = git_manager.get_current_branch()
             target_branch = None
-            if branch_name.startswith(('feature/', 'bugfix/')): target_branch = 'develop'
-            elif branch_name == 'develop': target_branch = 'staging'
-            elif branch_name.startswith('release/'): target_branch = 'main'
-            elif branch_name.startswith('hotfix/'): target_branch = 'main'
+            if branch_for_pr.startswith(('feature/', 'bugfix/')): target_branch = 'develop'
+            elif branch_for_pr == 'develop': target_branch = 'staging'
+            elif branch_for_pr.startswith('release/'): target_branch = 'main'
+            elif branch_for_pr.startswith('hotfix/'): target_branch = 'main'
             
-            if branch_name == 'staging':
+            if branch_for_pr == 'staging':
                 _handle_release_creation(project_root, git_manager, new_version)
             elif target_branch:
-                _handle_pull_request_flow(project_root, git_manager, branch_name, target_branch, summary)
-            elif branch_name.startswith(('release/', 'hotfix/')):
-                match = re.match(r"^(release|hotfix)\/v(\d+\.\d+\.\d+)", branch_name)
-                if match and match.group(2) != new_version:
-                    new_branch_name = f"{match.group(1)}/v{new_version}"
-                    if _ask_user(f"   ❔ On old branch. Create and switch to '{new_branch_name}'?"):
-                        if git_manager.create_branch(new_branch_name):
-                            print(f"\n   ✨ Next Step: A new branch has been created for the version bump.")
-                            print(f"   $ git checkout {new_branch_name}")
+                _handle_pull_request_flow(project_root, git_manager, branch_for_pr, target_branch, summary)
 
     except Exception as e:
         print(f"   ⚠️  Version management failed: {e}")

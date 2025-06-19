@@ -173,6 +173,11 @@ class GitManager:
             logger.error(f"Command failed: {' '.join(command)}\nError: {err_msg}")
             return False
 
+    def checkout(self, branch_name: str) -> bool:
+        """Checks out the specified branch."""
+        success, _ = self._run_git_command(["checkout", branch_name])
+        return success
+
     def create_pull_request(
         self, title: str, body: str, base_branch: str, head_branch: str
     ) -> Optional[str]:
