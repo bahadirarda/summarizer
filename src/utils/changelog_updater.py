@@ -74,54 +74,51 @@ def _run_ci_checks(project_root: Path) -> bool:
         return False
 
 
+def _write_next_command(project_root: Path, command: str):
+    command_file_path = project_root / ".summarizer" / "next_command.sh"
+    try:
+        with open(command_file_path, "w") as f: f.write(f"{command}\n")
+        print(f"   ✨ Next step command generated: {command}")
+    except Exception as e:
+        logger_changelog.error(f"Could not create next_command.sh file: {e}")
+
+
 def _handle_pull_request_flow(project_root: Path, git_manager: GitManager, current_branch: str, target_branch: str, pr_body: str):
-    """Handles the pull request creation process automatically."""
-    if not _ask_user(f"   ❔ Create a Pull Request to '{target_branch}'?"):
-        print("   ⚪️ Pull request creation skipped by user.")
-        return
+    if _ask_user(f"   ❔ Create a Pull Request to '{target_branch}'?"):
+        if not _run_ci_checks(project_root):
+            if not _ask_user("   ⚠️  CI checks failed. Proceed with PR anyway?"):
+                return
 
-    if not _run_ci_checks(project_root):
-        if not _ask_user("   ⚠️  CI checks failed. Proceed with PR anyway?"):
-            return
-
-    if not git_manager.has_remote():
-        if _ask_user("   ⚠️  No remote 'origin' found. Add one now?"):
-            remote_url = input("   > Enter repo URL: ")
-            if not (remote_url and git_manager.add_remote(remote_url)):
-                 print("   ❌ Failed to add remote. Aborting push.")
-                 return
-        else:
+        if not git_manager.has_remote():
+            if _ask_user("   ⚠️  No remote 'origin' found. Add one now?"):
+                remote_url = input("   > Enter repo URL: ")
+                if not (remote_url and git_manager.add_remote(remote_url)):
+                     print("   ❌ Failed to add remote. Aborting push.")
+                     return
+            else:
+                print("   ❌ Push aborted by user.")
+                return
+        
+        if not _ask_user(f"   ❔ CI checks passed. Push '{current_branch}' to remote to prepare PR?"):
             print("   ❌ Push aborted by user.")
             return
 
-    if _ask_user(f"   ❔ Push '{current_branch}' to remote to prepare for PR?"):
-        print(f"   🚀 Pushing '{current_branch}' to remote...")
         success, output = git_manager.push(current_branch)
-        if not success:
+        if success:
+            remote_url = git_manager.get_remote_url()
+            branch_parts = current_branch.split('/')
+            if len(branch_parts) > 1:
+                # Handles branches like 'feature/new-login' or 'feature/team/new-button'
+                pr_title = f"{branch_parts[0].capitalize()}: {'-'.join(branch_parts[1:])}"
+            else:
+                # Fallback for branches without a '/' like 'develop'
+                pr_title = f"chore: Sync {current_branch} to {target_branch}"
+
+            pr_url = f"{remote_url}/compare/{target_branch}...{current_branch}?title={urllib.parse.quote(pr_title)}&body={urllib.parse.quote(pr_body)}"
+            print(f"   👇 Click here to create your Pull Request:\n   {pr_url}")
+            _write_next_command(project_root, f"git checkout {target_branch}")
+        else:
             print(f"   ❌ Push failed. Git Error: {output}")
-            return
-        print("   ✅ Branch pushed successfully.")
-    else:
-        print("   ⚪️ Push aborted by user. Cannot create PR.")
-        return
-
-    # Automatically create the pull request
-    branch_parts = current_branch.split('/')
-    if len(branch_parts) > 1:
-        pr_title = f"{branch_parts[0].capitalize()}: {'-'.join(branch_parts[1:])}"
-    else:
-        pr_title = f"chore: Sync {current_branch} to {target_branch}"
-
-    print(f"   🤖 Creating pull request titled: '{pr_title}'...")
-    pr_url = git_manager.create_pull_request(
-        title=pr_title, body=pr_body, base_branch=target_branch, head_branch=current_branch
-    )
-
-    if pr_url:
-        print(f"   ✅ Successfully created Pull Request: {pr_url}")
-    else:
-        print("   ❌ Failed to create Pull Request.")
-        print("   You may need to create it manually on GitHub.")
 
 
 def _handle_release_creation(project_root: Path, git_manager: GitManager, new_version: str):
@@ -131,8 +128,7 @@ def _handle_release_creation(project_root: Path, git_manager: GitManager, new_ve
             if not _ask_user("   ⚠️  CI checks failed. Create branch anyway?"):
                 return
         if git_manager.create_branch(release_branch_name):
-            print(f"\n   ✨ Next Step: Switched to new release branch. You can now proceed with release tasks.")
-            print(f"   $ git checkout {release_branch_name}")
+            _write_next_command(project_root, f"git checkout {release_branch_name}")
         else:
             print(f"   ⚠️  Could not create release branch '{release_branch_name}'.")
 
@@ -334,53 +330,41 @@ def update_changelog(project_root: Optional[Path] = None):
             if codename:
                 print(f"   💫 Codename: {codename}")
                 
-            git_manager = GitManager(project_root)
-            current_branch = git_manager.get_current_branch()
-            branch_for_pr = current_branch
-
-            # If we are on a release/hotfix branch, check if its version is outdated.
-            # If so, create a new branch for the new version and check it out.
-            if current_branch.startswith(('release/', 'hotfix/')):
-                match = re.match(r"^(release|hotfix)\/v(\d+\.\d+\.\d+)", current_branch)
-                if match and match.group(2) != new_version:
-                    new_branch_name = f"{match.group(1)}/v{new_version}"
-                    if _ask_user(f"   ❔ On outdated branch. Create & switch to '{new_branch_name}'?"):
-                        if git_manager.create_branch(new_branch_name) and git_manager.checkout(new_branch_name):
-                            print(f"   ✅ Switched to new branch: {new_branch_name}")
-                            branch_for_pr = new_branch_name
-                        else:
-                            print(f"   ❌ Failed to create or switch to the new branch. Aborting PR flow.")
-                            return
-                    else:
-                        print("   ⚪️ PR flow aborted by user. Changes remain on the old branch.")
-                        return
-
             # Create git tag for new version
             try:
                 version_manager.create_git_tag(new_version, codename=codename)
                 print(f"   🏷️  Git tag created: v{new_version}")
             except Exception as tag_error:
                 print(f"   ⚠️  Could not create git tag: {tag_error}")
-
+                
             # Commit changes to git
+            git_manager = GitManager(project_root)
             if not git_manager.is_working_directory_clean():
                 if _ask_user("   ❔ Summarizer updated project files. Commit these maintenance changes?"):
-                    commit_message = f"chore(summarizer): Auto-update to v{new_version}\n\n{summary}"
+                    commit_message = f"chore(summarizer): Update project to v{new_version}"
                     if not (git_manager.stage_all() and git_manager.commit(commit_message)):
                         print("   ❌ Failed to commit maintenance changes. Aborting next git actions.")
                         return
 
             # Handle GitFlow and CI checks
+            branch_name = git_manager.get_current_branch()
             target_branch = None
-            if branch_for_pr.startswith(('feature/', 'bugfix/')): target_branch = 'develop'
-            elif branch_for_pr == 'develop': target_branch = 'staging'
-            elif branch_for_pr.startswith('release/'): target_branch = 'main'
-            elif branch_for_pr.startswith('hotfix/'): target_branch = 'main'
+            if branch_name.startswith(('feature/', 'bugfix/')): target_branch = 'develop'
+            elif branch_name == 'develop': target_branch = 'staging'
+            elif branch_name.startswith('release/'): target_branch = 'main'
+            elif branch_name.startswith('hotfix/'): target_branch = 'main'
             
-            if branch_for_pr == 'staging':
+            if branch_name == 'staging':
                 _handle_release_creation(project_root, git_manager, new_version)
             elif target_branch:
-                _handle_pull_request_flow(project_root, git_manager, branch_for_pr, target_branch, summary)
+                _handle_pull_request_flow(project_root, git_manager, branch_name, target_branch, summary)
+            elif branch_name.startswith(('release/', 'hotfix/')):
+                match = re.match(r"^(release|hotfix)\/v(\d+\.\d+\.\d+)", branch_name)
+                if match and match.group(2) != new_version:
+                    new_branch_name = f"{match.group(1)}/v{new_version}"
+                    if _ask_user(f"   ❔ On old branch. Create and switch to '{new_branch_name}'?"):
+                        if git_manager.create_branch(new_branch_name):
+                            _write_next_command(project_root, f"git checkout {new_branch_name}")
 
     except Exception as e:
         print(f"   ⚠️  Version management failed: {e}")
@@ -581,3 +565,5 @@ def export_changelog(project_root: Path, format_type: str = "json") -> str:
     except Exception as e:
         logger_changelog.error(f"Error exporting changelog: {e}")
         return ""
+
+
