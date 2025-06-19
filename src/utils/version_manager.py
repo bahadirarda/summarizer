@@ -4,17 +4,36 @@ from pathlib import Path
 from typing import Optional, Tuple
 from datetime import datetime
 import subprocess
+import re
 
 logger = logging.getLogger(__name__)
 
 
 class VersionManager:
-    """Professional version management with semantic versioning"""
+    """Professional version management with semantic versioning and branch awareness"""
     
     def __init__(self, project_root: Path):
         self.project_root = project_root
         self.package_json_path = project_root / "package.json"
         
+    def get_current_branch(self) -> Optional[str]:
+        """Get the current git branch name."""
+        try:
+            result = subprocess.run(
+                ["git", "rev-parse", "--abbrev-ref", "HEAD"],
+                cwd=self.project_root,
+                capture_output=True,
+                text=True,
+                check=True
+            )
+            return result.stdout.strip()
+        except subprocess.CalledProcessError as e:
+            logger.error(f"Could not determine git branch. Is this a git repository? Error: {e}")
+            return None
+        except FileNotFoundError:
+            logger.error("Git command not found. Is git installed and in PATH?")
+            return None
+
     def get_current_version(self) -> str:
         """Get current version from package.json"""
         try:
@@ -41,10 +60,9 @@ class VersionManager:
         """Format version tuple as string"""
         return f"{major}.{minor}.{patch}"
     
-    def increment_version(self, increment_type: str = "patch") -> str:
+    def increment_version(self, current_version: str, increment_type: str = "patch") -> str:
         """Increment version based on type"""
-        current = self.get_current_version()
-        major, minor, patch = self.parse_version(current)
+        major, minor, patch = self.parse_version(current_version)
         
         if increment_type == "major":
             major += 1
@@ -58,6 +76,64 @@ class VersionManager:
             
         return self.format_version(major, minor, patch)
     
+    def get_version_from_branch(self, branch_name: str) -> Optional[str]:
+        """
+        Extracts version from branch name if it matches release/ or hotfix/ patterns.
+        Examples: release/1.2.0-rc, hotfix/1.2.1-security-patch
+        """
+        # Regex to capture version like X.Y.Z from branches like 'release/X.Y.Z-...' or 'hotfix/X.Y.Z-...'
+        match = re.match(r"^(release|hotfix)\/(\d+\.\d+\.\d+)", branch_name)
+        if match:
+            version = match.group(2)
+            logger.info(f"Version '{version}' extracted directly from branch name '{branch_name}'.")
+            return version
+        return None
+
+    def auto_increment_based_on_branch(self) -> Tuple[str, str, str]:
+        """
+        Auto-increment version based on git branch name and change impact.
+        Returns (new_version, old_version, increment_type)
+        """
+        current_version = self.get_current_version()
+        branch_name = self.get_current_branch()
+
+        if not branch_name:
+            logger.warning("Could not determine git branch. Falling back to default patch increment.")
+            new_version = self.increment_version(current_version, "patch")
+            return new_version, current_version, "patch"
+
+        logger.info(f"Analyzing version for branch: '{branch_name}'")
+
+        # Priority 1: Direct version from branch name (release/ or hotfix/)
+        version_from_branch = self.get_version_from_branch(branch_name)
+        if version_from_branch:
+            # If the version is specified in the branch, we use it directly.
+            # No further increment is needed.
+            return version_from_branch, current_version, "branch"
+
+        # Priority 2: Increment based on branch type
+        increment_type = "patch" # Default
+        if branch_name.startswith("feature/"):
+            increment_type = "minor"
+        elif branch_name.startswith("bugfix/"):
+            increment_type = "patch"
+        elif branch_name.startswith("chore/"):
+            increment_type = "patch"
+        elif branch_name in ["develop", "staging"]:
+             # For integration branches, a minor bump is usually appropriate
+             # as they consolidate features.
+            increment_type = "minor"
+        elif branch_name == "main" or branch_name == "master":
+            # Changes directly to main/master are rare but should be treated as patches or hotfixes.
+            # Let's default to patch, but this could be configured.
+            increment_type = "patch"
+        
+        new_version = self.increment_version(current_version, increment_type)
+        
+        logger.info(f"Branch-based increment determined: '{increment_type}'. New version: {new_version}")
+
+        return new_version, current_version, increment_type
+
     def auto_increment_based_on_changes(self, changed_files: list, impact_level: str) -> str:
         """Auto-increment version based on change analysis"""
         current_version_before_update = self.get_current_version() # Get version before any changes
@@ -70,7 +146,7 @@ class VersionManager:
         else:
             increment_type = "patch"
             
-        new_version = self.increment_version(increment_type)
+        new_version = self.increment_version(current_version_before_update, increment_type)
         
         logger.info(f"Attempting to update version from {current_version_before_update} to {new_version} (type: {increment_type})")
 
@@ -83,8 +159,8 @@ class VersionManager:
             logger.error(f"Failed to update version files. Version remains {current_version_before_update}")
             return current_version_before_update # Return the version as it was before attempting update
         
-    def create_git_tag(self, version: str) -> bool:
-        """Create git tag for version"""
+    def create_git_tag(self, version: str, codename: Optional[str] = None) -> bool:
+        """Create git tag for version, optionally with a codename in the message."""
         try:
             tag_name = f"v{version}"
             
@@ -100,16 +176,20 @@ class VersionManager:
                 logger.warning(f"Tag {tag_name} already exists")
                 return False
                 
-            # Create the tag
+            # Create the tag with a message
+            message = f"Release {tag_name}"
+            if codename:
+                message += f" - Codename: {codename}"
+
             result = subprocess.run(
-                ["git", "tag", "-a", tag_name, "-m", f"Release {tag_name}"],
+                ["git", "tag", "-a", tag_name, "-m", message],
                 cwd=self.project_root,
                 capture_output=True,
                 text=True
             )
             
             if result.returncode == 0:
-                logger.info(f"Git tag {tag_name} created successfully")
+                logger.info(f"Git tag {tag_name} created successfully with message: '{message}'")
                 return True
             else:
                 logger.error(f"Failed to create git tag: {result.stderr}")
@@ -161,26 +241,73 @@ class VersionManager:
             "patch": patch,
             "release_date": datetime.now().strftime('%Y-%m-%d'),
             "framework_name": "Summarizer Framework",
-            "codename": self._get_version_codename(major, minor)
         }
     
-    def _get_version_codename(self, major: int, minor: int) -> str:
-        """Get professional codename for version"""
-        
-        # v2.x series codenames (AI/Intelligence themed)
+    def get_codename_from_git_tag(self, version: str) -> Optional[str]:
+        """Checks a git tag's annotation for a codename."""
+        try:
+            tag_name = f"v{version}"
+            # Use 'git tag -n' which shows the first line of the annotation
+            result = subprocess.run(
+                ["git", "tag", "-n1", tag_name],
+                cwd=self.project_root,
+                capture_output=True,
+                text=True
+            )
+            if result.returncode == 0 and result.stdout:
+                # Output is like "v1.2.3    Release v1.2.3 - Codename: SuperNova"
+                match = re.search(r"Codename:\s*(\S+)", result.stdout, re.IGNORECASE)
+                if match:
+                    codename = match.group(1)
+                    logger.info(f"Found codename '{codename}' in git tag for version {version}.")
+                    return codename
+        except Exception as e:
+            logger.error(f"Error checking git tag for codename: {e}")
+        return None
+
+    def _get_version_codename(self, major: int, minor: int, new_version: str, gemini_client=None) -> str:
+        """
+        Get a professional codename for the version.
+        Priority:
+        1. From existing Git tag message.
+        2. From AI generation if available.
+        3. From a static list as a fallback.
+        """
+        # 1. Check existing git tag
+        codename = self.get_codename_from_git_tag(new_version)
+        if codename:
+            return codename
+
+        # 2. Generate with AI if available
+        if gemini_client and gemini_client.is_ready():
+            try:
+                logger.info(f"Generating codename with AI for version {new_version}...")
+                prompt = (
+                    f"You are a creative product manager. "
+                    f"Suggest a single, cool, and memorable codename for a software release with version number {new_version}. "
+                    f"The codename should be a single word, in PascalCase. Examples: 'Odyssey', 'Phoenix', 'QuantumLeap', 'Genesis'. "
+                    f"Do not add any explanation, just return the word."
+                )
+                ai_codename = gemini_client.generate_simple_text(prompt)
+                # Clean up the response to ensure it's a single word
+                ai_codename = re.sub(r'[\s\W_]+', '', ai_codename)
+                if ai_codename:
+                    logger.info(f"AI generated codename: {ai_codename}")
+                    return ai_codename
+            except Exception as e:
+                logger.error(f"AI codename generation failed: {e}")
+
+        # 3. Fallback to static list
+        logger.info("Falling back to static codename list.")
         v2_codenames = {
-            0: "Genesis",      # v2.0.x - Initial v2 release
-            1: "Intelligence", # v2.1.x - Enhanced AI features
-            2: "Synthesis",    # v2.2.x - Integration improvements
-            3: "Evolution",    # v2.3.x - Advanced evolution
-            4: "Transcendence",# v2.4.x - Next level features
-            5: "Infinity"      # v2.5.x - Ultimate features
+            0: "Genesis", 1: "Intelligence", 2: "Synthesis",
+            3: "Evolution", 4: "Transcendence", 5: "Infinity"
         }
         
         if major == 2:
-            return v2_codenames.get(minor, f"Unknown-{minor}")
+            return v2_codenames.get(minor, f"V{major}M{minor}")
         elif major == 3:
-            return "Quantum"   # v3.x series
+            return "Quantum"
         else:
             return f"Future-{major}.{minor}"
     
@@ -221,39 +348,3 @@ class VersionManager:
         
         return any(any(indicator in file.lower() for indicator in feature_indicators) 
                   for file in changed_files)
-
-def auto_version_management(project_root: Path, changed_files: list, 
-                          impact_level: str, ai_summary: str) -> Optional[str]:
-    """Automatic version management workflow"""
-    
-    try:
-        print("   🔖 Managing version automatically...")
-        
-        version_manager = VersionManager(project_root)
-        
-        # Get current version
-        current_version_str = version_manager.get_current_version()
-        print(f"   📋 Current version: v{current_version_str}")
-        
-        # auto_increment_based_on_changes attempts to update files and returns 
-        # the new version string if successful, or the original version string if not.
-        new_version_str = version_manager.auto_increment_based_on_changes(
-            changed_files, impact_level
-        )
-        
-        if new_version_str != current_version_str:
-            # This means auto_increment_based_on_changes succeeded in determining AND applying a new version.
-            # The update_version_in_files call was handled within auto_increment_based_on_changes.
-            print(f"   ⬆️ Version updated: v{current_version_str} → v{new_version_str}")
-            return new_version_str
-        else:
-            # This means either no version change was needed, 
-            # or auto_increment_based_on_changes failed to update the files 
-            # (it would have logged an error and returned current_version_str).
-            print(f"   ✅ Version unchanged or update failed for v{current_version_str}")
-            return current_version_str
-            
-    except Exception as e:
-        print(f"   ⚠️ Version management error: {e}")
-        logger.error(f"Auto version management error: {e}")
-        return None

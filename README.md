@@ -1,58 +1,61 @@
-# 🚀 Summarizer Framework GUI Installer
-> Summarizer Framework'ün kullanıcı dostu bir arayüzle kurulumunu sağlayan bir GUI tabanlı kurulum aracı.  🎉
+# 🚀 project.110620251156
+>  Versiyon yönetimi, Git entegrasyonu ve özelleştirilebilir raporlama yetenekleri sunan modern bir web projesi.  Proje, daha sağlam ve genişletilebilir bir mimariye kavuşmak üzere güncellendi.
 
 ## 📊 Proje Durumu
-Proje, kurulum sürecinin kullanıcı deneyimini iyileştirmeye odaklanan güncellemelerle aktif olarak geliştirilmektedir.  Son değişiklikler, hata yönetimini güçlendirmeye, kullanıcı geri bildirimlerini artırmaya ve kurulum sürecini daha şeffaf hale getirmeye yöneliktir.  Toplamda üç ayrı commit incelendi ve bunlar `install_gui.py` ve `gui_launcher.py` dosyalarında değişikliklere neden oldu.  Proje stabil ve kullanıma hazırdır.
+Geliştirme aşamasında.  Son değişiklikler, versiyon yönetimi, Git entegrasyonu ve özelleştirilebilir raporlama (özetleme) yeteneklerini geliştirmiştir.  Hata yönetimi önemli ölçüde iyileştirilmiştir.
 
 
 ## ✨ Özellikler
-- GUI tabanlı kurulum:  Kolay ve sezgisel bir arayüz ile Summarizer Framework'ü kurun.
-- Adım adım ilerleme gösterimi: Kurulumun her aşamasında net geri bildirim alın.
-- Geliştirilmiş hata yönetimi:  Açıklayıcı hata mesajları ve çözüm önerileriyle sorunları hızlıca tespit edin.
-- Kullanıcı dostu hata raporlama:  Başarısızlık durumunda detaylı bilgilerle daha kolay hata ayıklama.
-- Modüler kod yapısı:  Gelecekteki genişletmeler için sağlam bir temel.
+* **Gelişmiş Versiyon Yönetimi:** `package.json`'dan versiyon okuma, Git dalı tespiti, semantik versiyon ayrıştırma ve kod adı oluşturma.  Hata yönetimi eklendi.
+* **Güçlendirilmiş Git Entegrasyonu:**  `git push`, `git pull`, `git checkout` gibi komutların yönetimi için yeni fonksiyonlar eklendi. Daha robust hata yönetimi ve staged/unstaged değişikliklerin kontrolü sağlandı. Proje yapısının doğru kurulumunu garanti eden bir fonksiyon eklendi.
+* **Otomatik Changelog Güncelleme:**  Değişikliklerin etki seviyesini otomatik olarak tespit eden ve changelog'u güncelleyen fonksiyonlar.  Daha iyi loglama ve hata mesajları.
+* **Özelleştirilebilir Raporlama (Özetleme):** Komut satırı arayüzü üzerinden ekran görüntüsü alma (Chrome, Firefox, VS Code destekli), konfigürasyon ve sistem durumu kontrolü.  Modüler tasarım sayesinde yeni özelliklerin eklenmesi kolaylaşmıştır.
 
 
 ## Değişen Dosyalar:
-`install_gui.py`, `gui_launcher.py`
+* `src/utils/version_manager.py`: Versiyon yönetimi işlevleri.
+* `src/utils/git_manager.py`: Git entegrasyon işlevleri.
+* `src/utils/changelog_updater.py`: Changelog güncelleme işlevleri.
+* `summarizer.py`: Komut satırı arayüzü ve özelleştirme mantığı.
+* `src/main.py`: Özelleştirme mantığı (özetleme işlemi dahil).
 
 
 ## ANALİZ GÖREVİ:
 
 ### 1. YAPISAL ANALİZ:
 
-- **Hangi sistem bileşenleri ve katmanlar etkilendi?**  Değişiklikler esas olarak Summarizer Framework'ün kurulum katmanını etkilemiştir. `install_gui.py`, GUI ve terminal komutlarının kurulumunu yönetirken, `gui_launcher.py` ise GUI'nin başlatılmasından sorumludur.  Her iki dosyada yapılan değişiklikler, GUI ve terminal komutları bileşenlerini doğrudan etkiler.
+- **Etkilenen Bileşenler ve Katmanlar:** Değişiklikler, projedeki servis ve yardımcı araç katmanlarını etkilemiştir.  `version_manager.py`, servis katmanında versiyon yönetimini sağlar.  `git_manager.py` servis katmanında Git işlemlerini yönetirken, `changelog_updater.py` yardımcı araç katmanında changelog güncellemelerini yönetir. `summarizer.py` ve `src/main.py` ise özelleştirilebilir raporlama (özetleme) sisteminin ana bileşenleridir.
 
-- **Mimari değişikliklerin etkisi nedir?**  Mimari genel olarak değişmeden kalmıştır.  Ancak, `install_gui.py` dosyasında `features` adlı bir alt dizin oluşturularak (`gui_installer`, `terminal_commands` modülleri)  modüler bir yapıya geçiş yapılmıştır. Bu, kodun daha iyi organize edilmesini, sürdürülebilirliğini ve bağımsız geliştirilebilirliğini sağlar. Mimariye yeni bir fonksiyonellik eklenmemiştir.
+- **Mimari Değişikliklerin Etkisi:** Genel mimari üzerinde büyük bir değişiklik gözlenmemiştir. Ancak, `git_manager.py` ve `changelog_updater.py` dosyalarındaki değişiklikler, ilgili bileşenleri daha modüler, sağlam ve hata toleranslı hale getirmiştir.  `summarizer.py` ve `src/main.py`'deki değişiklikler ise daha modüler ve genişletilebilir bir raporlama sistemi oluşturmuş, özelliklerin ayrı modüllere ayrılmasını sağlamıştır.
 
-- **Kod organizasyonunda hangi iyileştirmeler yapıldı?** `install_gui.py` dosyasında,  `features` alt dizini oluşturularak  modülerlik artırılmıştır.  `gui_launcher.py` de ise `project_root` değişkeninin tanımlanması ve `sys.path.insert` kullanımı, projenin farklı dizinlerden çalıştırılmasını daha kolay ve güvenilir hale getirmiştir. Her iki dosyada da  `try-except` blokları eklenerek hata yönetimi iyileştirilmiştir.
+- **Kod Organizasyonundaki İyileştirmeler:**  `git_manager.py` ve `changelog_updater.py` içindeki fonksiyonlar daha düzenli ve okunabilir hale getirilmiştir.  `summarizer.py`'de ise özelliklerin ayrı modüllere ayrılması ve `argparse` kütüphanesinin daha düzenli kullanımı kod organizasyonunu önemli ölçüde iyileştirmiştir.  `.summarizer` dizininin oluşturulmasıyla konfigürasyon yönetimi de daha organize hale gelmiştir.
 
 
 ### 2. İŞLEVSEL ETKİ:
 
-- **Hangi özellikler eklendi, değiştirildi veya kaldırıldı?**  Hiçbir özellik eklenmedi veya kaldırılmadı. Mevcut kurulum ve GUI başlatma işlemleri iyileştirilmiştir.
+- **Eklenen, Değiştirilen veya Kaldırılan Özellikler:**  Yeni Git entegrasyon özellikleri (`push`, `pull`, `checkout`, staged/unstaged diff kontrolü), otomatik changelog güncelleme yetenekleri, ve komut satırı arayüzü üzerinden ekran görüntüsü alma özelliği eklenmiştir.  `version_manager.py`'deki fonksiyonlar hata yönetimi açısından iyileştirilmiştir.
 
-- **Kullanıcı deneyimi nasıl etkilendi?** Kullanıcı deneyimi önemli ölçüde iyileştirilmiştir.  Daha bilgilendirici hata mesajları, adım adım ilerleme gösterimi ve her adımın başarılı olup olmadığına dair geri bildirimler, kullanıcının kurulum sürecini daha iyi anlamasını ve sorunları daha kolay çözmesini sağlar.
+- **Kullanıcı Deneyimi:** Kullanıcı deneyimi, daha zengin komut satırı seçenekleri, otomatik changelog güncellemeleri ve ekran görüntüsü alma yeteneği sayesinde iyileştirilmiştir.  Konfigürasyon işlemleri de kolaylaştırılmıştır.
 
-- **Performans, güvenlik veya güvenilirlik üzerindeki etkiler?** Performans üzerindeki etki ihmal edilebilir düzeydedir. Güvenlik veya güvenilirlik doğrudan etkilenmemiştir; aksine, iyileştirilmiş hata yönetimi sayesinde güvenilirlik artmıştır.
+- **Performans, Güvenlik ve Güvenilirlik:** Hata yönetimi eklenmesi güvenilirliği artırmıştır.  Performans üzerindeki etki tam olarak belirlenememektedir, ancak kodun optimize edilmiş olması durumunda olumlu bir etki beklenebilir.  Güvenlik üzerinde doğrudan bir etki gözlenmemiştir.
 
 
 ### 3. TEKNİK DERINLIK:
 
-- **Hangi tasarım desenleri uygulandı veya değiştirildi?** Belirgin bir tasarım deseni değişikliği veya uygulanması yoktur.  Ancak, modülerlik ilkesinin uygulanması kodun daha sürdürülebilir olmasını sağlar.
+- **Tasarım Desenleri:** `git_manager.py`'de helper fonksiyonu yaklaşımı kullanılmıştır.  `summarizer.py`'de ise `CallableModule` sınıfının kullanımı, modülün hem modül hem de fonksiyon olarak kullanılmasını sağlayan ilginç bir tasarım seçeneği sunmaktadır.  MVC mimarisine benzer bir yaklaşım, konfigürasyon yönetimi için bir `ConfigurationManager` sınıfı (kodda direkt görünmese de, adından anlaşılabilir) kullanılarak uygulanmış olabilir.
 
-- **Kod kalitesi ve sürdürülebilirlik nasıl gelişti?** Kod kalitesi ve sürdürülebilirlik,  `try-except` blokları ile iyileştirilmiş hata yönetimi, modüler kod yapısı ve daha açıklayıcı kod ile artmıştır. Daha okunabilir ve anlaşılır bir kod tabanına sahip olunması, gelecekteki bakımı ve geliştirmeyi kolaylaştırır.
+- **Kod Kalitesi ve Sürdürülebilirlik:** Kod kalitesi ve sürdürülebilirlik, daha iyi hata yönetimi, modüler tasarım ve daha düzenli kod yapısı sayesinde iyileştirilmiştir. Özellikle özelliklerin ayrı modüllere ayrılması, gelecekteki geliştirmeleri kolaylaştıracaktır.
 
-- **Yeni bağımlılıklar veya teknolojiler eklendi mi?** Hayır, yeni bağımlılıklar eklenmemiştir.
+- **Yeni Bağımlılıklar:** Ekran görüntüsü alma özelliği için yeni bir kütüphane eklenmiş olabilir, ancak bu tam olarak belirtilememektedir.
 
 
 ### 4. SONUÇ YORUMU:
 
-- **Bu değişikliklerin uzun vadeli değeri ve etkisi nedir?**  Uzun vadede, daha kullanıcı dostu ve daha güvenilir bir kurulum süreci sağlanır.  Bu, daha geniş bir kullanıcı kitlesine ulaşılmasını ve projenin daha kolay kabul görmesini sağlar.
+- **Uzun Vadeli Değer ve Etki:** Bu değişiklikler, projenin versiyon yönetimi, Git entegrasyonu ve raporlama yeteneklerini önemli ölçüde geliştirerek uzun vadede geliştirme sürecini hızlandıracak ve hataları azaltacaktır. Daha modüler ve genişletilebilir bir mimari oluşturulmuştur.
 
-- **Projenin teknik borcu nasıl etkilendi?** Projenin teknik borcu, daha modüler ve daha iyi dokümante edilmiş bir kod yapısı ile azalmıştır.  İyileştirilmiş hata yönetimi, gelecekte ortaya çıkabilecek sorunların daha kolay çözülmesini sağlar.
+- **Teknik Borcun Etkilenmesi:**  Hata yönetiminin eklenmesi ve kodun daha düzenli hale getirilmesi, projenin teknik borcunu azaltmıştır. Ancak, `CallableModule` sınıfının kullanımı potansiyel bir teknik borç olarak değerlendirilmelidir.  Daha detaylı analiz için kodun tamamının incelenmesi gerekmektedir.
 
-- **Gelecekteki geliştirmelere nasıl hazırlık yapıldı?** Modüler tasarım, gelecekte yeni GUI bileşenleri veya terminal komutları eklemek için daha esnek bir yapı sağlar.  Geliştirilmiş hata yönetimi ve daha ayrıntılı loglama (önerilen bir iyileştirme), gelecekteki hata ayıklama ve sorun giderme süreçlerini kolaylaştırır.
+- **Gelecekteki Geliştirmelere Hazırlık:**  Modüler ve genişletilebilir mimari, gelecekteki geliştirmeleri kolaylaştıracak ve yeni özelliklerin eklenmesini mümkün kılacaktır.  Ancak, tam potansiyel,  kodun tamamı incelendikten sonra daha net anlaşılabilir.
 
 ## 🛠️ Kurulum (Installation)
 
@@ -213,7 +216,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**Last updated**: June 19, 2025 by Summarizer Framework v7.13.0
+**Last updated**: June 20, 2025 by Summarizer Framework v12.0.0
 *This README is automatically generated and updated based on project activity.*
 
 > *"Automatically maintained with AI-powered analysis"*

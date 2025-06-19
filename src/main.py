@@ -6,6 +6,7 @@ from src.core.configuration_manager import ConfigurationManager
 from src.services.gemini_client import GeminiClient
 from src.services.request_manager import RequestManager
 from src.utils.changelog_updater import update_changelog
+from features.parameter_checker import check_required_parameters
 
 # Attempt to import GUI, but make it optional
 try:
@@ -74,63 +75,29 @@ def summarizer(run_gui_mode: bool = False, project_root_str: str = None):
     if run_gui_mode:
         if GUI_AVAILABLE:
             print("🎨 Launching Configuration GUI...")
-            # Pass project_root to the GUI if provided, otherwise it will use cwd
-            # The GUI's main_gui_entry should handle receiving this or using cwd.
-            # For now, we assume the GUI's entry point can be called directly
-            # and it will parse its own arguments if necessary or use cwd.
-            # We need to ensure modern_config_gui.py's entry point is compatible.
-            
-            # If project_root_str is provided (e.g. from CLI args to summarizer), pass it.
-            # The GUI's entry point (main_gui_entry) will need to accept this.
-            if project_root_str:
-                # This assumes run_gui (main_gui_entry) can accept project_root
-                # We might need to adjust how arguments are passed if not.
-                # For example, by setting an environment variable or modifying sys.argv
-                # before calling it if it uses argparse directly without expecting a direct arg.
-                
-                # Simplest approach: if main_gui_entry uses argparse, it will pick up --project_root
-                # if we construct sys.argv appropriately. Or, modify main_gui_entry to accept it.
-                # Given the previous change to modern_config_gui.py, it should now accept --project_root.
-                
-                # We will call it and let its argparse handle the --project_root if present in sys.argv
-                # or we can explicitly pass it if the function signature allows.
-                # The updated modern_config_gui.py's main_gui_entry uses argparse.
-                # So, we ensure the argument is available for it.
-                
-                # To be safe and explicit, let's modify sys.argv for the GUI's argparse
-                import sys
-                original_argv = sys.argv
-                sys.argv = [sys.argv[0], "--project_root", project_root_str]
-                try:
-                    run_gui() # This will now use the project_root_str via its own argparse
-                finally:
-                    sys.argv = original_argv # Restore original sys.argv
-            else:
-                run_gui() # Run GUI in the context of current working directory
+            run_gui()
         else:
             print("❌ Error: GUI mode requested, but GUI components could not be loaded.")
             print("   Please check your installation and ensure all dependencies for the GUI are met.")
         return
 
-    # Determine project_root: use provided string or default to Path.cwd()
     project_root = Path(project_root_str) if project_root_str else Path.cwd()
 
-    # Validate if project_root is a valid project directory
-    # (e.g., contains package.json or .git)
-    # This is a basic check; more sophisticated checks can be added if needed.
-    if not (project_root / "package.json").exists() and \
-       not (project_root / ".git").is_dir() and \
-       not (project_root / ".summarizer").is_dir(): # Also check for existing .summarizer
+    if not (project_root / "package.json").exists() and not (project_root / ".git").is_dir():
         print(f"❌ Error: The current directory ({project_root}) does not appear to be a valid project.")
         print("   Please run 'summarizer' from the root directory of your project.")
-        print("   A project should typically contain a 'package.json' file or a '.git' directory.")
         return
 
     try:
         print(f"🚀 Summarizer targeting project: {project_root.name} ({project_root})")
+        
         print("📝 Step 1/7: Setting up configuration...")
-        config_manager = setup_configuration(project_root)  # Pass determined project_root
+        config_manager = setup_configuration(project_root)
         print("✅ Configuration loaded successfully")
+
+        # Now that configuration is loaded (including .env), we can check.
+        if not check_required_parameters():
+             return
 
         print("\n🔗 Step 2/7: Initializing request manager...")
         setup_request_manager()

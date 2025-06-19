@@ -113,14 +113,9 @@ class CallableModule(ModuleType):
     """A module that can be called like a function"""
 
     def __call__(self, *args, **kwargs):
-        """Make the module callable with parameter checking"""
-        # Check required parameters first
-        if not print_parameter_guidance():
-            print()
-            print("🔧 Run setup to configure missing parameters:")
-            print("   summarizer --setup")
-            return False
-        
+        """Make the module callable by directly passing to the core logic."""
+        # The parameter check is now handled within the main logic (src/main.py)
+        # to ensure configuration is loaded first.
         return _summarizer(*args, **kwargs)
 
     def main(self):
@@ -287,18 +282,9 @@ Examples:
             return screenshot_command(parsed_args.args)
         
         # Default behavior - run summarizer
-        print("🚀 Summarizer Framework")
-        print("=" * 30)
-        
-        # Check parameters and run if OK
-        if print_parameter_guidance():
-            return _summarizer()
-        else:
-            print()
-            print("🔧 Quick setup options:")
-            print("   summarizer --setup    # Interactive setup.")
-            print("   summarizer --gui      # GUI configuration.")
-            return False
+        # Pass the current working directory to the main logic
+        project_root_str = str(Path.cwd())
+        return _summarizer(project_root_str=project_root_str)
 
 
 # Replace the module in sys.modules with our callable version
