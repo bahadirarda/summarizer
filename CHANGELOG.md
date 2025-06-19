@@ -3,6 +3,164 @@
 Bu dosya otomatik olarak generate edilmiştir.
 Düzenlemeler için `changelog.json` dosyasını kullanın.
 
+## 2025-06-19 23:36:06
+
+### 1. YAPISAL ANALİZ:
+
+Değişiklikler `src/utils/changelog_updater.py` dosyasında yoğunlaşmıştır. Bu dosya, projedeki değişiklikleri izleyen ve changelog'u güncelleyen bir yardımcı araçtır.  Etki alanını şu bileşenler ve katmanlar oluşturur:
+
+* **Git Entegrasyonu:** `GitManager` sınıfı aracılığıyla Git ile etkileşim kurarak değişiklikleri tespit eder.  Bu, versiyon kontrol sistemi ile sıkı bir entegrasyon gerektirir.
+* **Dosya İzleme:** `file_tracker` modülü, dosya değişikliklerini takip etmek için kullanılır. Bu, `get_changed_files_since_last_run` fonksiyonu ile sağlanır. Bu katman, dosya sistemine erişim gerektirir ve işletim sistemi bağımlılıklarına sahip olabilir.
+* **Changelog Yönetimi:** `JsonChangelogManager` sınıfı, changelog'u JSON formatında yönetir.  Bu, changelog'un yapılandırılmış bir şekilde tutulmasını ve işlenmesini sağlar.
+* **CI/CD Entegrasyonu:** `_run_ci_checks` fonksiyonu, CI/CD pipeline'ı ile entegrasyon sağlar.  `run_ci_checks.py` betiğinin çalıştırılması ve sonucunun değerlendirilmesi bu katmanda gerçekleşir.
+* **Readme Güncellemesi:** `update_readme` fonksiyonu, README dosyasını güncellemeyi sağlar.  Bu, kullanıcıların projenin durumunu kolayca anlamalarına yardımcı olur.
+
+Mimari değişikliklerin etkisi, changelog güncelleme sürecinin daha otomatikleştirilmesi ve daha sağlam hale getirilmesidir.  Kod organizasyonu açısından, fonksiyonların daha iyi bir şekilde ayrıştırılması ve sorumlulukların daha açık bir şekilde tanımlanması söz konusudur.  `_detect_impact_level` fonksiyonu, değişikliğin etki seviyesini otomatik olarak belirleme işlevselliğini ekleyerek sistemin daha akıllı hale gelmesini sağlamaktadır.
+
+
+### 2. İŞLEVSEL ETKİ:
+
+Kısaltılmış kod parçasında görülen değişikliklerin işlevsel etkileri şunlardır:
+
+* **Otomatik Etki Seviyesi Tespit Etme:**  `_detect_impact_level` fonksiyonunun eklenmesi, changelog girdilerinin etki seviyesinin (CRITICAL, HIGH, MEDIUM, LOW) otomatik olarak belirlenmesini sağlar. Bu, kullanıcı girişini azaltır ve tutarlılığı artırır.
+* **CI/CD Entegrasyonu:** CI/CD kontrollerinin eklenmesi, release işleminin güvenilirliğini artırır.  CI kontrolleri başarısız olursa, release işlemi durur.  Bu, hatalı kodun üretime geçmesini engeller.
+* **Release Branch Oluşturma:**  Kod, bir release branch oluşturma işlemini yönetir.  Bu, release sürecinin daha iyi organize edilmesini ve versiyon kontrolünün daha iyi takip edilmesini sağlar.
+* **Kullanıcı Etkileşimi:** Kullanıcıya CI kontrollerinin atlanıp atlanmayacağına dair soru sorularak esneklik sağlanır.
+* **İlk Proje Girişi Oluşturma:** `_create_initial_project_entry` fonksiyonu, projenin ilk kurulumunda otomatik bir changelog girişi oluşturur.
+
+Kullanıcı deneyimi, changelog güncellemesinin otomatikleşmesi sayesinde iyileştirilmiştir.  Performans açısından, CI kontrollerinin eklenmesi performansı hafifçe azaltabilir, ancak bu, geliştirme sürecinin güvenilirliğinin artmasıyla dengelenir. Güvenlik ve güvenilirlik açısından, CI kontrollerinin eklenmesi önemli bir gelişmedir.
+
+
+### 3. TEKNİK DERINLIK:
+
+* **Tasarım Desenleri:**  Kodda, özellikle belirgin bir tasarım deseni görülmemektedir.  Ancak, fonksiyonların sorumluluklarını iyi bir şekilde ayıran bir yapı söz konusudur.
+* **Kod Kalitesi ve Sürdürülebilirlik:** Kod, iyi yorumlanmış ve okunabilir bir şekilde yazılmıştır.  Tip ipuçlarının kullanımı (typing) kod kalitesini ve sürdürülebilirliği artırır.  Fonksiyonların ayrı ve özelleştirilmiş olması, gelecekteki bakımı ve güncellemeyi kolaylaştırır.
+* **Yeni Bağımlılıklar:**  Kısaltılmış kod parçası, yeni bağımlılıklar eklemediğini göstermektedir.
+
+
+### 4. SONUÇ YORUMU:
+
+Bu değişiklikler, changelog güncelleme sürecini otomatikleştirerek, daha güvenilir ve tutarlı hale getirir.  Uzun vadeli değer, geliştirme sürecinin hızlanmasında ve hataların azaltılmasında yatar.  Teknik borç açısından, kodun iyi organize edilmesi ve okunabilir olması teknik borcu azaltır.  CI/CD entegrasyonu, gelecekteki geliştirmelere hazırlık yapılması açısından önemli bir adımdır.  Projenin sürekli entegrasyon ve dağıtım yeteneklerini güçlendirerek, daha hızlı ve daha güvenilir bir geliştirme döngüsünü destekler.  Otomatik etki seviyesi tespiti, geliştirme ekibinin zamanından tasarruf etmesini sağlar.
+
+**Değişen Dosyalar:** src/utils/changelog_updater.py
+**Etki Seviyesi:** Critical
+**Değişiklik Tipi:** Feature
+**Satır Değişiklikleri:** +17
+**Etiketler:** utils, manager, changelog-updater, api
+
+---
+
+## 2025-06-19 23:32:21
+
+### 1. YAPISAL ANALİZ:
+
+Değişiklikler, `src/utils` dizini altındaki `changelog_updater.py` dosyasını etkiliyor. Bu dosya, projedeki değişiklikleri izleyen ve changelog'u güncelleyen bir yardımcı araçtır.  Sistem bileşenleri olarak Git entegrasyonu (`git_manager`), JSON tabanlı changelog yönetimi (`JsonChangelogManager`), dosya izleme (`file_tracker`), README güncelleme (`readme_generator`) ve versiyon yönetimi (`version_manager`) modülleri etkilenmektedir.  Mimari değişiklik yok gibi gözüküyor, ancak mevcut bileşenlerin daha entegre ve koordineli bir şekilde çalışmasını sağlayan iyileştirmeler yapılmış olabilir (kodun kesik olması nedeniyle kesin olarak söylenemez). Kod organizasyonu açısından, fonksiyonların daha iyi ayrılması ve okunabilirliğin artırılması için çaba sarfedilmiş gibi görünüyor.  `_detect_impact_level`, `_run_ci_checks`, `_write_next_command`, `_ask_user`, `_create_initial_project_entry` gibi yardımcı fonksiyonlar ana `update_changelog` fonksiyonundan ayrıştırılarak kodun daha modüler hale getirilmesi hedeflenmiştir.
+
+
+### 2. İŞLEVSEL ETKİ:
+
+Kodun büyük bir kısmı kesik olduğu için kesin bir ifade vermek zor, ancak sağlanan parçadan changelog güncelleme işlevinin iyileştirildiği anlaşılıyor.  Yeni özellikler eklenmiş veya kaldırılmış olabilir, ancak bu, eksik kod nedeniyle belirtilemiyor.  Mevcut işlevselliğin geliştirilmesi muhtemeldir.  Kullanıcı deneyimi, CI kontrollerinin eklenmesiyle ve kullanıcı onayı alınmasıyla ( `_ask_user` fonksiyonu) etkilenmiştir.  Kullanıcılar artık CI kontrollerinin başarısızlığı durumunda bilgilendirilecek ve devam edip etmeyeceklerine karar verebileceklerdir. Performans açısından, CI kontrollerinin eklenmesi performans kaybına yol açabilir. Ancak, bu kayıp, gelişmiş güvenilirlik ve daha güvenli bir sürüm yönetimiyle dengelenebilir. Güvenlik açısından, CI kontrollerinin eklenmesi önemli bir iyileştirmedir.  Güvenilirlik ise, daha sağlam bir sürüm yönetimi ve changelog güncelleme süreci sayesinde artmıştır.
+
+
+### 3. TEKNİK DERINLIK:
+
+Kodda, özellikle fonksiyonların ayrılarak daha iyi bir modülerlik sağlanması ve sorumlulukların ayrıştırılması açısından,  "Sorumlulukların Ayrılması (Separation of Concerns)" tasarım deseni gözlemlenmektedir.  Kod kalitesi ve sürdürülebilirlik, fonksiyonların ayrılması ve daha açıklayıcı isimlerin kullanımıyla iyileştirilmiştir.  Yeni bağımlılıkların eklenip eklenmediği, eksik kod nedeniyle belirtilemez.  Ancak,  `subprocess` modülünün CI kontrollerini çalıştırmak için kullanılması gibi mevcut bağımlılıklar daha etkili bir şekilde kullanılmış olabilir.
+
+
+### 4. SONUÇ YORUMU:
+
+Bu değişiklikler, daha güvenilir ve sürdürülebilir bir changelog güncelleme süreci sağlamayı amaçlamaktadır.  Uzun vadeli değer, daha doğru ve kapsamlı bir changelog'un oluşturulması ve geliştirme sürecinin şeffaflığının artırılmasıdır. Projenin teknik borcu, kodun daha modüler ve sürdürülebilir hale getirilmesiyle azaltılmıştır.  Gelecekteki geliştirmelere hazırlık olarak, CI kontrollerinin entegre edilmesi ve kullanıcı etkileşiminin sağlanması önemli bir adımdır. Ancak, changelog güncelleme işleminin tam detayları eksik kod nedeniyle tam olarak anlaşılamamaktadır.  Tam bir analiz için tüm kodun incelenmesi gerekmektedir.
+
+**Değişen Dosyalar:** src/utils/changelog_updater.py
+**Etki Seviyesi:** High
+**Değişiklik Tipi:** Feature
+**Satır Değişiklikleri:** +15
+**Etiketler:** manager, changelog-updater, utils, api
+
+---
+
+## 2025-06-19 23:29:47
+
+### 1. YAPISAL ANALİZ:
+
+Değişiklikler, `src/utils` dizini altında bulunan `changelog_updater.py` dosyasını etkiliyor.  Bu dosya, projedeki değişiklikleri takip eden ve changelog'u güncelleyen bir yardımcı araçtır.  Sistem bileşenleri açısından bakıldığında,  `changelog_updater.py` aşağıdaki bileşenlerle etkileşim halindedir:
+
+* **`file_tracker`:** Projede yapılan dosya değişikliklerini tespit etmek için kullanılır.  `get_changed_files_since_last_run`, `get_file_line_changes` ve `get_aggregate_line_stats` fonksiyonları aracılığıyla changelog_updater ile entegredir.
+* **`git_manager`:** Git işlemlerini yönetmek için kullanılır (branch oluşturma, checkout gibi).
+* **`json_changelog_manager`:** Changelog'u JSON formatında yönetmek için kullanılır.  `ChangeType` ve `ImpactLevel` enum'ları buradan alınır.
+* **`readme_generator`:**  README dosyasını güncellemek için kullanılır.
+* **`version_manager`:**  (Dosyada tanımlanmış ancak kodu kesintiye uğramış kısımda muhtemelen versiyon yönetimiyle ilgili işlemler yapar.)
+
+Mimari değişikliklerin etkisi, changelog güncelleme sürecinin daha modüler ve sürdürülebilir hale gelmesidir.  Farklı görevler (dosya takibi, Git işlemleri, changelog yönetimi, README güncelleme) ayrı modüllerde gerçekleştirilmektedir. Bu, kodun okunabilirliğini, test edilebilirliğini ve bakımı kolaylaştırır. Kod organizasyonunda ise fonksiyonların daha iyi ayrıştırılması ve açıklayıcı isimlerin kullanılması ile bir iyileştirme gözlemlenmektedir.
+
+
+### 2. İŞLEVSEL ETKİ:
+
+`changelog_updater.py` dosyasındaki değişiklikler, changelog güncelleme işlemini geliştirir ve otomatikleştirir.  Özellikle, kısıtlı kod parçasından anlaşıldığı kadarıyla:
+
+* **Yeni Özellikler:** Kodda, CI (Continuous Integration) kontrollerinin çalıştırılması ve sonuçlarına göre işlem yapılması özelliği eklenmiştir (`_run_ci_checks` fonksiyonu).  Kullanıcı onayı ile CI kontrolleri atlanabilir.  Ayrıca, bir sonraki komutu içeren `.sh` dosyasının oluşturulması (`_write_next_command`) ve projenin ilk başlatılması için bir fonksiyon eklenmiştir (`_create_initial_project_entry`).
+* **Değiştirilen Özellikler:**  Impact seviyesinin otomatik olarak tespit edilmesi (`_detect_impact_level` fonksiyonu) iyileştirilmiş olabilir, ancak  tam fonksiyon kodu mevcut olmadığından kesin bir şey söylemek mümkün değil.
+* **Kaldırılan Özellikler:**  Mevcut kodda kaldırılan özelliklere dair bir bilgi bulunmamaktadır.
+
+Kullanıcı deneyimi, otomasyon sayesinde geliştirilmiştir.  Kullanıcı artık changelog'u manuel olarak güncellemek zorunda değildir. CI kontrollerinin entegre edilmesi, hatalı kodun yayınlanmasını önler.  Ancak,  CI başarısızlığı durumunda kullanıcıya detaylı hata mesajları verilmesi iyileştirilebilir.
+
+Performans, güvenlik veya güvenilirlik üzerindeki etki, kodun daha modüler ve okunabilir hale gelmesi sayesinde uzun vadede iyileşebilir.  CI kontrolleri güvenliği artırır. Ancak,  `_run_ci_checks` fonksiyonunun nasıl uygulandığına bağlı olarak performans etkisi değişebilir.
+
+
+### 3. TEKNİK DERINLIK:
+
+Kodda, aşağıdaki tasarım desenleri gözlemlenmektedir:
+
+* **Modülerlik:**  Farklı görevler ayrı fonksiyonlarda gerçekleştirilir, bu da kodun daha okunabilir ve sürdürülebilir olmasını sağlar.
+* **Dependency Injection (Bağımlılık Enjeksiyonu):**  `JsonChangelogManager`, `GitManager` gibi sınıflar, `update_changelog` fonksiyonuna parametre olarak geçirilebilir (bu durum kısıtlı koddan kesin olarak anlaşılamasa da olasıdır).  Bu, kodun daha esnek ve test edilebilir olmasını sağlar.
+
+Kod kalitesi ve sürdürülebilirlik,  modüler tasarım, açıklayıcı değişken isimleri ve tür ipuçlarının kullanımı sayesinde iyileştirilmiştir.  Yeni bağımlılıklar veya teknolojiler eklenmemiştir (mevcut koddan anlaşıldığı kadarıyla).
+
+
+### 4. SONUÇ YORUMU:
+
+Bu değişiklikler, changelog güncelleme sürecini otomatikleştirerek, daha az hata yapma ve daha hızlı geliştirme olanağı sağlar.  Uzun vadede, bu, geliştirme ekiplerinin daha verimli çalışmasına ve daha kaliteli bir ürün sunmasına yardımcı olur.  Projenin teknik borcu, kodun daha modüler ve okunabilir hale gelmesi sayesinde azalmıştır.  CI kontrollerinin eklenmesi, gelecekteki hataları önlemede önemli bir adımdır.  Ancak, `run_ci_checks.py` dosyasının içeriğine bağlı olarak gerçek etki daha detaylı incelenmelidir.  Yeni eklenen  `_create_initial_project_entry` fonksiyonu,  projenin kolayca kurulması ve başlatılması için bir kolaylık sağlamaktadır.  Genel olarak, bu değişiklikler projenin uzun vadeli sürdürülebilirliğini ve kalitesini olumlu yönde etkileyecektir.
+
+**Değişen Dosyalar:** src/utils/changelog_updater.py
+**Etki Seviyesi:** High
+**Değişiklik Tipi:** Feature
+**Etiketler:** utils, manager, changelog-updater, api
+
+---
+
+## 2025-06-19 23:29:05
+
+### 1. YAPISAL ANALİZ:
+
+Değişiklikler sadece `src/utils/git_manager.py` dosyasını etkilemiştir. Bu dosya, proje kök dizinini (`project_root`) parametre olarak alan ve Git işlemlerini yöneten bir `GitManager` sınıfını tanımlar.  Sistem bileşenleri açısından, bu dosya muhtemelen bir *util* veya *helper* katmanında yer almaktadır; ana uygulama mantığından bağımsız olarak Git ile ilgili görevleri soyutlar.  Mimari değişiklik yok; mevcut mimariye yeni bir fonksiyonellik eklenmiştir. Kod organizasyonunda ise, Git komutlarını çalıştırmak için `_run_git_command` yardımcı fonksiyonu kullanımı sayesinde kodun okunabilirliği ve tekrar kullanılabilirliği artmıştır.  Hata yönetimi de `_run_external_command` fonksiyonunda iyileştirilmiş olup, olası `FileNotFoundError` ve `subprocess.CalledProcessError` durumları yakalanarak daha bilgilendirici hata mesajları döndürülmektedir.
+
+### 2. İŞLEVSEL ETKİ:
+
+Eklenen veya değiştirilen özellikler şunlardır:
+
+* **`get_diff()` metodu:** Bu metot, hem stage edilmiş hem de stage edilmemiş değişiklikleri tespit ederek ilgili diff'i döndürür.  Bu, daha kapsamlı bir değişiklik izleme sağlar.  Önceki versiyonda sadece stage edilmiş ya da stage edilmemiş değişikliklerden birini döndürüyordu.
+
+* **`ensure_project_structure()` metodu:** Bu metot, Git deposunun ve temel dalların (`main`, `develop`, `staging`) varlığını kontrol eder.  Eksik dallar varsa, kullanıcıdan onay alarak bunları oluşturur. Bu, projenin tutarlı bir yapıya sahip olmasını sağlar ve yeni geliştiricilerin daha kolay entegre olmasını kolaylaştırır.
+
+Kullanıcı deneyimi `ensure_project_structure()` metodu sayesinde iyileşmiştir.  Kullanıcı artık Git deposunun başlangıç durumunu kontrol etmek ve eksik dalları oluşturmak için etkileşimli olarak yönlendirilir.  Performans üzerindeki etki ihmal edilebilir düzeydedir; çünkü eklenen fonksiyonlar,  yalnızca proje başlatılırken veya belirli işlemler başlatılmadan önce çalışmaktadır. Güvenlik ve güvenilirlik üzerinde doğrudan bir etkisi yoktur.
+
+
+### 3. TEKNİK DERINLIK:
+
+`GitManager` sınıfı, **Soyutlama (Abstraction)** ve **Tek Sorumluluk (Single Responsibility)** tasarım kalıplarını uygular.  Git ile ilgili tüm işlemleri tek bir sınıfta toplayarak, kodun diğer bölümlerinin Git detaylarıyla ilgilenmesine gerek kalmaz.  Kod kalitesi ve sürdürülebilirlik, hata yönetiminin iyileştirilmesi ve kodun daha modüler hale getirilmesiyle iyileşmiştir.  Yeni bir bağımlılık veya teknoloji eklenmemiştir; mevcut `subprocess` modülü kullanılmaya devam edilmektedir.
+
+### 4. SONUÇ YORUMU:
+
+Bu değişiklikler, projenin uzun vadeli sürdürülebilirliğini artıran önemli iyileştirmeler getirir.  `ensure_project_structure()` metodu, yeni geliştiricilerin projenin kurulumunu ve yapılandırmasını kolaylaştırır, teknik borcu azaltır.  `get_diff()` metodunun geliştirilmesi, değişiklik yönetimini ve hata ayıklama sürecini iyileştirir.  Bu değişiklikler, gelecekteki geliştirmeler için sağlam bir temel oluşturur ve yeni özellikler eklendiğinde kod tabanının yönetilebilirliğini koruyacaktır.  Teknik borç,  Git yönetimiyle ilgili potansiyel sorunları önleyerek azaltılmıştır.  Proje, daha tutarlı ve daha kolay anlaşılır bir yapıya kavuşmuştur.
+
+**Değişen Dosyalar:** src/utils/git_manager.py
+**Etki Seviyesi:** High
+**Değişiklik Tipi:** Feature
+**Satır Değişiklikleri:** +23
+**Etiketler:** api, git-manager, manager, utils
+
+---
+
 ## 2025-06-19 23:26:16
 
 ### 1. YAPISAL ANALİZ:

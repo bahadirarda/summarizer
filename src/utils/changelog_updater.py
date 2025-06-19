@@ -115,9 +115,26 @@ def update_changelog(project_root: Optional[Path] = None):
                 major, minor, new_version, gemini_client=gemini_client
             )
             print(f"   💫 Codename: {codename}")
+            
             version_manager.create_git_tag(new_version, codename=codename)
             print(f"   🏷️  Git tag created: v{new_version}")
 
+            # --- NEW: Commit all the changes made by the summarizer ---
+            print("   🧹 Preparing for next Git action...")
+            if not git_manager.is_working_directory_clean():
+                if _ask_user("   ❔ Summarizer updated project files. Commit these maintenance changes?"):
+                    commit_message = f"chore(summarizer): Update project to v{new_version}"
+                    if git_manager.stage_all() and git_manager.commit(commit_message):
+                        print(f"   ✅ Maintenance changes committed: '{commit_message}'")
+                    else:
+                        print("   ❌ Failed to commit maintenance changes. Aborting next git actions.")
+                        return # Abort if we can't commit, because checkout will fail.
+                else:
+                    print("   ℹ️ Maintenance changes not committed. Aborting next git actions.")
+                    return # Abort if user says no, because checkout will fail.
+
+            # --- Professional GitFlow Integration ---
+            # The target branch for a pull request depends on the current branch's prefix
             target_branch = None
             if branch_name.startswith(("feature/", "bugfix/")):
                 target_branch = "develop"
@@ -170,18 +187,33 @@ def _handle_pull_request_flow(
                 print("   ❌ Pull Request creation aborted by user.")
                 return
 
+        # Check for remote before pushing
+        if not git_manager.has_remote():
+            print("   ⚠️  No remote repository named 'origin' found.")
+            if _ask_user("   ❔ Would you like to add one now?"):
+                remote_url = input("   > Enter the full repository URL (e.g., 'https://github.com/user/repo.git'): ")
+                if remote_url and git_manager.add_remote(remote_url):
+                    print("   ✅ Remote 'origin' added successfully.")
+                else:
+                    print("   ❌ Failed to add remote. Aborting push.")
+                    return
+            else:
+                print("   ❌ Push aborted by user.")
+                return
+
         print(f"   ☁️  Pushing '{current_branch}' to remote...")
-        if git_manager._run_git_command(['push', 'origin', current_branch, '--force-with-lease']):
+        push_success, push_output = git_manager.push(current_branch)
+
+        if push_success:
             remote_url = git_manager.get_remote_url()
             if remote_url:
                 pr_title = f"{current_branch.split('/')[0].capitalize()}: {current_branch.split('/')[1]}"
                 pr_url = f"{remote_url}/compare/{target_branch}...{current_branch}?title={urllib.parse.quote(pr_title)}&body={urllib.parse.quote(pr_body)}"
                 print(f"   👇 Click here to create your Pull Request:\n   {pr_url}")
-                
-                # The final piece of magic: switch back to the target branch.
                 _write_next_command(project_root, f"git checkout {target_branch}")
         else:
             print("   ❌ Failed to push the branch to the remote repository.")
+            print(f"   Git Error: {push_output}")
 
 
 def _handle_release_creation(
