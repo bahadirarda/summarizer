@@ -300,5 +300,5 @@ class GitManager:
         """Checks if a branch exists on the specified remote."""
         logger.info(f"Checking for branch '{branch_name}' on remote '{remote_name}'...")
         # This command returns a non-empty string if the branch exists
-        output = self._run_git_command(["ls-remote", "--heads", remote_name, branch_name])
-        return output is not None and bool(output.strip())
+        success, output = self._run_git_command(["ls-remote", "--heads", remote_name, branch_name])
+        return success and bool(output.strip())
