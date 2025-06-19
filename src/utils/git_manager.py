@@ -359,6 +359,30 @@ class GitManager:
         success, _ = self._run_git_command(["checkout", branch_name])
         return success
 
+    def get_existing_pr(self, head_branch: str) -> Optional[str]:
+        """Checks if an open PR already exists for the given head branch."""
+        logger.info(f"Checking for existing PR for branch '{head_branch}'...")
+        command = [
+            "gh", "pr", "list",
+            "--head", head_branch,
+            "--state", "open",
+            "--limit", "1",
+            "--json", "url"
+        ]
+        success, output = self._run_external_command(command)
+        if success and output and output.strip() != "[]":
+            try:
+                # gh returns a JSON array, e.g., '[{"url":"https://github.com/..."}]'
+                pr_data = json.loads(output)
+                if pr_data and isinstance(pr_data, list) and 'url' in pr_data[0]:
+                    pr_url = pr_data[0]['url']
+                    logger.info(f"Found existing PR: {pr_url}")
+                    return pr_url
+            except json.JSONDecodeError:
+                logger.error(f"Failed to parse JSON from gh CLI output: {output}")
+                return None
+        return None
+
     def remote_branch_exists(self, branch_name: str, remote_name: str = "origin") -> bool:
         """Checks if a branch exists on the specified remote."""
         logger.info(f"Checking for branch '{branch_name}' on remote '{remote_name}'...")

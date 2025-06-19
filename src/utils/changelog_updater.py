@@ -60,9 +60,15 @@ def _run_ci_checks(project_root: Path) -> bool:
 
 def _handle_pull_request_flow(project_root: Path, git_manager: GitManager, current_branch: str, target_branch: str, pr_body: str, gemini_client: Any = None):
     """
-    Handles ONLY the pull request creation, using a robust check-and-create process,
-    and then suggests a logical next step.
+    Handles ONLY the pull request creation, using a robust check-and-create process.
     """
+    # First, check if a PR already exists.
+    existing_pr_url = git_manager.get_existing_pr(current_branch)
+    if existing_pr_url:
+        print(f"   ✅ A pull request for '{current_branch}' already exists.")
+        print(f"      Your recent push has been added to it: {existing_pr_url}")
+        return
+
     if not _ask_user(f"   ❔ Create a Pull Request from '{current_branch}' to '{target_branch}'?"):
         print("   ⚪️ Pull request creation skipped by user.")
         return
