@@ -1,61 +1,66 @@
 # 🚀 project.110620251156
->  Versiyon yönetimi, Git entegrasyonu ve özelleştirilebilir raporlama yetenekleri sunan modern bir web projesi.  Proje, daha sağlam ve genişletilebilir bir mimariye kavuşmak üzere güncellendi.
+> CI/CD Süreçlerini Optimize Eden ve Versiyon Yönetimini Geliştiren Web Projesi
 
 ## 📊 Proje Durumu
-Geliştirme aşamasında.  Son değişiklikler, versiyon yönetimi, Git entegrasyonu ve özelleştirilebilir raporlama (özetleme) yeteneklerini geliştirmiştir.  Hata yönetimi önemli ölçüde iyileştirilmiştir.
+Proje, CI/CD süreçlerinin iyileştirilmesi ve versiyon yönetim sisteminin güçlendirilmesi amacıyla güncellenmiştir.  Toplam 0 değişiklik kaydedilmiş olsa da, üç farklı dosya (`scripts/run_ci_checks.py`, `src/utils/version_manager.py`, `src/utils/git_manager.py` ve `src/utils/changelog_updater.py`) üzerinde yapılan önemli kod iyileştirmeleri ve hata yönetimi eklemeleri bulunmaktadır. Bu iyileştirmeler, projenin uzun vadeli sürdürülebilirliğini ve güvenilirliğini artırmayı hedeflemektedir. Proje şu anda kararlı bir durumda ve gelecek geliştirmelere hazırdır.
 
 
 ## ✨ Özellikler
-* **Gelişmiş Versiyon Yönetimi:** `package.json`'dan versiyon okuma, Git dalı tespiti, semantik versiyon ayrıştırma ve kod adı oluşturma.  Hata yönetimi eklendi.
-* **Güçlendirilmiş Git Entegrasyonu:**  `git push`, `git pull`, `git checkout` gibi komutların yönetimi için yeni fonksiyonlar eklendi. Daha robust hata yönetimi ve staged/unstaged değişikliklerin kontrolü sağlandı. Proje yapısının doğru kurulumunu garanti eden bir fonksiyon eklendi.
-* **Otomatik Changelog Güncelleme:**  Değişikliklerin etki seviyesini otomatik olarak tespit eden ve changelog'u güncelleyen fonksiyonlar.  Daha iyi loglama ve hata mesajları.
-* **Özelleştirilebilir Raporlama (Özetleme):** Komut satırı arayüzü üzerinden ekran görüntüsü alma (Chrome, Firefox, VS Code destekli), konfigürasyon ve sistem durumu kontrolü.  Modüler tasarım sayesinde yeni özelliklerin eklenmesi kolaylaşmıştır.
+* **Gelişmiş CI/CD Süreci:** Linting, test ve build adımları daha açıkça ayrılmış, her adımın çıktısı ayrı ayrı kontrol ediliyor. Hata yönetimi önemli ölçüde geliştirilmiş ve hata ayıklama süreci kolaylaştırılmıştır.  Pylint hatalarının build işlemini durdurmaması sağlanmıştır.
+* **Güçlendirilmiş Versiyon Yönetimi:** `version_manager.py` dosyasındaki iyileştirmeler sayesinde versiyon numarası belirleme, dal yönetimi ve kırıcı değişiklik tespiti daha güvenilir hale getirilmiştir. Hata yönetimi eklenerek olası sorunlar daha iyi ele alınmaktadır.
+* **Gelişmiş Git Entegrasyonu:** `git_manager.py` dosyasındaki güncellemeler ile Git işlemleri daha sağlam ve modüler bir şekilde yönetilebilir.  `push`, `pull`, `checkout` gibi işlemler için fonksiyonlar eklenmiş, daha kapsamlı diff alma ve hata yönetimi sağlanmıştır.
+* **Otomatik Changelog Güncellemesi:** `changelog_updater.py` dosyasındaki güncellemeler sayesinde değişikliklerin etki seviyesi otomatik olarak tespit ediliyor ve changelog güncellemesi daha otomatik ve hata toleranslı hale geliyor.
 
 
 ## Değişen Dosyalar:
-* `src/utils/version_manager.py`: Versiyon yönetimi işlevleri.
-* `src/utils/git_manager.py`: Git entegrasyon işlevleri.
-* `src/utils/changelog_updater.py`: Changelog güncelleme işlevleri.
-* `summarizer.py`: Komut satırı arayüzü ve özelleştirme mantığı.
-* `src/main.py`: Özelleştirme mantığı (özetleme işlemi dahil).
+* `scripts/run_ci_checks.py`: CI/CD süreç iyileştirmeleri
+* `src/utils/version_manager.py`: Versiyon yönetimi iyileştirmeleri ve hata yönetimi eklemeleri
+* `src/utils/git_manager.py`: Git entegrasyon iyileştirmeleri ve hata yönetimi eklemeleri
+* `src/utils/changelog_updater.py`: Changelog güncelleme iyileştirmeleri ve hata yönetimi eklemeleri
 
 
 ## ANALİZ GÖREVİ:
 
 ### 1. YAPISAL ANALİZ:
 
-- **Etkilenen Bileşenler ve Katmanlar:** Değişiklikler, projedeki servis ve yardımcı araç katmanlarını etkilemiştir.  `version_manager.py`, servis katmanında versiyon yönetimini sağlar.  `git_manager.py` servis katmanında Git işlemlerini yönetirken, `changelog_updater.py` yardımcı araç katmanında changelog güncellemelerini yönetir. `summarizer.py` ve `src/main.py` ise özelleştirilebilir raporlama (özetleme) sisteminin ana bileşenleridir.
+- **Etkilenen Sistem Bileşenleri ve Katmanlar:** Değişiklikler, üç ana sistem bileşenini etkilemiştir:
+    * **CI/CD Altyapısı:** `scripts/run_ci_checks.py` dosyasındaki değişiklikler, projenin komut satırı arayüzü (CLI) katmanını ve CI/CD altyapısını doğrudan etkilemektedir.
+    * **Servis Katmanı:** `src/utils/version_manager.py`, `src/utils/git_manager.py` ve `src/utils/changelog_updater.py` dosyaları, yardımcı fonksiyonlar sağlayan servis katmanının bir parçasıdır.  Özellikle, `version_manager.py` versiyon bilgisiyle, `git_manager.py` Git işlemleriyle, `changelog_updater.py` ise changelog güncellemeleriyle ilgilenir.
+    * **Yardımcı Araçlar Katmanı:** `src/utils` dizini altındaki tüm dosyalar yardımcı araçlar katmanını oluşturmaktadır.
 
-- **Mimari Değişikliklerin Etkisi:** Genel mimari üzerinde büyük bir değişiklik gözlenmemiştir. Ancak, `git_manager.py` ve `changelog_updater.py` dosyalarındaki değişiklikler, ilgili bileşenleri daha modüler, sağlam ve hata toleranslı hale getirmiştir.  `summarizer.py` ve `src/main.py`'deki değişiklikler ise daha modüler ve genişletilebilir bir raporlama sistemi oluşturmuş, özelliklerin ayrı modüllere ayrılmasını sağlamıştır.
+- **Mimari Değişikliklerin Etkisi:** Mimari açıdan büyük bir değişiklik gözlenmemektedir.  Yapılan değişiklikler mevcut mimariyi koruyarak,  mevcut bileşenlerin işlevselliğini ve güvenilirliğini geliştirmeye odaklanmıştır.
 
-- **Kod Organizasyonundaki İyileştirmeler:**  `git_manager.py` ve `changelog_updater.py` içindeki fonksiyonlar daha düzenli ve okunabilir hale getirilmiştir.  `summarizer.py`'de ise özelliklerin ayrı modüllere ayrılması ve `argparse` kütüphanesinin daha düzenli kullanımı kod organizasyonunu önemli ölçüde iyileştirmiştir.  `.summarizer` dizininin oluşturulmasıyla konfigürasyon yönetimi de daha organize hale gelmiştir.
+- **Kod Organizasyonunda Yapılan İyileştirmeler:**
+    * `scripts/run_ci_checks.py`:  `run_command` fonksiyonunun soyutlanması kodun okunabilirliğini ve bakımını kolaylaştırmaktadır.  Linting, test ve build adımlarının ayrı ayrı tanımlanması hata ayıklamayı kolaylaştırır.
+    * `src/utils/version_manager.py`:  `VersionManager` sınıfı içindeki fonksiyonların mantıksal olarak gruplandırılması (kodun tamamı verilmediği için tam bir değerlendirme yapılamasa da) kodun organizasyonunu iyileştirir. Hata yönetimi eklenmesi kodun güvenilirliğini artırır.
+    * `src/utils/git_manager.py` ve `src/utils/changelog_updater.py`:  Fonksiyonların daha düzenli ve okunabilir bir şekilde düzenlenmesi,  hata yönetiminin iyileştirilmesi kodun kalitesini ve sürdürülebilirliğini artırır.
 
 
 ### 2. İŞLEVSEL ETKİ:
 
-- **Eklenen, Değiştirilen veya Kaldırılan Özellikler:**  Yeni Git entegrasyon özellikleri (`push`, `pull`, `checkout`, staged/unstaged diff kontrolü), otomatik changelog güncelleme yetenekleri, ve komut satırı arayüzü üzerinden ekran görüntüsü alma özelliği eklenmiştir.  `version_manager.py`'deki fonksiyonlar hata yönetimi açısından iyileştirilmiştir.
+- **Eklenti, Değiştirilen veya Kaldırılan Özellikler:** Yeni bir özellik eklenmemiştir. Ancak, mevcut CI/CD süreci ve versiyon yönetimi önemli ölçüde iyileştirilmiştir.  `git_manager.py` dosyasına `push`, `pull`, `checkout` gibi fonksiyonlar eklenmiştir. Changelog güncelleme işlemleri otomatikleştirilmiştir.
 
-- **Kullanıcı Deneyimi:** Kullanıcı deneyimi, daha zengin komut satırı seçenekleri, otomatik changelog güncellemeleri ve ekran görüntüsü alma yeteneği sayesinde iyileştirilmiştir.  Konfigürasyon işlemleri de kolaylaştırılmıştır.
+- **Kullanıcı Deneyimi:** Kullanıcı deneyimi doğrudan etkilenmez. Ancak, daha ayrıntılı CI/CD çıktısı sayesinde hata ayıklama kolaylaşır.  Versiyon yönetiminin iyileştirilmesi dolaylı olarak kullanıcı deneyimini olumlu etkiler.
 
-- **Performans, Güvenlik ve Güvenilirlik:** Hata yönetimi eklenmesi güvenilirliği artırmıştır.  Performans üzerindeki etki tam olarak belirlenememektedir, ancak kodun optimize edilmiş olması durumunda olumlu bir etki beklenebilir.  Güvenlik üzerinde doğrudan bir etki gözlenmemiştir.
+- **Performans, Güvenlik veya Güvenilirlik Üzerindeki Etkiler:** Performans üzerinde büyük bir değişiklik beklenmez. Güvenlik ve güvenilirlik açısından, her adımın ayrı ayrı kontrol edilmesi ve hata durumunda sürecin durdurulması,  hata yönetiminin eklenmesi sürecin daha güvenilir olmasını sağlar.  `dist` dizinini temizleme işlemi de güvenilirliği artırır.
 
 
-### 3. TEKNİK DERINLIK:
+### 3. TEKNİK DERİNLİK:
 
-- **Tasarım Desenleri:** `git_manager.py`'de helper fonksiyonu yaklaşımı kullanılmıştır.  `summarizer.py`'de ise `CallableModule` sınıfının kullanımı, modülün hem modül hem de fonksiyon olarak kullanılmasını sağlayan ilginç bir tasarım seçeneği sunmaktadır.  MVC mimarisine benzer bir yaklaşım, konfigürasyon yönetimi için bir `ConfigurationManager` sınıfı (kodda direkt görünmese de, adından anlaşılabilir) kullanılarak uygulanmış olabilir.
+- **Tasarım Desenleri:** `scripts/run_ci_checks.py` dosyasındaki `run_command` fonksiyonu Strategy pattern'in basit bir uygulaması olarak düşünülebilir.
 
-- **Kod Kalitesi ve Sürdürülebilirlik:** Kod kalitesi ve sürdürülebilirlik, daha iyi hata yönetimi, modüler tasarım ve daha düzenli kod yapısı sayesinde iyileştirilmiştir. Özellikle özelliklerin ayrı modüllere ayrılması, gelecekteki geliştirmeleri kolaylaştıracaktır.
+- **Kod Kalitesi ve Sürdürülebilirlik:** Kod kalitesi ve sürdürülebilirliği, fonksiyonların ayrılması, daha ayrıntılı hata mesajları, hata yönetimi ve kodun daha okunabilir hale getirilmesiyle artırılmıştır.
 
-- **Yeni Bağımlılıklar:** Ekran görüntüsü alma özelliği için yeni bir kütüphane eklenmiş olabilir, ancak bu tam olarak belirtilememektedir.
+- **Yeni Bağımlılıklar veya Teknolojiler:** Yeni bir bağımlılık eklenmemiştir.
 
 
 ### 4. SONUÇ YORUMU:
 
-- **Uzun Vadeli Değer ve Etki:** Bu değişiklikler, projenin versiyon yönetimi, Git entegrasyonu ve raporlama yeteneklerini önemli ölçüde geliştirerek uzun vadede geliştirme sürecini hızlandıracak ve hataları azaltacaktır. Daha modüler ve genişletilebilir bir mimari oluşturulmuştur.
+- **Uzun Vadeli Değer ve Etki:** Bu değişiklikler, CI/CD sürecinin ve versiyon yönetiminin daha sağlam ve güvenilir hale gelmesini sağlar.  Geliştirme hızı ve verimliliği artar, hata ayıklama süreci kolaylaşır.
 
-- **Teknik Borcun Etkilenmesi:**  Hata yönetiminin eklenmesi ve kodun daha düzenli hale getirilmesi, projenin teknik borcunu azaltmıştır. Ancak, `CallableModule` sınıfının kullanımı potansiyel bir teknik borç olarak değerlendirilmelidir.  Daha detaylı analiz için kodun tamamının incelenmesi gerekmektedir.
+- **Projenin Teknik Borcu:** Projenin teknik borcu, kodun daha okunabilir, sürdürülebilir ve hata ayıklamasının daha kolay hale gelmesiyle azaltılmıştır.
 
-- **Gelecekteki Geliştirmelere Hazırlık:**  Modüler ve genişletilebilir mimari, gelecekteki geliştirmeleri kolaylaştıracak ve yeni özelliklerin eklenmesini mümkün kılacaktır.  Ancak, tam potansiyel,  kodun tamamı incelendikten sonra daha net anlaşılabilir.
+- **Gelecekteki Geliştirmelere Hazırlık:** Bu değişiklikler, daha karmaşık CI/CD süreçlerinin ve daha gelişmiş versiyonlandırma stratejilerinin eklenmesi için esnek bir temel oluşturur.
 
 ## 🛠️ Kurulum (Installation)
 
@@ -216,7 +221,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**Last updated**: June 20, 2025 by Summarizer Framework v12.0.0
+**Last updated**: June 20, 2025 by Summarizer Framework v12.1.0
 *This README is automatically generated and updated based on project activity.*
 
 > *"Automatically maintained with AI-powered analysis"*

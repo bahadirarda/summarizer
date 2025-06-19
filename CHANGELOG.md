@@ -3,6 +3,45 @@
 Bu dosya otomatik olarak generate edilmiştir.
 Düzenlemeler için `changelog.json` dosyasını kullanın.
 
+## 2025-06-20 00:04:55
+
+### 1. YAPISAL ANALİZ:
+
+Bu değişiklik, `scripts/run_ci_checks.py` dosyasını etkiler.  Sistemin sadece komut satırı arayüzü (CLI) katmanını değiştirir.  Mimari değişiklik yoktur; mevcut CI/CD süreci iyileştirilir. Kod organizasyonu açısından, `run_command` fonksiyonu, komutların çalıştırılmasını ve çıktısının gerçek zamanlı olarak yazdırılmasını sağlayan bir yardımcı fonksiyon olarak soyutlanır.  Bu, kodun okunabilirliğini ve bakımını kolaylaştırır.  Başka bir iyileştirme, her adımın (linting, test, build) açıkça tanımlanması ve sonuçlarının ayrı ayrı kontrol edilmesidir.  Bu, hata ayıklamayı kolaylaştırır.
+
+### 2. İŞLEVSEL ETKİ:
+
+Yeni bir özellik eklenmedi. Ancak, mevcut CI/CD işlemi iyileştirildi:
+
+* **Değişiklikler:**  Linting, test ve build adımları daha açık bir şekilde ayrıldı ve her adımın sonucu ayrı ayrı kontrol ediliyor.  `--exit-zero` bayrağı pylint komutuna eklendi, böylece pylint hata bulsa bile süreç devam eder ve diğer adımlar çalıştırılır.  `build` komutu çalıştırılmadan önce `dist` dizini temizleniyor.  Build işleminin başarısız olması veya artifact oluşturmaması durumunda hata mesajı iyileştirildi ve program durduruluyor.
+
+* **Kullanıcı Deneyimi:** Kullanıcı deneyimi doğrudan etkilenmez, çünkü değişiklikler arka planda CI/CD sürecini etkiler. Ancak, daha ayrıntılı çıktı sayesinde,  CI sürecinin hangi aşamasında hata olduğunun anlaşılması kolaylaşır.
+
+* **Performans, Güvenlik, Güvenilirlik:**  Performans açısından büyük bir değişiklik beklenmez. Güvenlik ve güvenilirlik açısından,  her adımın ayrı ayrı kontrol edilmesi ve hata durumunda sürecin durdurulması, sürecin daha güvenilir olmasını sağlar.  `dist` dizinini temizleme işlemi de güvenilirliği arttırır.
+
+
+### 3. TEKNİK DERINLIK:
+
+* **Tasarım Desenleri:**  `run_command` fonksiyonu, komutların soyutlanmış şekilde çalıştırılmasını sağlayan bir yardımcı fonksiyon olarak düşünülebilir. Bu, bir tür **Strategy pattern**'in basit bir uygulaması olarak yorumlanabilir.
+
+
+* **Kod Kalitesi ve Sürdürülebilirlik:** Kod kalitesi ve sürdürülebilirliği artırılmıştır.  Fonksiyonların ayrılması, kodun okunabilirliğini ve bakımı kolaylaştırır.  Daha ayrıntılı hata mesajları ve hata yönetimi,  hata ayıklamayı kolaylaştırır.
+
+* **Yeni Bağımlılıklar:**  Yeni bir bağımlılık eklenmemiştir.  Mevcut `subprocess`, `sys`, `pathlib` kütüphaneleri kullanılmaya devam edilmektedir.
+
+
+### 4. SONUÇ YORUMU:
+
+Bu değişiklikler, CI/CD sürecinin daha sağlam ve güvenilir hale gelmesini sağlar.  Daha ayrıntılı çıktı ve hata yönetimi sayesinde, hata ayıklama süreci kolaylaşır.  `--exit-zero` bayrağının eklenmesi,  lint hatalarının CI sürecini tamamen durdurmasını engeller, böylece geliştirme süreci daha az kesintiye uğrar.  Bu, uzun vadede geliştirme hızını ve verimliliğini artıracaktır.  Projenin teknik borcu azaltılmıştır çünkü kod daha okunabilir, sürdürülebilir ve hata ayıklaması daha kolaydır.  Gelecekteki geliştirmelere hazırlık olarak,  bu değişiklikler sağlam bir temel oluşturur ve daha karmaşık CI/CD süreçlerinin eklenmesi için esneklik sağlar.
+
+**Değişen Dosyalar:** scripts/run_ci_checks.py
+**Etki Seviyesi:** High
+**Değişiklik Tipi:** Other
+**Satır Değişiklikleri:** +91
+**Etiketler:** run-ci-checks, api, scripts
+
+---
+
 ## 2025-06-20 00:03:37
 
 ### 1. YAPISAL ANALİZ:
