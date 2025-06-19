@@ -75,12 +75,12 @@ def _run_ci_checks(project_root: Path) -> bool:
 
 
 def _write_next_command(project_root: Path, command: str):
-    command_file_path = project_root / ".summarizer" / "next_command.sh"
-    try:
-        with open(command_file_path, "w") as f: f.write(f"{command}\n")
-        print(f"   ✨ Next step command generated: {command}")
-    except Exception as e:
-        logger_changelog.error(f"Could not create next_command.sh file: {e}")
+    """
+    (This function is intentionally disabled to prevent automatic git checkouts)
+    This function no longer writes commands to a file for auto-execution.
+    It is kept to prevent errors but is now a no-op to give users full control.
+    """
+    pass
 
 
 def _handle_pull_request_flow(project_root: Path, git_manager: GitManager, current_branch: str, target_branch: str, pr_body: str):
@@ -116,7 +116,9 @@ def _handle_pull_request_flow(project_root: Path, git_manager: GitManager, curre
 
             pr_url = f"{remote_url}/compare/{target_branch}...{current_branch}?title={urllib.parse.quote(pr_title)}&body={urllib.parse.quote(pr_body)}"
             print(f"   👇 Click here to create your Pull Request:\n   {pr_url}")
-            _write_next_command(project_root, f"git checkout {target_branch}")
+            # Suggest the next step instead of writing a command to a file
+            print(f"\n   ✨ Next Step: Once the PR is approved, you can switch to the '{target_branch}' branch.")
+            print(f"   $ git checkout {target_branch}")
         else:
             print(f"   ❌ Push failed. Git Error: {output}")
 
@@ -128,7 +130,8 @@ def _handle_release_creation(project_root: Path, git_manager: GitManager, new_ve
             if not _ask_user("   ⚠️  CI checks failed. Create branch anyway?"):
                 return
         if git_manager.create_branch(release_branch_name):
-            _write_next_command(project_root, f"git checkout {release_branch_name}")
+            print(f"\n   ✨ Next Step: Switched to new release branch. You can now proceed with release tasks.")
+            print(f"   $ git checkout {release_branch_name}")
         else:
             print(f"   ⚠️  Could not create release branch '{release_branch_name}'.")
 
@@ -364,7 +367,8 @@ def update_changelog(project_root: Optional[Path] = None):
                     new_branch_name = f"{match.group(1)}/v{new_version}"
                     if _ask_user(f"   ❔ On old branch. Create and switch to '{new_branch_name}'?"):
                         if git_manager.create_branch(new_branch_name):
-                            _write_next_command(project_root, f"git checkout {new_branch_name}")
+                            print(f"\n   ✨ Next Step: A new branch has been created for the version bump.")
+                            print(f"   $ git checkout {new_branch_name}")
 
     except Exception as e:
         print(f"   ⚠️  Version management failed: {e}")
