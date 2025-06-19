@@ -74,15 +74,6 @@ def _run_ci_checks(project_root: Path) -> bool:
         return False
 
 
-def _write_next_command(project_root: Path, command: str):
-    """
-    (This function is intentionally disabled to prevent automatic git checkouts)
-    This function no longer writes commands to a file for auto-execution.
-    It is kept to prevent errors but is now a no-op to give users full control.
-    """
-    pass
-
-
 def _handle_pull_request_flow(project_root: Path, git_manager: GitManager, current_branch: str, target_branch: str, pr_body: str):
     """Handles the pull request creation process automatically."""
     if not _ask_user(f"   ❔ Create a Pull Request to '{target_branch}'?"):
@@ -589,52 +580,4 @@ def export_changelog(project_root: Path, format_type: str = "json") -> str:
         return json_manager.export_to_format(format_type)
     except Exception as e:
         logger_changelog.error(f"Error exporting changelog: {e}")
-        return ""
-
-
-def demo_framework_analysis(
-    project_root: Path, key_files: list, ai_summary: str
-) -> str:
-    """
-    Demo function to showcase framework capabilities
-    Creates a changelog entry for framework demonstration
-    """
-    logger_changelog.info("Running framework demonstration analysis...")
-
-    try:
-        # Initialize JSON changelog manager
-        json_manager = JsonChangelogManager(project_root)
-
-        # Calculate lines for demo files
-        total_lines_added = 0
-        total_lines_removed = 0
-
-        try:
-            line_changes = get_file_line_changes(key_files, project_root)
-            aggregate_stats = get_aggregate_line_stats(line_changes)
-            total_lines_added = aggregate_stats["total_lines_added"]
-            total_lines_removed = aggregate_stats["total_lines_removed"]
-        except Exception as e:
-            logger_changelog.warning(
-                f"Could not analyze line changes for demo: {e}")
-
-        # Add demo entry to changelog
-        entry_id = json_manager.add_entry(
-            ai_summary=ai_summary,
-            changed_files=key_files,
-            impact_level=ImpactLevel.HIGH,
-            change_type=ChangeType.DEMO,
-            lines_added=total_lines_added,
-            lines_removed=total_lines_removed,
-            tags=["framework-demo", "api-server", "self-analysis"],
-        )
-
-        logger_changelog.info(
-            f"Demo changelog entry added with ID: {entry_id}")
-        return entry_id
-
-    except Exception as e:
-        logger_changelog.error(
-            f"Error in demo framework analysis: {e}",
-            exc_info=True)
         return ""

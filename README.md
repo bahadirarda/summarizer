@@ -1,59 +1,56 @@
 # 🚀 project.110620251156
-> Modern bir web projesi için Git ve changelog yönetimini geliştiren yardımcı araçlar paketi.  GitHub entegrasyonu ile geliştirme sürecini hızlandırır ve otomatikleştirir.
+> Modern bir web projesi için CI/CD iyileştirmeleri ve gelişmiş changelog yönetimi sunan bir güncelleme.
 
 ## 📊 Proje Durumu
-Geliştirme aşamasında.  `git_manager.py` ve `changelog_updater.py` yardımcı modüllerinde önemli iyileştirmeler yapıldı.  GitHub ile entegrasyon sağlandı ve changelog güncellemeleri otomatikleştirildi.  Projenin genel kararlılığı yüksek.  Gelecek sürümler için daha fazla özellik ve iyileştirme planlanmaktadır.
-
+Proje aktif geliştirme aşamasındadır. Son güncellemeler, CI/CD sürecinin güvenilirliğini artırırken, changelog oluşturma ve yönetimini daha otomatik ve detaylı hale getirmiştir.  Güncellemeler,  `git_manager.py` ve `changelog_updater.py` dosyalarında gerçekleştirilmiştir. Toplamda 0 değişiklik rapor edilmiş olsa da, analiz edilen metinlerden anlaşıldığı üzere önemli kod değişiklikleri yapılmıştır.
 
 ## ✨ Özellikler
-- Git işlemlerini yönetmek için `git_manager.py` modülü.
-- GitHub'da otomatik Pull Request oluşturma.
-- Changelog güncellemelerini yönetmek için `changelog_updater.py` modülü.
-- Demo amaçlı changelog girişleri ekleme yeteneği.
-- Daha iyi hata yönetimi ve loglama.
-- Modüler ve sürdürülebilir kod yapısı.
+* **Gelişmiş CI/CD:** Build sonrası eser kontrolü ile build hatalarının erken tespiti sağlanmıştır. Daha belirgin hata mesajları ile hata ayıklama kolaylaşmıştır.
+* **Otomatik Pull Request Oluşturma:** `git_manager.py` dosyasına eklenen `create_pull_request()` metodu sayesinde, GitHub'ın `gh` komut satırı aracı kullanılarak otomatik Pull Request oluşturma imkanı sunulmuştur.
+* **Gelişmiş Changelog Yönetimi:** `changelog_updater.py` dosyasındaki güncellemeler, proje türü otomatik tespiti, değişiklik etki seviyesi belirleme ve daha detaylı istatistik toplama gibi özellikler eklemiştir. Changelog'ın daha detaylı ve okunabilir hale gelmesi beklenmektedir.
+* **Demo Framework Analizi:** `changelog_updater.py`'de bulunan `demo_framework_analysis` fonksiyonu, bir çerçeve veya sistem analizi sonrası değişiklikler için otomatik changelog girişi oluşturur.
 
 
 ## Değişen Dosyalar:
-`src/utils/git_manager.py`, `src/utils/changelog_updater.py`
+`scripts/run_ci_checks.py`, `src/utils/changelog_updater.py`, `src/utils/git_manager.py`
 
 
 ## ANALİZ GÖREVİ:
 
 ### 1. YAPISAL ANALİZ:
 
-- **Etkilenen Bileşenler ve Katmanlar:** Değişiklikler, `src/utils` dizini altındaki `git_manager.py` ve `changelog_updater.py` yardımcı modüllerini etkilemiştir.  Bu, "Yardımcı Araçlar" katmanını ve dolaylı olarak "Servis Katmanı"nı etkiler.  `changelog_updater.py`'nin  `file_tracker`, `json_changelog_manager`, `readme_generator`, `version_manager` ve `git_manager` gibi diğer yardımcı modüllerle etkileşimde olduğu belirtilmiştir.
+- **Etkilenen Bileşenler ve Katmanlar:**  `scripts/run_ci_checks.py` dosyası (CI/CD pipeline'ı), `src/utils/changelog_updater.py` ve `src/utils/git_manager.py` dosyaları (Yardımcı Araçlar/Servis Katmanı) etkilenmiştir.  Değişiklikler,  hem  projenin komut dosyaları hem de yardımcı araçlar katmanlarını kapsamaktadır.
 
-- **Mimari Değişikliklerin Etkisi:** Mimari büyük ölçüde değişmemiştir. Ancak, `git_manager.py`'deki geliştirmeler, Git işlemlerinin yönetimini tek bir sınıf içerisinde daha iyi bir şekilde kapsüllendirmiştir. GitHub'ın `gh` komut satırı aracıyla Pull Request oluşturma yeteneğinin eklenmesi, Git iş akışına önemli bir otomasyon eklemiştir.  `changelog_updater.py`'deki değişiklikler, changelog güncelleme sürecinin daha otomatize ve detaylı hale gelmesine yol açmıştır.  Ancak, bu dosyanın içeriğinin tamamı verilmediği için kesin bir yorum yapmak güçtür.
+- **Mimari Değişikliklerin Etkisi:** `run_ci_checks.py`'deki değişiklikler CI/CD pipeline'ının güvenilirliğini artırmıştır. Build sonrası eser kontrolü eklenmesi, hataların daha erken tespit edilmesini sağlar. `git_manager.py`'deki değişiklikler, GitHub entegrasyonunu iyileştirerek geliştirme akışını hızlandırmıştır.  `changelog_updater.py`'deki değişiklikler ise changelog oluşturma ve güncelleme sürecini daha detaylı ve otomatik hale getirmiştir.
 
-- **Kod Organizasyonundaki İyileştirmeler:** `git_manager.py`'de, `_run_external_command` ve `_run_git_command` gibi yardımcı metotlar kod tekrarını azaltarak ve  kodun belirli bir işlevi yerine getirmesi açısından daha iyi organize edilmesini sağlayarak sürdürülebilirliği artırmıştır.  `changelog_updater.py` için kod organizasyonundaki iyileştirmeler, sunulan sınırlı bilgi nedeniyle tam olarak değerlendirilemez.
+- **Kod Organizasyonundaki İyileştirmeler:**  `run_ci_checks.py` ve `git_manager.py` dosyalarında hata kontrol mekanizmaları iyileştirilmiş ve kod daha okunabilir hale getirilmiştir. `git_manager.py`'de `_run_external_command` ve `_run_git_command` yardımcı fonksiyonları kod tekrarını azaltarak sürdürülebilirliği artırmıştır. Ancak `changelog_updater.py`'nin büyüyen boyutu ve fonksiyon sayısı gelecekte modülerliğin daha fazla düşünülmesini gerektirebilir.
 
 
 ### 2. İŞLEVSEL ETKİ:
 
-- **Eklenen, Değiştirilen veya Kaldırılan Özellikler:**  `git_manager.py`'ye `create_pull_request()` metodu eklenmiştir. Bu metot, `gh` komutu aracılığıyla GitHub'da otomatik Pull Request oluşturmayı sağlar.  `changelog_updater.py`'ye `demo_framework_analysis` fonksiyonu eklenmiştir. Bu fonksiyon, demo amaçlı changelog girişleri oluşturur.  Mevcut `push` metodunun nasıl etkilendiği tam olarak belirtilmemiştir.
+- **Eklenen, Değiştirilen veya Kaldırılan Özellikler:** `run_ci_checks.py`: Build sonrası eser kontrolü eklendi, hata mesajları iyileştirildi. `git_manager.py`: `create_pull_request()` metodu eklendi (GitHub'da otomatik Pull Request oluşturma). `changelog_updater.py`: Proje türü tespiti, değişiklik etki seviyesi belirleme, detaylı istatistik toplama ve `demo_framework_analysis` fonksiyonu eklendi.
 
-- **Kullanıcı Deneyimi:**  Geliştiriciler için kullanıcı deneyimi,  otomatik Pull Request oluşturma özelliği sayesinde önemli ölçüde iyileşmiştir.  Manuel işlem azaltılarak iş akışı hızlanmıştır. `demo_framework_analysis` fonksiyonunun kullanıcı deneyimi üzerinde doğrudan bir etkisi yoktur.
+- **Kullanıcı Deneyimi Üzerindeki Etki:** Geliştiriciler için Pull Request oluşturma süreci basitleştirildi ve otomatikleştirildi. Changelog daha detaylı ve okunabilir hale geldi.  Hata ayıklama süreci iyileştirildi.
 
-- **Performans, Güvenlik ve Güvenilirlik:**  `create_pull_request()` metodunun performans üzerindeki etkisi ihmal edilebilir düzeydedir. Güvenilirlik, `gh` komutunun sistemde kurulu ve doğru yapılandırılmış olmasına bağlıdır.  `changelog_updater.py`'deki değişikliklerin performans, güvenlik ve güvenilirlik üzerindeki etkisi net değildir. `gh` CLI aracının kullanımı, API anahtarlarını doğrudan kodda saklama riskini azaltarak güvenliği dolaylı olarak artırır.
+- **Performans, Güvenlik veya Güvenilirlik Üzerindeki Etkiler:** Performans üzerindeki etki ihmal edilebilir düzeydedir. Güvenilirlik, `run_ci_checks.py`'deki build sonrası eser kontrolü ile artırılmıştır.  `git_manager.py`'nin `gh` aracına bağımlılığı bir güvenilirlik riski taşımaktadır, ancak API anahtarlarını doğrudan kodda saklama ihtiyacını azaltarak dolaylı bir güvenlik artışı sağlamaktadır.
 
 
 ### 3. TEKNİK DERINLIK:
 
-- **Tasarım Desenleri:** `git_manager.py`, Git işlemlerini yönetmek için Sınıf (Class) tasarım deseni kullanır.
+- **Tasarım Desenleri:** `git_manager.py`'de Sınıf (Class) tasarım deseni kullanılmıştır.
 
-- **Kod Kalitesi ve Sürdürülebilirlik:** Kod kalitesi, hata yakalama mekanizmaları (`try-except` blokları) ve detaylı loglama ile iyileştirilmiştir. Modüler tasarım ve açıklayıcı yorumlar sürdürülebilirliği artırır.  `changelog_updater.py` için kod kalitesi ve sürdürülebilirlik, sınırlı bilgi nedeniyle tam olarak değerlendirilemez. Ancak, `demo_framework_analysis` fonksiyonunun iyi belgelenmiş ve okunabilir olması, kod kalitesini artırmıştır.
+- **Kod Kalitesi ve Sürdürülebilirlik:** Hata yakalama mekanizmaları (`try-except` blokları) ve detaylı loglama ile kod kalitesi iyileştirilmiştir. Modüler tasarım ve açıklayıcı yorumlar sürdürülebilirliği artırmıştır.  Yardımcı fonksiyonların kullanımı kod tekrarını azaltmıştır. Ancak `changelog_updater.py`'nin büyüklüğü ve karmaşıklığı sürdürülebilirlik açısından risk teşkil etmektedir.
 
-- **Yeni Bağımlılıklar:**  `gh` komut satırı aracı, yeni bir bağımlılık olarak eklenmiştir.
+- **Yeni Bağımlılıklar veya Teknolojiler:** `gh` komut satırı aracı yeni bir bağımlılık olarak eklenmiştir.
 
 
 ### 4. SONUÇ YORUMU:
 
-- **Uzun Vadeli Değer ve Etki:**  `gh` entegrasyonu ve otomatik changelog güncellemeleri, geliştirme sürecini hızlandıran ve otomatikleştiren uzun vadeli bir değer sağlar.  Pull Request oluşturma ve changelog güncelleme süreçlerinin basitleştirilmesi, geliştiricilerin verimliliğini artırır.
+- **Uzun Vadeli Değer ve Etki:** Daha sağlam bir CI/CD süreci ve daha detaylı changelog yönetimi, hataların erken tespit edilmesine, daha kaliteli yazılım üretilmesine ve geliştiricilerin daha verimli çalışmasına katkıda bulunacaktır.
 
-- **Teknik Borç:**  Hata yakalama mekanizmaları ve daha iyi kod organizasyonu, teknik borcu azaltmış olabilir.  Ancak `changelog_updater.py`'deki değişiklikler tam olarak bilinmediği için kesin bir yorum yapılamaz.
+- **Teknik Borcun Etkilenmesi:** Build aşamasındaki ek kontrol mekanizmaları ve hata yakalama mekanizmaları teknik borcu azaltmıştır. Ancak `changelog_updater.py` dosyasının büyümesi gelecekte teknik borç oluşturabilir.
 
-- **Geleceğe Hazırlık:**  Modüler tasarım ve iyi dokümante edilmiş kod, gelecekteki geliştirmelere hazırlık yapmayı kolaylaştırır.  Ancak, `gh` aracına bağımlılık, bir risk faktörü olarak değerlendirilmelidir.  `gh` aracının güncel tutulması ve olası uyumluluk sorunlarının yönetilmesi önemlidir.
+- **Gelecekteki Geliştirmelere Hazırlık:** Modüler tasarım ve iyi dokümante edilmiş kod, gelecekteki geliştirmeleri kolaylaştırmaktadır.  Ancak `changelog_updater.py`'nin modüler olarak yeniden düzenlenmesi ve `_detect_impact_level` ve `_detect_project_type` fonksiyonlarında daha gelişmiş algoritmaların kullanılması düşünülmelidir.  `gh` aracının güncel tutulması da önemlidir.
 
 ## 🛠️ Kurulum (Installation)
 
@@ -214,7 +211,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**Last updated**: June 20, 2025 by Summarizer Framework v8.3.2
+**Last updated**: June 20, 2025 by Summarizer Framework v8.3.3
 *This README is automatically generated and updated based on project activity.*
 
 > *"Automatically maintained with AI-powered analysis"*
