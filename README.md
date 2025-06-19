@@ -1,58 +1,62 @@
-# 🚀 Summarizer Framework GUI Installer
-> Summarizer Framework'ün kullanıcı dostu bir arayüzle kurulumunu sağlayan bir GUI tabanlı kurulum aracı.  🎉
+# 🚀 project.110620251156
+> Bu web projesi, değişiklik günlüğü güncellemelerini otomatikleştirmek, CI/CD süreçlerini iyileştirmek ve Google Gemini API entegrasyonu sağlamak için geliştirilmiştir.  Geliştirici deneyimini iyileştirmeye ve projenin uzun vadeli sürdürülebilirliğini artırmaya odaklanmaktadır.
 
 ## 📊 Proje Durumu
-Proje, kurulum sürecinin kullanıcı deneyimini iyileştirmeye odaklanan güncellemelerle aktif olarak geliştirilmektedir.  Son değişiklikler, hata yönetimini güçlendirmeye, kullanıcı geri bildirimlerini artırmaya ve kurulum sürecini daha şeffaf hale getirmeye yöneliktir.  Toplamda üç ayrı commit incelendi ve bunlar `install_gui.py` ve `gui_launcher.py` dosyalarında değişikliklere neden oldu.  Proje stabil ve kullanıma hazırdır.
+Proje aktif olarak geliştirilmektedir.  Son değişiklikler, changelog güncelleme sürecinin otomasyonunu, CI/CD altyapısının sağlamlığını ve Google Gemini API entegrasyonunu içermektedir.  Bu değişiklikler projenin güvenilirliğini, sürdürülebilirliğini ve genişletilebilirliğini önemli ölçüde artırmaktadır.
 
 
 ## ✨ Özellikler
-- GUI tabanlı kurulum:  Kolay ve sezgisel bir arayüz ile Summarizer Framework'ü kurun.
-- Adım adım ilerleme gösterimi: Kurulumun her aşamasında net geri bildirim alın.
-- Geliştirilmiş hata yönetimi:  Açıklayıcı hata mesajları ve çözüm önerileriyle sorunları hızlıca tespit edin.
-- Kullanıcı dostu hata raporlama:  Başarısızlık durumunda detaylı bilgilerle daha kolay hata ayıklama.
-- Modüler kod yapısı:  Gelecekteki genişletmeler için sağlam bir temel.
+* **Otomatik Changelog Güncelleme:** Pull request ve release branch oluşturma işlemleri otomatik hale getirilmiştir.
+* **Gelişmiş CI/CD Süreci:** Daha ayrıntılı hata mesajları ve gerçek zamanlı çıktı ile daha sağlam bir CI/CD süreci.
+* **Google Gemini API Entegrasyonu:**  Büyük dil modeli yeteneklerini projeye entegre etmek için Google Gemini API'si kullanılmaktadır.  Büyük dosyalar için özetleme özelliği eklenmiştir.
+* **GitHub Issue'lardan Branch Oluşturma:** GitHub issue'larından otomatik branch oluşturma, etiketlere göre branch prefix'leri kullanarak.
+* **Merkezi Git Yönetimi:**  Git işlemleri `GitManager` sınıfı aracılığıyla merkezi olarak yönetilmektedir.
 
 
 ## Değişen Dosyalar:
-`install_gui.py`, `gui_launcher.py`
+`src/utils/changelog_updater.py`, `scripts/run_ci_checks.py`, `src/services/gemini_client.py`, `src/main.py`, `src/utils/git_manager.py`
 
 
 ## ANALİZ GÖREVİ:
 
 ### 1. YAPISAL ANALİZ:
 
-- **Hangi sistem bileşenleri ve katmanlar etkilendi?**  Değişiklikler esas olarak Summarizer Framework'ün kurulum katmanını etkilemiştir. `install_gui.py`, GUI ve terminal komutlarının kurulumunu yönetirken, `gui_launcher.py` ise GUI'nin başlatılmasından sorumludur.  Her iki dosyada yapılan değişiklikler, GUI ve terminal komutları bileşenlerini doğrudan etkiler.
+- **Etkilenen Bileşenler ve Katmanlar:** Değişiklikler, projenin yardımcı araçlar katmanı (`src/utils`), CI/CD betikleri (`scripts`), servis katmanı (`src/services`) ve ana uygulama mantığı (`src/main.py`) katmanlarını etkilemiştir.  `changelog_updater.py`,  `run_ci_checks.py`, `gemini_client.py`, ve `git_manager.py` dosyaları doğrudan değiştirilmiştir. `main.py` dosyası ise `git_manager.py` ile etkileşim kurarak dolaylı olarak etkilenmiştir.
 
-- **Mimari değişikliklerin etkisi nedir?**  Mimari genel olarak değişmeden kalmıştır.  Ancak, `install_gui.py` dosyasında `features` adlı bir alt dizin oluşturularak (`gui_installer`, `terminal_commands` modülleri)  modüler bir yapıya geçiş yapılmıştır. Bu, kodun daha iyi organize edilmesini, sürdürülebilirliğini ve bağımsız geliştirilebilirliğini sağlar. Mimariye yeni bir fonksiyonellik eklenmemiştir.
+- **Mimari Değişikliklerin Etkisi:** Mimari açıdan büyük bir değişiklik olmamasına rağmen, `GitManager` sınıfının eklenmesi (Facade Pattern) ve `ConfigurationManager` sınıfının `gemini_client.py`'de kullanımı (Singleton veya Dependency Injection Pattern) modülerlik ve sürdürülebilirliği artırmıştır.  CI/CD sürecinin ayrıntılı hale getirilmesi de mimari açıdan olumlu bir gelişmedir.
 
-- **Kod organizasyonunda hangi iyileştirmeler yapıldı?** `install_gui.py` dosyasında,  `features` alt dizini oluşturularak  modülerlik artırılmıştır.  `gui_launcher.py` de ise `project_root` değişkeninin tanımlanması ve `sys.path.insert` kullanımı, projenin farklı dizinlerden çalıştırılmasını daha kolay ve güvenilir hale getirmiştir. Her iki dosyada da  `try-except` blokları eklenerek hata yönetimi iyileştirilmiştir.
+- **Kod Organizasyonundaki İyileştirmeler:**  `changelog_updater.py`'deki fonksiyonların daha küçük, daha özelleşmiş fonksiyonlara ayrıştırılması (örneğin, `_detect_impact_level`, `_handle_pull_request_flow`) okunabilirliği ve sürdürülebilirliği artırmıştır.  `GitManager` sınıfı, Git işlemlerinin merkezi yönetimini sağlayarak `main.py` dosyasını temizlemiştir.  `gemini_client.py`'de `ConfigurationManager`'ın kullanımı, API anahtarının yönetimini kolaylaştırıp güvenliği artırmıştır.  `run_ci_checks.py`'deki iyileştirmeler,  CI sürecinin daha anlaşılır ve güvenilir olmasını sağlamıştır.
 
 
 ### 2. İŞLEVSEL ETKİ:
 
-- **Hangi özellikler eklendi, değiştirildi veya kaldırıldı?**  Hiçbir özellik eklenmedi veya kaldırılmadı. Mevcut kurulum ve GUI başlatma işlemleri iyileştirilmiştir.
+- **Eklenen Özellikler:**  Google Gemini API entegrasyonu (özetleme dahil), GitHub issue'larından otomatik branch oluşturma, otomatik changelog güncelleme (pull request ve release branch oluşturma).
 
-- **Kullanıcı deneyimi nasıl etkilendi?** Kullanıcı deneyimi önemli ölçüde iyileştirilmiştir.  Daha bilgilendirici hata mesajları, adım adım ilerleme gösterimi ve her adımın başarılı olup olmadığına dair geri bildirimler, kullanıcının kurulum sürecini daha iyi anlamasını ve sorunları daha kolay çözmesini sağlar.
+- **Değiştirilen Özellikler:** Changelog güncelleme süreci otomatikleştirilmiş, CI/CD süreci daha ayrıntılı ve hata yönetimi iyileştirilmiş, `gemini_client.py`'deki API anahtarı yönetimi konfigürasyon üzerinden yönetilmeye geçirilmiştir.  Büyük dosyaların işlenmesi için dosya içeriğinin kısaltılması özelliği eklenmiştir.
 
-- **Performans, güvenlik veya güvenilirlik üzerindeki etkiler?** Performans üzerindeki etki ihmal edilebilir düzeydedir. Güvenlik veya güvenilirlik doğrudan etkilenmemiştir; aksine, iyileştirilmiş hata yönetimi sayesinde güvenilirlik artmıştır.
+- **Kaldırılan Özellikler:** Belirgin olarak kaldırılan bir özellik yok.
+
+- **Kullanıcı Deneyimi:** Kullanıcı deneyimi doğrudan etkilenmese de, geliştiriciler için daha otomatik ve hata yönetimi gelişmiş bir geliştirme deneyimi sağlanmıştır.
+
+- **Performans, Güvenlik, Güvenilirlik:** Büyük dosyaların işlenmesinde performans artışı, API anahtarının konfigürasyon dosyasından okunması ile güvenlik artışı, daha sağlam CI/CD süreci ve detaylı hata mesajları ile güvenilirlik artışı sağlanmıştır.
 
 
 ### 3. TEKNİK DERINLIK:
 
-- **Hangi tasarım desenleri uygulandı veya değiştirildi?** Belirgin bir tasarım deseni değişikliği veya uygulanması yoktur.  Ancak, modülerlik ilkesinin uygulanması kodun daha sürdürülebilir olmasını sağlar.
+- **Tasarım Desenleri:** Facade (GitManager), Singleton veya Dependency Injection (ConfigurationManager) tasarım desenleri kullanılmıştır.
 
-- **Kod kalitesi ve sürdürülebilirlik nasıl gelişti?** Kod kalitesi ve sürdürülebilirlik,  `try-except` blokları ile iyileştirilmiş hata yönetimi, modüler kod yapısı ve daha açıklayıcı kod ile artmıştır. Daha okunabilir ve anlaşılır bir kod tabanına sahip olunması, gelecekteki bakımı ve geliştirmeyi kolaylaştırır.
+- **Kod Kalitesi ve Sürdürülebilirlik:** Modüler yapı, açıklayıcı fonksiyon isimleri, daha iyi hata yönetimi,  `ConfigurationManager` ile yapılandırma verilerinin merkezi yönetimi, birim testlere uyumlu kod yapısı kod kalitesini ve sürdürülebilirliği artırmıştır.
 
-- **Yeni bağımlılıklar veya teknolojiler eklendi mi?** Hayır, yeni bağımlılıklar eklenmemiştir.
+- **Yeni Bağımlılıklar:** `google.generativeai` (Google Gemini API) ve `gh` (GitHub CLI, opsiyonel) bağımlılıkları eklenmiştir.
 
 
 ### 4. SONUÇ YORUMU:
 
-- **Bu değişikliklerin uzun vadeli değeri ve etkisi nedir?**  Uzun vadede, daha kullanıcı dostu ve daha güvenilir bir kurulum süreci sağlanır.  Bu, daha geniş bir kullanıcı kitlesine ulaşılmasını ve projenin daha kolay kabul görmesini sağlar.
+- **Uzun Vadeli Değer ve Etki:** Otomasyonun artması, geliştirici verimliliğini artırmıştır.  Daha güvenilir CI/CD süreci, hata riskini azaltmıştır. Google Gemini API entegrasyonu, yeni özellikler için zemin oluşturmuştur.  Modüler yapı, gelecekteki geliştirmeleri kolaylaştırmıştır.
 
-- **Projenin teknik borcu nasıl etkilendi?** Projenin teknik borcu, daha modüler ve daha iyi dokümante edilmiş bir kod yapısı ile azalmıştır.  İyileştirilmiş hata yönetimi, gelecekte ortaya çıkabilecek sorunların daha kolay çözülmesini sağlar.
+- **Teknik Borcun Etkilenmesi:**  Kodun modüler hale getirilmesi ve daha iyi organize edilmesi teknik borcu azaltmıştır.
 
-- **Gelecekteki geliştirmelere nasıl hazırlık yapıldı?** Modüler tasarım, gelecekte yeni GUI bileşenleri veya terminal komutları eklemek için daha esnek bir yapı sağlar.  Geliştirilmiş hata yönetimi ve daha ayrıntılı loglama (önerilen bir iyileştirme), gelecekteki hata ayıklama ve sorun giderme süreçlerini kolaylaştırır.
+- **Gelecekteki Geliştirmelere Hazırlık:**  Modüler mimari, yeni özelliklerin kolayca eklenmesini ve mevcut özelliklerin kolayca değiştirilmesini veya geliştirilmesini sağlar.  `ConfigurationManager` gelecekteki yapılandırma ayarlarının eklenmesini kolaylaştırır.  Otomatik testler için zemin hazırlanmıştır.
 
 ## 🛠️ Kurulum (Installation)
 
@@ -213,7 +217,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**Last updated**: June 19, 2025 by Summarizer Framework v7.13.0
+**Last updated**: June 19, 2025 by Summarizer Framework v8.0.3
 *This README is automatically generated and updated based on project activity.*
 
 > *"Automatically maintained with AI-powered analysis"*

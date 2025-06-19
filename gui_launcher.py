@@ -18,7 +18,7 @@ def main():
         try:
             import flet
         except ImportError:
-            print("❌ GUI components not installed. Please install the dependencies first")
+            print("❌ GUI components not installed. Please install the dependencies first.")
             print("   Run: python install_gui.py")
             return False
         

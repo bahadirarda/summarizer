@@ -1,0 +1,13 @@
+[MAIN]
+load-plugins=
+bad-functions=
+bad-names=
+
+[MESSAGES CONTROL]
+disable=C0114,C0115,C0116,R0903,W1514,C0103,R0913,W0718
+
+[REPORTS]
+output-format=text
+
+[FORMAT]
+max-line-length=88 

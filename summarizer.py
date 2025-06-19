@@ -287,18 +287,8 @@ Examples:
             return screenshot_command(parsed_args.args)
         
         # Default behavior - run summarizer
-        print("🚀 Summarizer Framework")
-        print("=" * 30)
-        
-        # Check parameters and run if OK
-        if print_parameter_guidance():
-            return _summarizer()
-        else:
-            print()
-            print("🔧 Quick setup options:")
-            print("   summarizer --setup    # Interactive setup.")
-            print("   summarizer --gui      # GUI configuration.")
-            return False
+        project_root_str = str(Path.cwd())
+        return _summarizer(project_root_str=project_root_str)
 
 
 # Replace the module in sys.modules with our callable version
