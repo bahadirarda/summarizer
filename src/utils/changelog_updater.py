@@ -119,6 +119,44 @@ def _handle_pull_request_flow(project_root: Path, git_manager: GitManager, curre
                 print(f"   ❌ Failed to switch to '{default_next_branch}'.")
 
 
+def _post_workflow_sync(git_manager: GitManager):
+    """After a workflow, offers to sync the main branch with the latest development changes."""
+    print("\n" + "="*50)
+    print("   🚀 Workflow Complete")
+    print("="*50)
+    
+    develop_branch = 'develop'
+    main_branch = 'main'
+
+    # Ensure both branches exist locally before offering
+    if git_manager.branch_exists(develop_branch) and git_manager.branch_exists(main_branch):
+        prompt = (
+            f"\n   ❔ Keep your local repository synchronized? "
+            f"This will merge '{develop_branch}' into your local '{main_branch}' branch."
+        )
+        if _ask_user(prompt):
+            original_branch = git_manager.get_current_branch()
+            
+            print(f"   > Switching to '{main_branch}'...")
+            if not git_manager.checkout(main_branch):
+                print(f"   ❌ Failed to switch to '{main_branch}'. Aborting sync.")
+                if original_branch: git_manager.checkout(original_branch) # Attempt to return user
+                return
+
+            print(f"   > Merging '{develop_branch}' into '{main_branch}'...")
+            if git_manager.merge_from(develop_branch):
+                print(f"   ✅ Successfully merged '{develop_branch}' into '{main_branch}'.")
+            else:
+                print(f"   ❌ Merge failed. Please check for conflicts. The sync was not completed.")
+
+            # Always switch back to the original branch
+            if original_branch:
+                print(f"   > Returning to '{original_branch}' branch...")
+                git_manager.checkout(original_branch)
+        else:
+            print("   ⚪️ Local sync skipped.")
+
+
 def _handle_git_workflow(project_root: Path, git_manager: GitManager, new_version: str, summary: str, gemini_client: Any):
     """Handles the entire Git workflow post-file modification in a professional sequence."""
     
@@ -172,6 +210,9 @@ def _handle_git_workflow(project_root: Path, git_manager: GitManager, new_versio
         _handle_pull_request_flow(project_root, git_manager, current_branch_name, pr_target, summary, gemini_client)
     else:
         print(f"   ⚪️ No standard Pull Request action defined for branch '{current_branch_name}'.")
+
+    # This is the final step, called after all push/PR logic is complete.
+    _post_workflow_sync(git_manager)
 
 
 def update_changelog(project_root: Optional[Path] = None):
