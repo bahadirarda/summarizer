@@ -58,8 +58,10 @@ def _run_ci_checks(project_root: Path) -> bool:
 
 
 def _handle_pull_request_flow(project_root: Path, git_manager: GitManager, current_branch: str, target_branch: str, pr_body: str, gemini_client: Any = None):
-    """Handles the pull request creation process intelligently."""
-    if not _ask_user(f"   ❔ Create a Pull Request to '{target_branch}'?"):
+    """
+    Handles ONLY the pull request creation, assuming the branch is pushed and ready.
+    """
+    if not _ask_user(f"   ❔ Create a Pull Request from '{current_branch}' to '{target_branch}'?"):
         print("   ⚪️ Pull request creation skipped by user.")
         return
 
@@ -159,32 +161,67 @@ def update_changelog(project_root: Optional[Path] = None):
             
             version_manager.create_git_tag(new_version, codename=codename)
             
+            # Pre-commit CI checks for all branches
             current_branch_name = git_manager.get_current_branch()
-            
-            if _run_ci_checks(project_root):
-                if _ask_user(f"   ❔ Commit maintenance changes to '{current_branch_name}'?"):
-                    commit_message = f"chore(summarizer): Auto-update to v{new_version}\n\n{summary}"
-                    git_manager.stage_all()
-                    git_manager.commit(commit_message)
+            print(f"\n   🔬 Running pre-push CI checks for '{current_branch_name}'...")
+            if not _run_ci_checks(project_root):
+                if not _ask_user("   ⚠️  CI checks failed. Continue with push/PR anyway?"):
+                    print("   ⚪️ Operation aborted due to CI failure.")
+                    # Revert version bump if commit is aborted
+                    version_manager.update_version_in_files(old_version)
+                    print(f"   ⏪ Version reverted to {old_version}.")
+                    return
+                print("   ⚪️ CI checks failed, but proceeding as requested.")
             else:
-                if _ask_user("   ⚠️  CI checks failed. Continue with commit anyway?"):
-                     if _ask_user(f"   ❔ Commit maintenance changes to '{current_branch_name}'?"):
-                        commit_message = f"chore(summarizer): Auto-update to v{new_version}\n\n{summary}"
-                        git_manager.stage_all()
-                        git_manager.commit(commit_message)
+                print("   ✅ Pre-push CI checks passed.")
 
-            branch_for_pr = git_manager.get_current_branch()
+            # Commit changes to git
+            if not git_manager.is_working_directory_clean():
+                prompt_message = f"   ❔ Summarizer updated project files. Commit these maintenance changes to '{current_branch_name}'?"
+                if _ask_user(prompt_message):
+                    commit_message = f"chore(summarizer): Auto-update to v{new_version}\n\n{summary}"
+                    if not (git_manager.stage_all() and git_manager.commit(commit_message)):
+                        print("   ❌ Failed to commit maintenance changes. Aborting.")
+                        return
+                    print("   ✅ Maintenance changes committed.")
+                else:
+                    print("   ⚪️ Commit skipped by user.")
+
+
+            # --- DECOUPLED PUSH AND PULL REQUEST FLOW ---
             
-            pr_target_map = {'feature/': 'develop', 'bugfix/': 'develop', 'release/': 'main', 'hotfix/': 'main'}
-            pr_target = next((target for prefix, target in pr_target_map.items() if branch_for_pr.startswith(prefix)), None)
+            # Step 1: Always ask to push the current branch
+            if _ask_user(f"   ❔ Push the changes on '{current_branch_name}' to remote?"):
+                print(f"   🚀 Pushing changes to '{current_branch_name}'...")
+                push_success, push_output = git_manager.push(current_branch_name)
 
-            if _ask_user(f"   ❔ Push the changes on '{branch_for_pr}' to remote?"):
-                push_success, push_output = git_manager.push(branch_for_pr)
-                if "already up-to-date" in push_output:
-                     print(f"   ⚪️ Branch '{branch_for_pr}' is already up-to-date. No PR needed.")
-                elif push_success and pr_target:
-                    _handle_pull_request_flow(project_root, git_manager, branch_for_pr, pr_target, summary, gemini_client)
-                elif not push_success:
-                     print(f"   ❌ Push failed. Git Error:\n{push_output}")
+                if not push_success:
+                    # If it's a real error (not just 'up-to-date'), stop.
+                    if "already up-to-date" not in push_output and "up to date" not in push_output:
+                        print(f"   ❌ Push failed. Git Error:\n{push_output}")
+                        return
+                
+                print(f"   ✅ Branch '{current_branch_name}' is up-to-date on remote.")
+
+                # Step 2: AFTER a push, check if a PR is logical for this branch
+                pr_target_map = {
+                    'feature/': 'develop',
+                    'bugfix/': 'develop',
+                    'develop': 'staging', # The missing link
+                    'release/': 'main',
+                    'hotfix/': 'main'
+                }
+                
+                pr_target = pr_target_map.get(current_branch_name)
+                if not pr_target:
+                    pr_target = next((target for prefix, target in pr_target_map.items() if current_branch_name.startswith(prefix)), None)
+
+                if pr_target:
+                    _handle_pull_request_flow(project_root, git_manager, current_branch_name, pr_target, summary, gemini_client)
+                else:
+                    print(f"   ⚪️ No standard Pull Request action defined for branch '{current_branch_name}'.")
+            else:
+                print("   ⚪️ Push skipped by user.")
+
     except Exception as e:
         logger_changelog.error(f"Version management failed: {e}", exc_info=True)

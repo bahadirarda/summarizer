@@ -1,63 +1,59 @@
 # 🚀 project.110620251156
-> Modern bir web projesi için otomatik sürüm yönetimi ve changelog güncelleme sistemini entegre eden yardımcı modüller. Geliştirici deneyimini iyileştirmeyi ve geliştirme süreçlerini otomatikleştirmeyi hedefler.
+> Changelog güncellemeleri ve Git entegrasyonu için gelişmiş bir yardımcı araç.  Geliştirme süreçlerini kolaylaştırır ve daha verimli hale getirir.
 
 ## 📊 Proje Durumu
-Proje, sürüm yönetimi ve changelog güncelleme süreçlerini otomatikleştirmek için önemli güncellemeler aldı.  `version_manager.py`, `changelog_updater.py` ve `git_manager.py` dosyalarındaki değişiklikler, bu otomasyonun önemli parçalarını oluşturuyor.  Proje şu anda stabil ve geliştirmeye hazır durumda.
+Proje aktif geliştirme aşamasındadır. Son değişiklikler, Git entegrasyonunu iyileştirmeyi, changelog güncellemelerini otomatikleştirmeyi ve geliştirme akışını daha esnek hale getirmeyi hedeflemektedir.  `gemini_client`  ile potansiyel bir üçüncü taraf entegrasyonu planlanmaktadır, ancak bu henüz tam olarak uygulanmamıştır.
 
 ## ✨ Özellikler
-* **Otomatik Sürüm Artırımı:**  "major", "minor" ve "patch" seviyelerinde otomatik sürüm artırımı.
-* **Kod Adı Ataması:** Sürüm numaralarına göre otomatik kod adı ataması.
-* **Otomatik Changelog Güncelleme:** Değişikliklerin otomatik olarak changelog'a eklenmesi.  Değişikliklerin türü ve etkisi sınıflandırılır.
-* **AI Destekli Changelog Özeti:** AI tabanlı özetler kullanarak changelog girdilerini zenginleştirme.
-* **Otomatik Pull Request Oluşturma:** GitHub CLI aracılığıyla otomatik pull request oluşturma.
-* **Pull Request Detaylandırma:**  Pull request'lerin başlık ve açıklamasını otomatik olarak oluşturma veya dış kaynaklardan alma.
-* **Gelişmiş Hata Yönetimi:**  Dış komut çağrımlarında gelişmiş hata yakalama ve loglama.
+* 🔄 Otomatik changelog güncellemeleri
+* 🔀 `develop` branch'inden `staging` branch'ine Pull Request oluşturma
+* ⬆️ Otomatik sürüm artırımı ("major", "minor", "patch")
+* 🏷️ Sürüm numaralarına göre kod adı ataması
+* 📄 `package.json` ve diğer dosyalardan sürüm okuma ve güncelleme
+* 🤖 AI destekli changelog özeti oluşturma (Demo özelliği)
+* 🕹️ Etkileşimli push ve Pull Request onaylama
 
 
 ## Değişen Dosyalar:
-`src/utils/version_manager.py`, `src/utils/changelog_updater.py`, `src/utils/git_manager.py`
+`src/utils/changelog_updater.py`, `src/utils/version_manager.py`
 
 
 ## ANALİZ GÖREVİ:
 
 ### 1. YAPISAL ANALİZ:
 
-- **Etkilenen Bileşenler ve Katmanlar:** Değişiklikler, projenin servis katmanındaki `src/utils` dizini altındaki üç yardımcı modülü etkiliyor: `version_manager.py`, `changelog_updater.py` ve `git_manager.py`.  `version_manager.py`, sürüm yönetimiyle ilgili işlevleri; `changelog_updater.py`, changelog güncellemelerini; ve `git_manager.py`, Git işlemlerini yönetiyor.  `changelog_updater.py` ayrıca `file_tracker`, `json_changelog_manager`, `readme_generator` ve `git_manager` modüllerini dolaylı olarak kullanıyor.
+- **Etkilenen Sistem Bileşenleri ve Katmanlar:** Değişiklikler, `src/utils` dizini altındaki `changelog_updater.py` ve `version_manager.py` dosyalarını etkilemiştir.  `changelog_updater.py`, `file_tracker`, `json_changelog_manager`, `readme_generator`, `version_manager` ve `git_manager` yardımcı modülleriyle etkileşim halindedir.  `version_manager.py`, sürüm yönetimiyle ilgili işlevleri içeren bir servis katmanı olarak çalışır.  Bu modüller, dosya izleme, changelog yönetimi, README güncellemesi, sürüm numarası yönetimi ve Git işlemleri gibi farklı görevleri gerçekleştirir.
 
-- **Mimari Değişikliklerin Etkisi:**  Genel mimariye büyük bir değişiklik getirilmiyor.  Daha çok mevcut modüllere yeni işlevsellikler eklenmiş ve mevcut işlevlerin modülerliği artırılmıştır.  `version_manager.py`'deki değişiklikler, sürüm yönetimini daha otomatik hale getirirken, `changelog_updater.py` ve `git_manager.py`'deki değişiklikler, changelog ve pull request yönetimini otomatikleştiriyor.
+- **Mimari Değişikliklerin Etkisi:**  `changelog_updater.py` dosyasındaki değişiklikler, büyük ölçüde mevcut işlevselliğin genişletilmesi ve iyileştirilmesi üzerinedir.  Git ile etkileşim ve Pull Request yönetimi daha ayrıntılı ve kontrollü bir şekilde ele alınmıştır.  Daha önce tek bir fonksiyonda bulunan işlemler, daha küçük, yönetilebilir fonksiyonlara bölünmüştür.  `version_manager.py`'de ise, `VersionManager` sınıfı içindeki fonksiyonlar daha modüler bir yapıya kavuşturulmuş ve otomatik sürüm artırımı gibi yeni işlevler eklenmiştir.  Genel olarak, tek sorumluluk prensibine (SRP) daha iyi uyum sağlayan daha modüler bir mimari hedeflenmiştir.
 
-- **Kod Organizasyonundaki İyileştirmeler:**  `version_manager.py`'de `_has_breaking_changes` ve `_has_new_features` gibi özel metodların eklenmesi kodun modülerliğini artırıyor.  `git_manager.py`'de `_run_external_command` ve `_run_git_command` yardımcı fonksiyonlarının eklenmesi, Git ve diğer dış komutların çağrılarını soyutlayarak kodu daha okunabilir ve bakımı kolay hale getiriyor.  `changelog_updater.py`'deki değişiklikler, değişiklik günlüğü yönetimini daha modüler alt modüllere ayırarak düzenlemeyi kolaylaştırıyor.
+- **Kod Organizasyonundaki İyileştirmeler:**  Git işlemlerinin `git_manager` modülüne daha iyi entegrasyonu, kodun daha temiz ve bakımı kolay olmasını sağlar.  `version_manager.py`'deki fonksiyonların modüler hale getirilmesi (örneğin, `_has_breaking_changes`, `_has_new_features` gibi özel metodlar) kodun okunabilirliğini ve sürdürülebilirliğini artırır.  `changelog_updater.py`'de ise  `demo_framework_analysis` fonksiyonunun eklenmesi mevcut mimariyi bozmadan yeni bir özellik eklenmesini sağlar.
 
 
 ### 2. İŞLEVSEL ETKİ:
 
-- **Eklenen, Değiştirilen veya Kaldırılan Özellikler:**
-    * **`version_manager.py`:** Otomatik sürüm artırımı (major, minor, patch), kod adı ataması, `package.json` ve dosya tabanlı sürüm güncelleme yetenekleri eklendi.
-    * **`changelog_updater.py`:** Otomatik changelog güncelleme, AI destekli özetleme yeteneği eklendi.  `demo_framework_analysis` fonksiyonu, framework yeteneklerini gösteren demo changelog girdileri oluşturmak için eklendi.
-    * **`git_manager.py`:** Otomatik pull request oluşturma (`create_pull_request`), pull request detaylarını alma (`get_pr_details`) fonksiyonları eklendi.  `_run_external_command` ve `_run_git_command` yardımcı fonksiyonları ile kodun modülerliği artırıldı.
+- **Eklenen, Değiştirilen veya Kaldırılan Özellikler:**  `develop` branch'inden `staging` branch'ine Pull Request oluşturma özelliği eklenmiştir.  Push işlemi ve Pull Request oluşturma akışı ayrıştırılmış ve kullanıcı tarafından kontrol edilebilir hale getirilmiştir.  `version_manager.py`'de otomatik sürüm artırımı ("major", "minor", "patch") ve sürüm numaralarına göre kod adı ataması özelliği eklenmiştir.  `changelog_updater.py`'de ise AI destekli changelog özeti oluşturan `demo_framework_analysis` fonksiyonu eklenmiştir.
 
+- **Kullanıcı Deneyiminin Etkilenmesi:** Kullanıcı deneyimi, kullanıcıya daha fazla kontrol sağlayan ve her adımı onaylama olanağı sunan etkileşimli bir akış ile iyileştirilmiştir.  Her adımda kullanıcıya açıklamalar ve onay istemleri gösterilerek sürecin şeffaflığı artmıştır.  Otomatik sürümleme ve changelog güncellemeleri geliştirici deneyimini kolaylaştırır.
 
-- **Kullanıcı Deneyimi Üzerindeki Etki:** Geliştiriciler için kullanıcı deneyimi olumlu yönde etkileniyor.  Otomatik sürüm güncelleme, changelog güncelleme ve pull request oluşturma işlemleri, geliştiricilerin manuel müdahalesini azaltarak zaman tasarrufu sağlıyor.
-
-- **Performans, Güvenlik ve Güvenilirlik Üzerindeki Etkiler:**  `git` komutlarının kullanımı performansı hafifçe düşürebilir, ancak genellikle ihmal edilebilir düzeydedir.  `subprocess` modülünün güvenli kullanımı güvenlik açısından önemlidir ve kodda yapılan kontroller güvenilirliği artırıyor.  Genel olarak güvenlik ve güvenilirlik üzerinde olumsuz bir etki gözlenmiyor.
+- **Performans, Güvenlik veya Güvenilirlik Üzerindeki Etkiler:** Performans açısından önemli bir değişiklik gözlemlenmemektedir.  Güvenlik ve güvenilirlik üzerinde doğrudan bir etkisi yoktur, ancak kodun daha modüler hale getirilmesi ve hata yönetiminin iyileştirilmesi, uzun vadede bu alanlarda olumlu etkilere yol açabilir.  `git` komutlarının çalıştırılması performans kaybına neden olabilir, ancak bu kayıp genellikle ihmal edilebilir düzeydedir.
 
 
 ### 3. TEKNİK DERINLIK:
 
-- **Tasarım Desenleri:** `git_manager.py`'de dış komutların soyutlanması için Soyutlama (Abstraction) prensibi kullanılıyor.  `version_manager.py`'deki değişiklikler, kısmen Tek Sorumluluk (Single Responsibility) ve Açık-Kapalı (Open/Closed) prensiplerine uyuyor.
+- **Tasarım Desenleri:** Belirgin bir tasarım deseni değişikliği gözlemlenmemektedir. Ancak, işlevlerin daha küçük ve daha özelleşmiş birimlere ayrılması, tek sorumluluk prensibine (SRP) ve açık-kapalı prensibine (Open/Closed Principle) daha iyi uyum sağlar.  `VersionManager` sınıfı bu prensiplere kısmen uymaktadır.
 
-- **Kod Kalitesi ve Sürdürülebilirlik:** Kod kalitesi, iyi dokümantasyon (docstrings), modüler tasarım ve gelişmiş hata yönetimi (try-except blokları) ile iyileştirildi. Tip ipuçlarının kullanımı da okunabilirliği artırıyor.
+- **Kod Kalitesi ve Sürdürülebilirlik:** Kod kalitesi ve sürdürülebilirlik, işlevselliğin daha küçük parçalara ayrılması, daha açıklayıcı isimlerin kullanılması ve hata yönetiminin (`try-except` blokları) iyileştirilmesiyle geliştirilmiştir.  İyi dokümantasyon (docstrings) kullanımı da sürdürülebilirliği artırır.
 
-- **Yeni Bağımlılıklar:**  `gh` (GitHub CLI) yeni bir bağımlılık olarak eklendi.
+- **Yeni Bağımlılıklar veya Teknolojiler:** Yeni bir bağımlılık veya teknoloji eklenmemiştir. Mevcut `git` kütüphaneleri ve standart Python kütüphaneleri (`subprocess`, `json`, `toml`, `pathlib`) kullanılmaya devam edilmektedir.  `gemini_client` adlı bir değişkenin kullanımı, potansiyel olarak bir üçüncü taraf servisle entegrasyonu göstermektedir, ancak bu entegrasyonun detayları mevcut değildir.
 
 
 ### 4. SONUÇ YORUMU:
 
-- **Uzun Vadeli Değer ve Etki:** Bu değişiklikler, sürüm yönetimi ve changelog güncelleme süreçlerinin otomatikleştirilmesiyle uzun vadeli değer sağlıyor. Geliştirici verimliliği artıyor ve teknik borç azalıyor.
+- **Uzun Vadeli Değer ve Etki:** Bu değişikliklerin uzun vadeli değeri, daha sağlam, daha sürdürülebilir ve daha kullanıcı dostu bir sürüm yönetim sistemine sahip olmaktır.  Git entegrasyonu daha kontrollü ve esnek hale getirilmiştir.  Ayrıştırılmış push ve pull request akışı, daha iyi hata yönetimi ve daha net bir geliştirme süreci sağlar.  Otomatik sürümleme ve changelog güncellemeleri, geliştirici verimliliğini artırır.
 
-- **Teknik Borcun Etkilenmesi:**  Otomatik sürüm ve changelog güncelleme mekanizmaları teknik borcu azaltıyor.  Modüler tasarım ve iyi kodlama uygulamaları da sürdürülebilirliği artırıyor.
+- **Teknik Borcun Etkilenmesi:** Projenin teknik borcu, kodun daha modüler ve okunabilir hale getirilmesiyle azaltılmıştır.  Yeni fonksiyonların daha küçük ve daha yönetilebilir birimler olarak ayrılması, gelecekteki geliştirmeleri kolaylaştıracaktır.
 
-- **Gelecekteki Geliştirmelere Hazırlık:**  Modüler ve genişletilebilir bir tasarım, gelecekteki geliştirmeleri kolaylaştırıyor.  `demo_framework_analysis` fonksiyonu, gelecekteki otomatik changelog girdileri için bir şablon görevi görebilir.  `ImpactLevel` ve `ChangeType` enum'ları, gelecekte yeni değişiklik türleri eklenmesi için esneklik sağlıyor.
+- **Gelecekteki Geliştirmelere Hazırlık:** Bu değişiklikler, özellikle geliştirme akışına daha fazla esneklik kazandırarak gelecekteki geliştirmelere hazırlık yapmıştır.  Farklı branch'ler arasındaki geçişleri daha iyi yönetmeyi ve farklı geliştirme süreçlerini desteklemeyi mümkün kılar.  `gemini_client` değişkeninin kullanımı, gelecekte yeni servislerle entegrasyon için bir temel oluşturmaktadır.  `demo_framework_analysis` fonksiyonu ise gelecekteki otomatik changelog girdileri için bir şablon görevi görebilir.
 
 ## 🛠️ Kurulum (Installation)
 
@@ -218,7 +214,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**Last updated**: June 20, 2025 by Summarizer Framework v12.8.0
+**Last updated**: June 20, 2025 by Summarizer Framework v12.9.0
 *This README is automatically generated and updated based on project activity.*
 
 > *"Automatically maintained with AI-powered analysis"*
