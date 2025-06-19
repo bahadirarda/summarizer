@@ -6,6 +6,8 @@ from src.core.configuration_manager import ConfigurationManager
 from src.services.gemini_client import GeminiClient
 from src.services.request_manager import RequestManager
 from src.utils.changelog_updater import update_changelog
+from src.utils.git_manager import GitManager
+from features.parameter_checker import check_required_parameters
 
 # Attempt to import GUI, but make it optional
 try:
@@ -71,6 +73,23 @@ def setup_changelog_updater(project_root: Path):  # Added project_root parameter
 def summarizer(run_gui_mode: bool = False, project_root_str: str = None):
     """Analyze and summarize current project changes or run the configuration GUI."""
 
+    # Determine project_root: use provided string or default to Path.cwd()
+    project_root = Path(project_root_str) if project_root_str else Path.cwd()
+
+    # Step 0: Ensure Git structure is correct
+    # ============================================
+    print("\n🔧 Verifying Git repository structure...")
+    git_manager = GitManager(project_root)
+    if not git_manager.ensure_project_structure():
+        print("\n❌ Summarizer stopped due to incomplete Git setup.")
+        return # Exit if setup is not completed/approved
+    print("✅ Git structure verified.")
+
+    # Step 0.5: Check for required parameters before proceeding
+    if not check_required_parameters():
+        print("\n❌ Critical parameters are missing. Please run 'summarizer --setup' to configure them.")
+        return
+
     if run_gui_mode:
         if GUI_AVAILABLE:
             print("🎨 Launching Configuration GUI...")
@@ -111,9 +130,6 @@ def summarizer(run_gui_mode: bool = False, project_root_str: str = None):
             print("❌ Error: GUI mode requested, but GUI components could not be loaded.")
             print("   Please check your installation and ensure all dependencies for the GUI are met.")
         return
-
-    # Determine project_root: use provided string or default to Path.cwd()
-    project_root = Path(project_root_str) if project_root_str else Path.cwd()
 
     # Validate if project_root is a valid project directory
     # (e.g., contains package.json or .git)
