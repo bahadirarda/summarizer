@@ -3,6 +3,38 @@
 Bu dosya otomatik olarak generate edilmiştir.
 Düzenlemeler için `changelog.json` dosyasını kullanın.
 
+## 2025-06-20 00:55:47
+
+### 1. YAPISAL ANALİZ:
+
+Değişiklikler `summarizer.py` dosyasını etkilemiştir. Bu dosya, projenin ana giriş noktası ve komut satırı arayüzünü (CLI) içermektedir.  Sistem bileşenleri arasında `src.main`, `features` dizini altındaki modüller ( `parameter_checker`, `screenshot`, `terminal_commands`, `gui_installer`) yer almaktadır.  Katmanlar açısından bakıldığında, değişiklikler esas olarak sunum (CLI) ve kontrol katmanlarını etkilemiştir.  Mimari değişiklik minimaldir; var olan komut işleme mekanizması genişletilmiştir. Kod organizasyonunda ise bir iyileştirme gözlenmektedir:  `screenshot` komutu için özel bir fonksiyon (`screenshot_command`) ayrılmıştır, bu da kodun daha modüler ve okunabilir olmasını sağlar.  Ancak, kodun büyük bir kısmı (`... [Truncated 232 lines]...`) gizlendiği için, bu bölümdeki olası yapısal değişiklikler tam olarak analiz edilememektedir.  `CallableModule` sınıfının kullanımı dikkat çekicidir; muhtemelen giriş noktasını fonksiyonel bir arayüz olarak sunmak için kullanılan bir tasarım deseni uygulamasıdır (aşağıda daha detaylı ele alınacaktır).
+
+### 2. İŞLEVSEL ETKİ:
+
+* **Eklenen Özellikler:**  `summarizer ss chrome`, `summarizer ss firefox`, `summarizer ss code` gibi özel uygulamaları hedef alan ekran görüntüsü alma komutları eklenmiştir.  Bu, kullanıcıların belirli uygulamaların ekran görüntüsünü alarak özetleme işlemini kolaylaştırmasına olanak tanır. `--setup` ve `--gui` komutlarının daha açıklayıcı bir şekilde sunumu da bir iyileştirmedir.
+* **Değiştirilen Özellikler:**  Mevcut `summarizer screenshot` ve `summarizer ss` komutlarının işlevselliği aynı kalmıştır.  Ancak, komut işleme mantığı daha modüler bir yapıya kavuşmuştur.
+* **Kaldırılan Özellikler:**  Belirgin bir özellik kaldırılması gözlenmemiştir.
+* **Kullanıcı Deneyimi:** Kullanıcı deneyimi, eklenen uygulamaya özel ekran görüntüsü alma komutlarıyla geliştirilmiştir.  Kullanıcılar daha spesifik ihtiyaçlarını karşılayabilir.  `--setup` ve `--gui` ile ilgili bilgilendirme mesajları da kullanım kolaylığını artırmaktadır.
+* **Performans, Güvenlik, Güvenilirlik:**  Eklenen özellikler mevcut performansı önemli ölçüde etkilemez. Güvenlik ve güvenilirlik açısından ise,  eklenen özellikler mevcut durumdan daha tehlikeli değildir. Ancak, kodun büyük bir bölümünün gizlenmesi olası güvenlik açıklarını veya performans darboğazlarını tespit etmeyi zorlaştırmaktadır.
+
+### 3. TEKNİK DERİNLİK:
+
+* **Tasarım Desenleri:** `CallableModule` sınıfının kullanımı, bir **Facade** tasarım deseni benzeri bir yaklaşımı işaret edebilir.  Bu, `summarizer.py` modülünü fonksiyonel bir arayüz gibi sunarak, iç yapının karmaşıklığını gizler ve kullanımı kolaylaştırır.  Bu, yeni özellikler eklendiğinde ana giriş noktasındaki kodun karmaşıklığını önler.
+* **Kod Kalitesi ve Sürdürülebilirlik:**  `screenshot_command` fonksiyonunun ayrılması, kodun okunabilirliğini ve bakımı kolaylığını artırır.  Modülerlik arttığı için, gelecekteki değişiklikler daha kolay bir şekilde uygulanabilir. Ancak, TODO listelerinde belirtilen geniş kapsamlı geliştirmeler tamamlanmadan, kodun uzun vadeli sürdürülebilirliği tam olarak değerlendirilemez.
+* **Yeni Bağımlılıklar:**  Yeni bağımlılıklar eklenmediği gözükmektedir, ancak gizlenmiş kod bölümü içinde yeni bağımlılıklar olabilir.
+
+### 4. SONUÇ YORUMU:
+
+Bu değişiklikler, projenin kullanıcı dostu olmasını ve sürdürülebilirliğini artırmaya yönelik küçük, ancak önemli adımlardır. Uygulamaya özgü ekran görüntüsü alma özelliğinin eklenmesi, pratik bir gelişmedir.  `CallableModule` kullanımı, gelecekteki geliştirmeler için iyi bir mimari temele işaret etmektedir. Ancak,  TODO listesindeki büyük çaplı geliştirmeler (AI destekli özellikler, sesli komut sistemi, otomatik güncelleyici) projenin gelecekteki yönünü belirleyecektir.  Bu geliştirmeler tamamlanana kadar, projenin teknik borcu hakkında kesin bir yorum yapmak zordur.  Ancak, mevcut değişiklikler projenin teknik borcunu artırmadığı gibi, mevcut kodun daha iyi yönetilebilir olmasını sağlar.  Gelecekteki geliştirmelere hazırlık, özellikle modüler yapının oluşturulmasıyla sağlanmıştır.  Gizli kod bölümünün incelenmesi, daha kapsamlı bir analiz ve değerlendirme için gereklidir.
+
+**Değişen Dosyalar:** summarizer.py
+**Etki Seviyesi:** High
+**Değişiklik Tipi:** Other
+**Satır Değişiklikleri:** +332
+**Etiketler:** summarizer, api, gui
+
+---
+
 ## 2025-06-20 00:53:37
 
 ### 1. YAPISAL ANALİZ:

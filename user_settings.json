@@ -1,0 +1,11 @@
+{
+  "user_settings": {
+    "last_modified": "2025-06-19T16:11:29.380653",
+    "created_by": "Configuration Manager v1.0",
+    "profile": "development"
+  },
+  "environment_variables": {},
+  "custom_variables": {},
+  "backup_count": 5,
+  "export_format": "env"
+}
