@@ -15,9 +15,13 @@ class GitManager:
 
     def _run_git_command(self, command: List[str]) -> Optional[str]:
         """Helper to run a git command and return its output."""
+        return self._run_external_command(['git'] + command)
+
+    def _run_external_command(self, command: List[str]) -> Optional[str]:
+        """Helper to run any external command and return its output."""
         try:
             process = subprocess.run(
-                ['git'] + command,
+                command,
                 cwd=self.project_root,
                 capture_output=True,
                 text=True,
@@ -26,10 +30,11 @@ class GitManager:
             )
             return process.stdout.strip()
         except FileNotFoundError:
-            logger.error("Git command not found. Please ensure Git is installed and in your system's PATH.")
+            tool = command[0]
+            logger.error(f"Command '{tool}' not found. Please ensure it is installed and in your system's PATH.")
             return None
         except subprocess.CalledProcessError as e:
-            logger.error(f"Git command failed: {' '.join(command)}\nError: {e.stderr.strip()}")
+            logger.error(f"Command failed: {' '.join(command)}\nError: {e.stderr.strip()}")
             return None
 
     def is_git_repository(self) -> bool:
@@ -111,7 +116,7 @@ class GitManager:
         """Fetches open issues from the GitHub repository using the 'gh' CLI."""
         # First, check if gh is installed.
         try:
-            gh_version = self._run_git_command(['gh', '--version'])
+            gh_version = self._run_external_command(['gh', '--version'])
             if not gh_version:
                 logger.warning("'gh' CLI tool not found or not working. Cannot fetch GitHub issues.")
                 return None
@@ -122,7 +127,7 @@ class GitManager:
 
         logger.info("Fetching open issues from GitHub...")
         # Use --json to get structured output, which is safer to parse.
-        issues_json = self._run_git_command(['gh', 'issue', 'list', '--state', 'open', '--json', 'number,title,labels'])
+        issues_json = self._run_external_command(['gh', 'issue', 'list', '--state', 'open', '--json', 'number,title,labels'])
         
         if issues_json is None:
             logger.error("Failed to fetch issues from GitHub.")
@@ -136,6 +141,36 @@ class GitManager:
         except json.JSONDecodeError as e:
             logger.error(f"Failed to parse issues JSON from gh: {e}")
             return None
+
+    def is_working_directory_clean(self) -> bool:
+        """Checks if the git working directory is clean (no uncommitted changes)."""
+        status_output = self._run_git_command(['status', '--porcelain'])
+        if status_output is None:
+            # An error occurred running git status, play it safe
+            logger.error("Could not determine git status. Assuming directory is not clean.")
+            return False
+        
+        if status_output:
+            logger.warning(f"Git working directory is not clean. Status:\n{status_output}")
+            return False
+        
+        logger.info("Git working directory is clean.")
+        return True
+
+    def get_diff(self) -> Optional[str]:
+        """Gets the diff of the current uncommitted changes."""
+        return self._run_git_command(['diff', '--staged']) or self._run_git_command(['diff'])
+
+    def stage_all(self) -> bool:
+        """Stages all changes in the working directory."""
+        logger.info("Staging all changes...")
+        return self._run_git_command(['add', '.']) is not None
+
+    def commit(self, message: str) -> bool:
+        """Commits the staged changes with the given message."""
+        logger.info(f"Committing with message: {message}")
+        # The 'git' command needs to be split from its arguments for subprocess
+        return self._run_git_command(['commit', '-m', message]) is not None
 
     def ensure_project_structure(self) -> bool:
         """

@@ -73,6 +73,11 @@ def _handle_issue_selection(project_root: Path, git_manager: GitManager) -> bool
         print("   OK. Continuing with regular summarizer flow...")
         return False
     
+    # Before creating a new branch, ensure the working directory is clean or get user's permission to commit.
+    if not git_manager.is_working_directory_clean():
+        if not _handle_uncommitted_changes(project_root, git_manager):
+            return True # Exit the assistant flow, but don't proceed to summarizer
+
     try:
         selection = input("   > Enter the number of the issue to start: ")
         issue_index = int(selection) - 1
@@ -87,6 +92,52 @@ def _handle_issue_selection(project_root: Path, git_manager: GitManager) -> bool
         return False
     except (EOFError, KeyboardInterrupt):
         print("\n   Aborted. Continuing with regular flow.")
+        return False
+
+def _handle_uncommitted_changes(project_root: Path, git_manager: GitManager) -> bool:
+    """Asks the user if they want to auto-commit messy working directory."""
+    print("\n" + "="*50)
+    print("   ⚠️  Your working directory is not clean.")
+    if not _ask_user("   ❔ Would you like me to create an AI-powered commit for these changes?"):
+        print("   OK. Please commit or stash your changes before starting a new issue.")
+        print("="*50)
+        return False
+
+    diff = git_manager.get_diff()
+    if not diff:
+        print("   Could not get diff of changes. Please commit manually.")
+        return False
+
+    # We need a GeminiClient instance here.
+    # We can get it through the RequestManager singleton.
+    try:
+        request_manager = RequestManager()
+        gemini_client = request_manager.get_client("GeminiClient")
+        if not gemini_client or not gemini_client.is_ready():
+             raise ValueError("Gemini client not ready.")
+    except Exception as e:
+        print(f"   ❌ Could not get AI client to generate commit message: {e}")
+        return False
+
+    print("   🤖 Generating commit message with AI...")
+    prompt = f"Based on the following git diff, write a concise and conventional commit message. Start with a type (e.g., feat, fix, chore, docs) followed by a short description. Do not include anything else.\n\n--- DIFF ---\n{diff}"
+    commit_message = gemini_client.generate_simple_text(prompt)
+
+    print("\n" + "-"*50)
+    print("   AI Generated Commit Message:")
+    print(f"   '{commit_message}'")
+    print("-"*50)
+
+    if not _ask_user("   ❔ Do you approve this commit message?"):
+        print("   Commit cancelled. Please commit manually.")
+        return False
+
+    print("    Committing changes...")
+    if git_manager.stage_all() and git_manager.commit(commit_message):
+        print("   ✅ Changes committed successfully.")
+        return True
+    else:
+        print("   ❌ Failed to commit changes.")
         return False
 
 def setup_configuration(project_root: Path):
@@ -107,6 +158,19 @@ def summarizer(run_gui_mode: bool = False, project_root_str: str = None):
         return
     print("✅ Git structure verified.")
 
+    # --- Setup Core Services FIRST ---
+    # This ensures that all managers and clients are ready before any logic runs.
+    config_manager = setup_configuration(project_root)
+    if not check_required_parameters():
+        print("\n❌ Critical parameters are missing. Please run 'summarizer --setup' to configure them.")
+        return
+    RequestManager()
+    GeminiClient(config_manager)
+    # --- End of Core Services Setup ---
+
+
+    # --- GitHub Issues Integration ---
+    # Now that clients are ready, we can check for issues and use AI if needed.
     if _handle_issue_selection(project_root, git_manager):
         return 
 
@@ -121,21 +185,10 @@ def summarizer(run_gui_mode: bool = False, project_root_str: str = None):
     try:
         print(f"🚀 Summarizer targeting project: {project_root.name} ({project_root})")
         
-        print("📝 Step 1/7: Setting up configuration...")
-        config_manager = setup_configuration(project_root)
-        print("✅ Configuration loaded successfully")
-
-        if not check_required_parameters():
-            print("\n❌ Critical parameters are missing. Please run 'summarizer --setup' to configure them.")
-            return
-
-        print("\n🔗 Step 2/7: Initializing request manager...")
-        RequestManager()
-        print("✅ Request manager ready")
-
-        print("\n🤖 Step 3/7: Connecting to Gemini AI...")
-        GeminiClient(config_manager)
-        print("✅ AI client connected")
+        # Core services are already initialized, we just re-state the steps for the user.
+        print("📝 Step 1/7: Setting up configuration... ✅")
+        print("\n🔗 Step 2/7: Initializing request manager... ✅")
+        print("\n🤖 Step 3/7: Connecting to Gemini AI... ✅")
 
         print(f"\n📁 Step 4/7: Using project root: {project_root.name}")
         print(f"   Path: {project_root}")
