@@ -3,6 +3,49 @@
 Bu dosya otomatik olarak generate edilmiştir.
 Düzenlemeler için `changelog.json` dosyasını kullanın.
 
+## 2025-06-20 01:16:25
+
+### 1. YAPISAL ANALİZ:
+
+Değişiklikler, Summarizer Framework'ün ana iş mantığını, konfigürasyonunu ve yardımcı araçlarını kapsayan birden fazla sistem bileşenini ve katmanı etkilemiştir.  `summarizer.py` dosyası, framework'ün ana giriş noktasıdır ve yapılan değişikliklerle birlikte komut satırı argümanlarını işleme ve farklı modüllerin çağrılmasını yönetme sorumluluğu taşır.  `features` dizini altında bulunan modüller ( `parameter_checker.py`, `terminal_commands.py`, `__init__.py`  ve dolaylı olarak  `screenshot.py` ve `gui_installer.py` -  `summarizer.py` içinde import edilmişlerdir) özelliklere özgü işlevleri içerir.  `src/core/configuration_manager.py` konfigürasyon yönetimiyle ilgilenirken, `src/utils/changelog_updater.py` ise changelog güncellemelerini yönetir.
+
+Mimari açısından bakıldığında, değişiklikler esas olarak özelliklerin daha modüler ve organize bir şekilde sunulmasına odaklanmıştır.  `features` dizini, farklı özellikleri bağımsız modüller halinde ayırır, bu da kodun okunabilirliğini, bakımı ve test edilebilirliğini artırır.  `summarizer.py` dosyası, bu modülleri bir araya getiren ve komut satırı argümanlarını işleyen bir giriş noktası görevi görür.  Bu,  *Yüksek Kohezyon, Düşük Bağlantı* prensibine uygun bir mimari tasarım göstergesidir.  Önceki versiyonda muhtemelen karışık halde bulunan işlevler daha düzenli bir şekilde ayrılmış ve daha iyi bir paketleme yapısı oluşturulmuştur.
+
+Kod organizasyonunda iyileştirmeler,  `features` dizini altında özelliklerin modüllere ayrılması ve  `summarizer.py`'deki argüman işleme mantığının daha net ve okunabilir hale getirilmesiyle gözlemlenmiştir.  Her bir özellik için ayrı bir modül kullanmak, kodun daha organize ve anlaşılır olmasını sağlar.
+
+
+### 2. İŞLEVSEL ETKİ:
+
+Eklenen özellikler arasında `screenshot` komutu (ve `ss` kısaltması), belirli uygulamalar için ekran görüntüsü alma yeteneği (`chrome`, `firefox`, `code`) ve `--status` komutu ile sistem durumunun gösterilmesi yer almaktadır. `--setup`, `--gui`, `--install_gui`, `--install_terminal`, `--uninstall_terminal` komutları ile konfigürasyon ve GUI/terminal kurulum/kaldırma işlevleri eklenmiş veya iyileştirilmiştir.  `summarizer.py` içindeki `if` blokları, komut satırı argümanlarına göre farklı işlemleri tetikler.
+
+Kullanıcı deneyimi, yeni komutların eklenmesiyle genişletilmiştir.  Kullanıcılar artık daha fazla seçeneğe sahiptir ve sistem durumunu kolayca kontrol edebilirler.  Ekran görüntüsü alma özelliği, özellikle belirli uygulamalar için, kullanışlılık sağlar.
+
+Performans, güvenlik ve güvenilirlik üzerindeki doğrudan etkiler kod değişikliklerinden açıkça görülmemektedir.  Ancak, kodun daha modüler yapısı, gelecekteki bakımı ve geliştirmeyi kolaylaştırarak dolaylı olarak güvenilirliği artırabilir.  Güvenlik açısından, yeni özellikler eklenirken güvenlik açıklarının önlenmesi için dikkatli kodlama uygulamalarına uyulmuş olması önemlidir.
+
+
+### 3. TEKNİK DERINLIK:
+
+Değişikliklerde belirgin bir tasarım deseninin uygulanması veya değiştirilmesi gözlenmez.  Ancak,  *Modülleme* (Modularity) prensibi açıkça uygulanmıştır.  `features` dizini altında farklı modüllere ayrılmış olan özellikler, düşük bir bağlantı (loose coupling) ve yüksek bir kohezyon (high cohesion) sağlayan bir mimari oluşturur.  Bu, kodun sürdürülebilirliğini artırır.
+
+Kod kalitesi, kodun daha organize ve okunabilir hale getirilmesiyle gelişmiştir.  Her bir özelliğin kendi modülünde bulunması, kodun anlaşılmasını ve bakımını kolaylaştırır.  Yine de, verilen kod parçaları eksik olduğundan, kod kalitesi değerlendirmesi tamamen yapılamaz.  Potansiyel kod kokuları (örneğin, çok büyük bir `if-else` bloğu) incelenmeli ve iyileştirmeler yapılmalıdır.
+
+Yeni bağımlılıklar veya teknolojilerin eklendiğine dair bilgi kodda belirtilmemiştir.  Ancak,  `changelog_updater.py`'nin changelog yönetimi için kullanılan bir kütüphane veya framework'e bağımlı olabileceği varsayılabilir.
+
+
+### 4. SONUÇ YORUMU:
+
+Bu değişikliklerin uzun vadeli değeri, kodun daha sürdürülebilir ve genişletilebilir hale getirilmesinde yatmaktadır.  Modüler tasarım, yeni özelliklerin eklenmesini ve mevcut özelliklerin bakımını kolaylaştırır.  Projenin teknik borcu, kodun daha organize hale getirilmesiyle azaltılmış olabilir.  Ancak,  `summarizer.py`'deki büyük `if-else` bloğu hala iyileştirilebilir.  
+
+Gelecekteki geliştirmelere hazırlık olarak,  modüler mimari ve daha iyi organize edilmiş kod yapısı önemli bir temel oluşturmaktadır.  Yeni özellikler daha kolay bir şekilde entegre edilebilir ve mevcut özellikler daha az çaba ile geliştirilebilir.  Ancak,  `TODO` notlarında belirtilen AI destekli özelliklerin (Summarizer Eye) eklenmesi, projenin kapsamını önemli ölçüde genişletecektir ve bunun için daha detaylı planlama ve mimari tasarıma ihtiyaç duyulacaktır.  `changelog_updater.py`'deki gelişmiş changelog yönetimi ve otomatik sürüm kontrolü,  projenin daha profesyonel bir yönetime sahip olmasını sağlayacaktır.
+
+**Değişen Dosyalar:** summarizer.py, features/parameter_checker.py, features/__init__.py, features/terminal_commands.py, src/core/configuration_manager.py, src/utils/changelog_updater.py
+**Etki Seviyesi:** High
+**Değişiklik Tipi:** Config
+**Satır Değişiklikleri:** +821
+**Etiketler:** changelog-updater, utils, summarizer, terminal-commands, api, manager, configuration-manager, features, config, core
+
+---
+
 ## 2025-06-20 01:09:18
 
 ### 1. YAPISAL ANALİZ:

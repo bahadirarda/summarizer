@@ -252,3 +252,50 @@ def print_terminal_status():
         print("   Or: python summarizer.py --install-terminal")
     
     return check_terminal_command()
+
+
+def update_terminal_command():
+    """Update the global terminal command"""
+    print("🔗 Updating Terminal Command")
+    print("=" * 35)
+    
+    # Get the absolute path to this project
+    project_root = Path(__file__).parent.parent.absolute()
+    summarizer_py = project_root / "summarizer.py"
+    
+    if not os.path.exists(summarizer_py):
+        print(f"Summarizer script not found at: {summarizer_py}")
+        return
+
+    # Modern script content ensuring it calls the main function correctly
+    script_content = f"""#!/usr/bin/env python3
+import sys
+from pathlib import Path
+
+# Add project root to the Python path
+project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(project_root))
+
+from summarizer import main
+
+if __name__ == "__main__":
+    main()
+"""
+
+    try:
+        install_path = Path("/usr/local/bin/summarizer")
+        
+        print(f"Creating updated command at: {install_path}")
+        
+        with open(install_path, "w", encoding="utf-8") as f:
+            f.write(script_content)
+        
+        # Make the command executable
+        os.chmod(install_path, 0o755)
+        
+        print("✅ Terminal command updated successfully!")
+        print("   You can now run 'summarizer' from anywhere.")
+        
+    except Exception as e:
+        print(f"❌ Error creating terminal command: {e}")
+        print("   Please check your permissions for /usr/local/bin")
