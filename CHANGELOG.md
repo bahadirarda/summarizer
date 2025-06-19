@@ -3,6 +3,81 @@
 Bu dosya otomatik olarak generate edilmiştir.
 Düzenlemeler için `changelog.json` dosyasını kullanın.
 
+## 2025-06-20 00:09:57
+
+### 1. YAPISAL ANALİZ:
+
+Bu değişiklik, `src/services/gemini_client.py` dosyasını etkilemiştir ve dolayısıyla **Servis Katmanı**'nı hedeflemektedir.  Mimari açıdan, `GeminiClient` sınıfı, yapılandırma yönetimi için `ConfigurationManager` sınıfına bağımlı hale getirilmiştir. Bu, API anahtarının doğrudan kod içine sabit kodlanmasından kaçınılarak, yapılandırmanın merkezi bir noktadan yönetilmesini sağlar.  Kod organizasyonu açısından, API anahtarının `ConfigurationManager` üzerinden alınması, kodun daha modüler ve sürdürülebilir olmasını sağlamıştır.  `RequestManager` ile entegrasyon,  `GeminiClient` örneğinin sistem genelinde bildirilmesini ve muhtemelen diğer servislerle iletişimini kolaylaştırır. Bu, bir hizmet keşif mekanizmasının varlığına işaret eder.
+
+### 2. İŞLEVSEL ETKİ:
+
+Değişiklikler, `GeminiClient` sınıfının Google Gemini API'si ile etkileşimini daha esnek ve güvenilir hale getirmiştir.  Önceki sürümlerde API anahtarı muhtemelen kod içinde sabitlendiği için, bu değişiklik ile API anahtarı artık `.env` dosyası veya sistem ortam değişkenlerinden alınır. Bu, API anahtarının sürüm kontrolüne dahil edilmesini önleyerek güvenliği artırır.  Ek olarak, `generate_simple_text` fonksiyonu eklenerek, karmaşık analiz şablonu olmadan basit metin oluşturma imkanı sağlanmıştır. Kullanıcı deneyimi doğrudan etkilenmese de, arka planda API anahtarının yönetimi ve hata işlemleri iyileştirilmiştir.  Performans üzerindeki etki ihmal edilebilir düzeydedir, çünkü yapılandırma işlemi bir kereye mahsus gerçekleşir. Güvenlik önemli ölçüde iyileştirilmiştir çünkü API anahtarı artık gizli tutulmaktadır. Güvenilirlik ise, hata işleme mekanizmalarının iyileştirilmesiyle artmıştır.
+
+### 3. TEKNİK DERINLIK:
+
+Bu değişikliklerde, **Dependency Injection** tasarım deseni uygulanmıştır. `ConfigurationManager` bağımlılığı `GeminiClient` sınıfının kurucusuna (constructor) enjekte edilerek, bağımlılığın soyutlanması ve test edilebilirliğin artırılması sağlanmıştır.  Kod kalitesi, API anahtarının merkezi bir yapılandırma mekanizmasıyla yönetilmesi ve hata işleme mekanizmalarının eklenmesiyle iyileştirilmiştir.  Sürdürülebilirlik, kodun daha modüler ve daha kolay anlaşılır hale getirilmesiyle artmıştır.  Yeni bir bağımlılık olan `google.generativeai` kütüphanesi eklenmiştir ve bu kütüphane Google Gemini API'si ile etkileşimi sağlar.
+
+### 4. SONUÇ YORUMU:
+
+Bu değişiklikler, projenin uzun vadeli sürdürülebilirliği ve güvenliği için önemli bir adım oluşturmaktadır. API anahtarının güvenli bir şekilde yönetilmesi, projenin güvenliğini artırır.  Modüler tasarım ve hata işleme mekanizmaları, kodun daha kolay bakımı ve geliştirilmesini sağlar. Projenin teknik borcu, API anahtarının güvenli yönetimi ve merkezi yapılandırma ile azaltılmıştır.  Bu değişiklikler, gelecekteki geliştirmeler için sağlam bir temel oluşturmakta ve yeni özelliklerin eklenmesini kolaylaştırmaktadır.  Örneğin, farklı Gemini modellerinin kolayca entegre edilmesi veya farklı API sağlayıcılarının desteklenmesi için yapı taşları atılmıştır.  `RequestManager` entegrasyonu, gelecekte diğer servislerle daha kolay entegrasyon imkanı sağlayacaktır.
+
+**Değişen Dosyalar:** src/services/gemini_client.py
+**Etki Seviyesi:** High
+**Değişiklik Tipi:** Feature
+**Satır Değişiklikleri:** +18
+**Etiketler:** services, client, manager, gemini-client, config, api
+
+---
+
+## 2025-06-20 00:06:55
+
+### 1. YAPISAL ANALİZ:
+
+Değişiklikler, `summarizer.py` dosyasında yoğunlaşmış olup, uygulamanın ana giriş noktası ve komut satırı arayüzünü (CLI) etkiler.  Sistem bileşenleri açısından bakıldığında, `src.main` modülündeki özetleme işlevi (`_summarizer`)  değiştirilmemiş olsa da, bu fonksiyonun çağrılması ve yönetimi  `summarizer.py` içinde yeniden yapılandırılmıştır.  Mimari değişiklikler, esas olarak CLI argümanlarının işlenmesi ve farklı fonksiyonelliklerin (ekran görüntüsü alma, yapılandırma, GUI) daha modüler bir şekilde çağrılması şeklindedir.  `features` dizini altında bulunan modüller (`parameter_checker`, `screenshot`, `terminal_commands`, `gui_installer`)  tek tek görevleri yerine getiren bağımsız birimler olarak daha belirgin hale gelmiştir. Kod organizasyonu açısından,  argüman ayrıştırma ve komut işleme daha temiz ve anlaşılır hale getirilmiştir.  `argparse` modülünün kullanımı,  kodun okunabilirliğini ve bakımı kolaylaştırır.  Ek olarak, CallableModule sınıfının kullanımı,  `summarizer` modülünün doğrudan bir fonksiyon gibi çağrılmasını sağlar.  Bu,  hem Python import'u hem de komut satırı arayüzü üzerinden çalıştırılabilirliği artırır.
+
+
+### 2. İŞLEVSEL ETKİ:
+
+Eklenen özellikler şunlardır:
+
+* **Gelişmiş Komut Satırı Arayüzü:**  `summarizer` komutu daha esnek hale getirilmiş,  `--setup`, `--gui`, `--help`, ve  `screenshot` (veya `ss`) alt komutları eklenmiştir.  `ss` alt komutu,  `chrome`, `firefox`, ve `code` gibi spesifik uygulamaların ekran görüntüsünü alma yeteneği sunar. Bu,  kullanıcılara daha geniş bir kontrol ve esneklik sağlar.
+* **Gelişmiş Durum Raporlama:** `--status` argümanı eklenerek,  yazılımın yapılandırma, GUI ve terminal komutlarının durumunu gösteren kapsamlı bir durum raporu oluşturma yeteneği eklenmiştir.
+* **GUI Desteği:** GUI kurulumu ve çalıştırılması için fonksiyonellik eklenmiştir (`launch_gui`, `install_full_gui_package`, `print_gui_status`).
+
+
+Değiştirilen özellikler:
+
+* **Ana Özetleme Fonksiyonunun Çağrımı:**  `_summarizer` fonksiyonu  `summarizer.py` içinde daha yapılandırılmış bir şekilde çağrılır,  çalışma dizini parametresi açıkça iletilir.
+
+
+Kaldırılan özellikler:  Hiçbir özellik kaldırılmamıştır.
+
+Kullanıcı deneyimi, özellikle komut satırı arayüzü açısından önemli ölçüde iyileştirilmiştir.  Daha fazla komut ve seçenek sunulması,  kullanıcıların yazılımı daha fazla özelleştirmelerine ve kontrol etmelerine olanak tanır.  Durum raporlama özelliği,  sistemin durumunu anlamak için kullanıcılara faydalı bilgiler sağlar.
+
+Performans, güvenlik ve güvenilirlik üzerinde doğrudan bir etki gözlenmez.  Ancak, modüler kod yapısı gelecekteki geliştirmelerde ve bakımda iyileşmeye katkıda bulunabilir.
+
+
+### 3. TEKNİK DERINLIK:
+
+Tasarım desenleri olarak,  **modüler tasarım** ve **komut desenleri**  (Command Pattern) açıkça görülmektedir.  `features` dizini altında yer alan modüller,  her biri belirli bir görevi yerine getiren bağımsız birimlerdir.  `screenshot_command`, `setup_command` gibi fonksiyonlar da komut desenini temsil eder.
+
+Kod kalitesi ve sürdürülebilirlik,  modüler tasarım ve `argparse` modülünün kullanımıyla iyileştirilmiştir.  Kod daha okunabilir, anlaşılır ve bakımı daha kolay hale gelmiştir.
+
+Yeni bağımlılıklar eklenmemiştir.  Mevcut bağımlılıklar ( `os`, `sys`, `argparse`, `pathlib`, vb.) korunmuştur.
+
+
+### 4. SONUÇ YORUMU:
+
+Bu değişiklikler,  `summarizer` uygulamasının işlevselliğini, kullanıcı dostuğunu ve sürdürülebilirliğini önemli ölçüde artırmaktadır.  Uzun vadeli değer,  daha modüler, bakımı kolay ve genişletilebilir bir kod tabanında yatmaktadır.  Yeni özellikler ve gelişmiş CLI,  kullanıcı deneyimini iyileştirir ve uygulamanın daha geniş bir kitleye hitap etmesini sağlar.  Projenin teknik borcu,  modüler tasarım sayesinde azalmıştır; çünkü gelecekteki geliştirmeler için daha iyi bir temel oluşturulmuştur.  GUI desteği ve ekran görüntüsü alma yeteneklerinin eklenmesi,  gelecekte daha gelişmiş özelliklerin (örneğin,  AI destekli özetleme, sesli komut sistemi) eklenmesine zemin hazırlamaktadır.  `TODO` yorumlarında belirtilen gelecek geliştirmeler,  bu değişikliklerin sağladığı sağlam temel üzerine inşa edilebilir.
+
+**Değişen Dosyalar:** summarizer.py
+**Etki Seviyesi:** High
+**Değişiklik Tipi:** Other
+**Satır Değişiklikleri:** +318
+**Etiketler:** summarizer, gui, api
+
+---
+
 ## 2025-06-20 00:04:55
 
 ### 1. YAPISAL ANALİZ:

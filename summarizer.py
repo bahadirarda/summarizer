@@ -110,7 +110,7 @@ def print_version_info():
 
 
 class CallableModule(ModuleType):
-    """A module that can be called like a function"""
+    """A module that can be called like a function."""
 
     def __call__(self, *args, **kwargs):
         """Make the module callable by directly passing to the core logic."""

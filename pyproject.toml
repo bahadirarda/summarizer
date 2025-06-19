@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "summarizer-framework"
+version = "8.0.6" # This will be updated by the version manager
+authors = [
+  { name="Bahadir Arda", email="bahadirarda96@icloud.com" },
+]
+description = "An AI-powered project assistant for code analysis, versioning, and workflow automation."
+readme = "README.md"
+requires-python = ">=3.9"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+[project.scripts]
+summarizer = "summarizer:main" 
