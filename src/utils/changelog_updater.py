@@ -1,7 +1,7 @@
 import logging
 from datetime import datetime
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Any
 import re
 import sys
 import subprocess
@@ -83,42 +83,32 @@ def _write_next_command(project_root: Path, command: str):
         logger_changelog.error(f"Could not create next_command.sh file: {e}")
 
 
-def _handle_pull_request_flow(project_root: Path, git_manager: GitManager, current_branch: str, target_branch: str, pr_body: str):
-    if _ask_user(f"   ❔ Create a Pull Request to '{target_branch}'?"):
-        if not _run_ci_checks(project_root):
-            if not _ask_user("   ⚠️  CI checks failed. Proceed with PR anyway?"):
-                return
+def _handle_pull_request_flow(project_root: Path, git_manager: GitManager, current_branch: str, target_branch: str, pr_body: str, gemini_client: Any = None):
+    """Handles the pull request creation process automatically."""
+    if not _ask_user(f"   ❔ Create a Pull Request to '{target_branch}'?"):
+        print("   ⚪️ Pull request creation skipped by user.")
+        return
 
-        if not git_manager.has_remote():
-            if _ask_user("   ⚠️  No remote 'origin' found. Add one now?"):
-                remote_url = input("   > Enter repo URL: ")
-                if not (remote_url and git_manager.add_remote(remote_url)):
-                     print("   ❌ Failed to add remote. Aborting push.")
-                     return
-            else:
-                print("   ❌ Push aborted by user.")
-                return
-        
-        if not _ask_user(f"   ❔ CI checks passed. Push '{current_branch}' to remote to prepare PR?"):
-            print("   ❌ Push aborted by user.")
-            return
+    # No need to run CI checks here if they are run pre-push or pre-commit
+    # We assume the branch is ready for a PR at this stage.
 
-        success, output = git_manager.push(current_branch)
-        if success:
-            remote_url = git_manager.get_remote_url()
-            branch_parts = current_branch.split('/')
-            if len(branch_parts) > 1:
-                # Handles branches like 'feature/new-login' or 'feature/team/new-button'
-                pr_title = f"{branch_parts[0].capitalize()}: {'-'.join(branch_parts[1:])}"
-            else:
-                # Fallback for branches without a '/' like 'develop'
-                pr_title = f"chore: Sync {current_branch} to {target_branch}"
+    # The push is now handled in the main `update_changelog` flow before this is called.
+    # We can proceed directly to creating the PR.
 
-            pr_url = f"{remote_url}/compare/{target_branch}...{current_branch}?title={urllib.parse.quote(pr_title)}&body={urllib.parse.quote(pr_body)}"
-            print(f"   👇 Click here to create your Pull Request:\n   {pr_url}")
-            _write_next_command(project_root, f"git checkout {target_branch}")
-        else:
-            print(f"   ❌ Push failed. Git Error: {output}")
+    print("   🤖 Generating AI-powered pull request details...")
+    pr_title, new_pr_body = git_manager.generate_pull_request_details(pr_body, gemini_client) # pr_body is the summary
+
+    print(f"   📝 PR Title: {pr_title}")
+    
+    pr_url = git_manager.create_pull_request(
+        title=pr_title, body=new_pr_body, base_branch=target_branch, head_branch=current_branch
+    )
+
+    if pr_url:
+        print(f"   ✅ Successfully created Pull Request: {pr_url}")
+    else:
+        print("   ❌ Failed to create Pull Request.")
+        print("   You may need to create it manually on GitHub.")
 
 
 def _handle_release_creation(project_root: Path, git_manager: GitManager, new_version: str):
@@ -357,7 +347,7 @@ def update_changelog(project_root: Optional[Path] = None):
             if branch_name == 'staging':
                 _handle_release_creation(project_root, git_manager, new_version)
             elif target_branch:
-                _handle_pull_request_flow(project_root, git_manager, branch_name, target_branch, summary)
+                _handle_pull_request_flow(project_root, git_manager, branch_name, target_branch, summary, gemini_client)
             elif branch_name.startswith(('release/', 'hotfix/')):
                 match = re.match(r"^(release|hotfix)\/v(\d+\.\d+\.\d+)", branch_name)
                 if match and match.group(2) != new_version:
