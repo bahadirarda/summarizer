@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Optional
 from datetime import datetime
 import re
+import sys
 
 from .file_tracker import (  # Import for getting changed files
     get_changed_files_since_last_run,
@@ -260,15 +261,29 @@ def update_changelog(project_root: Optional[Path] = None):
                             print("   ❌ Merge to 'staging' failed. Please check for conflicts.")
                             git_manager.switch_to_branch(branch_name) # Go back to original branch on failure
                 
-                # On 'staging', ask to create a 'release' branch
+                # On 'staging', ask to create a 'release' branch and run CI checks
                 elif branch_name == 'staging':
                     release_branch_name = f"release/v{new_version}"
-                    if _ask_user(f"   ❔ Create release branch '{release_branch_name}' from 'staging'?"):
-                        if git_manager.create_branch(release_branch_name):
-                            next_command = f"git checkout {release_branch_name}"
+                    if _ask_user(f"   ❔ Run CI checks (lint, test, build) and create release branch '{release_branch_name}'?"):
+                        
+                        # --- Run CI Checks ---
+                        ci_script_path = project_root / "scripts" / "run_ci_checks.py"
+                        if not ci_script_path.exists():
+                            print(f"   ❌ CI script not found at {ci_script_path}")
                         else:
-                            print(f"   ⚠️  Could not create release branch '{release_branch_name}'.")
-
+                            import subprocess
+                            ci_process = subprocess.run([sys.executable, str(ci_script_path)], cwd=project_root)
+                            
+                            if ci_process.returncode == 0:
+                                print("   ✅ All CI checks passed. Proceeding with release.")
+                                # --- Create Release Branch ---
+                                if git_manager.create_branch(release_branch_name):
+                                    next_command = f"git checkout {release_branch_name}"
+                                else:
+                                    print(f"   ⚠️  Could not create release branch '{release_branch_name}'.")
+                            else:
+                                print("   ❌ CI checks failed. Release aborted.")
+                
                 # On 'main', ask to create a 'hotfix' branch
                 elif branch_name == 'main':
                     hotfix_branch_name = f"hotfix/v{new_version}"
