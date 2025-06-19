@@ -11,67 +11,71 @@ logger = logging.getLogger(__name__)
 def _discover_python_directories(project_root_path: Path) -> list[str]:
     """
     Automatically discovers all directories (including root) that contain Python files.
-    
+
     Args:
         project_root_path: Root path of the project
-        
+
     Returns:
         List of directory names relative to project root that contain .py files
     """
     python_dirs = set()
     exclude_dirs = {
-        "__pycache__", 
-        ".git", 
-        ".vscode", 
-        ".idea", 
-        "node_modules", 
-        ".env", 
-        "venv", 
-        ".venv", 
-        "ENV", 
+        "__pycache__",
+        ".git",
+        ".vscode",
+        ".idea",
+        "node_modules",
+        ".env",
+        "venv",
+        ".venv",
+        "ENV",
         "env",
         ".summarizer",
         ".pytest_cache",
         ".tox",
         "build",
         "dist",
-        "*.egg-info"
+        "*.egg-info",
     }
-    
+
     # First, check if the root directory itself contains Python files
     root_has_python = False
     try:
         for py_file in project_root_path.glob("*.py"):
-            if py_file.is_file() and not py_file.name.startswith('.'):
+            if py_file.is_file() and not py_file.name.startswith("."):
                 root_has_python = True
                 break
     except (PermissionError, OSError) as e:
         logger.warning(f"Could not scan root directory {project_root_path}: {e}")
-    
+
     if root_has_python:
         python_dirs.add(".")  # Add root directory
         logger.info(f"Found Python files in root directory")
-    
+
     # Walk through all subdirectories and find those containing Python files
     for item in project_root_path.iterdir():
         if not item.is_dir():
             continue
-            
+
         # Skip hidden directories and common exclude patterns
-        if item.name.startswith('.') or item.name in exclude_dirs:
+        if item.name.startswith(".") or item.name in exclude_dirs:
             continue
-            
+
         # Check if this directory or any subdirectory contains Python files
         try:
             for py_file in item.rglob("*.py"):
                 # Make sure it's not in an excluded subdirectory
-                if not any(exclude_dir in py_file.parts for exclude_dir in exclude_dirs):
-                    python_dirs.add(str(item.relative_to(project_root_path)))  # Return relative path as string
+                if not any(
+                    exclude_dir in py_file.parts for exclude_dir in exclude_dirs
+                ):
+                    python_dirs.add(
+                        str(item.relative_to(project_root_path))
+                    )  # Return relative path as string
                     break  # Found at least one Python file, no need to continue
         except (PermissionError, OSError) as e:
             logger.warning(f"Could not scan directory {item}: {e}")
             continue
-    
+
     discovered_dirs = sorted(list(python_dirs))
     logger.info(f"Auto-discovered Python directories: {discovered_dirs}")
     return discovered_dirs
@@ -84,7 +88,7 @@ def get_changed_files_since_last_run(
     Identifies .py files under watch_dirs that have been modified since the last run.
     Updates a state file with current modification times.
     Returns a list of file paths relative to the project_root_path.
-    
+
     Args:
         project_root_path: Root path of the project
         watch_dirs: List of directories to watch. If None, automatically discovers all subdirectories with Python files
@@ -95,7 +99,7 @@ def get_changed_files_since_last_run(
     # Create .summarizer directory if it doesn't exist
     summarizer_dir = project_root_path / SUMMARIZER_DIR
     summarizer_dir.mkdir(exist_ok=True)
-    
+
     state_file_path = summarizer_dir / STATE_FILE_NAME
 
     previous_states = {}
@@ -106,7 +110,8 @@ def get_changed_files_since_last_run(
             logger.debug(f"Loaded previous states from {state_file_path}")
         except json.JSONDecodeError:
             logger.warning(
-                f"Corrupted state file {state_file_path}. Assuming all files changed.")
+                f"Corrupted state file {state_file_path}. Assuming all files changed."
+            )
             previous_states = {}
         except Exception as e:
             logger.error(f"Error loading state file {state_file_path}: {e}")
@@ -139,21 +144,19 @@ def get_changed_files_since_last_run(
             file_iterator = tracked_dir_path.rglob("*.py")
 
         for file_path_obj in file_iterator:
-            if "__pycache__" in str(
-                    file_path_obj.parts):  # Check parts for __pycache__
+            if "__pycache__" in str(file_path_obj.parts):  # Check parts for __pycache__
                 continue
-            
+
             # Skip .summarizer directory to avoid infinite recursion
             if SUMMARIZER_DIR in str(file_path_obj.parts):
                 continue
-            
+
             # For root directory, skip hidden files
-            if watch_dir == "." and file_path_obj.name.startswith('.'):
+            if watch_dir == "." and file_path_obj.name.startswith("."):
                 continue
 
             try:
-                relative_path_str = str(
-                    file_path_obj.relative_to(project_root_path))
+                relative_path_str = str(file_path_obj.relative_to(project_root_path))
                 current_mtime = os.path.getmtime(file_path_obj)
                 current_states[relative_path_str] = current_mtime
 
@@ -170,11 +173,13 @@ def get_changed_files_since_last_run(
                     # (unlikely but good to have)
                     changed_files_relative_paths.append(relative_path_str)
                     logger.debug(
-                        f"Detected new file: {relative_path_str} (mtime: {current_mtime})")
+                        f"Detected new file: {relative_path_str} (mtime: {current_mtime})"
+                    )
 
             except FileNotFoundError:
                 logger.warning(
-                    f"File {file_path_obj} not found during scan, might have been deleted.")
+                    f"File {file_path_obj} not found during scan, might have been deleted."
+                )
                 continue
             except Exception as e:
                 logger.error(f"Error processing file {file_path_obj}: {e}")
@@ -194,8 +199,7 @@ def get_changed_files_since_last_run(
     except IOError as e:
         logger.error(f"Could not write to state file {state_file_path}: {e}")
     except Exception as e:
-        logger.error(
-            f"Unexpected error writing state file {state_file_path}: {e}")
+        logger.error(f"Unexpected error writing state file {state_file_path}: {e}")
 
     return changed_files_relative_paths
 
@@ -267,8 +271,7 @@ def get_file_line_changes(
                         lines_removed = changed_lines // 2
 
                 except Exception as e:
-                    logger.warning(
-                        f"Could not read backup for {file_path}: {e}")
+                    logger.warning(f"Could not read backup for {file_path}: {e}")
                     # If no backup, treat as all lines added
                     lines_added = current_count
                     lines_removed = 0
@@ -277,8 +280,7 @@ def get_file_line_changes(
                 lines_added = current_count
                 lines_removed = 0
 
-            change_ratio = (lines_added + lines_removed) / \
-                max(current_count, 1)
+            change_ratio = (lines_added + lines_removed) / max(current_count, 1)
 
             line_changes[file_path] = {
                 "lines_added": lines_added,
@@ -304,9 +306,7 @@ def get_file_line_changes(
     return line_changes
 
 
-def create_file_backups(
-        project_root_path: Path,
-        watch_dir: str = "src") -> None:
+def create_file_backups(project_root_path: Path, watch_dir: str = "src") -> None:
     """
     Creates backup copies of current files for future line diff analysis.
     Should be called after processing changes.
@@ -314,7 +314,7 @@ def create_file_backups(
     # Create .summarizer directory if it doesn't exist
     summarizer_dir = project_root_path / SUMMARIZER_DIR
     summarizer_dir.mkdir(exist_ok=True)
-    
+
     backup_dir = summarizer_dir / "file_backups"
     tracked_dir_path = project_root_path / watch_dir
 
@@ -326,7 +326,7 @@ def create_file_backups(
     for file_path_obj in tracked_dir_path.rglob("*.py"):
         if "__pycache__" in str(file_path_obj.parts):
             continue
-        
+
         # Skip .summarizer directory to avoid infinite recursion
         if SUMMARIZER_DIR in str(file_path_obj.parts):
             continue
@@ -361,11 +361,11 @@ def get_aggregate_line_stats(line_changes: dict) -> dict:
         }
 
     total_added = sum(stats["lines_added"] for stats in line_changes.values())
-    total_removed = sum(stats["lines_removed"]
-                        for stats in line_changes.values())
+    total_removed = sum(stats["lines_removed"] for stats in line_changes.values())
     total_files = len(line_changes)
-    avg_ratio = (sum(stats["change_ratio"]
-                     for stats in line_changes.values()) / total_files)
+    avg_ratio = (
+        sum(stats["change_ratio"] for stats in line_changes.values()) / total_files
+    )
 
     return {
         "total_lines_added": total_added,

@@ -3,6 +3,187 @@
 Bu dosya otomatik olarak generate edilmiştir.
 Düzenlemeler için `changelog.json` dosyasını kullanın.
 
+## 2025-06-19 23:26:16
+
+### 1. YAPISAL ANALİZ:
+
+Bu kod değişiklikleri, `src/utils` dizini altında bulunan `changelog_updater.py` dosyasını etkiler.  Bu dosya, projenin changelog'unu güncellemekle sorumlu bir yardımcı araçtır. Değişiklikler,  projenin genel mimarisini doğrudan değiştirmez, ancak changelog güncelleme sürecini ve ilgili işlemleri etkiler.  
+
+Kod, modüler bir yapıya sahiptir.  `changelog_updater.py` dosyası, diğer yardımcı modüller (`file_tracker`, `git_manager`, `json_changelog_manager`, `readme_generator`, `version_manager`) ile etkileşim kurarak görevlerini yerine getirir. Bu modülerlik, kodun okunabilirliğini ve bakımını kolaylaştırır.  Değişiklikler bu modülerliği bozmaz, aksine,  `_run_ci_checks` fonksiyonunun eklenmesiyle CI/CD entegrasyonunu daha açık bir şekilde yapılandırır ve  `_write_next_command` fonksiyonu ile  bir sonraki komutun oluşturulması işlemini daha net hale getirir. Kod organizasyonunda büyük bir iyileştirme olmamakla birlikte, belirli görevlerin daha ayrı fonksiyonlara ayrıştırılması, kodun daha anlaşılır ve test edilebilir olmasını sağlar.
+
+
+### 2. İŞLEVSEL ETKİ:
+
+Değişikliklerin en önemli işlevsel etkisi, changelog güncelleme sürecine CI/CD kontrolünün eklenmesidir.  `_run_ci_checks` fonksiyonu, proje kök dizininde bulunan `run_ci_checks.py` betiğini çalıştırarak CI kontrollerini gerçekleştirir. Bu kontroller başarılı olursa, changelog güncellenmeye devam eder; aksi takdirde işlem durdurulur. Bu, hata olasılığını azaltır ve daha güvenilir bir sürüm yönetimi sağlar.
+
+Ayrıca,  `_write_next_command` fonksiyonu, bir sonraki komutu (örneğin, yeni bir sürüm dalı oluşturma) `.summarizer/next_command.sh` dosyasına yazar. Bu, otomatik sürüm yönetimi süreçlerini kolaylaştırır ve  bir sonraki adımın manuel olarak belirlenmesini ortadan kaldırır.
+
+Kullanıcı deneyimi, CI başarısızlık durumunda daha bilgilendirici hata mesajlarıyla iyileştirilmiştir.  Kullanıcı,  CI kontrollerinin sonucunu ve olası hataları görebilir.  `_ask_user` fonksiyonu, CI kontrollerini geçersiz kılma seçeneği sunarak kullanıcı etkileşimini sağlar.
+
+Performans üzerinde doğrudan bir etki gözlenmez.  Güvenlik ve güvenilirlik ise CI kontrollerinin eklenmesiyle dolaylı olarak iyileştirilmiştir.
+
+### 3. TEKNİK DERINLIK:
+
+Kodda belirgin bir tasarım deseni değişikliği gözlenmez.  Mevcut modüler yapı korunmuştur.  Ancak,  `_run_ci_checks` ve `_write_next_command` fonksiyonlarının eklenmesi,  komutlar ve işlemlerin daha iyi organize edilmesine yardımcı olan bir tür  "Command" tasarım desenine  benzer bir yaklaşımı gösterir.
+
+Kod kalitesi ve sürdürülebilirliği, fonksiyonların daha küçük ve daha spesifik görevler üstlenmesiyle iyileştirilmiştir. Bu, kodun okunabilirliğini, test edilebilirliğini ve bakımını kolaylaştırır.
+
+Yeni bir bağımlılık eklenmemiştir.  Mevcut bağımlılıklar ( `subprocess`, `pathlib`, `logging` vb.)  kullanılmaya devam edilmektedir.
+
+
+### 4. SONUÇ YORUMU:
+
+Bu değişiklikler, projenin sürüm yönetim sürecini önemli ölçüde iyileştirir. CI/CD entegrasyonu, hataların erken tespit edilmesini ve daha güvenilir sürümlerin oluşturulmasını sağlar.  `.summarizer/next_command.sh` dosyasının oluşturulması, otomasyonun artırılmasına ve  sürümleme işlemlerinin kolaylaştırılmasına olanak tanır.
+
+Projenin teknik borcu, kodun daha modüler ve daha iyi organize edilmesiyle azalmıştır.  Yeni fonksiyonların eklenmesi, kodun daha sürdürülebilir ve daha kolay bakım yapılabilen bir hale gelmesine katkıda bulunur.
+
+Bu değişiklikler, gelecekteki geliştirmelere daha iyi bir hazırlık sağlar.  Modüler yapı, yeni özelliklerin eklenmesini ve mevcut özelliklerin değiştirilmesini kolaylaştırır. CI/CD entegrasyonu, sürekli entegrasyon ve sürekli dağıtım süreçlerinin uygulanmasını kolaylaştırır.  Genel olarak, bu değişiklikler projenin uzun vadeli sağlığını ve sürdürülebilirliğini olumlu yönde etkiler.
+
+**Değişen Dosyalar:** src/utils/changelog_updater.py
+**Etki Seviyesi:** High
+**Değişiklik Tipi:** Feature
+**Satır Değişiklikleri:** +4
+**Etiketler:** api, changelog-updater, utils, manager
+
+---
+
+## 2025-06-19 23:23:17
+
+### 1. YAPISAL ANALİZ:
+
+Değişiklikler, `src/utils` dizini altında bulunan `changelog_updater.py` dosyasını etkiliyor.  Bu dosya, projede değişiklik günlüğünü (changelog) güncelleyen bir yardımcı araçtır.  Sistemin "Yardımcı Araçlar" katmanına aittir.  Mimari değişiklik minimaldir; mevcut işlevselliğe yeni özellikler eklenmiştir. Kod organizasyonu bakımından, fonksiyonlar daha iyi bölümlere ayrılmış olabilirdi, fakat verilen kod parçası bunu göstermiyor.  `_detect_impact_level`, `update_changelog`, `_run_ci_checks`, `_write_next_command`, `_ask_user`, ve `_create_initial_project_entry` fonksiyonlarının açıkça görülebilen ayrı görevleri vardır.  Büyük ölçekli bir yeniden yapılandırmadan ziyade, mevcut işlevselliğe yeni özellikler eklenmiştir.
+
+
+### 2. İŞLEVSEL ETKİ:
+
+Bu değişiklikler, changelog güncelleme sürecini geliştirmektedir.  Özel olarak, CI (Sürekli Entegrasyon) kontrollerinin eklenmesi ve kullanıcı onayının alınması gibi özellikler eklenmiştir.  `_run_ci_checks` fonksiyonu, `run_ci_checks.py` betiğinin çalıştırılmasını sağlar ve sonuçlarına göre işlemi devam ettirir veya durdurur.  Kullanıcı deneyimi, CI sonuçlarının gösterilmesi ve değişiklikleri yayınlamadan önce kullanıcı onayı alınmasıyla iyileştirilmiştir.  Bu, hatalı değişikliklerin yayınlanmasını engellemeye yardımcı olur.  Performans açısından, eklenen CI kontrolü performansı hafifletebilir; ancak kodda bununla ilgili detaylı bir analiz veya ölçüm bulunmamaktadır.  Güvenlik veya güvenilirlik üzerinde doğrudan bir etkisi yoktur, ancak CI kontrollerinin eklenmesi dolaylı olarak güvenilirliği artırır.
+
+
+### 3. TEKNİK DERINLIK:
+
+Kodda belirgin bir tasarım deseni değişikliği gözlemlenmemektedir.  Mevcut fonksiyonel yaklaşımlar korunmaktadır.  Kod kalitesi ve sürdürülebilirlik, CI kontrollerinin eklenmesiyle iyileşmiştir.  CI kontrollerinin başarısızlığı durumunda otomatik olarak durdurma özelliği, hataların daha erken tespit edilmesini ve yayılmasını engellemeye yardımcı olur.  Yeni bir bağımlılık eklenmemiştir, ancak `subprocess` modülü CI betiğinin çalıştırılması için kullanılmaktadır.  Var olan bağımlılıklar (`logging`, `re`, `subprocess`, `sys`, `urllib.parse`, `datetime`, `pathlib`, `typing`)  ile çalışmaya devam edilmektedir.
+
+
+### 4. SONUÇ YORUMU:
+
+Bu değişikliklerin uzun vadeli değeri, geliştirilmiş changelog güncelleme süreci ve artan güvenilirliktir.  Teknik borç, CI kontrollerinin eklenmesiyle azalmıştır, çünkü hataların daha erken tespit edilmesi ve giderilmesi olasılığı artmıştır.  Gelecekteki geliştirmelere hazırlık olarak,  sistemin genişletilebilirliği ve bakımı iyileştirilmiştir.  CI sürecinin eklenmesi, otomasyon ve güvenilirliği artırarak  daha sağlam bir geliştirme döngüsü sağlar.  Ancak, `run_ci_checks.py` dosyasının içeriği bilinmediği için CI sürecinin kapsamı ve etkinliği tam olarak değerlendirilememektedir.  Bu dosyanın içeriğinin incelenmesi, daha kapsamlı bir analiz için gereklidir.
+
+**Değişen Dosyalar:** src/utils/changelog_updater.py
+**Etki Seviyesi:** High
+**Değişiklik Tipi:** Feature
+**Satır Değişiklikleri:** +12
+**Etiketler:** utils, api, changelog-updater
+
+---
+
+## 2025-06-19 23:19:13
+
+### 1. YAPISAL ANALİZ:
+
+Değişiklikler, geniş kapsamlı bir yazılım projesini etkileyen, çok katmanlı bir yapıya sahip.  Etkilenen bileşenler ve katmanlar şunlardır:
+
+* **GUI (Grafik Kullanıcı Arayüzü):** `gui_launcher.py`, `install_gui.py`, `features/gui_installer.py`, `macos-setup-wizard/test_gui.py`, `macos-setup-wizard/src/ui/setup_wizard.py`, `macos-setup-wizard/src/installer/gui_installer.py`, `macos-setup-wizard/src/ui/components/drag_drop_area.py` dosyalarındaki değişiklikler, GUI'nin görünümünü, işlevselliğini ve kurulum sürecini etkiler.  `macos-setup-wizard` dizini altındaki değişiklikler, muhtemelen macOS için özel bir kurulum sihirbazı eklendiğini veya iyileştirildiğini gösteriyor.  `src/gui/modern_config_gui.py` dosyasındaki değişiklikler, konfigürasyon GUI'sinde güncellemeler yapıldığını gösteriyor.
+
+* **API (Uygulama Programlama Arayüzü):** `api_server.py`, `api/config.py`, `api/utils/helpers.py`, `api/routes/health.py`, `api/routes/docs.py`, `api/routes/test.py`, `api/routes/changelog.py`, `scripts/api_key_manager.py`,  `src/services/request_manager.py`, `src/services/gemini_client.py` dosyalarındaki değişiklikler API sunucusunu ve çeşitli API uç noktalarını etkiler. Changelog yönetimi, sağlık kontrolleri ve API dokümantasyonu muhtemelen güncellenmiştir.
+
+* **İş Mantığı:** `summarizer.py`, `demo_project/simple_demo.py`, `features/parameter_checker.py`, `features/__init__.py`, `features/screenshot.py`, `features/terminal_commands.py`, `macos-setup-wizard/setup_installer.py`, `macos-setup-wizard/setup.py`, `macos-setup-wizard/create_clean_background.py`, `macos-setup-wizard/create_background.py`, `macos-setup-wizard/src/main.py`, `macos-setup-wizard/src/installer/cli_installer.py`, `macos-setup-wizard/src/installer/drag_drop_installer.py`, `scripts/pre_publish_check.py`, `scripts/run_ci_checks.py`, `src/main.py` dosyalarında yapılan değişiklikler, uygulamanın ana iş mantığını doğrudan etkiler.  Özetleme fonksiyonları, parametre doğrulama, ekran görüntüsü alma, terminal komutları ve kurulum işlemleri güncellenmiş veya eklenmiştir.
+
+* **Konfigürasyon:** `api/config.py`, `macos-setup-wizard/src/config/installation_config.py`, `macos-setup-wizard/src/config/__init__.py`, `src/config.py`, `src/core/configuration_manager.py`, `src/gui/modern_config_gui.py` dosyalarındaki değişiklikler, uygulamanın konfigürasyon mekanizmasını etkiler.  Kurulum konfigürasyonu, genel uygulama konfigürasyonu ve GUI konfigürasyonu güncellenmiş olabilir.
+
+* **Yardımcı Fonksiyonlar ve Araçlar:** Birçok yardımcı fonksiyon dosyasında yapılan değişiklikler, uygulamanın çeşitli kısımlarında kullanılan yardımcı fonksiyonları günceller.  Bu, kodun yeniden düzenlenmesi veya yeni işlevlerin eklenmesi anlamına gelebilir.
+
+* **Testler:** `tests/test_macos_installer.py`, `tests/test_main.py` dosyalarındaki değişiklikler, test kapsamını genişletmek veya mevcut testleri güncellemek amacıyla yapılmış olabilir.
+
+Mimari açıdan bakıldığında, değişiklikler esasen mevcut mimariye yeni özellikler ekleme ve macOS için özel bir kurulum sihirbazı ekleme üzerine odaklanmıştır.  Kod organizasyonunda,  `macos-setup-wizard` dizinindeki değişiklikler,  modüler bir yaklaşımın benimsendiğini ve kodun daha iyi organize edildiğini gösterir.
+
+
+### 2. İŞLEVSEL ETKİ:
+
+* **Eklenen Özellikler:** macOS için özel bir kurulum sihirbazı eklenmiş olabilir ( `macos-setup-wizard` dizini).  Yeni GUI bileşenleri,  parametre doğrulama, ekran görüntüsü alma ve terminal komutları eklenmiş olabilir.
+
+* **Değiştirilen Özellikler:** Mevcut GUI, API uç noktaları, iş mantığı ve konfigürasyon mekanizmaları güncellenmiş olabilir.  Özetleme işlevi de iyileştirilmiş veya genişletilmiş olabilir.
+
+* **Kaldırılan Özellikler:**  Hiçbir belirgin özellik kaldırılmış gibi görünmüyor.
+
+Kullanıcı deneyimi, özellikle macOS kullanıcıları için yeni bir kurulum sihirbazıyla iyileştirilmiş olabilir.  Yeni GUI bileşenleri veya güncellenmiş konfigürasyon seçenekleri de kullanıcı deneyimini etkilemiş olabilir.
+
+Performans, güvenlik ve güvenilirlik üzerindeki etki, yapılan değişikliklerin doğasına bağlıdır.  Kod iyileştirmeleri performansı artırabilirken, yeni özellikler veya hatalar performansı düşürebilir veya güvenliği riske atabilir.  `pre_publish_check.py` ve `run_ci_checks.py` dosyalarındaki değişiklikler,  bu konularda iyileştirmeler yapıldığını düşündürmektedir.
+
+
+### 3. TEKNİK DERINLIK:
+
+Değişikliklerden tasarım desenlerinin açıkça değiştirilip değiştirilmediği anlaşılamıyor.  Ancak,  `macos-setup-wizard` dizini, Model-View-Controller (MVC) veya benzer bir tasarım deseninin uygulanmasını düşündürmektedir.
+
+Kod kalitesi ve sürdürülebilirliğinin nasıl geliştiği, değişikliklerin ayrıntılarına bağlıdır.  Eğer kod temizlenmiş, dokümante edilmiş ve test edilmişse, kod kalitesi ve sürdürülebilirlik iyileşmiştir.  `pre_publish_check.py` ve `run_ci_checks.py` dosyalarındaki değişiklikler, kod kalitesini ve sürdürülebilirliğini geliştirmeye yönelik adımlar atıldığını gösterir.
+
+Yeni bağımlılıklar eklenmiş olabilir. `gui_launcher.py` dosyasında `flet` kütüphanesinin kullanılması buna örnek olarak gösterilebilir.  Diğer bağımlılıklar, değişikliklerin ayrıntılı incelenmesiyle belirlenebilir.
+
+
+### 4. SONUÇ YORUMU:
+
+Bu değişikliklerin uzun vadeli değeri,  eklenen özelliklerin (özellikle macOS kurulum sihirbazı) faydasına ve kod kalitesinin iyileştirilmesine bağlıdır.  Eğer yeni özellikler kullanıcılar tarafından değerlendirilir ve kod daha sürdürülebilir hale gelirse,  değişiklikler uzun vadede projenin değerini artıracaktır.
+
+Projenin teknik borcu, yapılan iyileştirmelere bağlı olarak azalmış veya artmış olabilir.  Eğer yeni kod yüksek kalitede yazılmış ve iyi test edilmişse, teknik borç azalır.  Ancak, yeni özellikler eklenmesi sırasında yeni teknik borç oluşmuş olabilir.
+
+Gelecekteki geliştirmelere hazırlık, kodun modüler yapısı ve iyi test edilmesiyle iyileştirilmiş olabilir.  Bu, yeni özelliklerin eklenmesini ve mevcut özelliklerin bakımını kolaylaştıracaktır.  Ancak,  eksik testler veya kötü kodlama uygulamaları gelecekteki geliştirmeleri zorlaştırabilir.
+
+
+**Özet olarak:**  Değişiklikler, uygulamanın işlevselliğini, özellikle macOS desteğini genişletmeyi hedefleyen önemli bir güncellemeyi temsil eder.  Kod kalitesi ve sürdürülebilirliğe odaklanılması olumlu bir işarettir, ancak değişikliklerin tam etkisi,  kodun detaylı incelenmesi ve test sonuçlarının değerlendirilmesi ile tam olarak anlaşılabilir.
+
+**Değişen Dosyalar:** gui_launcher.py, api_server.py, install_gui.py, summarizer.py, api/config.py, api/utils/helpers.py, api/routes/health.py, api/routes/docs.py, api/routes/test.py, api/routes/changelog.py, demo_project/simple_demo.py, demo_project/demo_utils.py, features/parameter_checker.py, features/__init__.py, features/gui_installer.py, features/screenshot.py, features/terminal_commands.py, macos-setup-wizard/setup_installer.py, macos-setup-wizard/setup.py, macos-setup-wizard/create_clean_background.py, macos-setup-wizard/test_gui.py, macos-setup-wizard/create_background.py, macos-setup-wizard/src/main.py, macos-setup-wizard/src/ui/setup_wizard.py, macos-setup-wizard/src/config/installation_config.py, macos-setup-wizard/src/config/__init__.py, macos-setup-wizard/src/utils/__init__.py, macos-setup-wizard/src/utils/permissions_handler.py, macos-setup-wizard/src/utils/path_resolver.py, macos-setup-wizard/src/utils/system_checker.py, macos-setup-wizard/src/installer/gui_installer.py, macos-setup-wizard/src/installer/cli_installer.py, macos-setup-wizard/src/installer/drag_drop_installer.py, macos-setup-wizard/src/ui/components/drag_drop_area.py, scripts/api_key_manager.py, scripts/pre_publish_check.py, scripts/run_ci_checks.py, src/config.py, src/main.py, src/core/configuration_manager.py, src/utils/version_manager.py, src/utils/git_manager.py, src/utils/readme_generator.py, src/utils/json_changelog_manager.py, src/utils/file_tracker.py, src/utils/changelog_updater.py, src/gui/modern_config_gui.py, src/services/request_manager.py, src/services/gemini_client.py, tests/test_macos_installer.py, tests/test_main.py
+**Etki Seviyesi:** High
+**Değişiklik Tipi:** Config
+**Satır Değişiklikleri:** +5425 -182
+**Etiketler:** system-checker, create-clean-background, core, config, install-gui, utils, test-gui, docs, helpers, gui-installer
+
+---
+
+## 2025-06-19 18:34:10
+
+### 1. YAPISAL ANALİZ:
+
+Değişiklikler, projenin `src/utils` dizini altında bulunan iki yardımcı modülü etkiliyor: `git_manager.py` ve `changelog_updater.py`.  `git_manager.py`, Git ile etkileşim sağlayan yardımcı fonksiyonlar içeren bir servis katmanı olarak düşünülebilirken, `changelog_updater.py` (tamamen gösterilmeyen kısım), değişikliklerin günlüğünü güncelleyen bir yardımcı araçtır.  Mimari açıdan büyük bir değişiklik yok; mevcut yardımcı fonksiyonlar genişletilmiş ve yeni fonksiyonlar eklenmiş görünüyor. Kod organizasyonunda belirgin bir iyileştirme görünmüyor, ancak kodun daha ayrıntılı ve modüler bir şekilde yazılması amacıyla  `GitManager` sınıfının genişletilmesi ve yeni yardımcı fonksiyonların eklenmesi bir iyileştirme olarak yorumlanabilir.
+
+
+### 2. İŞLEVSEL ETKİ:
+
+`git_manager.py` dosyasındaki değişiklikler, Git repository'si ile olan etkileşimleri genişletiyor.  Özellikle şunlar eklenmiş veya iyileştirilmiş:
+
+* **`get_existing_branches()`:**  Yerel dalları listeleyen bir fonksiyon eklenmiş.
+* **`is_working_directory_clean()`:**  Çalışma dizininin temiz olup olmadığını kontrol eden bir fonksiyon eklenmiş.
+* **`get_diff()`:**  Değişiklikleri (staged ve unstaged) alan bir fonksiyon eklenmiş.
+* **`stage_all()`:** Tüm değişiklikleri stage'leyen bir fonksiyon eklenmiş.
+* **`create_branch()`:** Yeni bir dal oluşturan bir fonksiyon eklenmiş.
+* **`get_remote_url()`:**  Remote URL'yi alan bir fonksiyon eklenmiş.
+* **`get_open_github_issues()`:** GitHub'dan açık issue'ları çeken bir fonksiyon eklenmiş (GitHub CLI 'gh' kullanımı gerektiriyor).
+
+
+`changelog_updater.py` dosyasındaki değişiklikler (kod gösterilmediği için detaylı analiz yapılamıyor) muhtemelen değişikliklerin günlüğünü güncelleme işlemini iyileştiriyor veya yeni özellikler ekliyor.  Örneğin,  `get_file_line_changes` ve `get_aggregate_line_stats` fonksiyonlarının varlığı, dosyalardaki satır değişikliklerinin analiz edildiğini gösteriyor.  Bu, changelog'a daha detaylı bilgi eklenmesini sağlayabilir.
+
+
+Kullanıcı deneyimi, `_handle_pull_request_flow` ve `_handle_release_creation` fonksiyonları sayesinde geliştirilmiş olabilir.  Bu fonksiyonlar, pull request oluşturma ve release branch oluşturma süreçlerini otomatikleştiriyor ve kullanıcılara interaktif olarak rehberlik ediyor.  Ancak,  `--force-with-lease` parametresi ile push yapılması potansiyel bir risk oluşturuyor.
+
+
+Performans üzerindeki etki, eklenen fonksiyonların karmaşıklığına ve kullanım sıklığına bağlıdır.  Güvenlik açısından, GitHub CLI'nin kullanımı güvenlik açıklarına yol açabilir (eğer güvenli bir şekilde yapılandırılmamışsa).  Güvenilirlik açısından, `subprocess` modülünün kullanımı, altta yatan komutların başarısızlığı durumunda hata yönetimi gerektirir (ki kodda bu kısmen mevcut).
+
+
+### 3. TEKNİK DERINLIK:
+
+`GitManager` sınıfı, bir **Facade** tasarım deseni örneği olarak düşünülebilir.  Git komutlarını soyutlayarak daha yüksek seviyeli bir arayüz sunar.  Yeni eklenen fonksiyonlar, kodun daha modüler ve sürdürülebilir olmasını sağlar. Kod kalitesi, hata yönetimi (try-except blokları) ve type hinting (typing modülü) kullanılarak iyileştirilmiştir.  Yeni bir bağımlılık eklenmiştir: `gh` (GitHub CLI).
+
+
+### 4. SONUÇ YORUMU:
+
+Bu değişiklikler, Git ile etkileşimleri kolaylaştıran ve geliştirme süreçlerini otomatikleştiren yardımcı fonksiyonlar ekleyerek projenin geliştirilebilirliğini ve sürdürülebilirliğini artırır.  Uzun vadeli değeri, geliştirme sürecini hızlandırması ve hataları azaltmasıdır.  Teknik borç, kodun daha modüler ve okunabilir hale getirilmesiyle azalmış olabilir.  Gelecekteki geliştirmeler için, özellikle yeni fonksiyonların eklenmesi ve iyileştirilmesi yoluyla, iyi bir temel oluşturulmuştur. Ancak, `--force-with-lease` kullanımının riskleri değerlendirilmeli ve daha güvenli alternatifler araştırılmalıdır.  Ayrıca, `gh` CLI'nin güvenli bir şekilde kullanılması ve olası bağımlılık sorunlarının yönetilmesi gerekmektedir.
+
+**Değişen Dosyalar:** src/utils/git_manager.py, src/utils/changelog_updater.py
+**Etki Seviyesi:** High
+**Değişiklik Tipi:** Feature
+**Satır Değişiklikleri:** +13
+**Etiketler:** api, changelog-updater, git-manager, utils, manager
+
+---
+
 ## 2025-06-19 18:29:11
 
 ### 1. YAPISAL ANALİZ:

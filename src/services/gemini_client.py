@@ -1,18 +1,22 @@
 # src/services/gemini_client.py
 import logging
 import os
-from typing import List, Dict, Optional
+from typing import Dict, List, Optional
 
 import google.generativeai as genai  # Gerçek Gemini kütüphanesi
 
-from src.core.configuration_manager import ConfigurationManager # Added import
+from src.core.configuration_manager import ConfigurationManager  # Added import
 
 
 class GeminiClient:
-    def __init__(self, config_manager: ConfigurationManager):  # Added config_manager parameter
+    def __init__(
+        self, config_manager: ConfigurationManager
+    ):  # Added config_manager parameter
         self.logger = logging.getLogger(__name__)
-        self.config_manager = config_manager # Store config_manager instance
-        self.api_key = self.config_manager.get_api_key() # Get API key from ConfigurationManager
+        self.config_manager = config_manager  # Store config_manager instance
+        self.api_key = (
+            self.config_manager.get_api_key()
+        )  # Get API key from ConfigurationManager
         self.model = None
         self._is_configured = False
 
@@ -38,7 +42,8 @@ class GeminiClient:
                 "GEMINI_API_KEY ortam değişkeni bulunamadı. "
                 "GeminiClient AI özetleri oluşturamayacak ancak sistem "
                 "entegrasyonu için kaydedilecek. "
-                "Lütfen .env dosyasında veya sistem ortam değişkenlerinde ayarlayın.")
+                "Lütfen .env dosyasında veya sistem ortam değişkenlerinde ayarlayın."
+            )
 
         # Always register to RequestManager (even without API key)
         from .request_manager import RequestManager
@@ -49,16 +54,20 @@ class GeminiClient:
     def generate_simple_text(self, prompt: str) -> str:
         """Generates a simple text response without the complex analysis template."""
         if not self.is_ready():
-            self.logger.error("GeminiClient is not properly configured. Cannot generate text.")
+            self.logger.error(
+                "GeminiClient is not properly configured. Cannot generate text."
+            )
             return "[GeminiClient not configured]"
-        
+
         try:
             response = self.model.generate_content(prompt)
             if response.text:
                 self.logger.info("Successfully generated simple text from Gemini.")
                 return response.text.strip()
             else:
-                self.logger.warning("Received an empty response from Gemini for simple text generation.")
+                self.logger.warning(
+                    "Received an empty response from Gemini for simple text generation."
+                )
                 return "AI response was empty."
         except Exception as e:
             self.logger.error(f"Error during simple text generation with Gemini: {e}")
@@ -76,10 +85,12 @@ class GeminiClient:
         detaylı anlamsal özet oluşturur."""
         # Re-fetch API key from ConfigurationManager and re-configure before each call
         self.api_key = self.config_manager.get_api_key()
-        
+
         # Log the API key being used (or if it's None)
         if self.api_key:
-            self.logger.info(f"Attempting to use API key ending with: ...{self.api_key[-4:]}")
+            self.logger.info(
+                f"Attempting to use API key ending with: ...{self.api_key[-4:]}"
+            )
         else:
             self.logger.error("API key from ConfigurationManager is None.")
 
@@ -88,19 +99,22 @@ class GeminiClient:
                 "GEMINI_API_KEY, ConfigurationManager aracılığıyla bulunamadı. Özet oluşturulamıyor."
             )
             return "[GEMINI_API_KEY bulunamadı (ConfigurationManager)]"
-        
+
         try:
             genai.configure(api_key=self.api_key)
             # Re-initialize the model if it wasn't configured or if the key might have changed
             if not self.model or not self._is_configured:
-                 self.model = genai.GenerativeModel("gemini-2.0-flash") # Changed to 2.0-flash
-                 self._is_configured = True # Assume configuration is successful if no exception
+                self.model = genai.GenerativeModel(
+                    "gemini-2.0-flash"
+                )  # Changed to 2.0-flash
+                self._is_configured = (
+                    True  # Assume configuration is successful if no exception
+                )
         except Exception as e:
             self.logger.error(f"Gemini API yeniden konfigürasyonu başarısız: {e}")
-            self._is_configured = False # Mark as not configured on error
+            self._is_configured = False  # Mark as not configured on error
             # self.model will remain None or its previous state
             return f"[Gemini API yeniden konfigürasyonu başarısız: {e}]"
-
 
         if not self.is_ready():
             self.logger.error(
@@ -110,8 +124,9 @@ class GeminiClient:
 
         try:
             # Dosya tiplerini analiz et
-            file_categories = (self._analyze_file_types(
-                changed_files) if changed_files else {})
+            file_categories = (
+                self._analyze_file_types(changed_files) if changed_files else {}
+            )
 
             # Dosya içeriklerini geçici olarak oku (sadece prompt için)
             file_contents = (
@@ -130,12 +145,13 @@ class GeminiClient:
                 "Sen bir senior kod analisti ve teknik yazarsın. "
                 "Aşağıdaki yazılım projesindeki değişiklikleri DETAYLI olarak analiz et:"
             )
-            
+
             file_summary = (
                 self._format_files_for_analysis(changed_files, file_categories)
-                if changed_files else "Genel proje değişiklikleri"
+                if changed_files
+                else "Genel proje değişiklikleri"
             )
-            
+
             full_prompt = f"""
 {prompt_intro}
 
@@ -255,14 +271,13 @@ Türkçe olarak KAPSAMLI ve ANALİTİK bir özet oluştur. Özet şunları içer
                     "documentation": "📚 Dokümantasyon",
                 }
 
-                category_display = category_names.get(
-                    category, category.title())
-                
+                category_display = category_names.get(category, category.title())
+
                 # Format files in a more readable way
                 files_formatted = []
                 for file in file_list:
                     files_formatted.append(f"  • `{file}`")
-                    
+
                 files_display = "\n".join(files_formatted)
                 formatted_parts.append(f"**{category_display}:**\n{files_display}")
 
@@ -302,7 +317,8 @@ Türkçe olarak KAPSAMLI ve ANALİTİK bir özet oluştur. Özet şunları içer
                     )
                 ):
                     contents.append(
-                        f"\n--- {file_path} ---\n[Binary/Non-text file - skipped]")
+                        f"\n--- {file_path} ---\n[Binary/Non-text file - skipped]"
+                    )
                     continue
 
                 with open(full_path, "r", encoding="utf-8", errors="ignore") as f:
@@ -315,9 +331,9 @@ Türkçe olarak KAPSAMLI ve ANALİTİK bir özet oluştur. Özet şunları içer
                         f"lines] ...\n"
                     )
                     truncated_lines = (
-                        lines[:max_lines_per_file // 2]
+                        lines[: max_lines_per_file // 2]
                         + [truncated_msg]
-                        + lines[-max_lines_per_file // 2:]
+                        + lines[-max_lines_per_file // 2 :]
                     )
                     file_content = "".join(truncated_lines)
                 else:
@@ -329,15 +345,11 @@ Türkçe olarak KAPSAMLI ve ANALİTİK bir özet oluştur. Özet şunları içer
                 self.logger.warning(
                     f"Could not read file {file_path} for analysis: {e}"
                 )
-                contents.append(
-                    f"\n--- {file_path} ---\n[Error reading file: {e}]")
+                contents.append(f"\n--- {file_path} ---\n[Error reading file: {e}]")
 
         return "\n".join(contents)
 
-    def _truncate_content_for_prompt(
-            self,
-            content: str,
-            max_chars: int = 8000) -> str:
+    def _truncate_content_for_prompt(self, content: str, max_chars: int = 8000) -> str:
         """
         Prompt boyutunu kontrol altında tutmak için içeriği kısaltır.
         """
@@ -346,7 +358,8 @@ Türkçe olarak KAPSAMLI ve ANALİTİK bir özet oluştur. Özet şunları içer
 
         # İlk ve son kısımları al, ortayı truncate et
         first_part = content[: max_chars // 2]
-        last_part = content[-max_chars // 2:]
+        last_part = content[-max_chars // 2 :]
 
         return (
-            f"{first_part}\n\n... [Content truncated for analysis] ...\n\n{last_part}")
+            f"{first_part}\n\n... [Content truncated for analysis] ...\n\n{last_part}"
+        )

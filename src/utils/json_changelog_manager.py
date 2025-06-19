@@ -5,11 +5,11 @@ Manages structured changelog data in JSON format for API consumption
 
 import json
 import logging
+from dataclasses import asdict, dataclass
 from datetime import datetime
-from pathlib import Path
-from typing import Dict, List, Any, Optional
-from dataclasses import dataclass, asdict
 from enum import Enum
+from pathlib import Path
+from typing import Any, Dict, List, Optional
 
 
 class ImpactLevel(Enum):
@@ -109,11 +109,9 @@ class JsonChangelogManager:
                     data = json.load(f)
 
                 metadata = ChangelogMetadata(**data.get("metadata", {}))
-                entries = [ChangelogEntry(**entry)
-                           for entry in data.get("entries", [])]
+                entries = [ChangelogEntry(**entry) for entry in data.get("entries", [])]
 
-                self.logger.info(
-                    f"Loaded changelog with {len(entries)} entries")
+                self.logger.info(f"Loaded changelog with {len(entries)} entries")
                 return JsonChangelog(metadata=metadata, entries=entries)
 
             except Exception as e:
@@ -132,11 +130,7 @@ class JsonChangelogManager:
 
             # Save to JSON
             with open(self.json_file, "w", encoding="utf-8") as f:
-                json.dump(
-                    self.changelog.to_dict(),
-                    f,
-                    indent=2,
-                    ensure_ascii=False)
+                json.dump(self.changelog.to_dict(), f, indent=2, ensure_ascii=False)
 
             self.logger.info(f"Changelog saved to {self.json_file}")
 
@@ -201,28 +195,10 @@ class JsonChangelogManager:
     def _detect_change_type(self, files: List[str]) -> ChangeType:
         """Auto-detect change type from file paths"""
         file_patterns = {
-            ChangeType.TEST: [
-                "test_",
-                "tests/",
-                "_test.py",
-                ".test."],
-            ChangeType.DOCS: [
-                "README",
-                "CHANGELOG",
-                ".md",
-                "docs/",
-                "documentation"],
-            ChangeType.CONFIG: [
-                "config",
-                ".json",
-                ".yaml",
-                ".yml",
-                ".env",
-                "settings"],
-            ChangeType.FEATURE: [
-                "src/",
-                "lib/",
-                "app/"],
+            ChangeType.TEST: ["test_", "tests/", "_test.py", ".test."],
+            ChangeType.DOCS: ["README", "CHANGELOG", ".md", "docs/", "documentation"],
+            ChangeType.CONFIG: ["config", ".json", ".yaml", ".yml", ".env", "settings"],
+            ChangeType.FEATURE: ["src/", "lib/", "app/"],
         }
 
         for file_path in files:
@@ -245,14 +221,7 @@ class JsonChangelogManager:
                     tags.append(part.replace(".py", "").replace("_", "-"))
 
         # Extract from summary (simple keyword detection)
-        keywords = [
-            "api",
-            "gui",
-            "config",
-            "database",
-            "client",
-            "manager",
-            "utils"]
+        keywords = ["api", "gui", "config", "database", "client", "manager", "utils"]
         summary_lower = summary.lower()
         for keyword in keywords:
             if keyword in summary_lower:
@@ -267,8 +236,7 @@ class JsonChangelogManager:
             lines.append("# Changelog")
             lines.append("")
             lines.append("Bu dosya otomatik olarak generate edilmiştir.")
-            lines.append(
-                "Düzenlemeler için `changelog.json` dosyasını kullanın.")
+            lines.append("Düzenlemeler için `changelog.json` dosyasını kullanın.")
             lines.append("")
 
             for entry in self.changelog.entries:
@@ -282,12 +250,9 @@ class JsonChangelogManager:
                 lines.append("")
 
                 # Metadata
-                lines.append(
-                    f"**Değişen Dosyalar:** {', '.join(entry.changed_files)}")
-                lines.append(
-                    f"**Etki Seviyesi:** {entry.impact_level.title()}")
-                lines.append(
-                    f"**Değişiklik Tipi:** {entry.change_type.title()}")
+                lines.append(f"**Değişen Dosyalar:** {', '.join(entry.changed_files)}")
+                lines.append(f"**Etki Seviyesi:** {entry.impact_level.title()}")
+                lines.append(f"**Değişiklik Tipi:** {entry.change_type.title()}")
 
                 # Line change information
                 if entry.lines_added > 0 or entry.lines_removed > 0:
@@ -296,8 +261,7 @@ class JsonChangelogManager:
                         line_summary.append(f"+{entry.lines_added}")
                     if entry.lines_removed > 0:
                         line_summary.append(f"-{entry.lines_removed}")
-                    lines.append(
-                        f"**Satır Değişiklikleri:** {' '.join(line_summary)}")
+                    lines.append(f"**Satır Değişiklikleri:** {' '.join(line_summary)}")
 
                 if entry.tags:
                     lines.append(f"**Etiketler:** {', '.join(entry.tags)}")
@@ -313,8 +277,7 @@ class JsonChangelogManager:
             with open(self.markdown_file, "w", encoding="utf-8") as f:
                 f.write("\n".join(lines))
 
-            self.logger.info(
-                f"Generated markdown changelog: {self.markdown_file}")
+            self.logger.info(f"Generated markdown changelog: {self.markdown_file}")
 
         except Exception as e:
             self.logger.error(f"Error generating markdown: {e}")
@@ -332,23 +295,19 @@ class JsonChangelogManager:
 
         # Apply filters
         if change_type:
-            entries = [
-                e for e in entries if e.change_type == change_type.value]
+            entries = [e for e in entries if e.change_type == change_type.value]
 
         if impact_level:
-            entries = [
-                e for e in entries if e.impact_level == impact_level.value]
+            entries = [e for e in entries if e.impact_level == impact_level.value]
 
         if tags:
-            entries = [
-                e for e in entries if any(
-                    tag in e.tags for tag in tags)]
+            entries = [e for e in entries if any(tag in e.tags for tag in tags)]
 
         if since:
             since_dt = datetime.fromisoformat(since)
             entries = [
-                e for e in entries if datetime.fromisoformat(
-                    e.timestamp) >= since_dt]
+                e for e in entries if datetime.fromisoformat(e.timestamp) >= since_dt
+            ]
 
         # Apply limit
         if limit:
@@ -368,8 +327,7 @@ class JsonChangelogManager:
         impact_counts = {}
 
         for entry in entries:
-            type_counts[entry.change_type] = type_counts.get(
-                entry.change_type, 0) + 1
+            type_counts[entry.change_type] = type_counts.get(entry.change_type, 0) + 1
             impact_counts[entry.impact_level] = (
                 impact_counts.get(entry.impact_level, 0) + 1
             )
@@ -389,10 +347,7 @@ class JsonChangelogManager:
     def export_to_format(self, format_type: str = "json") -> str:
         """Export changelog in different formats"""
         if format_type == "json":
-            return json.dumps(
-                self.changelog.to_dict(),
-                indent=2,
-                ensure_ascii=False)
+            return json.dumps(self.changelog.to_dict(), indent=2, ensure_ascii=False)
         elif format_type == "markdown":
             with open(self.markdown_file, "r", encoding="utf-8") as f:
                 return f.read()

@@ -4,13 +4,14 @@ Dynamic configuration system with JSON schema support
 """
 
 import json
+import logging
 import os
 import re
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, Any, List, Optional
+from typing import Any, Dict, List, Optional
+
 from dotenv import load_dotenv
-import logging
 
 
 class ConfigurationManager:
@@ -63,8 +64,7 @@ class ConfigurationManager:
                     self.schema = json.load(f)
                 self.logger.info("Configuration schema loaded successfully")
             else:
-                self.logger.warning(
-                    f"Schema file not found: {self.schema_file}")
+                self.logger.warning(f"Schema file not found: {self.schema_file}")
                 self.schema = {"configuration_groups": [], "profiles": {}}
         except Exception as e:
             self.logger.error(f"Error loading schema: {e}")
@@ -98,8 +98,7 @@ class ConfigurationManager:
     def _save_settings(self) -> None:
         """Save user settings to JSON file"""
         try:
-            self.settings["user_settings"]["last_modified"] = datetime.now(
-            ).isoformat()
+            self.settings["user_settings"]["last_modified"] = datetime.now().isoformat()
             with open(self.settings_file, "w", encoding="utf-8") as f:
                 json.dump(self.settings, f, indent=2, ensure_ascii=False)
             self.logger.info("User settings saved successfully")
@@ -132,11 +131,7 @@ class ConfigurationManager:
         # or by a parent process, and not yet in user_settings.json
         return os.getenv(key)
 
-    def set_field_value(
-            self,
-            key: str,
-            value: str,
-            is_custom: bool = False) -> None:
+    def set_field_value(self, key: str, value: str, is_custom: bool = False) -> None:
         """Set value for a configuration field directly in user_settings.json.
         This will be the primary source of truth.
         """
@@ -144,13 +139,13 @@ class ConfigurationManager:
             if "custom_variables" not in self.settings:
                 self.settings["custom_variables"] = {}
             self.settings["custom_variables"][key] = value
-            self.logger.info(f"Custom variable \'{key}\' set in user_settings.json")
+            self.logger.info(f"Custom variable '{key}' set in user_settings.json")
         else:
             if "environment_variables" not in self.settings:
                 self.settings["environment_variables"] = {}
             self.settings["environment_variables"][key] = value
-            self.logger.info(f"Environment variable \'{key}\' set in user_settings.json")
-        
+            self.logger.info(f"Environment variable '{key}' set in user_settings.json")
+
         # Immediately save settings after a value is set
         self._save_settings()
 
@@ -184,11 +179,13 @@ class ConfigurationManager:
         elif field_type in ["text", "password"]:
             if "min_length" in validation and len(value) < validation["min_length"]:
                 return (
-                    False, f"Value must be at least {validation['min_length']} characters",
+                    False,
+                    f"Value must be at least {validation['min_length']} characters",
                 )
             if "max_length" in validation and len(value) > validation["max_length"]:
                 return (
-                    False, f"Value must be at most {validation['max_length']} characters",
+                    False,
+                    f"Value must be at most {validation['max_length']} characters",
                 )
             if "pattern" in validation:
                 if not re.match(validation["pattern"], value):
@@ -256,45 +253,58 @@ class ConfigurationManager:
         if not already set in user_settings.json. This is a one-time import.
         """
         if not self.env_file.exists():
-            self.logger.info(f".env file not found at {self.env_file}, skipping import.")
+            self.logger.info(
+                f".env file not found at {self.env_file}, skipping import."
+            )
             return
 
         try:
-            load_dotenv(self.env_file) # Loads .env into os.environ
+            load_dotenv(self.env_file)  # Loads .env into os.environ
 
             imported_something = False
             # Get all fields from schema to know what to look for
             all_schema_fields = []
             for group in self.get_configuration_groups():
-                all_schema_fields.extend(field["key"] for field in group.get("fields", []))
-            
+                all_schema_fields.extend(
+                    field["key"] for field in group.get("fields", [])
+                )
+
             # Add common keys like GEMINI_API_KEY if not in schema
             if "GEMINI_API_KEY" not in all_schema_fields:
                 all_schema_fields.append("GEMINI_API_KEY")
 
-
-            for key_from_env in os.environ: # Iterate over keys loaded by load_dotenv
+            for key_from_env in os.environ:  # Iterate over keys loaded by load_dotenv
                 # Only import keys that are part of our schema or common known keys
                 if key_from_env in all_schema_fields:
                     current_value_in_settings = self.get_field_value(key_from_env)
-                    
+
                     # If key is not in user_settings.json (get_field_value would return from os.getenv)
                     # or if it is there but None/empty, then import from .env
-                    is_in_env_vars = key_from_env in self.settings.get("environment_variables", {})
-                    is_in_custom_vars = key_from_env in self.settings.get("custom_variables", {})
+                    is_in_env_vars = key_from_env in self.settings.get(
+                        "environment_variables", {}
+                    )
+                    is_in_custom_vars = key_from_env in self.settings.get(
+                        "custom_variables", {}
+                    )
 
                     if not is_in_env_vars and not is_in_custom_vars:
                         value_from_os_env = os.getenv(key_from_env)
-                        if value_from_os_env: # Ensure there's a value
+                        if value_from_os_env:  # Ensure there's a value
                             self.set_field_value(key_from_env, value_from_os_env)
-                            self.logger.info(f"Imported \'{key_from_env}\' from .env into user_settings.json")
+                            self.logger.info(
+                                f"Imported '{key_from_env}' from .env into user_settings.json"
+                            )
                             imported_something = True
-            
+
             if imported_something:
-                self._save_settings() # Save if any new values were imported
-                self.logger.info("Configuration imported from .env file into user_settings.json where applicable.")
+                self._save_settings()  # Save if any new values were imported
+                self.logger.info(
+                    "Configuration imported from .env file into user_settings.json where applicable."
+                )
             else:
-                self.logger.info("No new configurations to import from .env file into user_settings.json.")
+                self.logger.info(
+                    "No new configurations to import from .env file into user_settings.json."
+                )
 
         except Exception as e:
             self.logger.error(f"Error importing from .env: {e}")
@@ -323,17 +333,9 @@ class ConfigurationManager:
 
     def get_current_profile(self) -> str:
         """Get currently active profile"""
-        return self.settings.get(
-            "user_settings",
-            {}).get(
-            "profile",
-            "development")
+        return self.settings.get("user_settings", {}).get("profile", "development")
 
-    def add_custom_field(
-            self,
-            key: str,
-            value: str,
-            description: str = "") -> None:
+    def add_custom_field(self, key: str, value: str, description: str = "") -> None:
         """Add a custom configuration field"""
         if "custom_variables" not in self.settings:
             self.settings["custom_variables"] = {}

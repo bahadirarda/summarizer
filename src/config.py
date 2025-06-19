@@ -9,6 +9,7 @@ Enhanced with better error handling and environment support.
 import logging
 import os
 import warnings
+
 import urllib3
 
 # Suppress urllib3 warnings safely
@@ -19,12 +20,16 @@ except (AttributeError, ImportError):
     urllib3.disable_warnings()
 
 # Also suppress it via warnings module for extra safety
-warnings.filterwarnings("ignore", "urllib3 v2 only supports OpenSSL 1.1.1+", UserWarning)
+warnings.filterwarnings(
+    "ignore", "urllib3 v2 only supports OpenSSL 1.1.1+", UserWarning
+)
 
 # Version Information
 __version__ = "2.0.0"
 __title__ = "Summarizer Framework"
-__description__ = "AI-Powered Project Summarizer with Enterprise GUI and Terminal Commands"
+__description__ = (
+    "AI-Powered Project Summarizer with Enterprise GUI and Terminal Commands"
+)
 __author__ = "Bahadir Arda"
 __date__ = "2025-06-11"
 

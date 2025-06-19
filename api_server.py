@@ -2,9 +2,11 @@
 Summarizer Framework API Server
 Modular REST API for changelog and code analysis
 """
-from api.config import create_app
+
 import sys
 from pathlib import Path
+
+from api.config import create_app
 
 # Add API directory to path
 sys.path.insert(0, str(Path(__file__).parent / "api"))
@@ -21,9 +23,11 @@ def main():
 
     # Only run framework demo when not in debug reload mode
     import os
-    if os.environ.get('WERKZEUG_RUN_MAIN') != 'true':
+
+    if os.environ.get("WERKZEUG_RUN_MAIN") != "true":
         # Run framework demo only on first startup
         from src.main import summarizer
+
         summarizer()
 
     print("📊 Available Endpoints:")
@@ -50,8 +54,8 @@ def main():
     print("=" * 60)
     print()
 
-    app.run(debug=True, host='0.0.0.0', port=5003)
+    app.run(debug=True, host="0.0.0.0", port=5003)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

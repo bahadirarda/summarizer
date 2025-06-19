@@ -2,16 +2,17 @@
 Documentation Routes
 Comprehensive API documentation with interactive examples
 """
+
 from flask import Blueprint, render_template_string
 
 # Create Blueprint
-bp = Blueprint('docs', __name__, url_prefix='/')
+bp = Blueprint("docs", __name__, url_prefix="/")
 
 
-@bp.route('/', methods=['GET'])
+@bp.route("/", methods=["GET"])
 def api_documentation():
     """API Documentation Homepage"""
-    
+
     html_template = """
 <!DOCTYPE html>
 <html lang="en">
@@ -330,5 +331,5 @@ def api_documentation():
 </body>
 </html>
     """
-    
+
     return render_template_string(html_template)

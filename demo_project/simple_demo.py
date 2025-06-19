@@ -9,13 +9,14 @@ Usage:
     python simple_demo.py
 """
 
-import sys
 import os
+import sys
 from pathlib import Path
 
 # Add the parent directory to Python path to import summarizer
 parent_dir = Path(__file__).parent.parent
 sys.path.insert(0, str(parent_dir))
+
 
 def main():
     """
@@ -24,23 +25,23 @@ def main():
     print("🚀 Simple Summarizer Framework Demo")
     print("=" * 50)
     print()
-    
+
     print("📋 Step 1: Import the summarizer")
     print("   → import summarizer")
-    
+
     # Import the summarizer module
     import summarizer
-    
+
     print("✅ Import successful!")
     print()
-    
+
     print("📋 Step 2: Call the summarizer function")
     print("   → summarizer()")
     print()
-    
+
     # Use the summarizer - exactly as requested
     summarizer()
-    
+
     print()
     print("🎉 Demo completed successfully!")
     print()

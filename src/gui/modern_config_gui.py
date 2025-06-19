@@ -3,12 +3,13 @@ Simplified Professional Configuration GUI
 Dynamic configuration interface with modern design
 """
 
-import flet as ft
-from pathlib import Path
-from typing import Dict, Any, Optional
-from datetime import datetime
 import subprocess
 import sys
+from datetime import datetime
+from pathlib import Path
+from typing import Any, Dict, Optional
+
+import flet as ft
 
 from ..core.configuration_manager import ConfigurationManager
 
@@ -18,10 +19,12 @@ class SimplifiedConfigGUI:
 
     def __init__(self, project_root: Optional[Path] = None):
         # Use project_root if provided, otherwise default to cwd for config
-        config_dir = project_root / ".summarizer" if project_root else Path.cwd() / ".summarizer"
+        config_dir = (
+            project_root / ".summarizer" if project_root else Path.cwd() / ".summarizer"
+        )
         # Ensure the config directory exists
         config_dir.mkdir(parents=True, exist_ok=True)
-        
+
         self.config_manager = ConfigurationManager(config_dir=config_dir)
         self.page: Optional[ft.Page] = None
         self.field_controls: Dict[str, ft.Control] = {}
@@ -31,8 +34,9 @@ class SimplifiedConfigGUI:
         """Create control for configuration field - Enterprise flat design"""
         field_type = field_config.get("type", "text")
         key = field_config["key"]
-        current_value = self.config_manager.get_field_value(
-            key) or field_config.get("default", "")
+        current_value = self.config_manager.get_field_value(key) or field_config.get(
+            "default", ""
+        )
 
         # Enterprise flat boyutlar - minimal ve temiz
         control_width = 300
@@ -56,17 +60,15 @@ class SimplifiedConfigGUI:
                 focused_border_color=focus_color,
                 color=text_color,
                 label_style=ft.TextStyle(color=label_color, size=12),
-                content_padding=ft.padding.symmetric(
-                    horizontal=8, vertical=12),
+                content_padding=ft.padding.symmetric(horizontal=8, vertical=12),
             )
 
         elif field_type == "select":
             options = []
             for option in field_config.get("options", []):
                 options.append(
-                    ft.dropdown.Option(
-                        key=option["value"],
-                        text=option["label"]))
+                    ft.dropdown.Option(key=option["value"], text=option["label"])
+                )
 
             control = ft.Dropdown(
                 label=field_config["label"],
@@ -78,8 +80,7 @@ class SimplifiedConfigGUI:
                 focused_border_color=focus_color,
                 color=text_color,
                 label_style=ft.TextStyle(color=label_color, size=12),
-                content_padding=ft.padding.symmetric(
-                    horizontal=8, vertical=12),
+                content_padding=ft.padding.symmetric(horizontal=8, vertical=12),
             )
 
         elif field_type == "number":
@@ -94,8 +95,7 @@ class SimplifiedConfigGUI:
                 color=text_color,
                 label_style=ft.TextStyle(color=label_color, size=12),
                 keyboard_type=ft.KeyboardType.NUMBER,
-                content_padding=ft.padding.symmetric(
-                    horizontal=8, vertical=12),
+                content_padding=ft.padding.symmetric(horizontal=8, vertical=12),
             )
 
         elif field_type == "boolean":
@@ -139,8 +139,7 @@ class SimplifiedConfigGUI:
                 focused_border_color=focus_color,
                 color=text_color,
                 label_style=ft.TextStyle(color=label_color, size=12),
-                content_padding=ft.padding.symmetric(
-                    horizontal=8, vertical=12),
+                content_padding=ft.padding.symmetric(horizontal=8, vertical=12),
             )
 
         self.field_controls[key] = control
@@ -158,11 +157,7 @@ class SimplifiedConfigGUI:
         for key, control in self.field_controls.items():
             value = self.config_manager.get_field_value(key)
             if value:
-                if hasattr(
-                        control,
-                        "content") and isinstance(
-                        control.content,
-                        ft.Row):
+                if hasattr(control, "content") and isinstance(control.content, ft.Row):
                     # Boolean switch içinde
                     switch_control = control.content.controls[0]
                     if isinstance(switch_control, ft.Switch):
@@ -190,16 +185,14 @@ class SimplifiedConfigGUI:
 
             # İkinci alan varsa ekle
             if i + 1 < len(group_fields):
-                field_control_2 = self.create_field_control(
-                    group_fields[i + 1])
+                field_control_2 = self.create_field_control(group_fields[i + 1])
                 row_fields.append(ft.Container(field_control_2, expand=1))
             else:
                 row_fields.append(ft.Container(expand=1))  # Boş alan
 
             # Üçüncü alan varsa ekle
             if i + 2 < len(group_fields):
-                field_control_3 = self.create_field_control(
-                    group_fields[i + 2])
+                field_control_3 = self.create_field_control(group_fields[i + 2])
                 row_fields.append(ft.Container(field_control_3, expand=1))
             else:
                 row_fields.append(ft.Container(expand=1))  # Boş alan
@@ -253,11 +246,7 @@ class SimplifiedConfigGUI:
         try:
             # Collect values from all controls
             for key, control in self.field_controls.items():
-                if hasattr(
-                        control,
-                        "content") and isinstance(
-                        control.content,
-                        ft.Row):
+                if hasattr(control, "content") and isinstance(control.content, ft.Row):
                     # Boolean switch içinde
                     switch_control = control.content.controls[0]
                     if isinstance(switch_control, ft.Switch):
@@ -277,8 +266,7 @@ class SimplifiedConfigGUI:
             self.show_status("✅ Configuration saved successfully!", "#27ae60")
 
         except Exception as ex:
-            self.show_status(
-                f"❌ Error saving configuration: {str(ex)}", "#e74c3c")
+            self.show_status(f"❌ Error saving configuration: {str(ex)}", "#e74c3c")
 
     def save_and_run(self, e):
         """Save configuration and run main application"""
@@ -291,8 +279,7 @@ class SimplifiedConfigGUI:
                 self.show_status("🚀 Starting main application...", "#3498db")
 
                 # Start main application
-                subprocess.Popen(
-                    [sys.executable, "-m", "src.main"], cwd=Path.cwd())
+                subprocess.Popen([sys.executable, "-m", "src.main"], cwd=Path.cwd())
 
                 # Close GUI after a short delay
                 import time
@@ -301,8 +288,7 @@ class SimplifiedConfigGUI:
                 self.page.window.close()
 
             except Exception as ex:
-                self.show_status(
-                    f"❌ Error starting application: {str(ex)}", "#e74c3c")
+                self.show_status(f"❌ Error starting application: {str(ex)}", "#e74c3c")
 
     def show_status(self, message: str, color: str):
         """Show status message"""
@@ -389,9 +375,7 @@ class SimplifiedConfigGUI:
                 border_color="#e1e8ed",
                 focused_border_color="#3498db",
                 on_change=self.on_profile_change,
-                content_padding=ft.padding.symmetric(
-                    horizontal=12,
-                    vertical=8),
+                content_padding=ft.padding.symmetric(horizontal=12, vertical=8),
             )
 
             profile_section = ft.Container(
@@ -482,8 +466,7 @@ class SimplifiedConfigGUI:
                     ft.ElevatedButton(
                         content=ft.Row(
                             [
-                                ft.Icon(
-                                    ft.Icons.PLAY_ARROW, size=16, color="white"),
+                                ft.Icon(ft.Icons.PLAY_ARROW, size=16, color="white"),
                                 ft.Text(
                                     "Save & Run",
                                     size=13,
@@ -507,8 +490,7 @@ class SimplifiedConfigGUI:
                     ft.OutlinedButton(
                         content=ft.Row(
                             [
-                                ft.Icon(
-                                    ft.Icons.CLOSE, size=16, color="#e74c3c"),
+                                ft.Icon(ft.Icons.CLOSE, size=16, color="#e74c3c"),
                                 ft.Text(
                                     "Cancel",
                                     size=13,
@@ -558,20 +540,33 @@ def main_gui_entry():
     # This function will be called by the summarizer CLI
     # It needs to accept the project_root argument from the CLI
     import argparse
+
     parser = argparse.ArgumentParser()
-    parser.add_argument("--project_root", type=str, help="The root directory of the project.", default=None)
+    parser.add_argument(
+        "--project_root",
+        type=str,
+        help="The root directory of the project.",
+        default=None,
+    )
     args = parser.parse_args()
-    
+
     # If project_root is not passed, it defaults to None, and SimplifiedConfigGUI will use Path.cwd()
     run_configuration_gui(args.project_root)
+
 
 if __name__ == "__main__":
     # When run directly, try to get project_root from argv or default to cwd
     # This allows testing the GUI with a specific project context if needed
     # e.g. python -m src.gui.modern_config_gui --project_root /path/to/your/project
     import argparse
+
     parser = argparse.ArgumentParser()
-    parser.add_argument("--project_root", type=str, help="The root directory of the project.", default=None)
+    parser.add_argument(
+        "--project_root",
+        type=str,
+        help="The root directory of the project.",
+        default=None,
+    )
     args = parser.parse_args()
-    
+
     run_configuration_gui(args.project_root)

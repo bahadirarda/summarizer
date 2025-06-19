@@ -16,14 +16,13 @@ class RequestManager:
         """Belirli bir servis için bir istemci kaydeder."""
         self.clients[service_name] = client_instance
         logging.info(
-            f"'{service_name}' istemcisi RequestManager'a başarıyla kaydedildi.")
+            f"'{service_name}' istemcisi RequestManager'a başarıyla kaydedildi."
+        )
 
     def get_client(self, service_name):
         """Kaydedilmiş bir istemciyi döndürür."""
         client = self.clients.get(service_name)
         if not client:
-            logging.error(
-                f"{service_name} için kayıtlı bir istemci bulunamadı.")
-            raise ValueError(
-                f"{service_name} istemcisi bulunamadı. Önce kaydedin.")
+            logging.error(f"{service_name} için kayıtlı bir istemci bulunamadı.")
+            raise ValueError(f"{service_name} istemcisi bulunamadı. Önce kaydedin.")
         return client
