@@ -3,6 +3,35 @@
 Bu dosya otomatik olarak generate edilmiştir.
 Düzenlemeler için `changelog.json` dosyasını kullanın.
 
+## 2025-06-20 01:24:41
+
+### 1. YAPISAL ANALİZ:
+
+Değişiklikler, projenin `src/utils` alt dizininde yer alan iki yardımcı araç dosyasını etkiliyor: `version_manager.py` ve `changelog_updater.py`.  Bu, yardımcı araçlar katmanını doğrudan etkiliyor.  `version_manager.py` dosyası versiyon yönetimiyle, `changelog_updater.py` dosyası ise değişiklik günlüğünün güncellenmesiyle ilgili işlemleri barındırıyor.  Mimari değişikliklerin etkisi, versiyon ve değişiklik günlüğü yönetiminin daha modüler ve sürdürülebilir hale getirilmesi şeklinde.  Kod organizasyonunda yapılan iyileştirmelerin tam olarak ne olduğu sağlanan kod parçalarından tam olarak anlaşılamıyor; ancak `version_manager.py`'deki uzunluk itibariyle kesilen kodun, versiyon belirleme, kod adı ataması, kırıcı değişiklik tespiti gibi fonksiyonları daha yapılandırılmış bir şekilde düzenlediğini varsayabiliriz. `changelog_updater.py` dosyasında ise `_detect_impact_level` fonksiyonu gibi daha spesifik fonksiyonların tanımlanması, kodun daha modüler ve anlaşılır olmasına katkı sağlamıştır.
+
+
+### 2. İŞLEVSEL ETKİ:
+
+`version_manager.py` dosyasındaki değişiklikler, versiyon bilgisinin `package.json` dosyasından okunması ve ayrıştırılması, git dalının belirlenmesi, semantik versiyonlamaya uygun versiyon oluşturma ve kod adları ataması gibi işlevleri geliştirmiştir.  Kırıcı değişiklik tespiti için daha gelişmiş bir mekanizma eklenmiştir.  `changelog_updater.py` dosyasındaki değişiklikler, değişiklik günlüğüne yeni girdilerin eklenmesi işlemini iyileştirmiştir.  Etki seviyesinin (ImpactLevel) otomatik olarak tespit edilmesi için daha kapsamlı bir algoritma kullanılmıştır.  Bu algoritma özet bilgisini ve değiştirilen dosyaları dikkate almaktadır.  Kullanıcı deneyiminin doğrudan etkilenmesi söz konusu değildir, ancak daha doğru versiyon bilgisi ve daha detaylı değişiklik günlüğü, geliştiriciler için daha iyi bir deneyim sunacaktır. Performans etkisi, eklenen fonksiyonların karmaşıklığına bağlıdır ve sağlanan kod parçaları ile tam olarak ölçülemez. Güvenlik ve güvenilirlik üzerinde doğrudan bir etki görülmüyor, ancak doğru versiyon yönetimi ve değişiklik takibi, uzun vadede güvenilirliği artıracaktır.
+
+
+### 3. TEKNİK DERİNLİK:
+
+`VersionManager` sınıfı, tek sorumluluk prensibine (Single Responsibility Principle) uygun bir tasarım örneği olarak düşünülebilir.  `changelog_updater.py` dosyasındaki fonksiyonlar da benzer şekilde daha küçük ve özelleşmiş işlevlere ayrıştırılmış görünüyor.  Kod kalitesi ve sürdürülebilirlik, daha modüler ve anlaşılır kod yapısı sayesinde iyileştirilmiştir.  Kırıcı değişikliklerin tespiti için kullanılan `_has_breaking_changes` fonksiyonu, belirli dosya adlarını kontrol ederek basit bir kural tabanlı yaklaşım kullanmaktadır.  Yeni bağımlılıkların eklendiğine dair bilgi sağlanan kod parçasında bulunmuyor.
+
+
+### 4. SONUÇ YORUMU:
+
+Bu değişiklikler, projenin versiyonlama ve değişiklik günlüğü yönetimini iyileştirerek uzun vadeli sürdürülebilirliğe katkıda bulunmuştur.  Daha doğru versiyon bilgisi ve detaylı değişiklik günlüğü, hata ayıklama ve geriye dönük izleme süreçlerini kolaylaştıracaktır.  Projenin teknik borcu, kodun daha modüler ve anlaşılır hale getirilmesiyle azaltılmış olabilir (kesilen kodun içeriği tam olarak bilinmediğinden kesin bir değerlendirme yapılamamaktadır).  Daha kapsamlı bir etki seviyesi tespiti mekanizması, gelecekteki geliştirmeleri daha iyi planlamaya olanak sağlayacaktır.  Ancak,  `_has_breaking_changes` fonksiyonunun  yalnızca belirli dosya adlarına dayalı olması, yanlış pozitif veya negatif sonuçlara yol açabileceği için potansiyel bir teknik borç olarak değerlendirilebilir.  Daha sofistike bir kırıcı değişiklik tespit mekanizması gelecekteki geliştirmelerde düşünülebilir.
+
+**Değişen Dosyalar:** src/utils/version_manager.py, src/utils/changelog_updater.py
+**Etki Seviyesi:** High
+**Değişiklik Tipi:** Feature
+**Satır Değişiklikleri:** +16
+**Etiketler:** api, manager, changelog-updater, version-manager, utils
+
+---
+
 ## 2025-06-20 01:22:47
 
 ### 1. YAPISAL ANALİZ:
