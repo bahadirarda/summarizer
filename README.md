@@ -1,58 +1,62 @@
 # 🚀 project.110620251156
-> ✨  Sürüm yönetimini ve değişiklik günlüğü güncellemelerini otomatikleştiren, AI destekli bir yardımcı araç.  Daha hızlı ve daha güvenilir bir geliştirme süreci için tasarlanmıştır.
+> Changelog ve sürüm yönetimini otomatikleştiren, AI destekli özetleme ve gelişmiş Git entegrasyonu sunan bir web projesi.
 
 ## 📊 Proje Durumu
-Proje tamamlanmıştır.  Yeni sürüm yönetimi ve changelog güncelleme sistemi başarıyla entegre edilmiştir.  AI destekli özetleme ve otomatik sürüm artırımı gibi özellikler tam olarak çalışır durumda.  `develop` branch'inden `staging` branch'ine pull request oluşturma özelliği eklenmiştir.  Sürekli entegrasyon (CI) kontrolleri, kod kalitesini ve güvenilirliğini korumak için uygulanmıştır.  Sistem, `gemini_client` adlı bir AI aracı kullanarak değişiklikleri otomatik olarak özetliyor; ancak bu aracın güvenilirliği ve maliyetleri göz önünde bulundurulmalıdır.
+Geliştirme aşamasında. Son değişiklikler, changelog güncelleme süreçlerini otomatikleştirmeye, sürüm yönetimini iyileştirmeye ve geliştirici deneyimini geliştirmeye odaklanmıştır.  AI entegrasyonu ve gelişmiş Git iş akışı yönetimi sayesinde daha verimli ve hatasız bir sürüm kontrol sistemi sağlanmıştır.
 
 ## ✨ Özellikler
-* 🤖 **AI Destekli Değişiklik Özetleme:** Gemini Client kullanılarak değişiklikler otomatik olarak özetlenir.  AI başarısız olursa, varsayılan bir özet kullanılır.
-* 📈 **Otomatik Versiyon Artışı:** Impact Level'a (Critical, High, Medium, Low) göre otomatik versiyon numarası artışı.
-* 🗂️ **Gelişmiş Changelog Yönetimi:**  Daha hızlı ve daha tutarlı changelog güncellemeleri.
-* 🫗 **Dal Yönetimi:** `main` veya `master` dalında değişiklik yapıldığında yeni bir dal oluşturma isteği. AI önerili dal adı veya kullanıcı girişi kullanılabilir.
-* 🚦 **CI Entegrasyonu:** Kod kalitesini ve potansiyel sorunları erken tespit etmek için CI kontrolleri.
-* 🔀 **Gelişmiş Git Entegrasyonu:** `develop` branch'inden `staging` branch'ine Pull Request oluşturma desteği.  Push işlemi ve Pull Request oluşturma işlemleri ayrı ve kullanıcı tarafından onaylanabilir adımlar halinde ayrıştırılmıştır.
+* 🔄 **Otomatik Sürüm Artırımı:** Impact seviyesine (Critical, High, Medium, Low) göre otomatik sürüm numarası artışı.
+* ✍️ **AI Destekli Changelog Özetleme:** Gemini AI kullanarak değişikliklerin otomatik özetlenmesi.
+*  branching **Gelişmiş Branch Yönetimi:**  `main` veya `master` branch'lerinde yapılan değişiklikler için yeni branch oluşturma sorgulaması. AI destekli branch adı önerisi.
+* 🤖 **CI Entegrasyonu:** `run_ci_checks.py` script'i ile kod kalitesi ve uyumluluk kontrolleri.
+* 💾 **Otomatik Yedekleme:** Değişikliklerden önce dosya yedeklemesi.
+* 🔀 **Develop'ten Staging'e Pull Request:**  Yeni bir geliştirme akışı sağlayan `develop` branch'inden `staging` branch'ine pull request oluşturma.
+* 🚦**Kontrollü Git İş Akışı:**  Push işlemi onayı ve opsiyonel Pull Request oluşturma.
 
 
 ## Değişen Dosyalar:
-`src/utils/changelog_updater.py`, `src/utils/version_manager.py`
+`src/utils/changelog_updater.py` dosyasında önemli değişiklikler yapılmıştır.  Diğer yardımcı dosyalar (`file_tracker.py`, `json_changelog_manager.py`, `readme_generator.py`, `version_manager.py`, `git_manager.py`)  `changelog_updater.py` ile etkileşim halindedir ve dolaylı olarak etkilenmiştir.
 
 
 ## ANALİZ GÖREVİ:
 
 ### 1. YAPISAL ANALİZ:
 
-* **Etkilenen Bileşenler ve Katmanlar:**  Değişiklikler, projenin yardımcı araçlar katmanını (`src/utils`) doğrudan etkilemiştir. Özellikle `changelog_updater.py` ve `version_manager.py` dosyaları büyük ölçüde değiştirilmiştir.  `changelog_updater.py`, `file_tracker`, `json_changelog_manager`, `readme_generator`, `version_manager`, ve `git_manager` gibi diğer modüllerle etkileşim halindedir. Bu modüller arasında veri akışı ve etkileşim değiştirilmiştir.
+- **Etkilenen Sistem Bileşenleri ve Katmanlar:**  Değişiklikler öncelikle yardımcı araçlar katmanındaki `changelog_updater.py` dosyası ve ona bağlı diğer yardımcı modüller (`file_tracker.py`, `json_changelog_manager.py`, `readme_generator.py`, `version_manager.py`, `git_manager.py`) üzerinde yoğunlaşmıştır.  Bu modüller, dosya izleme, changelog yönetimi, README güncellemeleri, sürüm kontrolü ve Git entegrasyonu gibi görevlerden sorumludur.
 
-* **Mimari Değişikliklerin Etkisi:** Mimari açısından büyük bir değişiklik olmamakla birlikte, sürüm yönetimi ve changelog güncelleme süreçleri önemli ölçüde otomatikleştirilmiştir.  `version_manager.py`'de,  `VersionManager` sınıfının daha modüler bir yapıya kavuşması ve tek sorumluluk prensibine daha iyi uyması hedeflenmiştir.  `changelog_updater.py`'deki değişiklikler, Git ile etkileşimin daha ayrıntılı ve kontrollü bir şekilde yönetilmesine yol açmıştır.  Push ve Pull Request işlemleri ayrıştırılmış ve kullanıcı kontrolüne alınmıştır.
+- **Mimari Değişikliklerin Etkisi:**  Temel mimari değişmemiş olmakla birlikte, `changelog_updater.py` dosyasının işlevselliği önemli ölçüde genişletilmiştir.  Daha önce muhtemelen farklı dosyalarda veya `changelog_updater.py` içinde dağınık olarak bulunan fonksiyonlar, daha iyi organize edilmiş ve modüler bir yapıya kavuşmuş olabilir (tam kod olmadan kesin yorum yapmak zor).  Bu, potansiyel olarak daha iyi sürdürülebilirlik ve bakımı kolay bir kod yapısına yol açar ancak  `changelog_updater.py` dosyasının boyutu, gelecekte daha fazla modülerliğe ihtiyaç duyulabileceğini göstermektedir.
 
-* **Kod Organizasyonundaki İyileştirmeler:** Kodun daha modüler hale getirilmesi, özellikle Git işlemlerinin `git_manager` modülüne entegre edilmesiyle sağlanmıştır.  `VersionManager` sınıfı içindeki fonksiyonların daha küçük ve özelleşmiş birimlere ayrılması (örneğin, `_has_breaking_changes`, `_has_new_features`), tek sorumluluk prensibine uyumu artırmıştır.  Bu, kodun okunabilirliğini, sürdürülebilirliğini ve test edilebilirliğini iyileştirmiştir.
+- **Kod Organizasyonunda Yapılan İyileştirmeler:**  Üç farklı log mesajında farklı kod organizasyon iyileştirmelerine dair yorumlar vardır.  Birinci log, ilgili fonksiyonların birlikte gruplandırılmasıyla bir iyileştirmeden bahseder. İkinci log,  `changelog_updater.py`'nin farklı modülleri kullanarak sorumlulukları paylaştırdığını ve bunun iyi bir modülerlik örneği olduğunu belirtir. Üçüncü log ise, Git işlemlerinin `git_manager` modülüne daha iyi entegre edildiğini ve kodun daha temiz ve bakımı kolay olmasını sağladığını vurgular. Bu üç yorum birlikte ele alındığında, kodun daha modüler ve organize hale getirildiği sonucuna varabiliriz.
 
 
 ### 2. İŞLEVSEL ETKİ:
 
-* **Eklenen, Değiştirilen veya Kaldırılan Özellikler:**  En önemli değişiklik, otomatik sürüm artırımı ve AI destekli changelog özetlemesidir.  `develop` branch'inden `staging` branch'ine pull request oluşturma yeteneği eklenmiştir. Push ve Pull Request işlemleri ayrı ve kullanıcı tarafından onaylanabilir adımlar halinde yeniden yapılandırılmıştır.
+- **Eklenen, Değiştirilen veya Kaldırılan Özellikler:**
+    * **Eklenen Özellikler:** Otomatik sürüm artırımı (impact seviyesine göre), AI destekli changelog özetleme, gelişmiş branch yönetimi (AI destekli branch adı önerisi ve kullanıcı onayı), CI entegrasyonu, otomatik dosya yedekleme, `develop` branch'inden `staging` branch'ine pull request oluşturma, kontrollü Git iş akışı (push onayı ve opsiyonel pull request oluşturma).
+    * **Değiştirilen Özellikler:**  Mevcut changelog ve sürüm yönetimi işlemleri otomatikleştirilmiştir. Git ile etkileşim daha kontrollü ve kullanıcı dostu hale getirilmiştir.
+    * **Kaldırılan Özellikler:** Açıkça belirtilmemiştir, ancak manuel sürüm yönetimi ve manuel changelog oluşturma işlemleri kısmen veya tamamen otomasyonla yer değiştirmiştir.
 
-* **Kullanıcı Deneyimi Üzerindeki Etki:** Kullanıcı deneyimi, otomasyon sayesinde önemli ölçüde iyileştirilmiştir.  Sürüm yönetimi ve changelog güncellemeleri daha kolay ve hızlı hale gelmiştir.  Kullanıcıya daha fazla kontrol sağlayan ve her adımı onaylama olanağı sunan etkileşimli bir akış oluşturulmuştur.
+- **Kullanıcı Deneyiminin Etkilenmesi:** Kullanıcı deneyimi önemli ölçüde iyileştirilmiştir.  Manuel işlemler otomatikleştirildiğinden, geliştiriciler daha az zaman harcayarak daha verimli çalışabilirler.  Ancak, AI özeti ve branch adı önerisi gibi bazı noktalarda hala kullanıcı etkileşimi mevcuttur.  Kontrollü Git iş akışı, hataların önlenmesine ve daha güvenli bir geliştirme sürecine katkıda bulunur.
 
-* **Performans, Güvenlik ve Güvenilirlik Üzerindeki Etkiler:** Performans, kullanılan AI aracının performansına ve CI scriptinin süresine bağlıdır.  Güvenlik ve güvenilirlik, CI kontrolleri ve geliştirilmiş dal yönetimi sayesinde artmıştır.  Kodun daha modüler hale getirilmesi ve hata yönetiminin iyileştirilmesi, uzun vadede güvenilirliği artıracaktır.
+- **Performans, Güvenlik veya Güvenilirlik Üzerindeki Etkiler:** Performans, AI aracının (Gemini) performansına ve CI kontrol sürelerine bağlıdır.  Güvenlik ve güvenilirlik, CI kontrolleri, otomatik yedekleme ve kontrollü Git iş akışı sayesinde iyileştirilmiştir.  Ancak, AI aracına olan bağımlılık potansiyel bir risktir.
 
 
-### 3. TEKNİK DERINLIK:
+### 3. TEKNİK DERİNLİK:
 
-* **Tasarım Desenleri:** Kodda belirgin bir tasarım deseni değişikliği yoktur, ancak tek sorumluluk prensibi ve açık-kapalı prensibine daha fazla uyum sağlanmıştır.  Modülerlik artırılmıştır.
+- **Tasarım Desenleri:**  `ImpactLevel` enum'u ve `_detect_impact_level` fonksiyonunun, Strateji Deseni'ni izlediği belirtilmiştir.  Bu, farklı impact seviyelerine göre farklı sürüm artırım kurallarının uygulanabilmesini sağlar.  Kodda başka tasarım desenleri olup olmadığı, tam kod olmadan kesin olarak belirlenemez.
 
-* **Kod Kalitesi ve Sürdürülebilirlik:** Kod kalitesi ve sürdürülebilirlik, otomasyon, daha iyi hata yönetimi (`try-except` blokları), modüler tasarım ve açıklayıcı isimlendirme ile iyileştirilmiştir.  Tip belirtmeleri (`typing` modülü) kullanılarak kodun okunabilirliği ve bakımı kolaylaştırılmıştır.  Loglama mekanizmasının kullanılması, hata ayıklama ve izlemeyi kolaylaştırır.
+- **Kod Kalitesi ve Sürdürülebilirliğin Gelişimi:** Kod kalitesi ve sürdürülebilirliği, daha iyi modülerlik (potansiyel olarak), tip ipuçlarının kullanımı (`typing` modülü), logging mekanizması (`logger_changelog`) ve hata yönetiminin iyileştirilmesi (`try-except` blokları) ile geliştirilmiştir.  Ancak, `changelog_updater.py` dosyasının uzunluğu hala bir iyileştirme gerektiğini göstermektedir.
 
-* **Yeni Bağımlılıklar:** Yeni bir bağımlılık olan `gemini_client` (AI aracı) eklenmiştir.  `urllib.parse`, `subprocess`, `git`, `json`, `toml`, `pathlib` gibi standart Python kütüphaneleri kullanılmaya devam edilmektedir.
+- **Yeni Bağımlılıklar veya Teknolojiler:** Gemini AI aracı entegre edilmiştir. Bu, yeni bir dış bağımlılık anlamına gelir.  `urllib.parse` ve `subprocess` gibi kütüphanelerin kullanımı da belirtilmiştir.
 
 
 ### 4. SONUÇ YORUMU:
 
-* **Uzun Vadeli Değer ve Etki:** Bu değişiklikler, geliştirme sürecinin verimliliğini ve güvenilirliğini artırmaktadır. Uzun vadeli değer, daha hızlı ve daha tutarlı sürüm yönetimi, daha iyi changelog oluşturma ve daha az manuel çalışma anlamına gelir.  Projenin teknik borcu, özellikle manuel changelog ve versiyon yönetimine ilişkin borç azaltılmıştır.
+- **Uzun Vadeli Değer ve Etki:**  Bu değişiklikler, changelog ve sürüm yönetimini otomatikleştirerek uzun vadede geliştirici verimliliğini artıracaktır.  Hata olasılığı azaltılmış ve daha tutarlı bir geliştirme süreci sağlanmıştır. AI entegrasyonu, geliştiricilerin zamanını daha iyi kullanmalarını sağlar.  Kontrollü Git iş akışı, daha güvenli ve şeffaf bir geliştirme süreci sunar.
 
-* **Teknik Borç Üzerindeki Etki:** Otomasyon sayesinde, manuel sürüm yönetimi ve changelog güncellemelerine bağlı teknik borç azaltılmıştır.
+- **Projenin Teknik Borcunun Etkilenmesi:**  `changelog_updater.py` dosyasının uzunluğu, potansiyel bir teknik borçtur.  Ancak, kodun daha modüler hale getirilmesi bu borcu azaltmaya yardımcı olabilir.
 
-* **Gelecekteki Geliştirmelere Hazırlık:**  AI entegrasyonu, gelecekte daha gelişmiş otomasyon özelliklerinin eklenmesine olanak tanır.  Daha modüler ve genişletilebilir bir sürüm yönetim sistemi oluşturulmuştur.  Ancak, `gemini_client` aracına bağımlılık, olası bir risk faktörüdür ve bu aracın güvenilirliği ve maliyetleri göz önünde bulundurulmalıdır.  CI scriptinin eksikliği veya başarısızlığı, kod kalitesinin düşmesine neden olabilir.
+- **Gelecekteki Geliştirmelere Hazırlık:**  Daha fazla otomasyon ve entegre araçlar eklemek daha kolay olacaktır.  Ancak, AI entegrasyonunun sürdürülebilirliği ve bakımının dikkate alınması gerekir.  `changelog_updater.py` dosyasının yeniden yapılandırılması, gelecekteki geliştirmeleri daha kolay ve daha yönetilebilir hale getirecektir.  `develop`'ten `staging`'e pull request özelliği, geliştirme akışına daha fazla esneklik katmıştır.
 
 ## 🛠️ Kurulum (Installation)
 
@@ -213,7 +217,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**Last updated**: June 20, 2025 by Summarizer Framework v12.10.0
+**Last updated**: June 20, 2025 by Summarizer Framework v13.0.0
 *This README is automatically generated and updated based on project activity.*
 
 > *"Automatically maintained with AI-powered analysis"*

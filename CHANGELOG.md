@@ -3,6 +3,72 @@
 Bu dosya otomatik olarak generate edilmiştir.
 Düzenlemeler için `changelog.json` dosyasını kullanın.
 
+## 2025-06-20 02:04:23
+
+### 1. YAPISAL ANALİZ:
+
+Değişiklikler `src/utils/changelog_updater.py` dosyasında yoğunlaşmıştır. Bu dosya, projede changelog güncellemelerini ve sürüm yönetimini sağlayan bir yardımcı araçtır.  Etkin sistem bileşenleri şunlardır:
+
+* **`changelog_updater.py`:** Bu dosya, değişikliklerin merkezidir.  Changelog girişi oluşturma, sürüm artırma, Git işlemleri ve README güncellemesi gibi işlevleri birleştirir.
+* **`file_tracker.py`:** Değiştirilen dosyaları ve satır değişikliklerini tespit eder. `changelog_updater.py` tarafından kullanılır.
+* **`json_changelog_manager.py`:** Changelog verilerini JSON formatında yönetir.  `changelog_updater.py` tarafından changelog girişlerini eklemek için kullanılır.
+* **`readme_generator.py`:** README dosyasını günceller. `changelog_updater.py` tarafından changelog güncellemelerinden sonra çağrılır.
+* **`version_manager.py`:** Projenin sürüm numarasını yönetir.  `changelog_updater.py` tarafından sürüm artırımı ve sürüm dosyalarındaki güncellemeler için kullanılır.
+* **`git_manager.py`:** Git işlemlerini yönetir (branch oluşturma, checkout, tag oluşturma). `changelog_updater.py` tarafından Git entegrasyonu için kullanılır.
+
+Mimari açıdan bakıldığında, `changelog_updater.py` daha önce belki de dağıtılmış işlevleri tek bir yerde toplar. Bu, daha merkezileşmiş bir sürüm ve changelog yönetimi sağlar.  Ancak, bu aynı zamanda dosyanın büyümesine ve karmaşıklığının artmasına yol açabilir (kesilen kodda bunun ipuçları mevcut).  Kod organizasyonunda, ilgili fonksiyonların birlikte gruplandırılmasıyla bir iyileştirme yapılmış olabilir (eğer daha önce daha dağınık bir yapı varsa).  Ancak, dosyanın uzunluğu (kesilen 122 satır), daha fazla modülerliğe ihtiyaç duyulduğuna işaret edebilir.
+
+
+### 2. İŞLEVSEL ETKİ:
+
+Yeni özellikler eklenmiştir veya değiştirilmiştir:
+
+* **Otomatik Sürüm Artırımı:** Impact seviyesine göre (Critical, High, Medium, Low) otomatik sürüm artırımı eklenmiştir.  Bu, manuel sürüm yönetiminin yerini alarak daha otomatik bir iş akışı sağlar.
+* **AI Özetleme Entegrasyonu:**  Değişikliklerin özetini otomatik olarak üretmek için bir AI aracı (Gemini'den bahsediliyor) entegre edilmiştir. Bu özet, changelog girişine eklenir.  AI başarısız olursa, varsayılan bir özet kullanılır.
+* **Branch Yönetimi:** `main` veya `master` branch'lerinde değişiklik yapılırsa, kullanıcıdan yeni bir branch oluşturulup oluşturulmayacağı sorulur.  AI tarafından önerilen bir branch adı veya manuel olarak girilen bir isim kullanılabilir. Bu, protected branch'lerin korunmasını sağlar.
+* **CI Kontrolü:**  `run_ci_checks.py` script'inin çalıştırılmasıyla CI kontrolleri eklenmiştir.  Bu, değişikliklerin kod kalitesi ve uyumluluk açısından test edilmesini sağlar.
+* **Geri Alma Mekanizması:** `create_file_backups` fonksiyonu, değişikliklerden önce dosyaların yedeklerini oluşturur. Bu, hatalı değişikliklerin geri alınmasını kolaylaştırır.
+
+
+Kullanıcı deneyimi, otomatik süreçler sayesinde geliştirilmiştir.  Kullanıcıların manuel olarak changelog yazması, sürüm numarasını değiştirmesi ve yeni branch'ler oluşturması gerekmez.  Ancak, AI özetleme ve branch oluşturma süreçlerinde kullanıcı etkileşimi hala mevcuttur.
+
+Performans, güvenlik veya güvenilirlik üzerindeki etkiler, koddaki değişikliklerden dolayı doğrudan anlaşılamamaktadır.  CI kontrolleri, güvenilirliği artırmaya yönelik bir adımdır.  AI entegrasyonu ise performansa bağlı olarak değişkenlik gösterebilir.
+
+
+### 3. TEKNİK DERİNLİK:
+
+Belirgin tasarım desenleri:
+
+* **Strateji Deseni:** `ImpactLevel` enum'u ve `_detect_impact_level` fonksiyonu, impact seviyesinin belirlenmesi için bir strateji deseni izlenebileceğini göstermektedir.  Farklı impact seviyeleri için farklı kurallar uygulanabilir.
+
+Kod kalitesi ve sürdürülebilirliği geliştirmek için adımlar atılmıştır:
+
+* Daha fazla modülerlik (potansiyel olarak) sağlanması amaçlanmış olsa da, `changelog_updater.py` dosyasının uzunluğu hala iyileştirme gerektiğini gösteriyor.
+* Tip ipuçları (`typing` modülünün kullanımı) kodun okunabilirliğini ve bakımını kolaylaştırır.
+* Logging mekanizması (`logger_changelog`) hata ayıklamayı ve sorun gidermeyi kolaylaştırır.
+
+
+Yeni bağımlılıklar veya teknolojiler eklendi:
+
+* Bir AI özetleme aracı (Gemini) entegre edilmiştir.  Bu, yeni bir dış bağımlılık anlamına gelir.
+
+
+### 4. SONUÇ YORUMU:
+
+Bu değişiklikler, changelog ve sürüm yönetimini otomatikleştirerek uzun vadede geliştirici verimliliğini artıracaktır.  Manuel işlemler azaltılmış ve hata olasılığı düşürülmüştür.  AI entegrasyonu, geliştiricilerin zamanını daha iyi kullanmalarını sağlayabilir.
+
+Projenin teknik borcu, `changelog_updater.py` dosyasının uzunluğundan dolayı potansiyel olarak artmış olabilir.  Bu dosyanın daha küçük, daha yönetilebilir modüllere bölünmesi, teknik borcu azaltmak için önemli bir adım olacaktır.
+
+Gelecekteki geliştirmelere hazırlık yapılmıştır:  Daha fazla otomasyon ve entegre araçlar eklemek daha kolay olacaktır.  Ancak, AI entegrasyonunun sürdürülebilirliği ve bakımının dikkate alınması gerekecektir.  Ayrıca, `changelog_updater.py` dosyasının yeniden yapılandırılması, gelecekteki geliştirmeleri daha kolay ve daha yönetilebilir hale getirecektir.
+
+**Değişen Dosyalar:** src/utils/changelog_updater.py
+**Etki Seviyesi:** Critical
+**Değişiklik Tipi:** Feature
+**Satır Değişiklikleri:** -17
+**Etiketler:** changelog-updater, manager, api, utils
+
+---
+
 ## 2025-06-20 02:00:39
 
 ### 1. YAPISAL ANALİZ:

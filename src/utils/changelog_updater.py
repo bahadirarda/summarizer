@@ -86,66 +86,49 @@ def _handle_git_workflow(project_root: Path, git_manager: GitManager, new_versio
     current_branch_name = git_manager.get_current_branch()
     print(f"\n   📂 Preparing to manage changes on branch '{current_branch_name}'...")
 
-    if git_manager.is_working_directory_clean():
-        print("   ⚪️ No changes to commit. Checking for push/PR on existing commits...")
-    else:
-        # 1. Stage all changes (user's + tool's)
+    if not git_manager.is_working_directory_clean():
         git_manager.stage_all()
         print("   ✅ All local changes have been staged.")
 
-        # 2. Ask to commit
         prompt_message = f"   ❔ Commit all staged changes to '{current_branch_name}'?"
         if not _ask_user(prompt_message):
-            print("   ⚪️ Commit skipped by user. Workflow ended.")
+            print("   ⚪️ Commit skipped. Reverting staging area.")
+            git_manager.unstage_all()
             return
 
-        # 3. Run pre-commit CI checks
-        print(f"\n   🔬 Running pre-commit CI checks for '{current_branch_name}'...")
-        if not _run_ci_checks(project_root):
-            if not _ask_user("   ⚠️  CI checks failed. Continue with commit anyway?"):
-                print("   ⚪️ Commit aborted due to CI failure.")
-                git_manager.unstage_all() # Unstage changes to leave user's workspace clean
-                print("   ⏪ Changes have been unstaged.")
-                return
-            print("   ⚪️ CI checks failed, but proceeding with commit as requested.")
-        else:
-            print("   ✅ Pre-commit CI checks passed.")
-        
-        # 4. Commit
         commit_message = f"feat(summarizer): v{new_version}\n\n{summary}"
         if not git_manager.commit(commit_message):
             print("   ❌ Failed to commit changes. Aborting.")
             return
         print("   ✅ Changes committed successfully.")
+    else:
+        print("   ⚪️ No local changes to commit.")
 
-    # 5. Push
     if not _ask_user(f"   ❔ Push the changes on '{current_branch_name}' to remote?"):
         print("   ⚪️ Push skipped by user.")
-        return # End here if user doesn't want to push
+        return
 
     print(f"   🚀 Pushing changes to '{current_branch_name}'...")
     push_success, push_output = git_manager.push(current_branch_name)
 
-    if not push_success:
-        if "already up-to-date" not in push_output and "up to date" not in push_output:
-            print(f"   ❌ Push failed. Git Error:\n{push_output}")
-            return
+    if not push_success and "already up-to-date" not in push_output:
+        print(f"   ❌ Push failed. Git Error:\n{push_output}")
+        return
     
-    print(f"   ✅ Branch '{current_branch_name}' is up-to-date on remote.")
+    if "already up-to-date" in push_output or "up to date" in push_output:
+        print(f"   ⚪️ Branch is already up-to-date. No new commits were pushed.")
+    else:
+        print(f"   ✅ Successfully pushed new changes to '{current_branch_name}'.")
 
-    if "Everything up-to-date" in push_output or "already up-to-date" in push_output:
-        print(f"   ⚪️ No new commits were pushed. Checking for existing PR...")
-
-    # 6. Pull Request
     pr_target_map = {
         'feature/': 'develop', 'bugfix/': 'develop', 'develop': 'staging', 
         'release/': 'main', 'hotfix/': 'main'
     }
-    pr_target = pr_target_map.get(current_branch_name)
-    if not pr_target:
-        pr_target = next((target for prefix, target in pr_target_map.items() if current_branch_name.startswith(prefix)), None)
+    pr_target = next((target for prefix, target in pr_target_map.items() if current_branch_name.startswith(prefix)), pr_target_map.get(current_branch_name))
 
     if pr_target:
+        print("\n   ✨ A Pull Request is recommended for these changes.")
+        print("      Automated tests will run on GitHub via GitHub Actions.")
         _handle_pull_request_flow(project_root, git_manager, current_branch_name, pr_target, summary, gemini_client)
     else:
         print(f"   ⚪️ No standard Pull Request action defined for branch '{current_branch_name}'.")
