@@ -3,6 +3,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Optional
 from datetime import datetime
+import re
 
 from .file_tracker import (  # Import for getting changed files
     get_changed_files_since_last_run,
@@ -13,6 +14,7 @@ from .file_tracker import (  # Import for getting changed files
 from .json_changelog_manager import JsonChangelogManager, ImpactLevel, ChangeType
 from .readme_generator import update_readme
 from .version_manager import VersionManager
+from .git_manager import GitManager
 
 logger_changelog = logging.getLogger(__name__)
 
@@ -244,6 +246,61 @@ def update_changelog(project_root: Optional[Path] = None):
                         print(f"   ℹ️  Git tag v{new_version} already exists or failed to create.")
                 except Exception as tag_error:
                     print(f"   ⚠️  Could not create git tag: {tag_error}")
+
+                # --- Professional GitFlow Integration ---
+                git_manager = GitManager(project_root)
+                next_command = None
+
+                # On 'develop', ask to merge to 'staging'
+                if branch_name == 'develop':
+                    if _ask_user(f"   ❔ Merge 'develop' into 'staging' for testing?"):
+                        if git_manager.switch_to_branch('staging') and git_manager.merge_from('develop'):
+                            next_command = "git checkout staging"
+                        else:
+                            print("   ❌ Merge to 'staging' failed. Please check for conflicts.")
+                            git_manager.switch_to_branch(branch_name) # Go back to original branch on failure
+                
+                # On 'staging', ask to create a 'release' branch
+                elif branch_name == 'staging':
+                    release_branch_name = f"release/v{new_version}"
+                    if _ask_user(f"   ❔ Create release branch '{release_branch_name}' from 'staging'?"):
+                        if git_manager.create_branch(release_branch_name):
+                            next_command = f"git checkout {release_branch_name}"
+                        else:
+                            print(f"   ⚠️  Could not create release branch '{release_branch_name}'.")
+
+                # On 'main', ask to create a 'hotfix' branch
+                elif branch_name == 'main':
+                    hotfix_branch_name = f"hotfix/v{new_version}"
+                    if _ask_user(f"   ❔ Create hotfix branch '{hotfix_branch_name}' from 'main'?"):
+                        if git_manager.create_branch(hotfix_branch_name):
+                            next_command = f"git checkout {hotfix_branch_name}"
+                        else:
+                            print(f"   ⚠️  Could not create hotfix branch '{hotfix_branch_name}'.")
+                
+                # On an existing release/hotfix branch, create the next version's branch
+                elif branch_name.startswith(('release/', 'hotfix/')):
+                    # Extract base (release or hotfix) and old version from branch name
+                    match = re.match(r"^(release|hotfix)\/v(\d+\.\d+\.\d+)", branch_name)
+                    if match and match.group(2) != new_version:
+                        new_branch_name = f"{match.group(1)}/v{new_version}"
+                        if _ask_user(f"   ❔ You're on an old branch. Create and switch to '{new_branch_name}'?"):
+                           if git_manager.create_branch(new_branch_name):
+                               next_command = f"git checkout {new_branch_name}"
+                           else:
+                                print(f"   ⚠️  Could not create new branch '{new_branch_name}'.")
+
+                # If a next step was determined, write the command file
+                if next_command:
+                    command_file_path = project_root / ".summarizer" / "next_command.sh"
+                    try:
+                        with open(command_file_path, "w") as f:
+                            f.write(f"{next_command}\n")
+                        logger_changelog.info(f"Next command file created: {next_command}")
+                        print(f"   ✨ Next step command generated. Your shell will execute: {next_command}")
+                    except Exception as e:
+                        logger_changelog.error(f"Could not create next_command.sh file: {e}")
+
             else:
                 print(f"   ⚠️  Failed to update version files. Version remains {old_version}")
                 new_version = old_version # Rollback version variable if update fails
@@ -258,6 +315,16 @@ def update_changelog(project_root: Optional[Path] = None):
     # Final cleanup and summary
     print("\n" + "=" * 50)
     print("✅ Changelog generation process completed successfully.")
+
+
+def _ask_user(prompt: str) -> bool:
+    """Helper function to ask a y/n question to the user."""
+    try:
+        choice = input(f"{prompt} (y/n): ").lower()
+        return choice == 'y'
+    except (EOFError, KeyboardInterrupt):
+        print("\n   Skipping step due to user interruption.")
+        return False
 
 
 def _create_initial_project_entry(json_manager, project_root: Path):

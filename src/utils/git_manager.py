@@ -66,6 +66,26 @@ class GitManager:
             command.append(from_branch)
         return self._run_git_command(command) is not None
 
+    def switch_to_branch(self, branch_name: str) -> bool:
+        """Checks out a branch. A simple alias for clarity."""
+        logger.info(f"Switching to branch '{branch_name}'...")
+        return self._run_git_command(['checkout', branch_name]) is not None
+
+    def merge_from(self, source_branch: str) -> bool:
+        """Merges from a source branch into the current branch."""
+        logger.info(f"Merging from '{source_branch}' into current branch...")
+        # Using --no-ff creates a merge commit, which is good for tracking history
+        merge_output = self._run_git_command(['merge', '--no-ff', '-m', f"Merge branch '{source_branch}'", source_branch])
+        
+        if merge_output is None: # _run_git_command returns None on error
+            logger.error(f"Merge command failed. This may be due to merge conflicts.")
+            print("   ❌ Merge failed. Please resolve conflicts manually in another terminal and then commit.")
+            self._run_git_command(['merge', '--abort']) # Attempt to clean up
+            return False
+        
+        logger.info(f"Successfully merged from '{source_branch}'.")
+        return True
+
     def ensure_project_structure(self) -> bool:
         """
         Interactively ensures the git repository and branch structure are set up correctly.
