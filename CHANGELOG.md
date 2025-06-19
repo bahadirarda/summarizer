@@ -3,6 +3,118 @@
 Bu dosya otomatik olarak generate edilmiştir.
 Düzenlemeler için `changelog.json` dosyasını kullanın.
 
+## 2025-06-19 17:19:35
+
+### 1. YAPISAL ANALİZ:
+
+Bu değişiklik yalnızca `scripts/run_ci_checks.py` dosyasını etkiler. Bu dosya, proje için sürekli entegrasyon (CI) kontrollerini çalıştırmak üzere tasarlanmış bir Python betiğidir. Sistemin diğer bileşenleri veya katmanları doğrudan etkilenmez.  Mimari değişiklik söz konusu değildir; mevcut mimari içinde iyileştirmeler yapılmıştır.
+
+Kod organizasyonu açısından,  `run_command` fonksiyonu, komut çalıştırma mantığını tek bir yerde toplamak suretiyle iyileştirilmiştir. Bu, kodun okunabilirliğini ve sürdürülebilirliğini artırır.  Ayrıca,  her adımın (linting, test, build) ayrı fonksiyonlar halinde ayrılması yerine,  `main` fonksiyonu içerisinde ardışık olarak düzenlenmesiyle,  kodun daha akıcı ve anlaşılır hale getirildiği görülmektedir.  Proje kök dizininin (`project_root`)  `Pathlib` kütüphanesi kullanılarak daha temiz ve platformdan bağımsız bir şekilde belirlenmesi de bir iyileştirmedir.
+
+
+### 2. İŞLEVSEL ETKİ:
+
+Yeni bir özellik eklenmemiştir. Mevcut CI işlemleri iyileştirilmiştir.  Özellikle:
+
+* **Pylint entegrasyonu iyileştirildi:**  `--exit-zero` bayrağı eklenerek, pylint'in küçük hatalar nedeniyle başarısız olmasının önüne geçilmiştir.  Ancak, bu sadece raporlama için geçerlidir ve gerçek bir CI ortamında, pylint skoru kontrol edilerek daha sağlam bir hata tespiti yapılmalıdır.  Bu durum, gelecek geliştirme için bir alan olarak kalmaktadır.
+* **Test başarısızlığı üzerine daha kesin hata yönetimi:** Pytest başarısız olursa, betik `sys.exit(1)` ile daha açık bir şekilde sonlanır ve başarısızlığı gösterir.
+* **Build işlemi iyileştirildi:**  `rm -rf` komutu ile dist klasörünün temizlenmesi daha açık bir şekilde eklenmiş ve daha robust bir silme işlemi uygulanmıştır (önceki sürümlerde bu kısım daha az açık ve potansiyel olarak hata üretebilirdi).  Ayrıca, oluşturulan artifact'lerin kontrolü eklenerek, build işleminin başarıyla sonuçlanıp sonuçlanmadığı daha kesin olarak belirlenir.  Artifact bulunmaması durumunda betik durur ve hata mesajı verir.
+
+Kullanıcı deneyimi doğrudan etkilenmez;  kullanıcı için görünür bir değişiklik yoktur, ancak CI sürecinin daha güvenilir ve bilgilendirici hale gelmesi dolaylı bir iyileştirmedir.  Performans üzerindeki etki ihmal edilebilir düzeydedir. Güvenlik veya güvenilirlik açısından önemli bir değişiklik gözlemlenmemektedir.
+
+
+### 3. TEKNİK DERINLIK:
+
+Belirgin bir tasarım deseni değişikliği yoktur. Kod, prosedürel bir yaklaşım kullanarak yazılmıştır.  `run_command` fonksiyonu,  tek bir sorumluluk ilkesini (Single Responsibility Principle) takip eden bir örnektir.
+
+Kod kalitesi ve sürdürülebilirlik, daha açık yorumlar, daha iyi fonksiyonel ayrıştırma ve `Pathlib` kütüphanesinin kullanımı ile artırılmıştır.  Yeni bağımlılık eklenmemiştir;  mevcut Python kütüphaneleri (subprocess, sys, pathlib) kullanılmaktadır.
+
+
+### 4. SONUÇ YORUMU:
+
+Bu değişiklikler, CI sürecinin güvenilirliğini ve bilgilendiriciliğini artırarak uzun vadeli değeri artırır.  Pylint entegrasyonunun iyileştirilmesi,  geliştirme sürecinde daha erken hataların yakalanmasına yardımcı olurken,  daha kesin hata yönetimi,  sorunların hızlı bir şekilde tespit edilmesini sağlar.  Build işleminin iyileştirilmesi,  artifact oluşturma sürecinin daha güvenilir hale getirilmesine katkıda bulunur.
+
+Projenin teknik borcu, daha okunabilir ve sürdürülebilir kod ile azaltılmıştır.  Bu değişiklikler, gelecekteki geliştirmelere hazırlık yapmada yardımcı olur;  örneğin,  daha karmaşık CI kontrolleri eklemek veya mevcut kontrolleri genişletmek daha kolay olacaktır.  Ancak, pylint skorunun kontrolü gibi belirli alanlarda hala geliştirme potansiyeli vardır.
+
+**Değişen Dosyalar:** scripts/run_ci_checks.py
+**Etki Seviyesi:** High
+**Değişiklik Tipi:** Other
+**Satır Değişiklikleri:** +82
+**Etiketler:** scripts, run-ci-checks, api
+
+---
+
+## 2025-06-19 17:16:48
+
+### 1. YAPISAL ANALİZ:
+
+Değişiklikler yalnızca `src/utils/git_manager.py` dosyasını etkilemiştir. Bu dosya, proje kök dizinini yönetmek ve Git işlemlerini gerçekleştirmek için kullanılan bir yardımcı sınıf olan `GitManager` sınıfını içerir.  Bu, **Servis Katmanı** olarak adlandırılmış ve muhtemelen projenin alt seviye işlemlerini yöneten bir katmanı temsil eder.  Mimari değişiklik yok, sadece mevcut bir bileşenin işlevselliği genişletilmiştir. Kod organizasyonunda belirgin bir iyileştirme yok, ancak mevcut kodun daha okunabilir ve anlaşılır olması için bazı eklemeler ve düzenlemeler yapılmış olabilir (örneğin, daha açıklayıcı değişken isimleri, yorumlar vb.  tam kodun eksikliği nedeniyle kesin bir şey söylemek mümkün değil).  `GitManager` sınıfı zaten var olan bir bileşen olduğundan, mimariye yeni bir katman eklenmemiştir.
+
+### 2. İŞLEVSEL ETKİ:
+
+Bu değişiklikler, Git deposu yönetimiyle ilgili işlevselliği önemli ölçüde genişletmiştir.  Özellikle aşağıdaki etkiler gözlemlenmiştir:
+
+* **Yeni Özellikler:**  `GitManager` sınıfına, Git deposunun varlığını kontrol eden (`is_git_repository`), mevcut dalları listeleyen (`get_existing_branches`),  yeni bir Git deposu başlatan ve ilk commit'i oluşturan (`initialize_repository`) ve yeni dallar oluşturan (`create_branch` - kodda görünen ama tam içeriği eksik olan bir metod) fonksiyonlar eklenmiştir.  Ayrıca,  `setup_git_repository` metodu eklenmiş olup, bu metod interaktif olarak Git deposunun ve dallarının doğru şekilde kurulmasını sağlar.  Bu metod,  `main` veya `master` dalının varlığını kontrol eder ve `develop` ve `staging` dallarının varlığını kontrol edip, yoksa bunları oluşturur.
+
+* **Değiştirilen Özellikler:**  Mevcut kodun tam metni olmadığı için, önceki versiyonda hangi özelliklerin değiştirildiği kesin olarak bilinemiyor. Ancak,  `setup_git_repository` metodunun eklenmesi, Git deposu ve dal yapısının kurulumunun daha robust ve kullanımı daha kolay hale gelmesine neden olmuştur.
+
+* **Kaldırılan Özellikler:**  Hiçbir özellik kaldırılmamıştır.
+
+* **Kullanıcı Deneyimi:** Kullanıcı deneyimi,  `setup_git_repository` metodu sayesinde iyileşmiştir.  Bu metod, kullanıcının Git deposunu ve dallarını interaktif olarak yapılandırmasını sağlar ve olası hatalar konusunda kullanıcıyı bilgilendirir. Daha önce bu işlemler manuel olarak yapılması gerekiyorsa, bu değişiklikle otomatikleştirilmiş ve kullanıcı hatasının önüne geçilmeye çalışılmıştır.
+
+* **Performans, Güvenlik ve Güvenilirlik:**  Performans üzerindeki etki ihmal edilebilir düzeydedir. Güvenlik ve güvenilirlik açısından, Git işlemlerinin daha kontrollü bir şekilde yönetilmesi, potansiyel hataların daha iyi ele alınması ve kullanıcıya daha fazla geri bildirim sağlanması güvenilirliği artırmıştır.  `try-except` blokları olası hataları yakalamakta ve hata mesajları ile kullanıcıyı bilgilendirilmektedir.
+
+### 3. TEKNİK DERİNLİK:
+
+* **Tasarım Desenleri:**  `GitManager` sınıfı, **Tek Sorumluluk Prensibi**'ne (Single Responsibility Principle) uygun olarak tasarlanmıştır: Git işlemlerini yönetmekle sorumludur.  Ayrıca,  `_run_git_command` metodu,  **Yardımcı Metod** (Helper Method) tasarım deseni örneğidir.
+
+
+* **Kod Kalitesi ve Sürdürülebilirlik:**  Kod kalitesi, hata yakalama mekanizmaları ( `try-except` blokları) ve açıklayıcı yorumlar eklenerek artırılmıştır.  `typing` modülünün kullanımı, kodun okunabilirliğini ve sürdürülebilirliğini artırır.
+
+* **Yeni Bağımlılıklar:**  Yeni bir bağımlılık eklenmemiştir. `subprocess`, `logging`, `pathlib`, `typing` ve `json` kütüphaneleri zaten kullanılmaktadır.
+
+### 4. SONUÇ YORUMU:
+
+Bu değişiklikler, projenin Git entegrasyonunu önemli ölçüde iyileştirmiştir.  `setup_git_repository` metodu, Git deposu ve dal yapısının kurulumunu otomatikleştirerek, tutarlılık sağlamış ve kullanıcı hatası olasılığını azaltmıştır.  Bu,  uzun vadede zaman tasarrufu ve daha az hata anlamına gelir. Projenin teknik borcu, Git yönetimiyle ilgili kısımları azaltılmıştır.  Daha iyi hata yönetimi ve kodun daha okunabilir hale getirilmesi, gelecekteki geliştirmeleri kolaylaştıracaktır.  Bu değişiklikler, yeni geliştiricilerin projeyi daha kolay anlamasını ve katkıda bulunmasını sağlar.  Özetle, bu değişiklikler projenin sağlamlığını, sürdürülebilirliğini ve geliştirilebilirliğini artırmıştır.
+
+**Değişen Dosyalar:** src/utils/git_manager.py
+**Etki Seviyesi:** High
+**Değişiklik Tipi:** Feature
+**Etiketler:** api, manager, utils, git-manager
+
+---
+
+## 2025-06-19 17:15:40
+
+### 1. YAPISAL ANALİZ:
+
+Değişiklikler, projenin üç ana bileşenini etkilemiştir: ana iş mantığı (`src/main.py`), yardımcı araçlar (`src/utils/changelog_updater.py`) ve servis katmanı (`src/utils/git_manager.py`).  Mimari açıdan bakıldığında, katmanlı bir mimari korunmuştur.  `main.py`  ana iş akışını yönetir,  `utils`  altındaki modüller ise yardımcı işlevleri sağlar.  Değişiklikler, bu katmanlar arası etkileşimi değiştirmemiştir; ancak `changelog_updater.py` ve `git_manager.py`'nin işlevselliği genişletilmiştir.
+
+Kod organizasyonu açısından, `changelog_updater.py` dosyasındaki değişiklikler işlevselliği daha modüler hale getirmiştir.  Fonksiyonların daha iyi ayrımı, okunabilirliği ve sürdürülebilirliği artırmıştır.  `_detect_impact_level` fonksiyonunun eklenmesi, değişikliklerin etki seviyesinin otomatik olarak belirlenmesini sağlar, bu da geliştirme sürecini iyileştirir.  `main.py`'de ise, GitHub issue'larından branch oluşturma işlemi daha yapılandırılmış bir şekilde ele alınmıştır.  `branch_prefix` değişkeninin kullanımı, farklı tipteki branch'lerin (feature, bugfix, docs, chore) daha düzenli bir şekilde oluşturulmasını sağlar.  Bununla birlikte, kodu inceleyerek `main.py`'nin 75 satır ve `changelog_updater.py`'nin 502 satırının kısaltılmış olduğuna dair bilgiler var.  Bu kısaltmaların içeriği bilinmediğinden, yapısal analiz bu kısaltılmış kısımların etkisini tam olarak değerlendirememektedir.
+
+
+### 2. İŞLEVSEL ETKİ:
+
+Eklenen en önemli özellik, GitHub issue'larından otomatik branch oluşturma ve `next_command.sh` dosyasına komut yazma yeteneğidir. Bu özellik, geliştirme sürecinin otomasyonunu artırır ve geliştiricilerin verimliliğini yükseltir.  `changelog_updater.py` dosyasındaki değişiklikler, changelog güncelleme işlemini daha kapsamlı hale getirmiştir.  Değişikliklerin etki seviyesinin otomatik tespiti (`_detect_impact_level` fonksiyonu) ve daha detaylı changelog girdileri, changelog'un daha bilgilendirici olmasını sağlar.  Kullanıcı deneyimi, özellikle  `summarizer --setup`  komutu ile gerekli parametrelerin girilmesi gerektiği bildirilmesiyle daha iyi hale getirilmiştir.  Performans, güvenlik veya güvenilirlik üzerindeki etkiler, mevcut koddan anlaşılamamaktadır; ancak büyük değişikliklerin olmadığı düşünülmektedir.  Eklenen otomasyon, bazı durumlarda performansı hafifçe iyileştirebilir.
+
+
+### 3. TEKNİK DERINLIK:
+
+Bu değişikliklerde belirgin bir tasarım deseni değişikliği gözlemlenmemiştir.  Ancak,  `changelog_updater.py`  dosyasındaki geliştirmeler, işlevsel programlama prensiplerini daha iyi yansıtan bir yaklaşım göstermektedir.  Fonksiyonların daha iyi ayrıştırılması ve daha açık isimlendirmesi kod kalitesini ve sürdürülebilirliği artırmaktadır.  Yeni bağımlılık eklenmemiştir, ancak mevcut bağımlılıklar daha etkin bir şekilde kullanılmaktadır.  `_detect_impact_level` fonksiyonu, basit bir anahtar kelime eşleştirmesi kullanarak değişikliklerin etki seviyesini belirler; bu, daha karmaşık bir yaklaşımın yerini alabilirdi.  Kısaltılmış kod parçaları incelenemediği için daha detaylı teknik değerlendirme yapılamaz.
+
+
+### 4. SONUÇ YORUMU:
+
+Bu değişiklikler, projenin uzun vadeli değerini artıracaktır.  Otomatik branch oluşturma ve gelişmiş changelog güncelleme işlemleri, geliştirici verimliliğini ve kod kalitesini iyileştirecektir.  Teknik borçta büyük bir değişiklik beklenmez, ancak daha düzenli bir kod yapısı ve daha iyi otomasyon, gelecekteki geliştirmeleri kolaylaştıracaktır.  Bu değişiklikler, projenin gelecekteki büyümesine ve sürdürülebilirliğine katkıda bulunacaktır.  Ancak, kısaltılmış kod parçalarının tam içeriği bilinmeden bu değerlendirme tam olarak yapılamaz.  Özellikle, `next_command.sh` dosyasına komut yazma işleminin güvenlik açısından nasıl ele alındığı ve potansiyel güvenlik açıkları olup olmadığı incelenmelidir.  Kısaltılmış bölümler dahil edildiğinde daha kapsamlı bir değerlendirme yapılabilir.
+
+**Değişen Dosyalar:** src/main.py, src/utils/git_manager.py, src/utils/changelog_updater.py
+**Etki Seviyesi:** High
+**Değişiklik Tipi:** Feature
+**Satır Değişiklikleri:** +67 -42
+**Etiketler:** manager, utils, api, main, changelog-updater, git-manager
+
+---
+
 ## 2025-06-19 17:06:41
 
 ### 1. YAPISAL ANALİZ:

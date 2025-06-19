@@ -35,7 +35,7 @@ def main():
     # --- 1. Linting with Pylint ---
     print("\n[Step 1/3]  Linting code with Pylint...")
     lint_return_code, _ = run_command(
-        ['pylint', 'src', 'features', 'scripts', '--rcfile=.pylintrc', '--exit-zero'], 
+        [sys.executable, '-m', 'pylint', 'src', 'features', 'scripts', '--rcfile=.pylintrc', '--exit-zero'], 
         cwd=project_root
     )
     # We use --exit-zero because pylint has non-zero exit for minor things.
@@ -46,7 +46,7 @@ def main():
 
     # --- 2. Running Tests with Pytest ---
     print("\n[Step 2/3] Running tests with Pytest...")
-    test_return_code, _ = run_command(['pytest', 'tests/'], cwd=project_root)
+    test_return_code, _ = run_command([sys.executable, '-m', 'pytest', 'tests/'], cwd=project_root)
     if test_return_code != 0:
         print("❌ Pytest failed. Aborting release.")
         sys.exit(1)

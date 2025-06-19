@@ -1,0 +1,21 @@
+[MAIN]
+# A comma-separated list of plugin modules to load.
+load-plugins=
+
+# A comma-separated list of bad function names; not used by default.
+bad-functions=
+
+# A comma-separated list of bad names (regular expressions); not used by default.
+bad-names=
+
+[MESSAGES CONTROL]
+# Disable the specified messages.
+disable=C0114,C0115,C0116,R0903,W1514,C0103,R0913,W0718
+
+[REPORTS]
+# Set the output format. Available formats are: text, parseable, colorized, json, msvs.
+output-format=text
+
+[FORMAT]
+# Maximum number of characters on a single line.
+max-line-length=88 
