@@ -350,7 +350,8 @@ def update_changelog(project_root: Optional[Path] = None):
 
             # Commit changes to git
             if not git_manager.is_working_directory_clean():
-                if _ask_user("   ❔ Summarizer updated project files. Commit these maintenance changes?"):
+                prompt_message = f"   ❔ Summarizer updated project files. Commit these maintenance changes to '{current_branch_name}'?"
+                if _ask_user(prompt_message):
                     commit_message = f"chore(summarizer): Auto-update to v{new_version}\n\n{summary}"
                     if not (git_manager.stage_all() and git_manager.commit(commit_message)):
                         print("   ❌ Failed to commit maintenance changes. Aborting next git actions.")

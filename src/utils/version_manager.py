@@ -212,33 +212,48 @@ class VersionManager:
             return False
             
     def update_version_in_files(self, new_version: str) -> bool:
-        """Update version in package.json and other relevant files"""
-        try:
-            # Update package.json
-            if not self.package_json_path.exists():
-                logger.error(f"package.json not found at {self.package_json_path}")
-                return False
+        """Update version in package.json and pyproject.toml."""
+        updated_files = []
 
-            with open(self.package_json_path, 'r', encoding='utf-8') as f:
-                package_data = json.load(f)
-                
-            package_data['version'] = new_version
-            
-            with open(self.package_json_path, 'w', encoding='utf-8') as f:
-                json.dump(package_data, f, indent=2, ensure_ascii=False)
-                
-            logger.info(f"Successfully updated version in package.json to {new_version}")
-            return True
-            
-        except FileNotFoundError:
-            logger.error(f"Error: package.json not found at {self.package_json_path} during update.")
-            return False
-        except json.JSONDecodeError as e:
-            logger.error(f"Error decoding package.json: {e}")
-            return False
-        except Exception as e:
-            logger.error(f"An unexpected error occurred while updating version in files: {e}")
-            return False
+        # Update package.json
+        if self.package_json_path.exists():
+            try:
+                with open(self.package_json_path, 'r+', encoding='utf-8') as f:
+                    package_data = json.load(f)
+                    package_data['version'] = new_version
+                    f.seek(0)
+                    json.dump(package_data, f, indent=2, ensure_ascii=False)
+                    f.truncate()
+                logger.info(f"Successfully updated version in package.json to {new_version}")
+                updated_files.append("package.json")
+            except Exception as e:
+                logger.error(f"Failed to update package.json: {e}")
+                # Continue to try other files
+
+        # Update pyproject.toml
+        pyproject_path = self.project_root / "pyproject.toml"
+        if pyproject_path.exists():
+            try:
+                with open(pyproject_path, "r+", encoding="utf-8") as f:
+                    content = f.read()
+                    # Use regex to replace the version to preserve comments and formatting
+                    new_content, count = re.subn(
+                        r'(version\s*=\s*")[^"]+(")',
+                        f'\\g<1>{new_version}\\g<2>',
+                        content
+                    )
+                    if count > 0:
+                        f.seek(0)
+                        f.write(new_content)
+                        f.truncate()
+                        logger.info(f"Successfully updated version in pyproject.toml to {new_version}")
+                        updated_files.append("pyproject.toml")
+                    else:
+                        logger.warning("Version key not found in pyproject.toml in the expected format.")
+            except Exception as e:
+                logger.error(f"Failed to update pyproject.toml: {e}")
+        
+        return len(updated_files) > 0
     
     def get_version_info(self) -> dict:
         """Get comprehensive version information"""

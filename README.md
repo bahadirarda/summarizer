@@ -1,61 +1,57 @@
 # 🚀 project.110620251156
-> Changelog yönetimi ve terminal komutu entegrasyonu ile geliştirilmiş,  çeşitli proje türlerini destekleyen bir web projesi.
+> ✨ Modern bir web uygulaması için gelişmiş versiyonlama ve değişiklik günlüğü yönetimi sağlayan yardımcı araçlar.  Daha temiz, daha sürdürülebilir ve daha güvenilir bir geliştirme süreci sunar.
 
 ## 📊 Proje Durumu
-Proje aktif geliştirme aşamasındadır.  Son değişiklikler, changelog oluşturma sürecinin otomasyonunu ve kullanıcı deneyimini iyileştirmeye odaklanmıştır.  Yeni bir terminal komutu sayesinde `summarizer.py` betiğine erişim kolaylaştırılmıştır.
+Proje, versiyonlama ve değişiklik günlüğü yönetimi için yardımcı araçların iyileştirilmesiyle ilgili güncellemeler aldı.  Bu güncellemeler, kodun modülerliğini, okunabilirliğini ve sürdürülebilirliğini artırdı.  Yeni özellikler eklendi ve mevcut olanlar geliştirildi.  Proje şu anda kararlı ve işlevseldir.
+
 
 ## ✨ Özellikler
-* Changelog oluşturma ve yönetim araçları.
-* Farklı proje türlerini (web, Python, genel) otomatik olarak tespit etme.
-* Değişikliklerin etki seviyesini otomatik olarak belirleme.
-* `summarizer.py` betiğini sistem genelinde çalıştıran bir terminal komutu.
-* Gelişmiş hata yönetimi ve daha güvenilir komut güncelleme mekanizması.
+* **Gelişmiş Versiyon Yönetimi:** Semantik versiyonlama, kod adı ataması ve kırıcı değişiklik tespiti dahil daha kapsamlı versiyon kontrolü.
+* **Otomatik Değişiklik Günlüğü Oluşturma:** Proje türünü otomatik olarak algılayarak değişiklik günlüğüne yeni girdiler ekleme işlemini iyileştirir.
+* **Değişiklik Etki Seviyesi Tespiti:** Otomatik etki seviyesi tespiti, değişikliklerin kapsamını daha iyi anlamaya yardımcı olur.
+* **Daha Modüler ve Sürdürülebilir Kod:**  `version_manager.py` ve `changelog_updater.py` dosyalarındaki iyileştirmeler kodun daha okunabilir ve sürdürülebilir olmasını sağlar.
 
 
 ## Değişen Dosyalar:
-`src/utils/changelog_updater.py`, `features/terminal_commands.py`, (dolaylı olarak) `src/utils/version_manager.py`
+`src/utils/version_manager.py`, `src/utils/changelog_updater.py`
 
 
 ## ANALİZ GÖREVİ:
 
 ### 1. YAPISAL ANALİZ:
 
-- **Etkilenen Sistem Bileşenleri ve Katmanlar:** Değişiklikler esas olarak `src/utils/changelog_updater.py` ve `features/terminal_commands.py` dosyalarını etkilemiştir.  `changelog_updater.py`, `utils` katmanında yer alan ve `file_tracker`, `json_changelog_manager`, `readme_generator`, `version_manager`, `git_manager` modülleri ile etkileşim halinde olan bir yardımcı araçtır. `features/terminal_commands.py` ise ana iş mantığı katmanında yer alır ve sistem genelinde terminal komutu entegrasyonunu sağlar. `version_manager.py` dolaylı olarak etkilenmiştir, çünkü gelecekteki sürüm güncellemelerinde terminal komutunun da güncellenmesi gerekebilir.
+- **Etkilenen Sistem Bileşenleri ve Katmanlar:** Değişiklikler, projenin `src/utils` alt dizininde bulunan `version_manager.py` ve `changelog_updater.py` dosyalarını etkiledi. Bu, yardımcı araçlar katmanını doğrudan etkiler.  `changelog_updater.py` dosyası ayrıca `file_tracker`, `json_changelog_manager`, `readme_generator`, `version_manager` ve `git_manager` modülleriyle etkileşim halindedir.
 
-- **Mimari Değişikliklerin Etkisi:** Mimari değişiklikler minimaldir.  Yeni işlevsellikler mevcut mimariye eklenmiştir; temel mimari yapısında bir değişiklik yoktur.  `_detect_project_type` fonksiyonunun eklenmesi, `changelog_updater.py`'nin farklı proje türlerine uyum sağlama yeteneğini artırmıştır, ancak bu mimariyi temelde değiştirmez.  Terminal komutu entegrasyonu da mevcut mimariye yeni bir işlevsellik ekler.
+- **Mimari Değişikliklerin Etkisi:** Mimari açıdan büyük değişiklikler yoktu.  Var olan mimariye yeni işlevsellikler eklendi ve mevcut işlevsellik iyileştirildi.  `version_manager.py` dosyasındaki değişiklikler, versiyon yönetimi işlevselliğini daha modüler ve sürdürülebilir bir hale getirdi.  `changelog_updater.py` dosyasındaki değişiklikler ise, changelog oluşturma sürecinin projenin türüne göre özelleştirilmesini sağladı.
 
-- **Kod Organizasyonundaki İyileştirmeler:** `_detect_project_type` fonksiyonunun eklenmesi, changelog oluşturma sürecinin daha esnek ve sürdürülebilir olmasını sağlayarak kod organizasyonunu iyileştirmiştir.  Bu fonksiyon, projenin türünü otomatik olarak tespit ederek manuel konfigürasyon ihtiyacını azaltır.  `features/terminal_commands.py` dosyasında, terminal komutu oluşturma ve kurulum mantığının tek bir yerde toplanması ve hata yönetiminin iyileştirilmesi de kod organizasyonuna katkıda bulunmuştur.
+- **Kod Organizasyonunda Yapılan İyileştirmeler:**  `version_manager.py` dosyasındaki uzunluk itibariyle kesilen kod muhtemelen versiyon belirleme, kod adı ataması ve kırıcı değişiklik tespiti fonksiyonlarını daha yapılandırılmış bir şekilde düzenlemiştir.  `changelog_updater.py` dosyasında ise `_detect_impact_level` ve `_detect_project_type` fonksiyonlarının eklenmesi, kodun daha modüler ve anlaşılır olmasını sağlamıştır.  Bu fonksiyonlar, ilgili görevleri daha küçük, daha yönetilebilir birimlere ayırarak okunabilirliği ve bakımı kolaylaştırır.
 
 
 ### 2. İŞLEVSEL ETKİ:
 
-- **Eklenen Özellikler:**  `summarizer.py` betiği için sistem genelinde çalışan bir terminal komutu eklenmiştir.  `changelog_updater.py`'de ise projenin türünü otomatik olarak tespit etme özelliği eklenmiştir.
+- **Eklenen, Değiştirilen veya Kaldırılan Özellikler:**  `version_manager.py` dosyasına, `package.json` dosyasından versiyon bilgisinin okunması ve ayrıştırılması, git dalının belirlenmesi, semantik versiyonlamaya uygun versiyon oluşturma, kod adları ataması ve gelişmiş kırıcı değişiklik tespit mekanizması eklendi.  `changelog_updater.py` dosyasına ise projenin türünü otomatik olarak tespit eden (`_detect_project_type`) ve daha kapsamlı bir etki seviyesi tespit algoritması (`_detect_impact_level`) eklendi.
 
-- **Değiştirilen Özellikler:**  `summarizer` terminal komutunun kurulum ve güncelleme işlemleri iyileştirilmiştir. Daha önce farklı işletim sistemleri için ayrı komut dosyaları oluşturulurken, şimdi tek bir Python betiği kullanılmaktadır.
+- **Kullanıcı Deneyiminin Etkilenmesi:**  Kullanıcı deneyimi doğrudan etkilenmez.  Ancak, geliştiriciler için daha doğru versiyon bilgisi ve daha detaylı değişiklik günlüğü, daha iyi bir geliştirme deneyimi sağlar.
 
-- **Kaldırılan Özellikler:**  Belirgin bir özellik kaldırılması yoktur.
-
-- **Kullanıcı Deneyimi:** Kullanıcı deneyimi önemli ölçüde iyileşmiştir.  `summarizer` betiğini çalıştırmak artık çok daha kolaydır ve changelog'lar daha doğru ve ilgilidir.
-
-- **Performans, Güvenlik veya Güvenilirlik:**  `_detect_project_type` fonksiyonunun performans üzerindeki etkisi ihmal edilebilir düzeydedir.  Terminal komutu güncelleme mekanizmasının iyileştirilmesi güvenilirliği artırır.  Güvenlik üzerinde doğrudan bir etkisi yoktur.
+- **Performans, Güvenlik veya Güvenilirlik Üzerindeki Etkiler:**  Performans etkisi, eklenen fonksiyonların karmaşıklığına bağlıdır ve sağlanan kod parçaları ile tam olarak ölçülemez.  Güvenlik ve güvenilirlik üzerinde doğrudan bir etki görülmez, ancak doğru versiyon yönetimi ve değişiklik takibi, uzun vadede güvenilirliği artırır.
 
 
 ### 3. TEKNİK DERİNLİK:
 
-- **Tasarım Desenleri:** Belirgin bir tasarım deseni değişikliği veya yeni bir tasarım deseni uygulanması gözlenmemiştir. Ancak,  `JsonChangelogManager` sınıfının kullanımı, MVC veya benzeri bir mimari yaklaşımının varlığına işaret edebilir.  `_detect_project_type` fonksiyonunun kullanımı,  bir strateji deseni uygulaması olarak düşünülebilir (farklı proje türleri için farklı stratejiler uygulanabilir).
+- **Tasarım Desenleri:** `VersionManager` sınıfı, Tek Sorumluluk Prensibine (Single Responsibility Principle) uygun bir tasarım örneği olarak düşünülebilir.  Diğer fonksiyonlarda belirgin bir tasarım deseni kullanımı görülmez, ancak `JsonChangelogManager` gibi sınıfların varlığı, MVC veya benzeri bir mimarinin kullanılmış olabileceğine işaret eder.
 
-- **Kod Kalitesi ve Sürdürülebilirlik:**  `_detect_project_type` fonksiyonunun eklenmesi ve terminal komutu güncelleme mekanizmasının iyileştirilmesi kod kalitesini ve sürdürülebilirliği artırmıştır. Kod daha modüler, okunabilir ve gelecekteki değişikliklere daha uyumlu hale gelmiştir.
+- **Kod Kalitesi ve Sürdürülebilirliğin Gelişmesi:** Kod kalitesi ve sürdürülebilirlik, daha modüler ve anlaşılır kod yapısı sayesinde iyileştirilmiştir.  Fonksiyonların daha küçük ve özelleşmiş işlevlere ayrıştırılması, kodun okunabilirliğini ve bakımını kolaylaştırır.
 
-- **Yeni Bağımlılıklar veya Teknolojiler:**  Yeni bir bağımlılık veya teknoloji eklenmemiştir.
+- **Yeni Bağımlılıklar veya Teknolojiler:**  Sağlanan bilgilerde yeni bağımlılıklar eklendiğine dair bir bilgi bulunmuyor.
 
 
 ### 4. SONUÇ YORUMU:
 
-- **Uzun Vadeli Değer ve Etki:** Bu değişiklikler, changelog oluşturma ve yönetiminin otomasyonunu artırarak, projenin uzun vadeli sürdürülebilirliğini ve geliştirilebilirliğini önemli ölçüde artırmıştır.  Kullanıcı deneyimi iyileştirilmiş, hata olasılığı azaltılmış ve gelecekteki geliştirmeler için sağlam bir temel oluşturulmuştur.
+- **Uzun Vadeli Değer ve Etki:** Bu değişiklikler, projenin versiyonlama ve değişiklik günlüğü yönetimini iyileştirerek uzun vadeli sürdürülebilirliğe katkıda bulunmuştur.  Daha doğru versiyon bilgisi ve detaylı değişiklik günlüğü, hata ayıklama ve geriye dönük izleme süreçlerini kolaylaştırır.
 
-- **Projenin Teknik Borcunun Etkilenmesi:**  Projenin teknik borcu,  daha temiz ve daha iyi yapılandırılmış kod sayesinde azalmıştır.  Otomatik proje türü tespiti, gelecekteki proje türü eklemelerini kolaylaştırarak teknik borcun artmasını önlemeye yardımcı olacaktır.
+- **Projenin Teknik Borcunun Etkilenmesi:**  Projenin teknik borcu, kodun daha modüler ve anlaşılır hale getirilmesiyle azaltılmış olabilir. Ancak, `_has_breaking_changes` fonksiyonunun yalnızca belirli dosya adlarına dayalı olması, yanlış pozitif veya negatif sonuçlara yol açabileceği için potansiyel bir teknik borç olarak değerlendirilebilir.
 
-- **Gelecekteki Geliştirmelere Hazırlık:**  Farklı proje türlerini destekleyen mimari,  gelecekteki özellik eklemelerini daha kolay hale getirir.  Terminal komutu entegrasyonu,  daha fazla terminal komutu eklenmesine olanak tanır.  Genel olarak,  sistem daha modüler ve genişletilebilir bir hale getirilmiştir.
+- **Gelecekteki Geliştirmelere Hazırlık:**  Daha kapsamlı bir etki seviyesi tespiti mekanizması, gelecekteki geliştirmeleri daha iyi planlamaya olanak sağlayacaktır.  Farklı proje türlerini destekleyen `_detect_project_type` fonksiyonu, gelecekteki genişletilebilirliği artırır.  Ancak,  daha sofistike bir kırıcı değişiklik tespit mekanizması gelecekteki geliştirmelerde düşünülebilir.
 
 ## 🛠️ Kurulum (Installation)
 
@@ -216,7 +212,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**Last updated**: June 20, 2025 by Summarizer Framework v8.4.0
+**Last updated**: June 20, 2025 by Summarizer Framework v8.5.0
 *This README is automatically generated and updated based on project activity.*
 
 > *"Automatically maintained with AI-powered analysis"*
