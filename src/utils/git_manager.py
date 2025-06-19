@@ -175,7 +175,7 @@ class GitManager:
         return success
 
     def commit(self, message: str) -> bool:
-        """Commits the staged changes with the given message."""
+        """Commits the staged changes with the given message.."""
         success, _ = self._run_git_command(["commit", "-m", message])
         return success
 
