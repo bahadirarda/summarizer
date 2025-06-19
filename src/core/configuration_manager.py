@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import Dict, Any, List, Optional
 from dotenv import load_dotenv
 import logging
+import getpass
 
 
 class ConfigurationManager:
@@ -350,3 +351,35 @@ class ConfigurationManager:
             del custom_vars[key]
             return True
         return False
+
+    def _load_and_validate_config(self) -> None:
+        """Loads environment variables and validates required configuration."""
+        self.config = {
+            "GEMINI_API_KEY": os.getenv("GEMINI_API_KEY"),
+            "ANTHROPIC_API_KEY": os.getenv("ANTHROPIC_API_KEY"),
+            "OPENAI_API_KEY": os.getenv("OPENAI_API_KEY"),
+            "LOG_LEVEL": os.getenv("LOG_LEVEL", "INFO").upper(),
+            "CHANGELOG_PATH": os.getenv("CHANGELOG_PATH", "CHANGELOG.md"),
+            "PROJECT_NAME": self.project_root.name,
+        }
+
+        # Interactive prompt for missing API key
+        if not self.config["GEMINI_API_KEY"]:
+            try:
+                # Use a password-style input to hide the key
+                api_key = getpass.getpass("   🔑 GEMINI_API_KEY not found. Please enter it here to continue: ")
+                if api_key and len(api_key) > 10:  # Basic validation
+                    self.config["GEMINI_API_KEY"] = api_key
+                    os.environ["GEMINI_API_KEY"] = api_key  # Set for the current session
+                else:
+                    # Add to missing_params only if input is invalid
+                    self.missing_params.append("GEMINI_API_KEY")
+            except (EOFError, KeyboardInterrupt):
+                print("\n   🚫 API key entry cancelled.")
+                self.missing_params.append("GEMINI_API_KEY")
+
+    def _validate_config(self):
+        """Validates the presence of required configuration parameters."""
+        # This check is now mostly for cases where user cancels the prompt
+        if not self.config.get("GEMINI_API_KEY"):
+             self.missing_params.append("GEMINI_API_KEY")

@@ -3,6 +3,174 @@
 Bu dosya otomatik olarak generate edilmiştir.
 Düzenlemeler için `changelog.json` dosyasını kullanın.
 
+## 2025-06-20 00:36:43
+
+### 1. YAPISAL ANALİZ:
+
+Bu değişiklik,  `src/services/gemini_client.py` dosyasını etkilemiştir. Bu dosya, sistemin servis katmanında yer almaktadır.  Değişiklikler, Gemini AI modeli ile etkileşimi yöneten `GeminiClient` sınıfını doğrudan etkiler.  Mimari değişikliklerinin etkisi, konfigürasyon yönetiminin merkezi bir noktadan (`ConfigurationManager`) kontrol edilmesini sağlamaktır.  Önceki sürümde API anahtarı muhtemelen doğrudan kod içerisinde tanımlanmış ya da ortam değişkenine sert kodlanmış bir şekilde okunuyordu.  Yeni sürümde ise `ConfigurationManager` sınıfı aracılığıyla API anahtarı okunarak, konfigürasyonun merkezi yönetimi sağlanmış ve sürdürülebilirlik artırılmıştır.  Kod organizasyonu açısından,  `ConfigurationManager` bağımlılığının eklenmesi ve API anahtarının bu sınıf üzerinden alınması kodun daha modüler ve bakımı kolay hale getirmiştir.  `RequestManager` sınıfına kaydolma işleminin API anahtarının varlığına bağlı olmaması da,  sistemin API anahtarı olmadan bile çalışabilirliğini sağlamak için yapılan bir iyileştirmedir.
+
+### 2. İŞLEVSEL ETKİ:
+
+* **Eklenen Özellikler:**  Değişikliklerle birlikte,  `GeminiClient` sınıfına konfigürasyon yönetimi entegrasyonu eklenmiştir. Bu, API anahtarının merkezi bir yerden yönetilmesini sağlar ve farklı ortamlar (geliştirme, test, üretim) için kolay konfigürasyon imkanı sunar.  `generate_simple_text` fonksiyonu eklenerek basit metin üretme yeteneği sağlanmıştır. Bu, karmaşık analiz şablonlarını gerektirmeyen kullanım senaryoları için optimize edilmiş bir yöntem sunar.
+
+* **Değiştirilen Özellikler:**  `GeminiClient` sınıfının başlatma süreci değişmiştir.  Artık `ConfigurationManager` nesnesi, kurucu fonksiyonuna parametre olarak aktarılmaktadır.  Bu, konfigürasyonu dışarıdan enjekte etmeyi mümkün kılar ve bağımlılık enjeksiyonu prensibine uygun bir tasarım oluşturur.  Hata yönetimi de iyileştirilmiş olup,  API anahtarı bulunamadığında daha açıklayıcı bir uyarı mesajı gösterilir.
+
+* **Kaldırılan Özellikler:**  Belirgin bir özellik kaldırılmamıştır.
+
+* **Kullanıcı Deneyimi:** Kullanıcı deneyimi doğrudan etkilenmez, ancak konfigürasyon yönetiminin iyileştirilmesi sistemin daha esnek ve yönetilebilir olmasını sağlar.
+
+* **Performans, Güvenlik ve Güvenilirlik:** Performans üzerinde önemli bir etki beklenmez.  Güvenlik açısından, API anahtarının  `.env` dosyası veya sistem ortam değişkenleri aracılığıyla yönetilmesi,  anahtarın kod içine yazılmasına göre daha güvenli bir yaklaşımdır.  Güvenilirlik ise,  hata yönetiminin iyileştirilmesiyle artmıştır.
+
+
+### 3. TEKNİK DERINLIK:
+
+* **Tasarım Desenleri:**  Bağımlılık Enjeksiyonu (Dependency Injection) tasarım deseni uygulanmıştır.  `ConfigurationManager` nesnesi, `GeminiClient` sınıfına dışarıdan enjekte edilmektedir. Bu, kodun daha modüler, test edilebilir ve sürdürülebilir olmasını sağlar.
+
+* **Kod Kalitesi ve Sürdürülebilirlik:** Kod kalitesi ve sürdürülebilirlik önemli ölçüde iyileştirilmiştir.  Konfigürasyonun merkezi yönetimi,  kodun daha okunabilir, anlaşılır ve bakımı kolay olmasını sağlar.  Hata yönetimi de daha iyidir ve açıklayıcı hata mesajları sunar.
+
+* **Yeni Bağımlılıklar:**  `src.core.configuration_manager`  modülü yeni bir bağımlılık olarak eklenmiştir.  Bu, konfigürasyon yönetimini merkezi bir şekilde yönetmek için kullanılır.  Google'ın `google.generativeai` kütüphanesi zaten kullanılıyordu.
+
+
+### 4. SONUÇ YORUMU:
+
+Bu değişikliklerin uzun vadeli değeri,  sistemin daha modüler, sürdürülebilir ve yönetilebilir olmasını sağlamasıdır.  Konfigürasyon yönetiminin iyileştirilmesi, farklı ortamlar için kolay konfigürasyon imkanı sunar ve sistemin bakım maliyetini azaltır.  Teknik borç azaltılmıştır çünkü konfigürasyon yönetimi daha temiz ve sürdürülebilir bir hale getirilmiştir.  Gelecekteki geliştirmeler için,  `ConfigurationManager` sınıfının genişletilebilirliği ve  `GeminiClient` sınıfının daha fazla fonksiyonellik eklenmesine olanak sağlaması önemli bir hazırlıktır.  Ayrıca, basit metin üretme fonksiyonunun eklenmesi, gelecekte farklı kullanım senaryoları için daha fazla fonksiyon ekleme olanağı sağlar.
+
+**Değişen Dosyalar:** src/services/gemini_client.py
+**Etki Seviyesi:** High
+**Değişiklik Tipi:** Feature
+**Satır Değişiklikleri:** +18
+**Etiketler:** manager, gemini-client, api, services, client, config
+
+---
+
+## 2025-06-20 00:35:50
+
+### 1. YAPISAL ANALİZ:
+
+Değişiklikler `src/utils/changelog_updater.py` dosyasına odaklanmıştır. Bu dosya, projede değişiklikleri izleyen ve changelog'u güncelleyen bir yardımcı araçtır.  Etkinleştirilen sistem bileşenleri şunlardır:
+
+* **`changelog_updater.py`:**  Bu dosya, değişikliklerin ana iş mantığını içerir.  `JsonChangelogManager`, `GitManager`, `VersionManager`, `Readme_generator` ve `file_tracker` modülleriyle etkileşim kurarak changelog güncelleme sürecini yönetir.  Değişiklik, özellikle `demo_framework_analysis` fonksiyonunun eklenmesiyle bu dosyanın fonksiyonelitesini genişletmiştir.
+
+* **`JsonChangelogManager`:** Changelog verilerini JSON formatında yönetir.  `changelog_updater.py` tarafından changelog girişleri eklemek için kullanılır.
+
+* **`GitManager`:** Git deposuyla etkileşimi sağlar (dolaylı olarak, `get_changed_files_since_last_run` fonksiyonu aracılığıyla). Değişikliklerin tespit edilmesinde önemli rol oynar.
+
+* **`VersionManager`:** (Muhtemelen) sürüm numarasını yönetir ve changelog'a dahil edilmesi için kullanılır.
+
+* **`file_tracker`:** Değiştirilen dosyaları, eklenen ve silinen satır sayılarını izler.  `changelog_updater.py` tarafından changelog girişlerini oluştururken kullanılır.
+
+* **`readme_generator`:** (Muhtemelen) README dosyasını günceller.
+
+Mimari değişikliklerin etkisi, `changelog_updater.py` dosyasına bir demo fonksiyonu eklenmesiyle sınırlıdır.  Bu, mimariye yeni bir fonksiyon eklemiştir, ancak genel mimariyi değiştirmemiştir.  Kod organizasyonunda bir iyileştirme gözlemlenmemektedir; yeni fonksiyonun eklenmesi, mevcut yapıyı genişletmiş ve mevcut modüllerin kullanımıyla entegre edilmiştir.
+
+
+### 2. İŞLEVSEL ETKİ:
+
+`demo_framework_analysis` fonksiyonunun eklenmesiyle yeni bir özellik eklenmiştir.  Bu fonksiyon, bir çerçeve yeteneklerini göstermek için tasarlanmıştır ve bir changelog girişi oluşturur.  Bu giriş, yapay zeka tarafından oluşturulmuş özet (`ai_summary`), ilgili dosyalar (`key_files`), yüksek etki seviyesi (`ImpactLevel.HIGH`), demo tipi (`ChangeType.DEMO`), eklenen ve silinen satır sayıları ve etiketler içerir.
+
+Kullanıcı deneyimi doğrudan etkilenmemiştir, çünkü bu fonksiyon kullanıcı tarafından doğrudan çağrılmaz; içsel bir demo mekanizmasıdır.  Performans, güvenlik veya güvenilirlik üzerindeki etki ihmal edilebilir düzeydedir, çünkü fonksiyonun etkisi sınırlı bir demo senaryosuyla sınırlıdır.
+
+
+### 3. TEKNİK DERINLIK:
+
+Yeni fonksiyon, mevcut tasarım desenlerini takip eder ve yeni bir tasarım deseni eklemez.  Kod kalitesi ve sürdürülebilirlik, iyi dokümantasyon ve modüler yapı sayesinde korunmuştur. Yeni bağımlılıklar veya teknolojiler eklenmemiştir.  `demo_framework_analysis` fonksiyonu, mevcut modülleri kullanarak changelog'a demo girişi eklemek için mevcut yapıyı genişletir.  Bu, kodun tekrar kullanımını ve sürdürülebilirliğini destekler.  Hata yönetimi (`try...except` blokları) mevcuttur ve loglama (`logger_changelog`) iyidir.
+
+
+### 4. SONUÇ YORUMU:
+
+Bu değişikliğin uzun vadeli değeri, çerçeve yeteneklerinin gösterilmesi ve potansiyel olarak gelecekteki geliştirmeler için bir temel oluşturmasıdır.  Projenin teknik borcu etkilenmemiştir; aksine, iyi kodlama uygulamaları ve modüler tasarım sayesinde teknik borç artışı engellenmiştir.  Gelecekteki geliştirmelere hazırlık, mevcut modüllerin ve iyi yapılandırılmış kodun tekrar kullanılabilirliğiyle sağlanmıştır.  `demo_framework_analysis` fonksiyonu, gelecekteki benzer demo analizleri için bir şablon görevi görebilir.  Ancak, sadece bir demo fonksiyonu olduğundan, uzun vadeli etkisi sınırlıdır.
+
+**Değişen Dosyalar:** src/utils/changelog_updater.py
+**Etki Seviyesi:** High
+**Değişiklik Tipi:** Feature
+**Satır Değişiklikleri:** +52
+**Etiketler:** manager, changelog-updater, api, utils
+
+---
+
+## 2025-06-20 00:31:50
+
+### 1. YAPISAL ANALİZ:
+
+Değişiklikler yalnızca `src/utils/version_manager.py` dosyasını etkilemiştir. Bu dosya, proje kök dizinini (`project_root`) parametre olarak alan ve versiyon yönetimi ile ilgili işlevleri sağlayan `VersionManager` sınıfını tanımlar.  Dolayısıyla, etkilenen sistem bileşeni **Servis Katmanı**'dır ve mimariye doğrudan bir etkisi yoktur.  Kodun organizasyonu açısından,  `VersionManager` sınıfı içindeki metotlar mantıksal olarak gruplandırılmış ve iyi belgelenmiştir (docstring'ler). Ancak, gösterilen kodun sadece bir parçası olduğu için (250 satır kesilmiş), bütünsel bir kod organizasyon değerlendirmesi yapılamaz.  Mevcut kodda, versiyon bilgisinin `package.json` dosyasından okunması ve git dalının tespit edilmesi gibi işlevler bulunur.  Gösterilen kısımda belirgin bir iyileştirme veya yeniden yapılanma görülmemektedir.
+
+
+### 2. İŞLEVSEL ETKİ:
+
+Gösterilen kod parçası, `VersionManager` sınıfının bazı metotlarını içerir.  Bu metotlar, şu işlevleri yerine getirir:
+
+* **`get_current_branch()`:**  Mevcut Git dalını belirler.  Git komutunun çalıştırılmasını denetler ve hataları yakalar.  Hata durumlarında loglama yapar.
+* **`get_current_version()`:** `package.json` dosyasından versiyon bilgisini okur.  Dosya yoksa veya okuma işlemi başarısız olursa, varsayılan bir versiyon (`2.0.3`) döndürür.
+* **`parse_version()`:**  Semantik versiyonlama bilgisini (örneğin, "2.1.0") ayrıştırır.  Bu fonksiyonun tamamı gösterilmediği için detaylı işlevi anlaşılamamaktadır.
+* **`get_codename()`:**  Versiyon numarasına göre kod adı döndürür.  Major versiyon numarasına göre farklı kod adlandırma şemaları uygular.  Bu, versiyon kontrolü ve insan tarafından okunabilirliğin iyileştirilmesi için tasarlanmıştır.
+* **`_has_breaking_changes()`:**  Değiştirilen dosyalar listesine ve etki seviyesine bağlı olarak, kodda kırıcı değişiklikler olup olmadığını kontrol eder. Belirli dosya isimlerini (örneğin, `main.py`, `config.py`) kırıcı değişiklik göstergeleri olarak kullanır.
+* **`_has_new_features()`:**  Değiştirilen dosyalar listesine ve etki seviyesine bağlı olarak, yeni özellikler eklenip eklenmediğini kontrol eder. Dosya isimlerinde belirli kelimeleri (örneğin, "feature", "new_") arar.
+
+Kullanıcı deneyimi doğrudan etkilenmez, çünkü bu sınıf alt seviyede versiyon yönetimi sağlar. Performans etkisi, Git komutunun çalıştırılmasıyla sınırlıdır ve genellikle ihmal edilebilir düzeydedir. Güvenlik ve güvenilirlik açısından, hata yakalama mekanizmaları (try-except blokları) ve loglama sayesinde iyileştirmeler yapılmıştır.
+
+
+### 3. TEKNİK DERINLIK:
+
+* **Tasarım Desenleri:**  `VersionManager` sınıfı, **Singleton** deseni kullanılmamış olsa da, versiyon yönetimi işlevlerini tek bir yerde toplar.  Bu, **Facade** desenine benzer bir yaklaşım olarak düşünülebilir.
+* **Kod Kalitesi ve Sürdürülebilirlik:**  Kod, iyi belgelenmiş ve okunabilirdir (docstring'ler ve anlamlı değişken isimleri). Hata yönetimi, `try-except` blokları ile sağlanmıştır.  Loglama, hata ayıklama ve sorun gidermeyi kolaylaştırır.
+* **Yeni Bağımlılıklar:**  `subprocess`, `json`, `pathlib`, `logging`, `datetime`, `re` gibi Python'ın standart kütüphaneleri kullanılmıştır. Yeni bir bağımlılık eklenmemiştir.
+
+
+### 4. SONUÇ YORUMU:
+
+Bu değişiklikler, versiyon yönetimi işlemlerini merkezi bir noktada yönetmeyi amaçlar.  Bu, kodun tekrar kullanılabilirliğini artırır ve versiyonlama işlemlerindeki tutarlılığı sağlar.  `_has_breaking_changes()` ve `_has_new_features()` metotları, versiyonlama sürecine semantik versiyonlama (semantic versioning) prensiplerini uygulamaya yardımcı olur ve olası kırıcı değişiklikleri tespit etmeye çalışır.  Uzun vadede, bu, daha güvenilir ve sürdürülebilir bir yazılım geliştirme süreci sağlar. Projenin teknik borcu,  versiyon yönetimi işlemlerinin daha iyi organize edilmesiyle azalmış olabilir.  Gelecekteki geliştirmeler için, daha gelişmiş versiyon kontrolü stratejileri ve otomasyon olanakları eklenebilir (örneğin, otomatik versiyon artırımı).  Ancak, gösterilen kod parçası, bu olası geliştirmelerin sadece bir temelini oluşturur.  Tam bir değerlendirme için, tüm `version_manager.py` dosyasının incelenmesi gerekir.
+
+**Değişen Dosyalar:** src/utils/version_manager.py
+**Etki Seviyesi:** High
+**Değişiklik Tipi:** Feature
+**Satır Değişiklikleri:** +91
+**Etiketler:** version-manager, manager, config, api, utils
+
+---
+
+## 2025-06-20 00:30:52
+
+### 1. YAPISAL ANALİZ:
+
+Bu değişiklik seti, Summarizer Framework'ünün çeşitli katmanlarını etkilemiştir.  `summarizer.py` dosyasındaki değişiklikler, uygulamanın ana giriş noktası ve komut satırı arayüzünü (CLI) doğrudan etkiler.  `src/main.py` dosyası, özetleme işlevselliğinin temelini oluşturur ve bu değişikliklerden dolaylı olarak etkilenir. `src/core/configuration_manager.py` dosyasındaki değişiklikler (kod gösterilmediği için detaylar eksik kalmaktadır), konfigürasyon yönetimini etkiler.  `src/utils` alt dizinindeki dosyalar (`version_manager.py`, `git_manager.py`, `changelog_updater.py`) yardımcı işlevler sağlar ve sürüm kontrolü, değişiklik günlüğü güncellemeleri ve Git entegrasyonunu yönetir. `src/services/gemini_client.py` dosyası, Gemini API'si ile etkileşimi yönetir. Son olarak, `tests/test_main.py` dosyasındaki değişiklikler (varsa), `src/main.py`'deki değişiklikleri test etmekle ilgilidir.
+
+Mimari açıdan bakıldığında, değişiklikler büyük ölçüde mevcut mimariyi genişletmiş ve iyileştirmiş gibi görünmektedir. CLI'daki yeni komutlar (screenshot, ss) yeni işlevsellik eklerken, `GeminiClient` sınıfının eklenmesi yeni bir hizmet entegrasyonunu göstermektedir.  `changelog_updater.py`'nin varlığı ise versiyonlama ve değişiklik takibinin iyileştirilmesine işaret eder. Kod organizasyonu, özellikle `features` alt dizini altında farklı özellikleri modüler olarak ayırma yaklaşımı ile iyileştirilmiş gözükmektedir (parametre kontrolü, ekran görüntüsü alma, terminal komutları, GUI).
+
+Kod organizasyonunda, özellikle özelliklerin modüler bir şekilde `features` dizini altında organize edilmesi önemli bir iyileştirmedir. Bu, kodun daha okunabilir, bakımı daha kolay ve test edilebilir olmasını sağlar.
+
+
+### 2. İŞLEVSEL ETKİ:
+
+Eklenen özellikler arasında, komut satırı üzerinden ekran görüntüsü alma (`screenshot`, `ss` komutları) ve farklı uygulamalar için özel ekran görüntüsü alma yeteneği yer almaktadır.  Kullanıcı deneyimi, yeni komut satırı seçenekleri sayesinde geliştirilmiştir. GUI konfigürasyonu için destek eklenmiş veya iyileştirilmiş olabilir (kod gösterilmediği için kesin bilgi yok).
+
+Performans etkisi, Gemini API entegrasyonuna ve kullanılan algoritmalara bağlıdır. Güvenlik etkisi, Gemini API anahtarının doğru şekilde yönetimiyle ilgilidir.  `src/services/gemini_client.py` dosyasındaki uyarı mesajı, API anahtarının bulunmaması durumunda özetleme özelliğinin devre dışı kalabileceğini göstermektedir. Güvenilirlik, özellikle hata işleme ve güncelleme mekanizmalarının kalitesiyle doğrudan ilgilidir.  Kodda hata yakalama mekanizmaları görünse de,  bu mekanizmaların ne kadar etkili olduğu tam olarak belirlenememektedir.
+
+
+### 3. TEKNİK DERİNLİK:
+
+`summarizer.py` dosyasındaki kod, komut satırı argümanlarını işlemek için `argparse` kütüphanesini kullanmaktadır. Ayrıca, modülün çağrılabilir bir nesne gibi davranmasını sağlamak için bir `CallableModule` sınıfı kullanılmış gibi görünmektedir (kodun tamamı verilmediğinden bu kesin olarak doğrulanamaz). Bu, modülün hem doğrudan çalıştırılmasına hem de başka bir modül tarafından içe aktarılıp kullanılmasına olanak tanır.  Bu, bir tasarım deseni olarak görülebilir (örneğin, Module-as-a-Service).
+
+Kod kalitesi, modülerlik ve hata yakalama mekanizmaları sayesinde iyileştirilmiştir. Ancak kodun tamamı verilmediği için kapsamlı bir kalite değerlendirmesi yapılamaz.  Sürdürülebilirlik, iyi kod organizasyonu ve dokümantasyon ile desteklenmektedir.
+
+Yeni bağımlılık olarak Gemini API'si eklenmiştir.  Diğer olası bağımlılıklar,  `argparse`, `pathlib`, ve diğer modüllerdir. Ancak tam bağımlılık listesi verilmediği için bu bilgi kesin değildir.
+
+
+### 4. SONUÇ YORUMU:
+
+Bu değişiklikler, Summarizer Framework'ünün işlevselliğini genişletmiş ve kullanıcı deneyimini iyileştirmiştir.  Ekran görüntüsü alma özelliği,  uygulamanın kullanım alanını genişletmiştir. Gemini API entegrasyonu ise,  özetleme yeteneklerini geliştirme potansiyeli sunmaktadır. Ancak, API entegrasyonu güvenlik risklerini de beraberinde getirmektedir ve bu risklerin hafifletilmesi için uygun önlemlerin alınması önemlidir.
+
+Projenin teknik borcu, iyileştirilmiş kod organizasyonu ve modülerlik sayesinde azaltılmış olabilir.  Ancak bu, mevcut teknik borcun tamamını kapsamamaktadır.
+
+Gelecekteki geliştirmelere hazırlık olarak, modüler yapı, yeni özellikler eklenmesini ve mevcut özelliklerin geliştirilmesini kolaylaştıracaktır.  Versiyon kontrolü ve değişiklik günlüğü güncellemeleri sayesinde, gelecekteki bakım ve geliştirme daha kolay hale getirilecektir.  Ancak,  `TODO` yorumlarında belirtilen iyileştirme önerilerinin uygulanması, projenin uzun vadeli sürdürülebilirliği için kritik öneme sahiptir.
+
+**Değişen Dosyalar:** summarizer.py, src/main.py, src/core/configuration_manager.py, src/utils/version_manager.py, src/utils/git_manager.py, src/utils/changelog_updater.py, src/services/gemini_client.py, tests/test_main.py
+**Etki Seviyesi:** High
+**Değişiklik Tipi:** Feature
+**Satır Değişiklikleri:** +409 -161
+**Etiketler:** api, test-main, main, tests, configuration-manager, core, summarizer, changelog-updater, client, services
+
+---
+
 ## 2025-06-19 10:42:18
 
 ### 1. YAPISAL ANALİZ:

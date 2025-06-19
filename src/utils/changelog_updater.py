@@ -2,7 +2,10 @@ import logging
 from datetime import datetime
 from pathlib import Path
 from typing import Optional
-from datetime import datetime
+import re
+import sys
+import subprocess
+import urllib.parse
 
 from .file_tracker import (  # Import for getting changed files
     get_changed_files_since_last_run,
@@ -13,6 +16,7 @@ from .file_tracker import (  # Import for getting changed files
 from .json_changelog_manager import JsonChangelogManager, ImpactLevel, ChangeType
 from .readme_generator import update_readme
 from .version_manager import VersionManager
+from .git_manager import GitManager
 
 logger_changelog = logging.getLogger(__name__)
 
@@ -25,19 +29,17 @@ def _detect_impact_level(summary: str, changed_files: list) -> ImpactLevel:
     critical_keywords = [
         "critical",
         "hotfix",
-        "security",
-        "urgent",
-        "emergency"]
+        "security"]
     if any(keyword in summary_lower for keyword in critical_keywords):
         return ImpactLevel.CRITICAL
 
     # High impact indicators
-    high_keywords = ["major", "breaking", "api", "database", "migration"]
+    high_keywords = ["major", "breaking", "api"]
     if any(keyword in summary_lower for keyword in high_keywords):
         return ImpactLevel.HIGH
 
     # Low impact indicators
-    low_keywords = ["typo", "comment", "documentation", "readme", "formatting"]
+    low_keywords = ["typo", "docs", "readme"]
     if any(keyword in summary_lower for keyword in low_keywords):
         return ImpactLevel.LOW
 
@@ -48,6 +50,87 @@ def _detect_impact_level(summary: str, changed_files: list) -> ImpactLevel:
         return ImpactLevel.LOW
 
     return ImpactLevel.MEDIUM
+
+
+def _ask_user(prompt: str) -> bool:
+    try:
+        return input(f"{prompt} (y/n): ").lower() == 'y'
+    except (EOFError, KeyboardInterrupt):
+        return False
+
+
+def _run_ci_checks(project_root: Path) -> bool:
+    ci_script_path = project_root / "scripts" / "run_ci_checks.py"
+    if not ci_script_path.exists():
+        print(f"   ❌ CI script not found at {ci_script_path}")
+        return False
+    # Pass '-s' to pytest to disable output capture, allowing interactive prompts if necessary for testing
+    ci_process = subprocess.run([sys.executable, str(ci_script_path), '-s'], cwd=project_root)
+    if ci_process.returncode == 0:
+        print("   ✅ All CI checks passed.")
+        return True
+    else:
+        print("   ❌ CI checks failed.")
+        return False
+
+
+def _write_next_command(project_root: Path, command: str):
+    command_file_path = project_root / ".summarizer" / "next_command.sh"
+    try:
+        with open(command_file_path, "w") as f: f.write(f"{command}\n")
+        print(f"   ✨ Next step command generated: {command}")
+    except Exception as e:
+        logger_changelog.error(f"Could not create next_command.sh file: {e}")
+
+
+def _handle_pull_request_flow(project_root: Path, git_manager: GitManager, current_branch: str, target_branch: str, pr_body: str):
+    if _ask_user(f"   ❔ Create a Pull Request to '{target_branch}'?"):
+        if not _run_ci_checks(project_root):
+            if not _ask_user("   ⚠️  CI checks failed. Proceed with PR anyway?"):
+                return
+
+        if not git_manager.has_remote():
+            if _ask_user("   ⚠️  No remote 'origin' found. Add one now?"):
+                remote_url = input("   > Enter repo URL: ")
+                if not (remote_url and git_manager.add_remote(remote_url)):
+                     print("   ❌ Failed to add remote. Aborting push.")
+                     return
+            else:
+                print("   ❌ Push aborted by user.")
+                return
+        
+        if not _ask_user(f"   ❔ CI checks passed. Push '{current_branch}' to remote to prepare PR?"):
+            print("   ❌ Push aborted by user.")
+            return
+
+        success, output = git_manager.push(current_branch)
+        if success:
+            remote_url = git_manager.get_remote_url()
+            branch_parts = current_branch.split('/')
+            if len(branch_parts) > 1:
+                # Handles branches like 'feature/new-login' or 'feature/team/new-button'
+                pr_title = f"{branch_parts[0].capitalize()}: {'-'.join(branch_parts[1:])}"
+            else:
+                # Fallback for branches without a '/' like 'develop'
+                pr_title = f"chore: Sync {current_branch} to {target_branch}"
+
+            pr_url = f"{remote_url}/compare/{target_branch}...{current_branch}?title={urllib.parse.quote(pr_title)}&body={urllib.parse.quote(pr_body)}"
+            print(f"   👇 Click here to create your Pull Request:\n   {pr_url}")
+            _write_next_command(project_root, f"git checkout {target_branch}")
+        else:
+            print(f"   ❌ Push failed. Git Error: {output}")
+
+
+def _handle_release_creation(project_root: Path, git_manager: GitManager, new_version: str):
+    release_branch_name = f"release/v{new_version}"
+    if _ask_user(f"   ❔ Run CI checks and create release branch '{release_branch_name}'?"):
+        if not _run_ci_checks(project_root):
+            if not _ask_user("   ⚠️  CI checks failed. Create branch anyway?"):
+                return
+        if git_manager.create_branch(release_branch_name):
+            _write_next_command(project_root, f"git checkout {release_branch_name}")
+        else:
+            print(f"   ⚠️  Could not create release branch '{release_branch_name}'.")
 
 
 def update_changelog(project_root: Optional[Path] = None):
@@ -135,13 +218,13 @@ def update_changelog(project_root: Optional[Path] = None):
         logger_changelog.warning("GeminiClient not found in RequestManager.")
         gemini_client = None
 
-    summary = "Genel güncelleme veya çalıştırma."
+    summary = "Genel güncelleme."
     impact_level = ImpactLevel.MEDIUM
     change_type = ChangeType.OTHER
 
     if gemini_client and gemini_client.is_ready():
         try:
-            prompt = f"Aşağıdaki dosyalarda değişiklikler yapıldı: {', '.join(changed_files) if changed_files else 'Genel güncellemeler'}"
+            prompt = f"Değişen dosyalar: {', '.join(changed_files)}"
             ai_summary = gemini_client.generate_summary(
                 text_prompt=prompt, changed_files=changed_files
             )
@@ -235,30 +318,54 @@ def update_changelog(project_root: Optional[Path] = None):
             increment_type = "patch"
             
         # Auto-increment based on changes for better version management
-        new_version = version_manager.auto_increment_based_on_changes(
-            changed_files, impact_level.value
-        )
+        new_version, old_version, _ = version_manager.auto_increment_based_on_branch()
         
-        if new_version != current_version:
+        if new_version != old_version and version_manager.update_version_in_files(new_version):
             print(f"   📈 Version updated: {current_version} → {new_version}")
             print(f"   🎯 Change Impact: {impact_level.value} ({increment_type} increment)")
             
             # Get version codename
-            major, minor, patch = version_manager.parse_version(new_version)
-            codename = version_manager._get_version_codename(major, minor)
+            major, minor, _ = version_manager.parse_version(new_version)
+            codename = version_manager._get_version_codename(major, minor, new_version, gemini_client)
             if codename:
                 print(f"   💫 Codename: {codename}")
                 
             # Create git tag for new version
             try:
-                version_manager.create_git_tag(new_version)
+                version_manager.create_git_tag(new_version, codename=codename)
                 print(f"   🏷️  Git tag created: v{new_version}")
             except Exception as tag_error:
                 print(f"   ⚠️  Could not create git tag: {tag_error}")
                 
-        else:
-            print(f"   ✅ Version maintained: {current_version}")
+            # Commit changes to git
+            git_manager = GitManager(project_root)
+            if not git_manager.is_working_directory_clean():
+                if _ask_user("   ❔ Summarizer updated project files. Commit these maintenance changes?"):
+                    commit_message = f"chore(summarizer): Update project to v{new_version}"
+                    if not (git_manager.stage_all() and git_manager.commit(commit_message)):
+                        print("   ❌ Failed to commit maintenance changes. Aborting next git actions.")
+                        return
+
+            # Handle GitFlow and CI checks
+            branch_name = git_manager.get_current_branch()
+            target_branch = None
+            if branch_name.startswith(('feature/', 'bugfix/')): target_branch = 'develop'
+            elif branch_name == 'develop': target_branch = 'staging'
+            elif branch_name.startswith('release/'): target_branch = 'main'
+            elif branch_name.startswith('hotfix/'): target_branch = 'main'
             
+            if branch_name == 'staging':
+                _handle_release_creation(project_root, git_manager, new_version)
+            elif target_branch:
+                _handle_pull_request_flow(project_root, git_manager, branch_name, target_branch, summary)
+            elif branch_name.startswith(('release/', 'hotfix/')):
+                match = re.match(r"^(release|hotfix)\/v(\d+\.\d+\.\d+)", branch_name)
+                if match and match.group(2) != new_version:
+                    new_branch_name = f"{match.group(1)}/v{new_version}"
+                    if _ask_user(f"   ❔ On old branch. Create and switch to '{new_branch_name}'?"):
+                        if git_manager.create_branch(new_branch_name):
+                            _write_next_command(project_root, f"git checkout {new_branch_name}")
+
     except Exception as e:
         print(f"   ⚠️  Version management failed: {e}")
         logger_changelog.error(f"Error in version management: {e}", exc_info=True)

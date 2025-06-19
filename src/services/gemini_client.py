@@ -332,3 +332,21 @@ Türkçe olarak KAPSAMLI ve ANALİTİK bir özet oluştur. Özet şunları içer
 
         return (
             f"{first_part}\n\n... [Content truncated for analysis] ...\n\n{last_part}")
+    
+    def generate_simple_text(self, prompt: str) -> str:
+        """Generates a simple text response without the complex analysis template."""
+        if not self.is_ready():
+            self.logger.error("GeminiClient is not properly configured. Cannot generate text.")
+            return "[GeminiClient not configured]"
+        
+        try:
+            response = self.model.generate_content(prompt)
+            if response.text:
+                self.logger.info("Successfully generated simple text from Gemini.")
+                return response.text.strip()
+            else:
+                self.logger.warning("Received an empty response from Gemini for simple text generation.")
+                return "AI response was empty."
+        except Exception as e:
+            self.logger.error(f"Error during simple text generation with Gemini: {e}")
+            return f"[AI generation failed: {e}]"
