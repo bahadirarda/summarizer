@@ -3,6 +3,35 @@
 Bu dosya otomatik olarak generate edilmiştir.
 Düzenlemeler için `changelog.json` dosyasını kullanın.
 
+## 2025-06-19 10:42:18
+
+### 1. YAPISAL ANALİZ:
+
+Değişiklikler yalnızca `install_gui.py` dosyasını etkilemiştir. Bu dosya, Summarizer Framework'ün GUI ve terminal komutlarının kurulumunu yöneten bir betiktir.  Sistem bileşenleri arasında GUI kurulumu (`features.gui_installer`) ve terminal komutlarının kurulumu (`features.terminal_commands`) yer alır.  Mimari açıdan bakıldığında, değişiklikler mevcut mimariyi değiştirmemektedir; sadece mevcut kurulum işlemini daha kullanıcı dostu ve bilgilendirici hale getirmektedir.  Kod organizasyonunda bir iyileştirme görülmemektedir; kodun yapısı ve işlevselliği esasen aynı kalmıştır. Ancak, hata yakalama mekanizmaları daha ayrıntılı hale getirilmiştir (ImportError ve genel Exception yakalanması).  Bu, hata raporlamasının daha açıklayıcı olmasını sağlar ve hata ayıklama sürecini kolaylaştırır.
+
+
+### 2. İŞLEVSEL ETKİ:
+
+Eklenen, değiştirilen veya kaldırılan özellik yok.  Mevcut kurulum işleminin kullanıcı deneyimi iyileştirilmiştir.  Kullanıcıya her adımda daha fazla geri bildirim sağlanmaktadır (başarı/başarısızlık mesajları, adım numaraları).  Kurulumun başarısız olması durumunda, kullanıcıya daha açıklayıcı hata mesajları ve çözüm önerileri sunulmaktadır.  Sonuç olarak, kurulum süreci daha şeffaf ve kullanıcı dostu hale getirilmiştir. Performans, güvenlik veya güvenilirlik üzerinde doğrudan bir etki yoktur.  Değişiklikler sadece kullanıcı arayüzünü ve hata yönetimini etkilemektedir.
+
+
+### 3. TEKNİK DERINLIK:
+
+Uygulamada belirgin bir tasarım deseni değişikliği yoktur.  Kod, temel bir doğrusal akış izler. Hata yönetimi iyileştirilmiştir; `try-except` blokları kullanımıyla `ImportError` ve genel `Exception` durumları yakalanmaktadır. Bu, potansiyel hataların daha iyi yönetilmesini ve daha bilgilendirici hata mesajlarının gösterilmesini sağlar.  Kod kalitesi ve sürdürülebilirlik, daha açıklayıcı hata mesajları ve daha iyi hata yönetimi sayesinde hafifçe iyileştirilmiştir. Yeni bağımlılıklar veya teknolojiler eklenmemiştir.
+
+
+### 4. SONUÇ YORUMU:
+
+Bu değişikliklerin uzun vadeli değeri, kullanıcı deneyiminin iyileştirilmesinde ve kurulum sürecinin daha güvenilir hale getirilmesinde yatar.  Projenin teknik borcu etkilenmemiştir.  Değişiklikler, mevcut kodu daha kullanıcı dostu hale getirmeye odaklanmış olup, yeni özellikler eklememiştir. Gelecekteki geliştirmelere hazırlık açısından, iyileştirilmiş hata yönetimi ve daha açıklayıcı mesajlar, gelecekte eklenebilecek yeni özellikler için daha sağlam bir temel oluşturur.  Daha kapsamlı loglama eklenmesi ve kurulum adımlarının daha ayrıntılı izlenmesi, gelecekteki hata ayıklama ve sorun giderme süreçlerini kolaylaştıracaktır.
+
+**Değişen Dosyalar:** install_gui.py
+**Etki Seviyesi:** High
+**Değişiklik Tipi:** Other
+**Satır Değişiklikleri:** +73
+**Etiketler:** api, install-gui, gui
+
+---
+
 ## 2025-06-17 17:22:15
 
 ### 1. YAPISAL ANALİZ:
