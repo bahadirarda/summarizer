@@ -3,6 +3,55 @@
 Bu dosya otomatik olarak generate edilmiştir.
 Düzenlemeler için `changelog.json` dosyasını kullanın.
 
+## 2025-06-20 01:31:38
+
+### 1. YAPISAL ANALİZ:
+
+Değişiklikler, projenin `src/utils` altındaki yardımcı araçlar katmanını etkilemiştir.  Özellikle `version_manager.py`, `git_manager.py` ve `changelog_updater.py` dosyaları güncellenmiştir.  Bu dosyalar, sürüm yönetimi, Git entegrasyonu ve değişiklik günlüğü güncelleme işlemlerinden sorumludur.  Bu da projenin sürüm kontrolü ve değişiklik takibi alt yapısını doğrudan etkiler.
+
+Mimari değişikliklerin etkisi, daha modüler ve bakımı kolay bir kod yapısına doğru bir evrimdir.  `VersionManager` ve `GitManager` sınıfları, ilgili görevleri daha iyi kapsülleyerek, bağımsızlık ve tekrar kullanılabilirliği artırır.  `changelog_updater.py`'deki değişiklikler ise, değişiklik günlüğünün güncellenme sürecini daha otomatik ve tutarlı hale getirmiştir.  Bu, daha önce dağılmış olabilecek güncelleme mantığını tek bir noktada toplamaktadır.
+
+Kod organizasyonunda yapılan iyileştirmeler, fonksiyonların daha iyi bir şekilde ayrıştırılmasına ve okunabilirliğin artmasına odaklanmıştır.  Örneğin, `VersionManager` sınıfındaki `get_current_version` fonksiyonunun hata yönetimi iyileştirilmiştir.  `_has_breaking_changes` ve `_has_new_features` gibi yardımcı fonksiyonlar, kodun daha okunaklı ve anlaşılır olmasını sağlamıştır.  Ancak, kodun kırpılmış olması nedeniyle bu iyileştirmelerin tam kapsamı değerlendirilememektedir.
+
+
+### 2. İŞLEVSEL ETKİ:
+
+Kodun kırpılmış olması nedeniyle tüm işlevsel etkileri tam olarak belirlemek mümkün değildir.  Ancak, mevcut kod parçalarından çıkarılabilecek bazı noktalar şunlardır:
+
+* **Eklenen Özellikler:**  `VersionManager` sınıfı, semantik sürümlemeyi ve dal bilincini destekleyen profesyonel bir sürüm yönetim sistemi sağlar.  `changelog_updater.py`, değişiklik günlüğünü otomatik olarak güncelleme yeteneği ekler.  Bu, geliştirme sürecini hızlandırır ve değişiklikleri daha iyi takip etmeyi sağlar.
+
+* **Değiştirilen Özellikler:**  `get_current_version` fonksiyonundaki hata yönetimi iyileştirilmiştir.  Daha sağlam ve istisna durumlarını daha iyi ele alan bir sürüm alma mekanizması sunar.  `_detect_impact_level` fonksiyonu, değişikliklerin etki seviyesini otomatik olarak belirlemede daha gelişmiş bir mantık kullanabilir (tam kod mevcut olmadığından kesin olarak söylenemez).
+
+* **Kaldırılan Özellikler:** Mevcut kod parçasında kaldırılan özelliklere dair bilgi yoktur.
+
+* **Kullanıcı Deneyimi:** Kullanıcı deneyimi doğrudan etkilenmez, ancak geliştirici deneyimi önemli ölçüde iyileştirilir.  Daha tutarlı ve otomatik sürüm yönetimi ve değişiklik günlüğü güncellemeleri, geliştirme sürecini hızlandırır ve hataları azaltır.
+
+* **Performans, Güvenlik ve Güvenilirlik:**  Performans üzerindeki etkiler önemsizdir.  Güvenlik açısından,  Git komutlarının doğru kullanımı ve hata yönetimi güvenilirliği artırır.  Ancak kırpılmış kod nedeniyle güvenlik açıklarını tam olarak değerlendirmek mümkün değildir.
+
+
+### 3. TEKNİK DERİNLİK:
+
+* **Tasarım Desenleri:** `VersionManager` ve `GitManager` sınıfları,  Sorumlulukların Ayrılması (Separation of Concerns) tasarım desenini kullanır.  Her sınıf, belirli bir görevi kapsüllemektedir.
+
+* **Kod Kalitesi ve Sürdürülebilirlik:** Kod kalitesi ve sürdürülebilirliği, daha modüler bir yapı, daha iyi hata yönetimi ve okunabilirlik iyileştirmeleriyle geliştirilmiştir.  Ancak, kodun tamamı mevcut olmadığı için kapsamlı bir değerlendirme yapılamaz.
+
+* **Yeni Bağımlılıklar veya Teknolojiler:** Mevcut kod parçasında yeni bağımlılıklar veya teknolojilerin eklendiğine dair bir bilgi yoktur.
+
+
+### 4. SONUÇ YORUMU:
+
+Bu değişiklikler, projenin sürüm yönetimi ve değişiklik takibi süreçlerini önemli ölçüde iyileştirir.  Daha modüler ve sürdürülebilir bir kod tabanı oluşturur.  Uzun vadede, bu değişiklikler bakım maliyetlerini düşürecek, geliştirme hızını artıracak ve projenin genel kalitesini yükseltecektir.
+
+Projenin teknik borcu, daha iyi kod organizasyonu ve hata yönetimi sayesinde azaltılmıştır.  Semantik sürümleme ve daha ayrıntılı değişiklik günlüğü, gelecekteki geliştirmelere hazırlık yapılması için daha iyi bir temel sağlar.  Ancak,  kodun kırpılmış olması nedeniyle bu yorumlar tam ve kesin değildir.  Tam kod incelenmeden kesin yargılara varılamaz.
+
+**Değişen Dosyalar:** src/utils/version_manager.py, src/utils/git_manager.py, src/utils/changelog_updater.py
+**Etki Seviyesi:** High
+**Değişiklik Tipi:** Feature
+**Satır Değişiklikleri:** +61 -5
+**Etiketler:** manager, api, changelog-updater, version-manager, utils, git-manager
+
+---
+
 ## 2025-06-20 01:24:41
 
 ### 1. YAPISAL ANALİZ:

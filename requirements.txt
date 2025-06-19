@@ -18,6 +18,9 @@ werkzeug>=3.1.0
 google-generativeai>=0.8.5
 google-api-core>=2.25.0
 
+# TOML Parsing for pyproject.toml
+toml>=0.10.2
+
 # Development Dependencies
 pytest>=8.0.0
 flake8>=7.0.0

@@ -5,6 +5,7 @@ from typing import Optional, Tuple
 from datetime import datetime
 import subprocess
 import re
+import toml
 
 logger = logging.getLogger(__name__)
 
@@ -228,28 +229,22 @@ class VersionManager:
                 updated_files.append("package.json")
             except Exception as e:
                 logger.error(f"Failed to update package.json: {e}")
-                # Continue to try other files
 
         # Update pyproject.toml
         pyproject_path = self.project_root / "pyproject.toml"
         if pyproject_path.exists():
             try:
-                with open(pyproject_path, "r+", encoding="utf-8") as f:
-                    content = f.read()
-                    # Use regex to replace the version to preserve comments and formatting
-                    new_content, count = re.subn(
-                        r'(version\s*=\s*")[^"]+(")',
-                        f'\\g<1>{new_version}\\g<2>',
-                        content
-                    )
-                    if count > 0:
-                        f.seek(0)
-                        f.write(new_content)
-                        f.truncate()
-                        logger.info(f"Successfully updated version in pyproject.toml to {new_version}")
-                        updated_files.append("pyproject.toml")
-                    else:
-                        logger.warning("Version key not found in pyproject.toml in the expected format.")
+                with open(pyproject_path, "r", encoding="utf-8") as f:
+                    pyproject_data = toml.load(f)
+                
+                if 'project' in pyproject_data and 'version' in pyproject_data['project']:
+                    pyproject_data['project']['version'] = new_version
+                    with open(pyproject_path, "w", encoding="utf-8") as f:
+                        toml.dump(pyproject_data, f)
+                    logger.info(f"Successfully updated version in pyproject.toml to {new_version}")
+                    updated_files.append("pyproject.toml")
+                else:
+                    logger.warning("Could not find '[project].version' in pyproject.toml")
             except Exception as e:
                 logger.error(f"Failed to update pyproject.toml: {e}")
         

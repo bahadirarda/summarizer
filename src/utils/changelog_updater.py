@@ -140,7 +140,8 @@ def update_changelog(project_root: Optional[Path] = None):
         logger_changelog.warning(
             f"project_root not provided to update_changelog, guessed as {project_root}")
 
-    # Initialize JSON changelog manager
+    # Initialize managers
+    git_manager = GitManager(project_root)
     json_manager = JsonChangelogManager(project_root)
 
     # Get changed files - check for different possible source directories
@@ -249,6 +250,37 @@ def update_changelog(project_root: Optional[Path] = None):
             "GeminiClient kullanılamıyor. Varsayılan özet kullanılıyor."
         )
 
+    # ---> INTELLIGENT BRANCH CHECK <---
+    # Check if on a protected branch AFTER getting the summary
+    current_branch = git_manager.get_current_branch()
+    if current_branch in ['main', 'master']:
+        print(f"\n   ⚠️  You are on the protected '{current_branch}' branch.")
+        suggested_branch = git_manager.suggest_branch_name(summary, gemini_client)
+        
+        if suggested_branch:
+            prompt = f"   ❔ Create and switch to a new branch named '{suggested_branch}' to continue?"
+        else:
+            prompt = "   ❔ Create a new branch to continue? (You can name it in the next step)"
+
+        if _ask_user(prompt):
+            if not suggested_branch:
+                new_branch_name = input("   > Enter the new branch name: ").strip()
+            else:
+                new_branch_name = suggested_branch
+
+            if new_branch_name:
+                if git_manager.create_branch(new_branch_name) and git_manager.checkout(new_branch_name):
+                    print(f"   ✅ Switched to new branch: '{new_branch_name}'")
+                else:
+                    print(f"   ❌ Failed to create or switch to the new branch. Aborting.")
+                    return
+            else:
+                print("   ❌ No branch name provided. Aborting.")
+                return
+        else:
+            print("   ⚪️ Operation aborted by user. No changes have been made.")
+            return
+
     # Add entry to JSON changelog
     print("   💾 Saving changelog entry...")
     entry_id = json_manager.add_entry(
@@ -302,8 +334,7 @@ def update_changelog(project_root: Optional[Path] = None):
     try:
         print("   🏷️  Analyzing changes for version management...")
         version_manager = VersionManager(project_root)
-        git_manager = GitManager(project_root)
-
+        
         # Determine increment type based on impact level ONLY. This is the single source of truth.
         increment_type = "patch"
         if impact_level == ImpactLevel.CRITICAL:

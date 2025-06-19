@@ -1,6 +1,7 @@
 import json
 import logging
 import subprocess
+import re
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -237,3 +238,32 @@ class GitManager:
                     if branch != source_branch:
                         self.create_branch(branch, from_branch=source_branch)
         return True
+
+    def suggest_branch_name(self, summary: str, gemini_client: Any) -> Optional[str]:
+        """Suggests a git branch name based on an AI summary of changes."""
+        if not (gemini_client and gemini_client.is_ready()):
+            logger.warning("Gemini client not available for branch name suggestion.")
+            return None
+        try:
+            logger.info("Generating branch name with AI...")
+            prompt = (
+                f"Based on the following summary of code changes, suggest a concise, "
+                f"descriptive git branch name.\n\n"
+                f"The name should be in kebab-case and start with 'feature/', 'bugfix/', or 'chore/'.\n"
+                f"For example: 'feature/new-login-flow', 'bugfix/api-null-pointer', 'chore/update-readme'.\n\n"
+                f"Summary: '{summary}'\n\n"
+                f"Branch name:"
+            )
+            branch_name = gemini_client.generate_simple_text(prompt)
+            # Clean up response: remove extra quotes, spaces, etc.
+            branch_name = re.sub(r"[`'\"\\s]", "", branch_name).strip()
+            # Further ensure it fits the pattern
+            if re.match(r"^(feature|bugfix|chore)\/[a-z0-9-]+$", branch_name):
+                logger.info(f"AI suggested branch name: {branch_name}")
+                return branch_name
+            else:
+                logger.warning(f"AI generated an invalid branch name: {branch_name}. Falling back.")
+                return None
+        except Exception as e:
+            logger.error(f"AI branch name suggestion failed: {e}")
+            return None
