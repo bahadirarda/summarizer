@@ -5,6 +5,8 @@ from typing import Optional
 from datetime import datetime
 import re
 import sys
+import subprocess
+import urllib.parse
 
 from .file_tracker import (  # Import for getting changed files
     get_changed_files_since_last_run,
@@ -250,71 +252,26 @@ def update_changelog(project_root: Optional[Path] = None):
 
                 # --- Professional GitFlow Integration ---
                 git_manager = GitManager(project_root)
-                next_command = None
-
-                # On 'develop', ask to merge to 'staging'
-                if branch_name == 'develop':
-                    if _ask_user(f"   ❔ Merge 'develop' into 'staging' for testing?"):
-                        if git_manager.switch_to_branch('staging') and git_manager.merge_from('develop'):
-                            next_command = "git checkout staging"
-                        else:
-                            print("   ❌ Merge to 'staging' failed. Please check for conflicts.")
-                            git_manager.switch_to_branch(branch_name) # Go back to original branch on failure
                 
-                # On 'staging', ask to create a 'release' branch and run CI checks
+                # The target branch for a pull request depends on the current branch's prefix
+                target_branch = None
+                if branch_name.startswith('feature/'):
+                    target_branch = 'develop'
+                elif branch_name.startswith('bugfix/'):
+                    target_branch = 'develop'
+                elif branch_name == 'develop':
+                    target_branch = 'staging'
                 elif branch_name == 'staging':
-                    release_branch_name = f"release/v{new_version}"
-                    if _ask_user(f"   ❔ Run CI checks (lint, test, build) and create release branch '{release_branch_name}'?"):
-                        
-                        # --- Run CI Checks ---
-                        ci_script_path = project_root / "scripts" / "run_ci_checks.py"
-                        if not ci_script_path.exists():
-                            print(f"   ❌ CI script not found at {ci_script_path}")
-                        else:
-                            import subprocess
-                            ci_process = subprocess.run([sys.executable, str(ci_script_path)], cwd=project_root)
-                            
-                            if ci_process.returncode == 0:
-                                print("   ✅ All CI checks passed. Proceeding with release.")
-                                # --- Create Release Branch ---
-                                if git_manager.create_branch(release_branch_name):
-                                    next_command = f"git checkout {release_branch_name}"
-                                else:
-                                    print(f"   ⚠️  Could not create release branch '{release_branch_name}'.")
-                            else:
-                                print("   ❌ CI checks failed. Release aborted.")
-                
-                # On 'main', ask to create a 'hotfix' branch
-                elif branch_name == 'main':
-                    hotfix_branch_name = f"hotfix/v{new_version}"
-                    if _ask_user(f"   ❔ Create hotfix branch '{hotfix_branch_name}' from 'main'?"):
-                        if git_manager.create_branch(hotfix_branch_name):
-                            next_command = f"git checkout {hotfix_branch_name}"
-                        else:
-                            print(f"   ⚠️  Could not create hotfix branch '{hotfix_branch_name}'.")
-                
-                # On an existing release/hotfix branch, create the next version's branch
-                elif branch_name.startswith(('release/', 'hotfix/')):
-                    # Extract base (release or hotfix) and old version from branch name
-                    match = re.match(r"^(release|hotfix)\/v(\d+\.\d+\.\d+)", branch_name)
-                    if match and match.group(2) != new_version:
-                        new_branch_name = f"{match.group(1)}/v{new_version}"
-                        if _ask_user(f"   ❔ You're on an old branch. Create and switch to '{new_branch_name}'?"):
-                           if git_manager.create_branch(new_branch_name):
-                               next_command = f"git checkout {new_branch_name}"
-                           else:
-                                print(f"   ⚠️  Could not create new branch '{new_branch_name}'.")
+                    # For staging, the action is to create a release branch, which is a bit different.
+                    # We'll handle this special case.
+                    _handle_release_creation(project_root, git_manager, new_version)
+                elif branch_name.startswith('release/'):
+                    target_branch = 'main' # and also develop
+                elif branch_name.startswith('hotfix/'):
+                    target_branch = 'main' # and also develop
 
-                # If a next step was determined, write the command file
-                if next_command:
-                    command_file_path = project_root / ".summarizer" / "next_command.sh"
-                    try:
-                        with open(command_file_path, "w") as f:
-                            f.write(f"{next_command}\n")
-                        logger_changelog.info(f"Next command file created: {next_command}")
-                        print(f"   ✨ Next step command generated. Your shell will execute: {next_command}")
-                    except Exception as e:
-                        logger_changelog.error(f"Could not create next_command.sh file: {e}")
+                if target_branch:
+                    _handle_pull_request_flow(project_root, git_manager, branch_name, target_branch, summary)
 
             else:
                 print(f"   ⚠️  Failed to update version files. Version remains {old_version}")
@@ -330,6 +287,65 @@ def update_changelog(project_root: Optional[Path] = None):
     # Final cleanup and summary
     print("\n" + "=" * 50)
     print("✅ Changelog generation process completed successfully.")
+
+
+def _handle_pull_request_flow(project_root: Path, git_manager: GitManager, current_branch: str, target_branch: str, pr_body: str):
+    """Guides the user through creating a Pull Request."""
+    prompt = f"   ❔ Your work on '{current_branch}' seems complete. Create a Pull Request to '{target_branch}'?"
+    if _ask_user(prompt):
+        print("   ▶️  Running local CI checks before pushing...")
+        ci_script_path = project_root / "scripts" / "run_ci_checks.py"
+        ci_process = subprocess.run([sys.executable, str(ci_script_path)], cwd=project_root)
+
+        if ci_process.returncode != 0:
+            print("   ❌ Local CI checks failed. Please fix the issues before creating a PR.")
+            return
+
+        print("   ✅ Local CI checks passed.")
+        print(f"   ☁️  Pushing '{current_branch}' to remote...")
+        if git_manager._run_git_command(['push', 'origin', current_branch, '--force-with-lease']):
+            remote_url = git_manager.get_remote_url()
+            if remote_url:
+                pr_title = f"{current_branch.split('/')[0].capitalize()}: {current_branch.split('/')[1]}"
+                encoded_body = urllib.parse.quote(pr_body)
+                pr_url = f"{remote_url}/compare/{target_branch}...{current_branch}?title={pr_title}&body={encoded_body}"
+                
+                print("\n" + "="*50)
+                print("   ✅ Branch pushed successfully!")
+                print("   👇 Click the link below to create your Pull Request:")
+                print(f"   {pr_url}")
+                print("="*50 + "\n")
+        else:
+            print("   ❌ Failed to push the branch to the remote repository.")
+
+def _handle_release_creation(project_root: Path, git_manager: GitManager, new_version: str):
+    """Handles the CI check and creation of a release branch from staging."""
+    release_branch_name = f"release/v{new_version}"
+    prompt = f"   ❔ Run CI checks and create release branch '{release_branch_name}' from staging?"
+    if _ask_user(prompt):
+        print("   ▶️  Running final CI checks for release...")
+        ci_script_path = project_root / "scripts" / "run_ci_checks.py"
+        ci_process = subprocess.run([sys.executable, str(ci_script_path)], cwd=project_root)
+
+        if ci_process.returncode == 0:
+            print("   ✅ All CI checks passed. Proceeding with release.")
+            if git_manager.create_branch(release_branch_name):
+                # This part doesn't create a PR, but a release branch.
+                # The next step is to merge this to main, which would be another PR.
+                # For now, we switch the user to the release branch.
+                next_command = f"git checkout {release_branch_name}"
+                command_file_path = project_root / ".summarizer" / "next_command.sh"
+                try:
+                    with open(command_file_path, "w") as f:
+                        f.write(f"{next_command}\n")
+                    logger_changelog.info(f"Next command file created: {next_command}")
+                    print(f"   ✨ Next step command generated. Your shell will execute: {next_command}")
+                except Exception as e:
+                    logger_changelog.error(f"Could not create next_command.sh file: {e}")
+            else:
+                print(f"   ⚠️  Could not create release branch '{release_branch_name}'.")
+        else:
+            print("   ❌ CI checks failed. Release aborted.")
 
 
 def _ask_user(prompt: str) -> bool:

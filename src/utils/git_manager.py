@@ -1,7 +1,8 @@
 import subprocess
 import logging
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
+import json
 
 logger = logging.getLogger(__name__)
 
@@ -85,6 +86,56 @@ class GitManager:
         
         logger.info(f"Successfully merged from '{source_branch}'.")
         return True
+
+    def get_remote_url(self) -> Optional[str]:
+        """Gets the GitHub repository URL from the git remote configuration."""
+        raw_url = self._run_git_command(['config', '--get', 'remote.origin.url'])
+        if not raw_url:
+            logger.error("Could not determine remote URL. Is 'origin' set?")
+            return None
+        
+        # Transform git@github.com:user/repo.git to https://github.com/user/repo
+        if raw_url.startswith("git@"):
+            http_url = raw_url.replace(":", "/").replace("git@", "https://")
+        else:
+            http_url = raw_url
+        
+        # Remove .git suffix
+        if http_url.endswith(".git"):
+            http_url = http_url[:-4]
+            
+        logger.info(f"Determined remote URL: {http_url}")
+        return http_url
+
+    def get_open_issues(self) -> Optional[List[Dict[str, Any]]]:
+        """Fetches open issues from the GitHub repository using the 'gh' CLI."""
+        # First, check if gh is installed.
+        try:
+            gh_version = self._run_git_command(['gh', '--version'])
+            if not gh_version:
+                logger.warning("'gh' CLI tool not found or not working. Cannot fetch GitHub issues.")
+                return None
+        except Exception:
+             logger.warning("'gh' CLI tool not found. Please install it to use the issue integration feature.")
+             print("   ⚠️  GitHub CLI ('gh') not found. Skipping issue check. To enable, install from: https://cli.github.com")
+             return None
+
+        logger.info("Fetching open issues from GitHub...")
+        # Use --json to get structured output, which is safer to parse.
+        issues_json = self._run_git_command(['gh', 'issue', 'list', '--state', 'open', '--json', 'number,title,labels'])
+        
+        if issues_json is None:
+            logger.error("Failed to fetch issues from GitHub.")
+            return None
+        
+        try:
+            issues = json.loads(issues_json)
+            if issues:
+                logger.info(f"Found {len(issues)} open issues.")
+            return issues
+        except json.JSONDecodeError as e:
+            logger.error(f"Failed to parse issues JSON from gh: {e}")
+            return None
 
     def ensure_project_structure(self) -> bool:
         """
