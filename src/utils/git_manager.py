@@ -359,29 +359,55 @@ class GitManager:
         success, _ = self._run_git_command(["checkout", branch_name])
         return success
 
-    def get_existing_pr(self, head_branch: str) -> Optional[str]:
-        """Checks if an open PR already exists for the given head branch."""
+    def get_existing_pr(self, head_branch: str) -> Optional[Dict[str, Any]]:
+        """
+        Checks if an open PR already exists for the given head branch.
+        Returns a dict with 'number', 'title', 'url' if found, otherwise None.
+        """
         logger.info(f"Checking for existing PR for branch '{head_branch}'...")
         command = [
             "gh", "pr", "list",
             "--head", head_branch,
             "--state", "open",
             "--limit", "1",
-            "--json", "url"
+            "--json", "number,title,url"
         ]
         success, output = self._run_external_command(command)
         if success and output and output.strip() != "[]":
             try:
-                # gh returns a JSON array, e.g., '[{"url":"https://github.com/..."}]'
                 pr_data = json.loads(output)
-                if pr_data and isinstance(pr_data, list) and 'url' in pr_data[0]:
-                    pr_url = pr_data[0]['url']
-                    logger.info(f"Found existing PR: {pr_url}")
-                    return pr_url
-            except json.JSONDecodeError:
-                logger.error(f"Failed to parse JSON from gh CLI output: {output}")
+                if pr_data and isinstance(pr_data, list) and all(k in pr_data[0] for k in ['number', 'title', 'url']):
+                    pr_info = pr_data[0]
+                    logger.info(f"Found existing PR #{pr_info['number']}: {pr_info['title']}")
+                    return pr_info
+            except (json.JSONDecodeError, IndexError) as e:
+                logger.error(f"Failed to parse JSON from gh CLI output: {output}. Error: {e}")
                 return None
         return None
+
+    def update_pr_details(self, pr_number: int, title: str, body: str) -> bool:
+        """Updates the title and body of an existing pull request."""
+        logger.info(f"Updating PR #{pr_number} with new details...")
+        command = [
+            "gh", "pr", "edit", str(pr_number),
+            "--title", title,
+            "--body-file", "-" # Read body from stdin
+        ]
+        try:
+            subprocess.run(
+                command,
+                input=body,
+                cwd=self.project_root,
+                capture_output=True,
+                text=True,
+                check=True,
+                encoding="utf-8",
+            )
+            logger.info(f"Successfully updated PR #{pr_number}.")
+            return True
+        except subprocess.CalledProcessError as e:
+            logger.error(f"Failed to update PR #{pr_number}. Error:\n{e.stderr.strip()}")
+            return False
 
     def remote_branch_exists(self, branch_name: str, remote_name: str = "origin") -> bool:
         """Checks if a branch exists on the specified remote."""

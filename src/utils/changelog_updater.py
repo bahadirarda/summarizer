@@ -60,16 +60,33 @@ def _run_ci_checks(project_root: Path) -> bool:
 
 def _handle_pull_request_flow(project_root: Path, git_manager: GitManager, current_branch: str, target_branch: str, pr_body: str, gemini_client: Any = None):
     """
-    Handles ONLY the pull request creation, using a robust check-and-create process.
+    Handles the pull request creation/update process intelligently.
     """
     # First, check if a PR already exists.
-    existing_pr_url = git_manager.get_existing_pr(current_branch)
-    if existing_pr_url:
-        print(f"   ✅ A pull request for '{current_branch}' already exists.")
-        print(f"      Your recent push has been added to it: {existing_pr_url}")
+    existing_pr = git_manager.get_existing_pr(current_branch)
+    if existing_pr:
+        print(f"   ✅ An open pull request already exists: {existing_pr['url']}")
+        
+        # Extract version from the PR title to see if it's outdated
+        pr_version_match = re.search(r'v(\d+\.\d+\.\d+)', existing_pr['title'])
+        # We need the current version from the VersionManager to compare
+        current_version = VersionManager(project_root).get_current_version()
+
+        if pr_version_match and pr_version_match.group(1) != current_version:
+            print(f"      The existing PR is for an old version ({pr_version_match.group(1)}). Current version is {current_version}.")
+            if _ask_user("   ❔ Would you like to update the existing PR with the latest changes and version info?"):
+                print("   🤖 Generating updated AI-powered pull request details...")
+                new_title, new_body = git_manager.generate_pull_request_details(pr_body, gemini_client)
+                if git_manager.update_pr_details(existing_pr['number'], new_title, new_body):
+                    print("   ✅ Successfully updated the existing pull request.")
+                else:
+                    print("   ❌ Failed to update the existing pull request.")
+        else:
+            print("      Your recent push has been added to it.")
         return
 
-    if not _ask_user(f"   ❔ Create a Pull Request from '{current_branch}' to '{target_branch}'?"):
+    # If no PR exists, proceed with creation flow.
+    if not _ask_user(f"   ❔ Create a new Pull Request from '{current_branch}' to '{target_branch}'?"):
         print("   ⚪️ Pull request creation skipped by user.")
         return
 
