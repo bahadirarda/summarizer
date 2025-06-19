@@ -3,6 +3,32 @@
 Bu dosya otomatik olarak generate edilmiştir.
 Düzenlemeler için `changelog.json` dosyasını kullanın.
 
+## 2025-06-20 01:51:36
+
+### 1. YAPISAL ANALİZ:
+
+Değişiklikler, projenin `src/utils` dizinindeki iki yardımcı modülü etkiliyor: `version_manager.py` ve `changelog_updater.py`.  `version_manager.py`, sürüm yönetimiyle ilgili işlevleri içeren bir servis katmanı görevi görürken, `changelog_updater.py` (kodun tamamı gösterilmediği için detaylı analiz sınırlı kalıyor) değişiklik günlüğünü güncellemekle sorumludur.  Mimari değişikliklerin etkisi, sürüm güncelleme işleminin daha otomatikleştirilmesi ve versiyonlama stratejisinin iyileştirilmesi üzerine kuruludur.  Kod organizasyonu açısından, `VersionManager` sınıfı içindeki fonksiyonlar daha modüler bir yapıya kavuşmuş gibi görünüyor (örneğin, `_has_breaking_changes`, `_has_new_features` gibi özel metodlar).  Ancak, gösterilen kod parçası sınırlı olduğu için kapsamlı bir değerlendirme yapmak zor. `changelog_updater.py`'deki değişikliklerin mimariye etkisi tam olarak anlaşılamamaktadır.
+
+### 2. İŞLEVSEL ETKİ:
+
+`version_manager.py`'deki değişiklikler, otomatik sürüm artırımı ve sürüm numaralarına göre kod adı (codename) ataması gibi yeni işlevler ekliyor.  `auto_increment` metodu, "major", "minor" ve "patch" tiplerinde sürüm artışı yapabiliyor.  Ayrıca, `package.json` dosyasından sürümü okuma ve dosyalarda sürümü güncelleme yetenekleri de mevcut.  Değişikliklerin kullanıcı deneyimi üzerindeki etkisi dolaylıdır; geliştiriciler sürüm yönetimiyle daha az uğraşacak ve süreç otomatikleşecektir.  Performans açısından, `git` komutlarının çalıştırılması bir miktar performans kaybına neden olabilir ancak bu kayıp genellikle ihmal edilebilir düzeydedir. Güvenlik veya güvenilirlik üzerinde doğrudan bir etki gözlenmiyor. `changelog_updater.py`'deki değişiklikler changelog'un güncellenme sürecini etkiler, ancak spesifik etkisi gösterilen kod parçası ile anlaşılamamaktadır.
+
+### 3. TEKNİK DERINLIK:
+
+`VersionManager` sınıfı, tek sorumluluk prensibine (Single Responsibility Principle) ve açık-kapalı prensibine (Open/Closed Principle) kısmen uyuyor gibi gözüküyor.  Sınıf, sürüm yönetimiyle ilgili tüm işlevleri kapsıyor ve yeni işlevler eklemek için sınıfın yapısını değiştirmeye gerek kalmıyor.  Ancak, kodun tamamı gösterilmediği için bu değerlendirme tam olarak kesin değil.  Kod kalitesi ve sürdürülebilirlik, modüler tasarım ve iyi dokümantasyon (docstrings) ile iyileştirilmiş olabilir.  Yeni bağımlılıkların eklendiğini gösteren bir bilgi yok, ancak `subprocess`, `json`, `toml`, `pathlib` gibi standart Python kütüphaneleri kullanılıyor.  `gemini_client` gibi bir harici kütüphane kullanıldığı da anlaşılıyor, ancak bu kütüphanenin detaylı fonksiyonelliği hakkında bilgi verilmiyor.
+
+### 4. SONUÇ YORUMU:
+
+Bu değişikliklerin uzun vadeli değeri, sürüm yönetimi sürecinin otomatikleştirilmesi ve geliştiricilerin zaman kazandırmasıdır.  Projenin teknik borcu, otomatik sürüm güncelleme ve changelog güncelleme mekanizmaları ile azaltılmış olabilir.  Gelecekteki geliştirmelere hazırlık olarak, modüler ve genişletilebilir bir sürüm yönetim sistemi oluşturulmuştur.  Ancak, `changelog_updater.py` ile ilgili eksik bilgiler, bu değişikliklerin genel değerlendirmesini kısıtlıyor.  Özellikle, changelog güncelleme sürecinin daha detaylı incelenmesi, bu değişikliklerin tam kapsamlı bir değerlendirmesi için önemli olacaktır.  Ayrıca, `gemini_client`'in tam fonksiyonelliğinin bilinmemesi de eksik bilgilerdendir.  `_run_ci_checks` fonksiyonu gibi yardımcı fonksiyonların daha detaylı incelenmesi faydalı olurdu.
+
+**Değişen Dosyalar:** src/utils/version_manager.py, src/utils/changelog_updater.py
+**Etki Seviyesi:** High
+**Değişiklik Tipi:** Feature
+**Satır Değişiklikleri:** -493
+**Etiketler:** utils, changelog-updater, manager, client, version-manager, api
+
+---
+
 ## 2025-06-20 01:47:20
 
 ### 1. YAPISAL ANALİZ:

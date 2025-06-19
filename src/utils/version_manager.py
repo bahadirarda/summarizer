@@ -1,10 +1,11 @@
 import json
 import logging
 from pathlib import Path
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Any
 from datetime import datetime
 import subprocess
 import re
+import toml
 
 logger = logging.getLogger(__name__)
 
@@ -75,90 +76,24 @@ class VersionManager:
             patch += 1
             
         return self.format_version(major, minor, patch)
-    
-    def get_version_from_branch(self, branch_name: str) -> Optional[str]:
+
+    def auto_increment(self, increment_type: str, gemini_client: Any = None) -> Tuple[str, str, str]:
         """
-        Extracts version from branch name if it matches release/ or hotfix/ patterns.
-        Examples: release/1.2.0-rc, hotfix/1.2.1-security-patch
+        Increments the version based on the provided type, generates a codename,
+        and returns the new version, old version, and the codename.
         """
-        # Regex to capture version like X.Y.Z from branches like 'release/X.Y.Z-...' or 'hotfix/X.Y.Z-...'
-        match = re.match(r"^(release|hotfix)\/(\d+\.\d+\.\d+)", branch_name)
-        if match:
-            version = match.group(2)
-            logger.info(f"Version '{version}' extracted directly from branch name '{branch_name}'.")
-            return version
-        return None
-
-    def auto_increment_based_on_branch(self) -> Tuple[str, str, str]:
-        """
-        Auto-increment version based on git branch name and change impact.
-        Returns (new_version, old_version, increment_type)
-        """
-        current_version = self.get_current_version()
-        branch_name = self.get_current_branch()
-
-        if not branch_name:
-            logger.warning("Could not determine git branch. Falling back to default patch increment.")
-            new_version = self.increment_version(current_version, "patch")
-            return new_version, current_version, "patch"
-
-        logger.info(f"Analyzing version for branch: '{branch_name}'")
-
-        # Priority 1: Direct version from branch name (release/ or hotfix/)
-        version_from_branch = self.get_version_from_branch(branch_name)
-        if version_from_branch:
-            # If the version is specified in the branch, we use it directly.
-            # No further increment is needed.
-            return version_from_branch, current_version, "branch"
-
-        # Priority 2: Increment based on branch type
-        increment_type = "patch" # Default
-        if branch_name.startswith("feature/"):
-            increment_type = "minor"
-        elif branch_name.startswith("bugfix/"):
-            increment_type = "patch"
-        elif branch_name.startswith("chore/"):
-            increment_type = "patch"
-        elif branch_name in ["develop", "staging"]:
-             # For integration branches, a minor bump is usually appropriate
-             # as they consolidate features.
-            increment_type = "minor"
-        elif branch_name == "main" or branch_name == "master":
-            # Changes directly to main/master are rare but should be treated as patches or hotfixes.
-            # Let's default to patch, but this could be configured.
-            increment_type = "patch"
+        old_version = self.get_current_version()
+        new_version = self.increment_version(old_version, increment_type)
         
-        new_version = self.increment_version(current_version, increment_type)
-        
-        logger.info(f"Branch-based increment determined: '{increment_type}'. New version: {new_version}")
+        # Generate codename as part of the atomic versioning step
+        major, minor, _ = self.parse_version(new_version)
+        codename = self._get_version_codename(major, minor, new_version, gemini_client)
 
-        return new_version, current_version, increment_type
+        logger.info(
+            f"Incrementing version: {old_version} -> {new_version} (type: {increment_type}, codename: {codename})"
+        )
+        return new_version, old_version, codename
 
-    def auto_increment_based_on_changes(self, changed_files: list, impact_level: str) -> str:
-        """Auto-increment version based on change analysis"""
-        current_version_before_update = self.get_current_version() # Get version before any changes
-        
-        # Analyze changes to determine increment type
-        if self._has_breaking_changes(changed_files, impact_level):
-            increment_type = "major"
-        elif self._has_new_features(changed_files, impact_level):
-            increment_type = "minor"
-        else:
-            increment_type = "patch"
-            
-        new_version = self.increment_version(current_version_before_update, increment_type)
-        
-        logger.info(f"Attempting to update version from {current_version_before_update} to {new_version} (type: {increment_type})")
-
-        # Actually update the version in files
-        if self.update_version_in_files(new_version):
-            # If update_version_in_files was successful, new_version is now the current version
-            logger.info(f"Successfully auto-incremented version: {current_version_before_update} -> {new_version} ({increment_type})")
-            return new_version
-        else:
-            logger.error(f"Failed to update version files. Version remains {current_version_before_update}")
-            return current_version_before_update # Return the version as it was before attempting update
-        
     def create_git_tag(self, version: str, codename: Optional[str] = None) -> bool:
         """Create git tag for version, optionally with a codename in the message."""
         try:
@@ -200,33 +135,42 @@ class VersionManager:
             return False
             
     def update_version_in_files(self, new_version: str) -> bool:
-        """Update version in package.json and other relevant files"""
-        try:
-            # Update package.json
-            if not self.package_json_path.exists():
-                logger.error(f"package.json not found at {self.package_json_path}")
-                return False
+        """Update version in package.json and pyproject.toml."""
+        updated_files = []
 
-            with open(self.package_json_path, 'r', encoding='utf-8') as f:
-                package_data = json.load(f)
+        # Update package.json
+        if self.package_json_path.exists():
+            try:
+                with open(self.package_json_path, 'r+', encoding='utf-8') as f:
+                    package_data = json.load(f)
+                    package_data['version'] = new_version
+                    f.seek(0)
+                    json.dump(package_data, f, indent=2, ensure_ascii=False)
+                    f.truncate()
+                logger.info(f"Successfully updated version in package.json to {new_version}")
+                updated_files.append("package.json")
+            except Exception as e:
+                logger.error(f"Failed to update package.json: {e}")
+
+        # Update pyproject.toml
+        pyproject_path = self.project_root / "pyproject.toml"
+        if pyproject_path.exists():
+            try:
+                with open(pyproject_path, "r", encoding="utf-8") as f:
+                    pyproject_data = toml.load(f)
                 
-            package_data['version'] = new_version
-            
-            with open(self.package_json_path, 'w', encoding='utf-8') as f:
-                json.dump(package_data, f, indent=2, ensure_ascii=False)
-                
-            logger.info(f"Successfully updated version in package.json to {new_version}")
-            return True
-            
-        except FileNotFoundError:
-            logger.error(f"Error: package.json not found at {self.package_json_path} during update.")
-            return False
-        except json.JSONDecodeError as e:
-            logger.error(f"Error decoding package.json: {e}")
-            return False
-        except Exception as e:
-            logger.error(f"An unexpected error occurred while updating version in files: {e}")
-            return False
+                if 'project' in pyproject_data and 'version' in pyproject_data['project']:
+                    pyproject_data['project']['version'] = new_version
+                    with open(pyproject_path, "w", encoding="utf-8") as f:
+                        toml.dump(pyproject_data, f)
+                    logger.info(f"Successfully updated version in pyproject.toml to {new_version}")
+                    updated_files.append("pyproject.toml")
+                else:
+                    logger.warning("Could not find '[project].version' in pyproject.toml")
+            except Exception as e:
+                logger.error(f"Failed to update pyproject.toml: {e}")
+        
+        return len(updated_files) > 0
     
     def get_version_info(self) -> dict:
         """Get comprehensive version information"""
