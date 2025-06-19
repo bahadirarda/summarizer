@@ -60,7 +60,8 @@ def _run_ci_checks(project_root: Path) -> bool:
 
 def _handle_pull_request_flow(project_root: Path, git_manager: GitManager, current_branch: str, target_branch: str, pr_body: str, gemini_client: Any = None):
     """
-    Handles ONLY the pull request creation, using a robust check-and-create process.
+    Handles ONLY the pull request creation, using a robust check-and-create process,
+    and then suggests a logical next step.
     """
     if not _ask_user(f"   ❔ Create a Pull Request from '{current_branch}' to '{target_branch}'?"):
         print("   ⚪️ Pull request creation skipped by user.")
@@ -96,6 +97,17 @@ def _handle_pull_request_flow(project_root: Path, git_manager: GitManager, curre
 
     if pr_url:
         print(f"   ✅ Successfully created Pull Request: {pr_url}")
+        
+        # --- SMART CHECKOUT ---
+        # After a successful PR, suggest checking out the main development branch.
+        default_next_branch = 'develop'
+        if git_manager.branch_exists(default_next_branch):
+             if _ask_user(f"\n   ❔ PR created. Switch to the '{default_next_branch}' branch for your next task?"):
+                if git_manager.checkout(default_next_branch):
+                    print(f"   ✅ Switched to '{default_next_branch}'. Ready for the next task!")
+                else:
+                    print(f"   ❌ Failed to switch to '{default_next_branch}'.")
+
     else:
         print("   ❌ Failed to create Pull Request.")
         print("   You may need to create it manually on GitHub.")

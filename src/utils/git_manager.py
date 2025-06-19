@@ -3,6 +3,8 @@ import logging
 import subprocess
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
+import re
+import getpass
 
 logger = logging.getLogger(__name__)
 
@@ -176,6 +178,37 @@ class GitManager:
         """Commits the staged changes with the given message."""
         success, _ = self._run_git_command(["commit", "-m", message])
         return success
+
+    def merge_from(self, source_branch: str) -> bool:
+        """Merges from a source branch into the current branch, with protection for 'main'."""
+        current_branch = self.get_current_branch()
+        
+        # --- PASSWORD PROTECTION FOR MAIN BRANCH ---
+        if current_branch == 'main':
+            print(f"   ⚠️  You are about to merge changes into the '{current_branch}' branch.")
+            try:
+                password = getpass.getpass("      Please enter the merge authorization password: ")
+                if password != "passWord!":
+                    print("   ❌ Incorrect password. Merge authorization denied.")
+                    return False
+                print("   ✅ Password accepted. Proceeding with merge.")
+            except (EOFError, KeyboardInterrupt):
+                print("\n   🚫 Merge cancelled by user.")
+                return False
+
+        logger.info(f"Merging from '{source_branch}' into '{current_branch}'...")
+        # Using --no-ff creates a merge commit, which is good for tracking history
+        success, output = self._run_git_command(['merge', '--no-ff', '-m', f"Merge branch '{source_branch}'", source_branch])
+        
+        if not success:
+            logger.error(f"Merge command failed. This may be due to merge conflicts. Output:\n{output}")
+            print("   ❌ Merge failed. Please resolve conflicts manually and then commit.")
+            # Attempt to clean up on failure
+            self._run_git_command(['merge', '--abort'])
+            return False
+        
+        logger.info(f"Successfully merged from '{source_branch}'.")
+        return True
 
     def ensure_project_structure(self) -> bool:
         """Interactively ensures the git repository and branch structure are set up correctly on local and remote."""
