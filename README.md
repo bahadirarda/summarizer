@@ -1,64 +1,64 @@
 # 🚀 project.110620251156
-> Bu proje, Google Gemini API'sini kullanarak metin özetleme ve ekran görüntüsü alma işlevselliği sunan bir web uygulamasıdır.  Gelişmiş komut satırı arayüzü ve opsiyonel bir GUI ile kullanıcı dostu bir deneyim sağlar.
+> Bu proje, bir web uygulamasının changelog güncelleme sürecini yöneten yardımcı araçları ve bir Google Gemini API entegrasyonu içeren bir özetleme aracı geliştirir.  Ayrıca, gelişmiş bir komut satırı arayüzü (CLI) ve grafik kullanıcı arayüzü (GUI) desteği sunar.
+
 
 ## 📊 Proje Durumu
-Proje aktif geliştirme aşamasındadır. Son güncellemeler, güvenliği, sürdürülebilirliği ve kullanıcı deneyimini önemli ölçüde iyileştirmiştir.  CI/CD süreci optimize edilerek daha güvenilir ve hızlı bir geliştirme döngüsü sağlanmıştır.
+Proje aktif geliştirme aşamasındadır.  Son değişiklikler, changelog güncelleme yardımcı aracının işlevselliğini genişletmiş ve özetleme aracına gelişmiş CLI ve GUI desteği eklemiştir.  Google Gemini API entegrasyonu güvenlik ve esneklik açısından iyileştirmeler getirmiştir.
+
 
 ## ✨ Özellikler
-* Google Gemini API entegrasyonu ile metin özetleme
-* Gelişmiş komut satırı arayüzü (CLI)  `--setup`, `--gui`, `--help`, `ss` (ekran görüntüsü) komutları ile
-* Farklı uygulamaların (Chrome, Firefox, Code) ekran görüntüsünü alma
-* Sistem durum raporlama (`--status`)
-* Opsiyonel GUI desteği
-* Merkezi yapılandırma yönetimi (API anahtarları .env dosyasında veya ortam değişkenlerinde)
-* Basit metin oluşturma fonksiyonu (`generate_simple_text`)
+* **Changelog Güncelleme Aracı:** Changelog'lere otomatik giriş ekleme (özellikle demo framework analizi için).
+* **Özetleme Aracı:** Metin özetleme yeteneği, Google Gemini API ile entegre.
+* **Gelişmiş Komut Satırı Arayüzü:**  `--setup`, `--gui`, `--help`, `--status` ve ekran görüntüsü alma (`ss`) alt komutları.
+* **GUI Desteği:**  GUI kurulum ve çalıştırma yeteneği.
+* **Merkezi Yapılandırma:**  API anahtarının güvenli bir şekilde yönetimi.
+* **Hata İşleme Mekanizmaları:**  Güvenilirliği artırmak için hata yönetimi iyileştirmeleri.
 
 
 ## Değişen Dosyalar:
-`src/services/gemini_client.py`, `summarizer.py`, `scripts/run_ci_checks.py`
+`src/utils/changelog_updater.py`, `src/services/gemini_client.py`, `summarizer.py` ve `features` dizini altındaki modüller.
 
 
 ## ANALİZ GÖREVİ:
 
 ### 1. YAPISAL ANALİZ:
 
-* **Etkilenen Bileşenler ve Katmanlar:**  Değişiklikler, servis katmanı (`gemini_client.py`), komut satırı arayüzü (CLI) katmanı (`summarizer.py`) ve CI/CD süreci (`run_ci_checks.py`) olmak üzere üç farklı sistem bileşenini etkilemiştir.
+* **Etkilenen Sistem Bileşenleri ve Katmanlar:** Değişiklikler, yardımcı araçlar (changelog güncelleme), servis katmanı (Gemini API entegrasyonu) ve ana uygulama katmanı (özetleyici aracı ve CLI) katmanlarını etkilemiştir.  `src/utils/changelog_updater.py` dosyası yardımcı araç katmanında, `src/services/gemini_client.py` dosyası servis katmanında ve `summarizer.py` dosyası ve `features` dizini ana uygulama katmanında değişiklikler yapılmıştır.
 
-* **Mimari Değişikliklerin Etkisi:** `gemini_client.py` dosyasındaki değişiklikler,  `GeminiClient` sınıfına Dependency Injection tasarım deseni uygulanarak  `ConfigurationManager` sınıfına bağımlılık eklemiştir. Bu, API anahtarının merkezi bir yapılandırma mekanizmasıyla yönetilmesini sağlayarak mimariyi daha modüler ve güvenli hale getirmiştir.  `summarizer.py` dosyasında ise, komut işleme ve fonksiyon çağrıları daha modüler bir yapıya kavuşturulmuş, `features` dizini altında ilgili fonksiyonlar yer almaktadır. Bu, kodun daha iyi organize edilmesini ve genişletilebilirliğini artırmıştır. `run_ci_checks.py` dosyasında mimari bir değişiklik olmasa da, CI/CD işlemi daha modüler fonksiyonlar kullanılarak yeniden yapılandırılmıştır.
+* **Mimari Değişikliklerin Etkisi:** `changelog_updater.py` dosyasındaki değişiklikler, mevcut mimariye yeni bir fonksiyon (`demo_framework_analysis`) ekleyerek modülerliği artırmıştır.  `gemini_client.py` dosyasındaki değişiklikler ise, Dependency Injection tasarım deseni kullanılarak  `ConfigurationManager` sınıfına bağımlılık ekleyerek API anahtarının güvenli yönetimini sağlamıştır.  `summarizer.py` dosyasındaki değişiklikler, komut işleme ve modülerliği artıran bir yeniden yapılanma içermektedir.  `features` dizininin kullanımı da modüler bir tasarım uygulanmasını göstermektedir.
 
-* **Kod Organizasyonundaki İyileştirmeler:**  `gemini_client.py` dosyasında API anahtarının merkezi yönetimi ve  `RequestManager` entegrasyonu kodun daha modüler ve sürdürülebilir olmasını sağlamıştır.  `summarizer.py` dosyasında `argparse` modülünün kullanımı, CLI argümanlarının işlenmesini kolaylaştırmış ve kodun okunabilirliğini artırmıştır.  `run_ci_checks.py` dosyasında ise `run_command` fonksiyonu sayesinde komutların çalıştırılması ve çıktıların yönetimi daha temiz bir şekilde gerçekleştirilmektedir. Her CI adımının ayrı fonksiyonlarda ele alınması da kod okunabilirliğini artırmıştır.
+* **Kod Organizasyonundaki İyileştirmeler:**  `changelog_updater.py`'de yeni fonksiyonun eklenmesiyle işlevsellik modüler hale getirilmiştir. `gemini_client.py`'de API anahtarının merkezi yapılandırma yoluyla yönetilmesi kodun okunabilirliğini ve güvenliğini artırmıştır. `summarizer.py`'de `argparse` modülünün kullanımı ve `features` dizini altındaki modüllerin oluşturulması kodun daha düzenli ve anlaşılır olmasını sağlamıştır.
 
 
 ### 2. İŞLEVSEL ETKİ:
 
-* **Eklenen Özellikler:** `summarizer.py` dosyasında gelişmiş bir komut satırı arayüzü (CLI) eklenmiştir.  `--setup`, `--gui`, `--help`, ve `ss` (ekran görüntüsü) alt komutları ile GUI kurulumu, durum raporlama ve ekran görüntüsü alma özellikleri eklenmiştir. `gemini_client.py` de ise `generate_simple_text` fonksiyonu eklenmiştir.
+* **Eklenen Özellikler:** `changelog_updater.py`: `demo_framework_analysis` fonksiyonu.  `gemini_client.py`: `generate_simple_text` fonksiyonu ve merkezi yapılandırma desteği. `summarizer.py`: Gelişmiş CLI (`--setup`, `--gui`, `--help`, `--status`, `ss` alt komutu), GUI desteği, ekran görüntüsü alma yeteneği.
 
-* **Değiştirilen Özellikler:** `gemini_client.py` dosyasında API anahtarının yönetimi değiştirilmiş ve güvenli hale getirilmiştir. `summarizer.py` dosyasında `_summarizer` fonksiyonunun çağrılması daha yapılandırılmış hale getirilmiştir. `run_ci_checks.py` dosyasında linting, test ve build adımları ayrı ayrı kontrol edilir hale getirilmiştir.
-
+* **Değiştirilen Özellikler:** `summarizer.py`: Ana özetleme fonksiyonunun çağrımı daha yapılandırılmış hale getirilmiştir. `gemini_client.py`'de API anahtarının yönetimi tamamen değiştirilmiştir.
 
 * **Kaldırılan Özellikler:**  Hiçbir özellik kaldırılmamıştır.
 
-* **Kullanıcı Deneyimi:**  `summarizer.py` dosyasındaki değişiklikler kullanıcı deneyimini önemli ölçüde iyileştirmiştir.  Gelişmiş CLI ve GUI desteği, kullanıcılara daha fazla kontrol ve esneklik sağlamaktadır.  `run_ci_checks.py` dosyasındaki değişiklikler doğrudan kullanıcı deneyimini etkilemese de, daha ayrıntılı çıktı sayesinde hata ayıklama süreci kolaylaşmıştır.
+* **Kullanıcı Deneyiminin Etkilenmesi:**  Kullanıcı deneyimi, özellikle `summarizer.py` değişiklikleriyle önemli ölçüde iyileştirilmiştir. Gelişmiş CLI ve GUI desteği kullanıcılara daha fazla kontrol ve esneklik sağlamaktadır.
 
-* **Performans, Güvenlik, Güvenilirlik:** `gemini_client.py` dosyasındaki değişiklikler güvenliği önemli ölçüde artırmış, çünkü API anahtarı artık güvenli bir şekilde yönetilmektedir.  `run_ci_checks.py` dosyasındaki değişiklikler ise CI/CD sürecinin güvenilirliğini artırmıştır. Performans üzerindeki etki ihmal edilebilir düzeydedir.
+* **Performans, Güvenlik ve Güvenilirlik Üzerindeki Etkiler:** Performans üzerindeki etki ihmal edilebilir düzeydedir. Güvenlik, `gemini_client.py`'deki API anahtarının güvenli yönetimi ile önemli ölçüde iyileştirilmiştir.  `gemini_client.py` ve `summarizer.py`'deki hata işleme mekanizmalarının iyileştirilmesi güvenilirliği artırmıştır.
 
 
 ### 3. TEKNİK DERINLIK:
 
-* **Tasarım Desenleri:** `gemini_client.py` dosyasında Dependency Injection (Bağımlılık Enjeksiyonu) tasarım deseni uygulanmıştır.  `summarizer.py` dosyasında ise Modüler Tasarım ve Komut (Command) Deseni kullanılmıştır. `run_ci_checks.py` de ise Strategy Pattern'in basit bir uygulaması gözlemlenmiştir.
+* **Tasarım Desenleri:** `gemini_client.py`: Dependency Injection. `summarizer.py`: Modüler tasarım ve Komut Deseni (Command Pattern).
 
-* **Kod Kalitesi ve Sürdürülebilirlik:**  Tüm dosyalarda kod kalitesi ve sürdürülebilirlik önemli ölçüde artmıştır. Modüler tasarım,  `argparse` modülünün kullanımı ve ayrıntılı hata yönetimi kodun okunabilirliğini, anlaşılırlığını ve bakımı kolaylaştırmaktadır.
+* **Kod Kalitesi ve Sürdürülebilirliğin Gelişimi:**  Tüm değişiklikler kod kalitesini ve sürdürülebilirliğini artırmıştır.  Modüler tasarım, merkezi yapılandırma ve gelişmiş hata işleme, kodun daha okunabilir, anlaşılır ve bakımı daha kolay olmasını sağlamıştır.
 
-* **Yeni Bağımlılıklar:**  `gemini_client.py` dosyasına `google.generativeai` kütüphanesi eklenmiştir.  Diğer dosyalarda yeni bağımlılık eklenmemiştir.
+* **Yeni Bağımlılıklar veya Teknolojiler:** `gemini_client.py`: `google.generativeai` kütüphanesi eklenmiştir.
 
 
 ### 4. SONUÇ YORUMU:
 
-* **Uzun Vadeli Değer ve Etki:**  Bu değişiklikler, projenin uzun vadeli sürdürülebilirliği, güvenliği ve kullanıcı deneyimini önemli ölçüde artırmıştır.  Daha modüler ve güvenli bir kod tabanı oluşturulmuş, hata ayıklama ve bakım kolaylaştırılmıştır.
+* **Uzun Vadeli Değer ve Etki:** Bu değişiklikler, projenin uzun vadeli sürdürülebilirliğini ve güvenliğini artırmıştır. Yeni özellikler ve gelişmiş arayüzler, kullanıcılara daha fazla değer sunmaktadır.  `demo_framework_analysis` fonksiyonunun düzenli kullanımı, projenin geliştirme süreçlerini hızlandıracaktır.
 
-* **Teknik Borcun Etkilenmesi:**  API anahtarının güvenli yönetimi ve merkezi yapılandırma ile teknik borç azaltılmıştır.  Modüler tasarım sayesinde gelecekteki geliştirmeler için daha iyi bir temel oluşturulmuştur.
+* **Projenin Teknik Borcunun Etkilenmesi:**  Modüler tasarım ve merkezi yapılandırma sayesinde projenin teknik borcu azalmıştır.
 
-* **Gelecekteki Geliştirmelere Hazırlık:**  `gemini_client.py` dosyasındaki değişiklikler, farklı Gemini modellerinin veya API sağlayıcılarının kolayca entegre edilmesine olanak tanımaktadır.  `summarizer.py` dosyasındaki modüler tasarım,  gelecekte AI destekli özetleme veya sesli komut sistemi gibi yeni özelliklerin eklenmesini kolaylaştıracaktır. `run_ci_checks.py` dosyasındaki geliştirmeler ise daha karmaşık CI/CD süreçlerinin eklenmesine olanak tanıyacaktır.
+* **Gelecekteki Geliştirmelere Hazırlık:**  Modüler tasarım ve iyi yapılandırılmış kod, gelecekteki geliştirmeleri kolaylaştıracaktır.  Yeni özellikler kolayca entegre edilebilir ve farklı API sağlayıcıları veya Gemini modelleri desteklenebilir.  `RequestManager` entegrasyonu, gelecekte diğer servislerle kolay entegrasyon imkanı sunmaktadır.  `TODO` yorumları gelecekteki geliştirmeler için yol haritası görevi görecektir.
 
 ## 🛠️ Kurulum (Installation)
 
@@ -219,7 +219,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**Last updated**: June 20, 2025 by Summarizer Framework v12.3.0
+**Last updated**: June 20, 2025 by Summarizer Framework v12.4.0
 *This README is automatically generated and updated based on project activity.*
 
 > *"Automatically maintained with AI-powered analysis"*

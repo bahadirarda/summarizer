@@ -106,7 +106,14 @@ def _handle_pull_request_flow(project_root: Path, git_manager: GitManager, curre
         success, output = git_manager.push(current_branch)
         if success:
             remote_url = git_manager.get_remote_url()
-            pr_title = f"{current_branch.split('/')[0].capitalize()}: {current_branch.split('/')[1]}"
+            branch_parts = current_branch.split('/')
+            if len(branch_parts) > 1:
+                # Handles branches like 'feature/new-login' or 'feature/team/new-button'
+                pr_title = f"{branch_parts[0].capitalize()}: {'-'.join(branch_parts[1:])}"
+            else:
+                # Fallback for branches without a '/' like 'develop'
+                pr_title = f"chore: Sync {current_branch} to {target_branch}"
+
             pr_url = f"{remote_url}/compare/{target_branch}...{current_branch}?title={urllib.parse.quote(pr_title)}&body={urllib.parse.quote(pr_body)}"
             print(f"   👇 Click here to create your Pull Request:\n   {pr_url}")
             _write_next_command(project_root, f"git checkout {target_branch}")
