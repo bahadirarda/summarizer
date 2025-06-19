@@ -58,82 +58,65 @@ def _run_ci_checks(project_root: Path) -> bool:
         return False
 
 
-def _handle_pull_request_flow(project_root: Path, git_manager: GitManager, current_branch: str, target_branch: str, pr_body: str, gemini_client: Any = None):
+def _handle_pull_request_flow(project_root: Path, git_manager: GitManager, current_branch: str, target_branch: str, summary: str, gemini_client: Any = None):
     """
-    Handles the pull request creation/update process intelligently.
+    Handles the pull request creation/update process intelligently and offers next steps.
     """
-    # First, check if a PR already exists.
+    # --- STEP 1: PRE-PR CHECK ---
+    print("   ⏱️  Checking for existing PRs and remote branches...")
+    if not git_manager.remote_branch_exists(target_branch):
+        print(f"   ❌ Target branch '{target_branch}' does not exist on the remote. Please push it first.")
+        return
+    git_manager.fetch_updates()
+    if not git_manager.has_diff_between_branches(f"origin/{target_branch}", f"origin/{current_branch}"):
+        print(f"   ⚪️ No new commits to merge. A Pull Request is not needed.")
+        return
+    
+    # --- STEP 2: HANDLE EXISTING PR ---
     existing_pr = git_manager.get_existing_pr(current_branch)
+    current_version = VersionManager(project_root).get_current_version()
+    
+    # Define a standardized title that includes the version
+    pr_title = f"feat: Release v{current_version} - Automated Changelog Update"
+    
     if existing_pr:
         print(f"   ✅ An open pull request already exists: {existing_pr['url']}")
-        
-        # Extract version from the PR title to see if it's outdated
         pr_version_match = re.search(r'v(\d+\.\d+\.\d+)', existing_pr['title'])
-        # We need the current version from the VersionManager to compare
-        current_version = VersionManager(project_root).get_current_version()
-
-        if pr_version_match and pr_version_match.group(1) != current_version:
-            print(f"      The existing PR is for an old version ({pr_version_match.group(1)}). Current version is {current_version}.")
-            if _ask_user("   ❔ Would you like to update the existing PR with the latest changes and version info?"):
-                print("   🤖 Generating updated AI-powered pull request details...")
-                new_title, new_body = git_manager.generate_pull_request_details(pr_body, gemini_client)
-                if git_manager.update_pr_details(existing_pr['number'], new_title, new_body):
+        
+        if not pr_version_match or pr_version_match.group(1) != current_version:
+            print(f"      But it seems to be for an outdated version.")
+            if _ask_user("   ❔ Update the existing PR with the latest info and title?"):
+                print("   🤖 Generating updated AI-powered pull request body...")
+                new_body = git_manager.generate_pull_request_body(summary, gemini_client)
+                if git_manager.update_pr_details(existing_pr['number'], pr_title, new_body):
                     print("   ✅ Successfully updated the existing pull request.")
                 else:
-                    print("   ❌ Failed to update the existing pull request.")
+                    print("   ❌ Failed to update the pull request.")
         else:
-            print("      Your recent push has been added to it.")
-        return
-
-    # If no PR exists, proceed with creation flow.
-    if not _ask_user(f"   ❔ Create a new Pull Request from '{current_branch}' to '{target_branch}'?"):
-        print("   ⚪️ Pull request creation skipped by user.")
-        return
-
-    # --- ROBUST PRE-PR CHECK ---
-    # 1. Verify the target branch exists on the remote before proceeding.
-    if not git_manager.remote_branch_exists(target_branch):
-        print(f"   ❌ Target branch '{target_branch}' does not exist on the remote repository.")
-        print(f"      Please make sure the branch has been pushed to the remote.")
-        return
-
-    # 2. Fetch the latest state from the remote to avoid race conditions.
-    print("   ⏱️  Synchronizing with remote repository...")
-    git_manager.fetch_updates()
-
-    # 2. Check if there's an actual difference between the remote branches.
-    if not git_manager.has_diff_between_branches(f"origin/{target_branch}", f"origin/{current_branch}"):
-        print(f"   ⚪️ No new unique commits found on '{current_branch}' to merge into '{target_branch}'.")
-        print("      A Pull Request is not necessary.")
-        return
+            print("      Your recent push has been added to it. All up-to-date.")
     
-    print("   ✅ Found new changes to merge. Proceeding with Pull Request creation.")
-    # --- END OF CHECK ---
-
-    print("   🤖 Generating AI-powered pull request details...")
-    pr_title, new_pr_body = git_manager.generate_pull_request_details(pr_body, gemini_client)
-    print(f"   📝 PR Title: {pr_title}")
-    
-    pr_url = git_manager.create_pull_request(
-        title=pr_title, body=new_pr_body, base_branch=target_branch, head_branch=current_branch
-    )
-
-    if pr_url:
-        print(f"   ✅ Successfully created Pull Request: {pr_url}")
-        
-        # --- SMART CHECKOUT ---
-        # After a successful PR, suggest checking out the main development branch.
-        default_next_branch = 'develop'
-        if git_manager.branch_exists(default_next_branch):
-             if _ask_user(f"\n   ❔ PR created. Switch to the '{default_next_branch}' branch for your next task?"):
-                if git_manager.checkout(default_next_branch):
-                    print(f"   ✅ Switched to '{default_next_branch}'. Ready for the next task!")
-                else:
-                    print(f"   ❌ Failed to switch to '{default_next_branch}'.")
-
+    # --- STEP 3: CREATE NEW PR ---
     else:
-        print("   ❌ Failed to create Pull Request.")
-        print("   You may need to create it manually on GitHub.")
+        if not _ask_user(f"   ❔ Create a new Pull Request from '{current_branch}' to '{target_branch}'?"):
+            print("   ⚪️ Pull request creation skipped.")
+        else:
+            print("   🤖 Generating AI-powered pull request details...")
+            new_body = git_manager.generate_pull_request_body(summary, gemini_client)
+            print(f"   📝 PR Title: {pr_title}")
+            pr_url = git_manager.create_pull_request(title=pr_title, body=new_body, base_branch=target_branch, head_branch=current_branch)
+            if pr_url:
+                print(f"   ✅ Successfully created Pull Request: {pr_url}")
+            else:
+                print("   ❌ Failed to create Pull Request.")
+
+    # --- STEP 4: SMART CHECKOUT (FINAL STEP) ---
+    default_next_branch = 'develop'
+    if git_manager.get_current_branch() != default_next_branch and git_manager.branch_exists(default_next_branch):
+        if _ask_user(f"\n   ❔ Workflow complete. Switch to '{default_next_branch}' for your next task?"):
+            if git_manager.checkout(default_next_branch):
+                print(f"   ✅ Switched to '{default_next_branch}'. Ready for action!")
+            else:
+                print(f"   ❌ Failed to switch to '{default_next_branch}'.")
 
 
 def _handle_git_workflow(project_root: Path, git_manager: GitManager, new_version: str, summary: str, gemini_client: Any):

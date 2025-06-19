@@ -266,47 +266,35 @@ class GitManager:
         print("✅ Project structure check complete.")
         return True
 
-    def generate_pull_request_details(self, summary: str, gemini_client: Any) -> Tuple[str, str]:
-        """Generates a professional PR title and body from a summary using AI."""
-        # Default values
-        default_title = "chore: Update project based on recent changes"
+    def generate_pull_request_body(self, summary: str, gemini_client: Any) -> str:
+        """Generates a professional Markdown PR body from a summary using AI."""
         default_body = f"Automated pull request based on the following summary:\n\n---\n\n{summary}"
 
         if not (gemini_client and gemini_client.is_ready()):
-            logger.warning("Gemini client not available for PR details generation.")
-            return default_title, default_body
+            logger.warning("Gemini client not available for PR body generation.")
+            return default_body
         
         try:
-            logger.info("Generating Pull Request details with AI...")
+            logger.info("Generating Pull Request body with AI...")
             prompt = (
-                f"You are a senior software engineer creating a pull request. Based on the following summary of changes, "
-                f"generate a professional Pull Request Title and a detailed Markdown Body.\n\n"
+                f"You are a senior software engineer writing a pull request body. Based on the following summary of changes, "
+                f"generate a detailed Markdown Body. Do not include a title.\n\n"
                 f"**Formatting Rules:**\n"
-                f"1.  **Title:** Use conventional commit format (e.g., 'feat: ...', 'fix: ...', 'chore: ...').\n"
-                f"2.  **Body:** Use Markdown. Include the following sections:\n"
+                f"Use Markdown. Include the following sections:\n"
                 f"    - `## 📝 Summary`\n"
                 f"    - `## 🚀 Changes` (use a bulleted list)\n"
                 f"    - `## Impact`\n"
                 f"    - `## ✅ How to Test`\n\n"
                 f"**Summary of Changes:**\n```\n{summary}\n```\n\n"
-                f"**Output Format (use '---' as a separator):**\n"
-                f"TITLE\n"
-                f"---\n"
-                f"BODY"
+                f"**Markdown Body:**"
             )
             
-            response = gemini_client.generate_simple_text(prompt)
-            
-            if "---" in response:
-                title, body = response.split("---", 1)
-                return title.strip(), body.strip()
-            else:
-                logger.warning("AI response for PR details was not in the expected format.")
-                return default_title, response # Return the full response as body
+            body = gemini_client.generate_simple_text(prompt)
+            return body.strip() if body else default_body
                 
         except Exception as e:
-            logger.error(f"AI PR detail generation failed: {e}")
-            return default_title, default_body
+            logger.error(f"AI PR body generation failed: {e}")
+            return default_body
 
     def fetch_updates(self, remote_name: str = "origin") -> bool:
         """Fetches the latest updates from the remote repository."""

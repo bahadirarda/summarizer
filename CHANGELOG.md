@@ -3,6 +3,35 @@
 Bu dosya otomatik olarak generate edilmiştir.
 Düzenlemeler için `changelog.json` dosyasını kullanın.
 
+## 2025-06-20 02:44:48
+
+### 1. YAPISAL ANALİZ:
+
+Değişiklikler, projenin `src/utils` dizini altında bulunan iki yardımcı modülü etkiliyor: `git_manager.py` ve `changelog_updater.py`.  `git_manager.py`, Git ile etkileşim sağlayan bir yardımcı sınıf içerirken, `changelog_updater.py` ise değişiklik günlüğünü güncellemekle sorumludur.  Bu, kod tabanının yardımcı araçlar ve servis katmanı bileşenlerini etkiler. Mimari değişikliklerin etkisi, Git ve Github ile olan etkileşimin daha yapılandırılmış ve merkezi bir şekilde yönetilmesini sağlamak üzerinedir.  `git_manager.py`'deki yeni işlevler, Github Pull Request'leri ile etkileşimi yönetir ve bu da versiyon kontrolü sürecini otomatikleştirir. Kod organizasyonunda yapılan iyileştirmeler ise Git komutlarının ve Github API çağrıları yapımının daha temiz ve okunabilir bir şekilde düzenlenmesiyle sağlanmıştır. `_run_external_command` ve `_run_git_command` yardımcı fonksiyonları, kodun daha modüler ve tekrar kullanılabilir olmasını sağlar.
+
+
+### 2. İŞLEVSEL ETKİ:
+
+Bu değişiklikler, yazılımın sürüm kontrolü ve değişiklik günlüğü yönetimi işlevlerini önemli ölçüde geliştirir.  Özel olarak, Github Pull Request'lerinin oluşturulması, güncellenmesi ve mevcut PR'lerin kontrol edilmesi işlevleri eklenmiştir.  `git_manager.py`'deki yeni metodlar, Github CLI (`gh`) aracılığıyla PR'lerin otomatik olarak oluşturulmasını ve güncellenmesini mümkün kılar.  Kullanıcı deneyimi, geliştiricilerin Git ve Github ile etkileşimlerini otomatikleştirerek geliştirilir; manuel adımların sayısı azalır ve olası hataların önüne geçilir. Performans açısından, Github API'sine yapılan çağrılar nedeniyle, performans hafifçe etkilenebilir ancak bu etki ihmal edilebilir düzeydedir. Güvenlik açısından, değişiklikler doğrudan güvenlikle ilgili değildir; ancak, otomasyonun artması insan hatası riskini azaltır, bu da dolaylı bir güvenlik iyileştirmesidir. Güvenilirlik açısından, Git ve Github entegrasyonunun düzgün işlemesi, sürüm kontrolü ve değişiklik yönetiminin güvenilirliğini artırır.
+
+
+### 3. TEKNİK DERINLIK:
+
+Kodda belirgin bir tasarım deseni değişikliği gözlenmiyor, ancak kodun daha modüler hale getirilmesi ve `_run_external_command` ve `_run_git_command` gibi yardımcı fonksiyonların kullanılması, bir anlamda `Command` tasarım desenine benzeyen bir yaklaşım göstermektedir. Kod kalitesi ve sürdürülebilirlik, daha iyi organize edilmiş ve okunabilir kod sayesinde artmıştır.  Fonksiyonların açık ve özlü olarak adlandırılması ve uygun yorumların eklenmesi, kodun anlaşılırlığını artırır.  Yeni bağımlılık olarak `github` CLI aracı eklenmiştir.  Bu aracın sistemde mevcut olması gerekir.  Eğer mevcut değilse, hata mesajları kullanıcıyı bilgilendirir.
+
+
+### 4. SONUÇ YORUMU:
+
+Bu değişikliklerin uzun vadeli değeri, geliştirme sürecinin hızlanması ve geliştiricilerin verimliliğinin artmasıdır.  Github ile olan entegrasyon, sürüm yönetimini ve değişiklik günlüğü güncellemelerini otomatikleştirerek, zaman tasarrufu sağlar ve insan hatası riskini azaltır.  Projenin teknik borcu, kodun daha düzenli ve sürdürülebilir hale getirilmesiyle azalmıştır.  Gelecekteki geliştirmeler için, Github API'sine yapılan çağrıların daha iyi hata yönetimi ve performans optimizasyonu ile iyileştirilmesi önerilebilir.  Ayrıca, farklı Git sağlayıcıları ile uyumluluğu sağlamak için, kodun daha soyutlaştırılmış bir yapıda yeniden düzenlenmesi düşünülebilir.  `gh` aracına bağımlılık, gelecekteki değişikliklerde göz önünde bulundurulmalıdır ve gerekirse daha genel bir yaklaşım benimsenebilir.
+
+**Değişen Dosyalar:** src/utils/git_manager.py, src/utils/changelog_updater.py
+**Etki Seviyesi:** High
+**Değişiklik Tipi:** Feature
+**Satır Değişiklikleri:** -29
+**Etiketler:** utils, changelog-updater, api, manager, git-manager
+
+---
+
 ## 2025-06-20 02:41:17
 
 ### 1. YAPISAL ANALİZ:
