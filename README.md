@@ -1,60 +1,58 @@
 # 🚀 project.110620251156
-> Git işlemlerini yöneten ve otomatik pull request oluşturma, changelog güncelleme gibi gelişmiş işlevler sunan bir yardımcı kütüphane.  Özetleme framework'ü için gelişmiş CLI ve GUI desteği de içermektedir.
+> Bu proje, bir özetleyici framework'ü ve changelog güncelleme araçlarını içeren bir web uygulamasıdır.  Geliştiricilerin iş akışını kolaylaştırmak ve changelog'ların daha zengin ve bilgi verici olmasını sağlamak için tasarlanmıştır.
 
 ## 📊 Proje Durumu
-Proje aktif geliştirme aşamasındadır. Son değişiklikler, geliştirici üretkenliğini artırmaya ve geliştirme sürecini otomatikleştirmeye odaklanmıştır.  Yeni özellikler eklenmiş ve mevcut kod tabanının sürdürülebilirliği ve okunabilirliği iyileştirilmiştir.
-
+Proje aktif geliştirme aşamasındadır.  Son değişiklikler, özetleyici framework'ünün işlevselliğini genişletmeyi, changelog güncelleme sürecini otomatikleştirmeyi ve geliştirici üretkenliğini artırmayı hedeflemektedir.  Yeni özellikler eklenmiş, kod tabanı iyileştirilmiş ve hata yönetimi güçlendirilmiştir.
 
 ## ✨ Özellikler
-* **Otomatik Pull Request Oluşturma:** GitHub CLI (`gh`) kullanarak otomatik pull request oluşturma.
-* **Pull Request Detaylarının Alınması:** Pull request'in başlık ve açıklamasını almak için fonksiyon.
-* **Ekran Görüntüsü Alma:** CLI komutları (`screenshot`, `ss`) ile farklı uygulamalardan ekran görüntüsü alma.
-* **GUI Desteği:** Konfigürasyon için GUI arayüzü.
-* **Gelişmiş CLI:** `--setup`, `--gui`, `--status` gibi yeni ve geliştirilmiş CLI komutları.
-* **Otomatik Changelog Güncelleme:** Changelog güncelleme işleminin iyileştirilmesi ve otomatikleştirilmesi.
-* **Demo Framework Analizi:** Proje kök dizininde otomatik changelog girişi oluşturma.
+* **Otomatik Changelog Güncelleme:** Değişiklikler otomatik olarak changelog'a eklenir.
+* **Özetleyici Framework:**  Metin özetleme yeteneği sunar.
+* **Pull Request Oluşturma:**  GitHub CLI kullanarak otomatik pull request oluşturma.
+* **Ekran Görüntüsü Alma:**  Çeşitli uygulamalardan (Chrome, Firefox, VS Code) ekran görüntüsü alma.
+* **GUI tabanlı Konfigürasyon:**  Kullanıcı dostu bir arayüz ile konfigürasyon yönetimi.
+* **Sistem Durum Takibi:** `--status` komutu ile sistem durumunun görüntülenmesi.
 
 
 ## Değişen Dosyalar:
-`src/utils/git_manager.py`, `summarizer.py`, `features` dizini altındaki dosyalar (`parameter_checker.py`, `terminal_commands.py`, `__init__.py`), `src/main.py`, `src/core/configuration_manager.py`, `src/utils` dizini altındaki dosyalar (`version_manager.py`, `git_manager.py`, `changelog_updater.py`), `tests/test_main.py`
+`src/utils/changelog_updater.py`, `src/utils/git_manager.py`, `summarizer.py`, `features` dizini altındaki dosyalar (`parameter_checker.py`, `terminal_commands.py`, `__init__.py`), `src/main.py`, `src/core/configuration_manager.py`, `src/utils` dizini altındaki dosyalar (`version_manager.py`, `git_manager.py`, `changelog_updater.py`), `tests/test_main.py`
 
 
 ## ANALİZ GÖREVİ:
 
 ### 1. YAPISAL ANALİZ:
 
-* **Etkilenen Bileşenler ve Katmanlar:** Değişiklikler, üç farklı modülü etkilemiştir.  Birincisi, `src/utils/git_manager.py` dosyasında bulunan ve Git işlemlerini yöneten yardımcı modül. İkincisi, neredeyse tüm katmanlarını etkileyen bir özetleme framework'ü.  Üçüncüsü ise `src/utils/changelog_updater.py` dosyasında bulunan changelog güncelleme yardımcı aracı.  Özetleme framework'ündeki değişiklikler, servis katmanı (`src/utils`), çekirdek katmanı (`src/core`), özellik katmanı (`features`) ve sunum katmanı (`summarizer.py`, `src/main.py`)  dahil olmak üzere geniş kapsamlıdır.
+- **Etkilenen Bileşenler ve Katmanlar:** Değişiklikler,  projenin neredeyse tüm katmanlarını etkilemiştir. `changelog_updater.py`, `git_manager.py` ve `summarizer.py` dosyaları doğrudan değiştirilirken,  `features` dizini (parametre kontrolü, terminal komutları, GUI),  `src/main.py` (ana özetleme mantığı), `src/core/configuration_manager.py` (konfigürasyon yönetimi) ve `src/utils` dizini (yardımcı araçlar) dolaylı olarak etkilenmiştir.  Testler (`tests/test_main.py`) de güncellenmiştir.  Bu, projenin servis, iş ve sunum katmanlarının bir kısmını kapsamaktadır.
 
-* **Mimari Değişikliklerin Etkisi:** `git_manager.py` dosyasındaki değişiklikler mevcut mimariyi değiştirmeden, yeni fonksiyonlar ekleyerek geliştirme odaklıdır. Özetleme framework'ü ise modüler bir yapıya doğru evrilmiştir. `features` dizininin kullanımı, özelliklerin bağımsız olarak geliştirilmesini ve sürdürülmesini kolaylaştırır. `changelog_updater.py` dosyasındaki değişiklikler de mevcut mimariye yeni bir fonksiyon ekleme şeklindedir.
+- **Mimari Değişikliklerin Etkisi:**  `summarizer` framework'ü daha modüler ve genişletilebilir hale getirilmiştir. `features` dizininin kullanımı, özelliklerin bağımsız olarak geliştirilmesini sağlar.  `changelog_updater.py`'deki değişiklikler minimal mimari etkiye sahipken, `git_manager.py`'deki değişiklikler, Git işlemlerinin daha iyi soyutlanmasıyla  kodu daha okunabilir ve sürdürülebilir hale getirmiştir.
 
-* **Kod Organizasyonundaki İyileştirmeler:** `git_manager.py` dosyasında `_run_external_command` ve `_run_git_command` yardımcı fonksiyonlarının kullanımı ile kod daha modüler ve okunabilir hale getirilmiştir. Özetleme framework'ünde `features` dizininin kullanımı, özelliklerin modüler olarak düzenlenmesini ve sürdürülebilirliğini artırmıştır. `changelog_updater.py` dosyasında `demo_framework_analysis` fonksiyonunun eklenmesi, işlevselliği daha modüler hale getirmiştir.
+- **Kod Organizasyonundaki İyileştirmeler:**  `features` dizini kullanılarak özelliklerin modüler bir şekilde düzenlenmesi, okunabilirliği ve sürdürülebilirliği artırmıştır. `git_manager.py` dosyasındaki yardımcı fonksiyonlar (`_run_external_command`, `_run_git_command`) kodun okunabilirliğini ve bakımını kolaylaştırmıştır.
 
 
 ### 2. İŞLEVSEL ETKİ:
 
-* **Eklenen, Değiştirilen veya Kaldırılan Özellikler:**  `git_manager.py`: Otomatik pull request oluşturma (`create_pull_request`) ve pull request detaylarının alınması (`get_pr_details`) fonksiyonları eklenmiştir. Özetleme framework'ü: Ekran görüntüsü alma (`screenshot`, `ss`), GUI tabanlı konfigürasyon desteği (`--gui`), geliştirilmiş `--setup` ve `--status` komutları eklenmiştir. `changelog_updater.py`:  `demo_framework_analysis` fonksiyonu eklenmiştir.
+- **Eklenen/Değiştirilen/Kaldırılan Özellikler:**  `changelog_updater.py`'de, framework'ün yeteneklerini gösteren bir demo changelog girdisi oluşturan `demo_framework_analysis` fonksiyonu eklenmiştir. `git_manager.py`'de, otomatik pull request oluşturma (`create_pull_request`) ve pull request detaylarının alınması (`get_pr_details`) fonksiyonları eklenmiştir.  `summarizer` framework'üne ekran görüntüsü alma (`screenshot`, `ss`), GUI tabanlı konfigürasyon (`--gui`), konfigürasyon kurulumu (`--setup`) ve sistem durumu görüntüleme (`--status`) özellikleri eklenmiştir.
 
-* **Kullanıcı Deneyiminin Etkilenmesi:** Otomatik pull request oluşturma ve gelişmiş CLI komutları sayesinde kullanıcı deneyimi önemli ölçüde iyileştirilmiştir. GUI desteği de konfigürasyon işlemini kolaylaştırmıştır.
+- **Kullanıcı Deneyiminin Etkilenmesi:**  Kullanıcı deneyimi önemli ölçüde iyileştirilmiştir. Otomatik pull request oluşturma, daha kolay konfigürasyon ve yeni komutlar geliştirici üretkenliğini artırır.  GUI desteği, konfigürasyon yönetimini basitleştirir.
 
-* **Performans, Güvenlik veya Güvenilirlik Üzerindeki Etkiler:** `git_manager.py` değişiklikleri ihmal edilebilir düzeyde performans etkisi yaratır. Özetleme framework'ünde ekran görüntüsü alma işleminin performansı alınacak ekran görüntüsünün boyutuna ve uygulamaya bağlıdır.  Güvenlik açısından, `subprocess` modülünün güvenli kullanımı ve `gh` CLI'nın kontrolü önemlidir.  Yeni özelliklerin güvenlik açıkları açısından test edilmesi gereklidir. `changelog_updater.py` değişikliklerinin performans, güvenlik veya güvenilirlik üzerinde ihmal edilebilir düzeyde etkisi vardır.
+- **Performans, Güvenlik ve Güvenilirlik Üzerindeki Etkiler:**  Performans, kullanılan dış komutların performansına (örneğin, `gh` CLI, ekran görüntüsü alma işlemleri) bağlıdır.  Güvenlik açısından, `subprocess` modülünün güvenli kullanımı ve `gh` CLI'nın kontrolü önemlidir.  Hata yönetimi (`try-except` blokları) ve loglama, güvenilirliği artırır. Ekran görüntüsü alma işlemi için farklı uygulamaların güvenlik açıkları da değerlendirilmelidir.
 
 
 ### 3. TEKNİK DERINLIK:
 
-* **Tasarım Desenleri:** `git_manager.py`: Soyutlama (Abstraction) prensibi kullanılmıştır. Özetleme framework'ü: Genişletilmiş Command Pattern kullanımı. Her terminal komutu bir komut nesnesi olarak temsil edilir.
+- **Tasarım Desenleri:**  `git_manager.py`'de, dış komutları yönetmek için soyutlama (abstraction) prensibi kullanılmıştır.  `summarizer` framework'ü, genişletilmiş bir Command Pattern kullanır. Her terminal komutu bir komut nesnesi olarak temsil edilir.
 
-* **Kod Kalitesi ve Sürdürülebilirlik:**  Tüm değişiklikler iyi yorumlanmış ve okunabilir kod ile yazılmıştır. Tip ipuçları kullanımı kod anlaşılırlığını artırmıştır. Hata yönetimi ve loglama iyileştirilmiştir. Modüler tasarım kod sürdürülebilirliğini artırmıştır.
+- **Kod Kalitesi ve Sürdürülebilirliğin Gelişimi:**  Kod kalitesi ve sürdürülebilirlik, modülerlik, iyi yorumlar, hata yönetimi ve tip ipuçlarının kullanımıyla iyileştirilmiştir.
 
-* **Yeni Bağımlılıklar:**  `git_manager.py`: GitHub CLI (`gh`).  Özetleme framework'ü ve `changelog_updater.py` için yeni bağımlılık eklenmediği belirtilmiş ancak mevcut bağımlılıkların güncellenmiş versiyonlarının kullanımı olasıdır.
+- **Yeni Bağımlılıklar veya Teknolojiler:**  `git_manager.py`, GitHub CLI (`gh`) bağımlılığı eklemiştir.  `summarizer` framework'ünün ekran görüntüsü alma özelliği, ilgili uygulama kütüphanelerine (örneğin, Selenium) bağımlılık gerektirebilir.  `changelog_updater.py`, muhtemelen JSON dosyası yönetimi için bir kütüphaneye bağımlıdır.
 
 
 ### 4. SONUÇ YORUMU:
 
-* **Uzun Vadeli Değer ve Etki:**  Değişiklikler geliştirici üretkenliğini artıran, geliştirme sürecini iyileştiren ve kodun sürdürülebilirliğini artıran değerli eklemelerdir. Otomatik pull request oluşturma ve changelog güncelleme gibi tekrarlayan görevlerin otomatikleştirilmesi zaman tasarrufu sağlar.
+- **Uzun Vadeli Değer ve Etki:**  Bu değişiklikler,  geliştirici üretkenliğini artıran,  changelog yönetimini otomatikleştiren ve  framework'ün işlevselliğini genişleten değerli geliştirmelerdir.  Modüler tasarım, gelecekteki genişletilebilirliği sağlar.
 
-* **Teknik Borcun Etkilenmesi:**  Modüler tasarım ve iyileştirilmiş kod kalitesi sayesinde projenin teknik borcu azalmıştır.
+- **Teknik Borcun Etkilenmesi:**  Kodun daha iyi yapılandırılması ve hata yönetiminin iyileştirilmesi teknik borcu azaltmıştır.  Otomatik changelog güncelleme, gelecekteki teknik borç oluşumunu önlemeye yardımcı olabilir.
 
-* **Gelecekteki Geliştirmelere Hazırlık:**  Modüler tasarım ve genişletilebilir mimari, gelecekte yeni özelliklerin eklenmesini kolaylaştıracaktır.  Ancak, `TODO` yorumlarında belirtilen konuların (otomatik güncelleme mekanizması, kişisel know-how havuzu) ele alınması önemlidir.
+- **Gelecekteki Geliştirmelere Hazırlık:**  Modüler tasarım ve genişletilebilir mimari, gelecekteki geliştirmeleri kolaylaştırır.  Ancak,  `TODO` yorumlarında belirtilen konular (otomatik güncelleme mekanizması, kişisel know-how havuzu) dikkate alınmalıdır.
 
 ## 🛠️ Kurulum (Installation)
 
@@ -215,7 +213,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**Last updated**: June 20, 2025 by Summarizer Framework v12.6.0
+**Last updated**: June 20, 2025 by Summarizer Framework v12.7.0
 *This README is automatically generated and updated based on project activity.*
 
 > *"Automatically maintained with AI-powered analysis"*

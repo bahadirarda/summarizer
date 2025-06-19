@@ -3,6 +3,52 @@
 Bu dosya otomatik olarak generate edilmiştir.
 Düzenlemeler için `changelog.json` dosyasını kullanın.
 
+## 2025-06-20 01:47:20
+
+### 1. YAPISAL ANALİZ:
+
+Değişiklikler, `src/utils/changelog_updater.py` dosyasına odaklanmıştır. Bu dosya, projede değişikliklerin otomatik olarak changelog'a eklenmesini sağlayan bir yardımcı araçtır.  Etkinleştirilen sistem bileşenleri şunlardır:
+
+* **`file_tracker` modülü:**  Değiştirilen dosyaları, eklenen ve silinen satır sayılarını tespit etmek için kullanılır.  `get_changed_files_since_last_run`, `get_file_line_changes`, `get_aggregate_line_stats` ve `create_file_backups` fonksiyonlarını kullanarak dosya değişikliklerini izler.
+* **`json_changelog_manager` modülü:** Changelog kayıtlarını JSON formatında yönetir. `add_entry` fonksiyonu, yeni changelog girdilerini eklemek için kullanılır.  `ImpactLevel` ve `ChangeType` enum'ları, değişikliklerin etki seviyesini ve türünü tanımlar.
+* **`readme_generator` modülü:** (Dolaylı olarak etkilenen)  Changelog güncellendiğinde README dosyasının da güncellenmesi muhtemelen bu modül tarafından gerçekleştirilir.
+* **`version_manager` modülü:** (Dolaylı olarak etkilenen)  Yeni bir sürüm oluşturulduğunda changelog'ın güncellenmesi için muhtemelen bu modül kullanılır.
+* **`git_manager` modülü:** (Dolaylı olarak etkilenen) Git geçmişinden değişiklikleri izlemek için muhtemelen bu modül kullanılır.
+
+Mimari değişikliklerin etkisi minimaldir.  `changelog_updater.py` dosyasında yeni bir fonksiyon (`demo_framework_analysis`) eklenmiştir, ancak mevcut mimariyi önemli ölçüde değiştirmez.  Kod organizasyonu açısından,  `demo_framework_analysis` fonksiyonunun eklenmesi, potansiyel olarak yeni bir özellik veya test amaçlı bir fonksiyonun eklendiğini gösterir.  Bu fonksiyonun eklenmesi mevcut kod yapısını bozmaz; mevcut fonksiyonlarla tutarlı bir şekilde eklenmiştir.
+
+### 2. İŞLEVSEL ETKİ:
+
+`demo_framework_analysis` fonksiyonunun eklenmesiyle yeni bir özellik eklenmiştir. Bu fonksiyon, framework'ün yeteneklerini göstermek için bir demo changelog girdisi oluşturur. Bu fonksiyon, belirli dosyalar (`key_files`) için satır değişikliklerini analiz eder ve bir AI özeti (`ai_summary`) kullanarak changelog'a bir girdi ekler.  Bu fonksiyonun eklenmesi, changelog'a manuel olarak girdi ekleme ihtiyacını azaltarak geliştirme sürecini kolaylaştırır.
+
+Kullanıcı deneyimi doğrudan etkilenmez, çünkü bu değişiklikler arka planda gerçekleşir. Ancak, changelog'ın daha zengin ve bilgi verici olması, geliştiriciler ve kullanıcılar için dolaylı bir iyileştirmedir.
+
+Performans, güvenlik veya güvenilirlik üzerindeki etkiler ihmal edilebilir düzeydedir.  Yeni fonksiyon, mevcut işlevselliği genişletir ancak mevcut performansı önemli ölçüde etkilemez. Güvenlik ve güvenilirlik açısından yeni güvenlik açıkları veya hatalar getirilmemiştir.
+
+### 3. TEKNİK DERINLIK:
+
+Kodda belirgin bir tasarım deseni değişikliği görülmemektedir.  `demo_framework_analysis` fonksiyonu, mevcut kod stilini ve yapısını takip ederek eklenmiştir.
+
+Kod kalitesi ve sürdürülebilirlik,  yeni fonksiyonun iyi belgelendirilmesi ve mevcut kod yapısına uyumlu bir şekilde eklenmesiyle iyileştirilmiştir.  Yeni fonksiyonun hata yönetimi (try-except blokları) iyi bir şekilde uygulanmıştır.
+
+Yeni bağımlılıklar veya teknolojiler eklenmemiştir. Mevcut modüller ve kütüphaneler kullanılmaya devam edilmektedir.
+
+### 4. SONUÇ YORUMU:
+
+Bu değişikliklerin uzun vadeli değeri, framework'ün yeteneklerini gösteren ve changelog'ı otomatik olarak güncelleyen bir demo mekanizmasının eklenmesidir.  Bu, gelecekteki geliştirmeleri kolaylaştırır ve changelog'ın daha zengin ve bilgi verici olmasını sağlar.
+
+Projenin teknik borcu, iyi kodlama uygulamaları ve hata yönetimi sayesinde etkilenmemiştir.  Aksine, yeni fonksiyonun eklenmesi,  changelog yönetimini otomatikleştirerek gelecekte teknik borcun oluşmasını önlemeye yardımcı olabilir.
+
+Gelecekteki geliştirmelere hazırlık olarak,  `demo_framework_analysis` fonksiyonu bir şablon görevi görebilir ve gelecekteki otomatik changelog girdileri için bir temel oluşturabilir.  Bu, geliştirme sürecini daha verimli hale getirecektir.  Ayrıca,  `ImpactLevel` ve `ChangeType` enum'larının kullanımı,  gelecekte yeni değişiklik türleri eklenmesi için esnek bir yapı sağlar.
+
+**Değişen Dosyalar:** src/utils/changelog_updater.py
+**Etki Seviyesi:** High
+**Değişiklik Tipi:** Feature
+**Satır Değişiklikleri:** +22
+**Etiketler:** changelog-updater, api, manager, utils
+
+---
+
 ## 2025-06-20 01:45:02
 
 ### 1. YAPISAL ANALİZ:

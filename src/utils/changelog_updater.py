@@ -84,20 +84,42 @@ def _write_next_command(project_root: Path, command: str):
 
 
 def _handle_pull_request_flow(project_root: Path, git_manager: GitManager, current_branch: str, target_branch: str, pr_body: str, gemini_client: Any = None):
-    """Handles the pull request creation process automatically."""
-    if not _ask_user(f"   ❔ Create a Pull Request to '{target_branch}'?"):
-        print("   ⚪️ Pull request creation skipped by user.")
+    """
+    Handles the pull request creation process intelligently.
+    It first pushes the changes and then creates the PR.
+    """
+    prompt_message = f"   ❔ Push changes on '{current_branch}' and create a Pull Request to '{target_branch}'?"
+    if not _ask_user(prompt_message):
+        print("   ⚪️ Operation skipped by user.")
         return
 
-    # No need to run CI checks here if they are run pre-push or pre-commit
-    # We assume the branch is ready for a PR at this stage.
+    # Step 1: Run pre-push CI checks
+    if not _run_ci_checks(project_root):
+        if not _ask_user("   ⚠️  CI checks failed. Proceed with push and PR anyway?"):
+            print("   ⚪️ Operation aborted due to CI failure.")
+            return
 
-    # The push is now handled in the main `update_changelog` flow before this is called.
-    # We can proceed directly to creating the PR.
+    # Step 2: Push the branch to the remote
+    print(f"   🚀 Pushing changes on '{current_branch}' to remote...")
+    push_success, push_output = git_manager.push(current_branch)
 
+    if not push_success:
+        print(f"   ❌ Push failed. Git Error:\n{push_output}")
+        # Even if push fails, it might be because the branch is already up-to-date.
+        # Let's check for that specific case.
+        if "already up-to-date" not in push_output and "up to date" not in push_output:
+            return # A real error occurred, so we stop.
+    
+    # If the branch was already up-to-date, there are no new commits to create a PR with.
+    if "already up-to-date" in push_output or "up to date" in push_output:
+         print(f"   ⚪️ Branch '{current_branch}' is already up-to-date with the remote. No new commits to create a PR for.")
+         return
+         
+    print("   ✅ Branch pushed successfully.")
+    
+    # Step 3: Create the Pull Request
     print("   🤖 Generating AI-powered pull request details...")
-    pr_title, new_pr_body = git_manager.generate_pull_request_details(pr_body, gemini_client) # pr_body is the summary
-
+    pr_title, new_pr_body = git_manager.generate_pull_request_details(pr_body, gemini_client)
     print(f"   📝 PR Title: {pr_title}")
     
     pr_url = git_manager.create_pull_request(
