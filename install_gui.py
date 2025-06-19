@@ -34,7 +34,7 @@ def main():
         print("Step 2: Installing Terminal Command")
         print("-" * 40)
         if not install_terminal_command():
-            print("⚠️  Terminal command installation failed.")
+            print("⚠️  Terminal command installation faied.")
             success = False
         
         print()
