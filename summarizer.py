@@ -290,16 +290,9 @@ Examples:
         
         # Default behavior - run summarizer
         # This is the main entry point for the core logic
-        if print_parameter_guidance():
-            # Pass the current working directory to the main logic
-            project_root_str = str(Path.cwd())
-            return _summarizer(project_root_str=project_root_str)
-        else:
-            print()
-            print("🔧 Quick setup options:")
-            print("   summarizer --setup    # Interactive setup.")
-            print("   summarizer --gui      # GUI configuration.")
-            return False
+        # Parameter check is now handled inside _summarizer (src/main.py)
+        project_root_str = str(Path.cwd())
+        return _summarizer(project_root_str=project_root_str)
 
 
 # Replace the module in sys.modules with our callable version
