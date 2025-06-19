@@ -36,6 +36,9 @@ class GitManager:
         except subprocess.CalledProcessError as e:
             err_msg = e.stderr.strip()
             logger.error(f"Command failed: {' '.join(command)}\nError: {err_msg}")
+            if "unexpected EOF" in err_msg:
+                print("   ❌ A network error occurred while communicating with GitHub.")
+                print("      Please check your connection and try again.")
             return False, err_msg
 
     def _run_git_command(self, command: List[str]) -> Tuple[bool, str]:
@@ -308,6 +311,9 @@ class GitManager:
         self, title: str, body: str, base_branch: str, head_branch: str
     ) -> Optional[str]:
         """Creates a pull request on GitHub using the 'gh' CLI and returns the PR URL."""
+        if not self._check_gh_auth():
+            return None
+
         success, _ = self._run_external_command(["gh", "--version"])
         if not success:
             print("   ⚠️  GitHub CLI ('gh') not found. Cannot create pull request automatically.")
@@ -352,6 +358,9 @@ class GitManager:
         Checks if an open PR already exists for the given head branch.
         Returns a dict with 'number', 'title', 'url' if found, otherwise None.
         """
+        if not self._check_gh_auth():
+            return None
+        
         logger.info(f"Checking for existing PR for branch '{head_branch}'...")
         command = [
             "gh", "pr", "list",
@@ -403,3 +412,22 @@ class GitManager:
         # This command returns a non-empty string if the branch exists
         success, output = self._run_git_command(["ls-remote", "--heads", remote_name, branch_name])
         return success and bool(output.strip())
+
+    def _check_gh_auth(self) -> bool:
+        """Checks if the user is authenticated with the gh CLI."""
+        logger.info("Checking GitHub CLI authentication status...")
+        success, output = self._run_external_command(["gh", "auth", "status"])
+        if not success:
+            # The error from _run_external_command is already printed.
+            # We add context for the user here.
+            print("   💡 To fix this, please run 'gh auth login' in your terminal.")
+            return False
+        
+        if "Logged in to github.com" in output:
+            logger.info("GitHub CLI is authenticated.")
+            return True
+        else:
+            print("   ❌ GitHub CLI ('gh') is not authenticated.")
+            print(f"      Auth status output:\n{output}")
+            print("\n      Please run 'gh auth login' in your terminal and follow the prompts.")
+            return False
