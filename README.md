@@ -1,65 +1,78 @@
-# 🚀 project.110620251156
-> 💻  Web tabanlı bir özetleyici projesi.  Ekran görüntüsü alma, changelog güncelleme ve CI/CD süreçlerini içerir. GitHub entegrasyonu ile geliştirme sürecini kolaylaştırır.
+# 🚀 project.110620251156 - Akıllı Özetleyici ve Ekran Görüntüsü Aracı
+>  project.110620251156, web tabanlı bir özetleme aracıdır.  Komut satırı arayüzü (CLI) ve grafiksel kullanıcı arayüzü (GUI) seçenekleri sunar.  Belgelerin, web sayfalarının ve uygulamaların özetlenmesini ve ekran görüntülerinin alınmasını sağlar.
 
 ## 📊 Proje Durumu
-Aktif geliştirme aşamasında.  Ana işlevsellik tamamlanmış durumda.  TODO listesinde yer alan AI destekli özellikler, sesli komut sistemi ve otomatik güncelleyici gibi geliştirmeler planlanmaktadır.  Mevcut değişiklikler, projenin istikrarını ve sürdürülebilirliğini artırmaya odaklanmaktadır.
-
+Proje aktif geliştirme aşamasındadır.  Son değişiklikler, kullanıcı deneyimini iyileştirmeye, işlevselliği genişletmeye ve kod tabanını daha sürdürülebilir hale getirmeye odaklanmıştır.  Ancak, TODO listesindeki bazı geliştirmeler (AI destekli özetleme, sesli komut, otomatik güncelleme) henüz tamamlanmamıştır.
 
 ## ✨ Özellikler
-* 📸  Belirli uygulamaların (Chrome, Firefox, Code) ekran görüntülerini alma
-* 📝  Detaylı changelog güncelleme ve yönetimi
-* ⚙️  Sağlam CI/CD pipeline'ı
-* 🐙 GitHub entegrasyonu (Pull Request oluşturma)
-* 🖥️ GUI desteği (geliştirme aşamasında)
+* 📄  Belge ve web sayfası özetleme
+* 📸 Uygulamaya özgü ekran görüntüsü alma (Chrome, Firefox, Code vb.)
+* ⚙️ Komut satırı arayüzü (CLI)
+* 🖥️ Grafiksel kullanıcı arayüzü (GUI)
+* 🔄 Interaktif kurulum seçeneği (`--setup`)
+* 🛠️ Detaylı değişiklik kaydı (changelog)
 
 
 ## Değişen Dosyalar:
-`summarizer.py`, `scripts/run_ci_checks.py`, `src/utils/changelog_updater.py`, `src/utils/git_manager.py`
+`summarizer.py`, `scripts/run_ci_checks.py`, `src/utils/changelog_updater.py`  ve `features` dizini altındaki modüller ( `parameter_checker`, `screenshot`, `terminal_commands`, `gui_installer`).
 
 
 ## ANALİZ GÖREVİ:
 
 ### 1. YAPISAL ANALİZ:
 
-* **Sistem Bileşenleri ve Katmanlar:**  Değişiklikler, projenin üç ana bileşenini etkilemiştir:  
-    * **Sunum Katmanı:** `summarizer.py` (CLI),  Kullanıcı arayüzü ve komut işleme.
-    * **Kontrol Katmanı:** `summarizer.py` (komut işleme mantığı), `src/utils/git_manager.py` (Git işlemleri), `src/utils/changelog_updater.py` (changelog güncellemeleri).
-    * **Yardımcı Araçlar:**  `scripts/run_ci_checks.py` (CI/CD),  `src/utils` dizini altındaki modüller.
+- **Etkilenen Bileşenler ve Katmanlar:** Değişiklikler, projenin üç ana katmanını etkilemiştir:
+    * **Giriş Katmanı:** `summarizer.py`, komut satırı argümanlarının işlenmesi ve modül çağrılarının yönetimiyle ilgili değişiklikler içermektedir. `CallableModule` sınıfının eklenmesi, giriş noktasının fonksiyonel bir arayüz olarak sunulmasını sağlamıştır.
+    * **İşlevsellik Katmanı:** `src/main` (özetleme işlevi), ve `features` dizini altındaki modüller (ekran görüntüsü alma, parametre kontrolü, GUI, terminal komutları) değişikliklerden etkilenmiştir. Özellikle `screenshot` komutu için `screenshot_command` fonksiyonunun ayrılması, kodun modülerliğini artırmıştır.
+    * **CI/CD ve Yardımcı Araçlar:** `scripts/run_ci_checks.py` dosyasındaki değişiklikler CI/CD pipeline'ını, `src/utils/changelog_updater.py` ise changelog yönetimini etkilemiştir.
 
-* **Mimari Değişikliklerin Etkisi:**  `summarizer.py` dosyasında mimari değişiklikler minimaldir.  Komut işleme mekanizması genişletilmiş, `screenshot` komutu için özel bir fonksiyon ayrılmıştır (`screenshot_command`).  `run_ci_checks.py` dosyasında, CI/CD pipeline'ına build sonucu eser kontrolü eklenmiştir.  `git_manager.py`'de ise GitHub entegrasyonu sağlanmış, Pull Request oluşturma fonksiyonelliği eklenmiştir. `changelog_updater.py`'de ise changelog oluşturma ve güncelleme sürecinin detayları artırılmış gibi görünmektedir. Ancak, gizli kod bölümleri tam bir mimari analizi engellemektedir.
 
-* **Kod Organizasyonundaki İyileştirmeler:** `summarizer.py`'de `screenshot_command` fonksiyonunun ayrılması kodun okunabilirliğini ve modülerliğini artırmıştır.  `run_ci_checks.py` ve `git_manager.py`'deki değişiklikler de daha iyi yapılandırılmış ve okunabilir bir kod üretmiştir.  `changelog_updater.py`'nin büyük boyutu ve fonksiyon sayısındaki artış, gelecekteki modülerleştirme ihtiyacını ortaya koymaktadır.
+- **Mimari Değişikliklerin Etkisi:**  Mimari açıdan büyük değişiklikler yapılmamıştır.  Ancak, `CallableModule` sınıfının eklenmesi ve `screenshot_command` fonksiyonunun ayrılması, kodun daha modüler ve bakımı kolay bir yapıya kavuşmasını sağlamıştır.  `run_ci_checks.py`'deki değişiklikler CI/CD pipeline'ının güvenilirliğini artırmıştır (build sonrası eser kontrolü).
+
+
+- **Kod Organizasyonundaki İyileştirmeler:**  `screenshot` komutu için özel bir fonksiyon ayrılması (`screenshot_command`),  kodun daha okunabilir ve sürdürülebilir olmasını sağlamıştır.  `features` dizini altında modüler bir yaklaşım izlenmesi, farklı işlevlerin ayrı modüllerde yönetilmesine olanak sağlamıştır.  `changelog_updater.py` dosyasında fonksiyon sayısındaki artış, modülerliği artırmış ancak büyük bir dosya oluşturabileceği için gelecekte yeniden yapılandırılmayı gerektirebilir.
+
 
 
 ### 2. İŞLEVSEL ETKİ:
 
-* **Eklenen Özellikler:**  `summarizer.py`'de uygulamaya özel ekran görüntüsü alma komutları (`summarizer ss chrome`, `summarizer ss firefox`, `summarizer ss code`) eklenmiştir. `git_manager.py`'de GitHub ile otomatik Pull Request oluşturma özelliği eklenmiştir. `changelog_updater.py`'de ise changelog oluşturma ve güncelleme sürecinin detayları artırılmıştır (özellikler tam olarak belirtilememektedir).
+- **Eklenen Özellikler:**  Uygulamaya özel ekran görüntüsü alma komutları (`summarizer ss chrome`, `summarizer ss firefox`, `summarizer ss code`), GUI tabanlı konfigürasyon (`summarizer --gui`) ve interaktif kurulum (`summarizer --setup`) seçenekleri eklenmiştir.  `changelog_updater.py` dosyasındaki değişiklikler daha detaylı changelog oluşturma yeteneği kazandırmıştır.
 
-* **Değiştirilen Özellikler:** `summarizer.py`'deki mevcut `summarizer screenshot` ve `summarizer ss` komutlarının işlevselliği aynı kalmıştır ancak komut işleme mantığı daha modüler hale getirilmiştir. `run_ci_checks.py`'de hata mesajları daha açıklayıcı hale getirilmiştir ve build sonucu eser kontrolü eklenmiştir.
 
-* **Kaldırılan Özellikler:**  Belirtgin bir özellik kaldırılması gözlenmemiştir.
+- **Değiştirilen Özellikler:**  Mevcut ekran görüntüsü alma komutları (`summarizer screenshot`, `summarizer ss`)  daha modüler bir yapıya kavuşmuştur.
 
-* **Kullanıcı Deneyimi:**  Uygulamaya özgü ekran görüntüsü alma komutları ve daha açıklayıcı hata mesajları kullanıcı deneyimini iyileştirmiştir.  GitHub entegrasyonu da geliştirici deneyimini kolaylaştırmıştır.
 
-* **Performans, Güvenlik, Güvenilirlik:**  Eklenen özellikler performansı önemli ölçüde etkilemez.  Güvenlik açısından,  gizli kod bölümü incelenmeden kesin bir yorum yapmak mümkün değildir.  `run_ci_checks.py`'deki değişiklikler hata tespitini iyileştirerek güvenilirliği artırmıştır.
+- **Kaldırılan Özellikler:**  Belirtilen değişikliklerde bir özellik kaldırılması gözlenmemiştir.
+
+
+- **Kullanıcı Deneyimi:**  Kullanıcı deneyimi, uygulamaya özel ekran görüntüsü alma komutları, GUI ve interaktif kurulum sayesinde önemli ölçüde iyileştirilmiştir.  Daha fazla seçenek ve daha açıklayıcı komutlar sunulmuştur.
+
+
+- **Performans, Güvenlik ve Güvenilirlik:**  Eklenen özelliklerin performans üzerindeki doğrudan etkisi sınırlıdır.  Güvenlik ve güvenilirlik, kullanılan kütüphanelerin güvenilirliğine ve kodun genel kalitesine bağlıdır.  `run_ci_checks.py`'deki değişiklikler, build hatalarının daha erken tespit edilmesini sağlayarak güvenilirliği artırmıştır.
+
 
 
 ### 3. TEKNİK DERİNLİK:
 
-* **Tasarım Desenleri:** `summarizer.py`'de `CallableModule` sınıfının kullanımı, Facade tasarım deseni benzeri bir yaklaşımı işaret eder.  Bu,  giriş noktasını fonksiyonel bir arayüz olarak sunar.
+- **Tasarım Desenleri:**  `CallableModule` sınıfı, bir Facade tasarım deseni olarak işlev görerek `summarizer.py` modülünü daha basit bir arayüz olarak sunmaktadır.  `features` dizini altında modüler tasarım deseni kullanılmıştır.
 
-* **Kod Kalitesi ve Sürdürülebilirlik:** `screenshot_command` fonksiyonunun ayrılması,  `run_ci_checks.py` ve `git_manager.py`'deki iyileştirmeler kod kalitesini ve sürdürülebilirliğini artırmıştır.  Ancak, `changelog_updater.py`'nin büyüklüğü ve karmaşıklığı gelecekte sürdürülebilirliği zorlayabilir.
 
-* **Yeni Bağımlılıklar:** `git_manager.py`'de `gh` komut satırı aracı yeni bir bağımlılık olarak eklenmiştir.  Gizli kod bölümlerinde başka bağımlılıklar da olabilir.
+- **Kod Kalitesi ve Sürdürülebilirlik:**  Kod genel olarak okunaklı ve iyi yapılandırılmıştır.  Modüler yaklaşım, kodun sürdürülebilirliğini artırmıştır.  Ancak, TODO yorumları, gelecekte yapılması gereken geliştirmeleri göstermektedir ve teknik borcun bir göstergesidir.
+
+
+- **Yeni Bağımlılıklar:**  Kesik kod nedeniyle tam liste bilinmiyor.  GUI'nin eklenmesiyle yeni bağımlılıklar eklenmiş olması muhtemeldir.
+
 
 
 ### 4. SONUÇ YORUMU:
 
-* **Uzun Vadeli Değer ve Etki:**  Bu değişiklikler, projenin kullanıcı dostu olmasını, sürdürülebilirliğini ve güvenilirliğini artırmıştır.  GitHub entegrasyonu ve gelişmiş CI/CD süreci, geliştirme sürecini önemli ölçüde kolaylaştıracaktır.
+- **Uzun Vadeli Değer ve Etki:**  Bu değişiklikler, aracın işlevselliğini ve kullanıcı deneyimini önemli ölçüde geliştirmiştir.  Daha sağlam bir CI/CD süreci ve daha detaylı bir changelog yönetimi sağlanmıştır.  Ancak, TODO listesindeki geliştirmelerin tamamlanması, projenin uzun vadeli değerini daha da artıracaktır.
 
-* **Projenin Teknik Borcu:**  Mevcut değişiklikler, özellikle daha iyi hata tespiti ve kod organizasyonu sayesinde, teknik borcu azaltmıştır. Ancak, TODO listesindeki büyük geliştirmeler tamamlanmadan teknik borç hakkında tam bir yorum yapmak zordur.
 
-* **Gelecekteki Geliştirmelere Hazırlık:** Modüler tasarım ve iyi dokümante edilmiş kod, gelecekteki geliştirmeleri kolaylaştıracaktır.  Ancak,  `changelog_updater.py`'nin büyüklüğünü kontrol altında tutmak ve gerektiğinde modülerleştirmek önemlidir.
+- **Teknik Borç:**  Bazı geliştirmeler (TODO listesi) teknik borç olarak kalmaktadır.  Ancak, modüler tasarım ve CI/CD iyileştirmeleri, teknik borcun azaltılmasına katkı sağlamıştır.  Yeni eklenen özellikler de yeni teknik borç eklemiştir.
+
+
+- **Gelecekteki Geliştirmelere Hazırlık:**  Modüler tasarım, gelecekteki geliştirmelerin (AI destekli özetleme, sesli komut, otomatik güncelleme) daha kolay entegre edilebilmesi için sağlam bir temel oluşturmuştur.  CI/CD pipeline'ındaki iyileştirmeler de, gelecekteki geliştirmelerin daha güvenli bir şekilde uygulanmasını sağlayacaktır.
 
 ## 🛠️ Kurulum (Installation)
 
@@ -220,7 +233,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**Last updated**: June 20, 2025 by Summarizer Framework v8.3.4
+**Last updated**: June 20, 2025 by Summarizer Framework v8.3.5
 *This README is automatically generated and updated based on project activity.*
 
 > *"Automatically maintained with AI-powered analysis"*

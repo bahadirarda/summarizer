@@ -64,32 +64,39 @@ def get_framework_version():
     except Exception:
         return '2.2.0'
 
-def get_version_codename(version):
-    """Get professional codename for version"""
-    try:
-        major, minor = map(int, version.split('.')[:2])
-        if major == 2:
-            codenames = {
-                0: "Genesis",      # v2.0.x - Initial v2 release
-                1: "Intelligence", # v2.1.x - Enhanced AI features
-                2: "Synthesis",    # v2.2.x - Integration improvements
-                3: "Evolution",    # v2.3.x - Advanced evolution
-                4: "Transcendence",# v2.4.x - Next level features
-                5: "Infinity"      # v2.5.x - Ultimate features
-            }
-            return codenames.get(minor, f"Unknown-{minor}")
-        elif major == 3:
-            return "Quantum"   # v3.x series
-        else:
-            return f"Future-{major}.{minor}"
-    except:
-        return "Genesis"
-
 def print_version_info():
     """Print comprehensive version information"""
-    version = get_framework_version()
-    codename = get_version_codename(version)
-    
+    # Get version from VersionManager for consistency
+    try:
+        from src.utils.version_manager import VersionManager
+        from src.core.configuration_manager import ConfigurationManager
+        
+        project_root = Path(__file__).parent
+        config_manager = ConfigurationManager(project_root)
+        version_manager = VersionManager(project_root)
+        
+        version_info = version_manager.get_version_info()
+        version = version_info.get("version", "N/A")
+
+        # Codename should also come from the single source of truth
+        major, minor, _ = version_manager.parse_version(version)
+        
+        # We need a gemini_client instance to potentially generate a codename
+        gemini_client = None
+        if not config_manager.is_config_missing():
+             from src.services.request_manager import RequestManager
+             try:
+                request_manager = RequestManager()
+                gemini_client = request_manager.get_client("GeminiClient")
+             except Exception:
+                pass # It's okay if it fails here, we'll fall back.
+        
+        codename = version_manager._get_version_codename(major, minor, version, gemini_client)
+
+    except ImportError:
+        version = get_framework_version() # Fallback
+        codename = "Unavailable"
+
     print("🚀 Summarizer Framework")
     print("=" * 30)
     print(f"📦 Version: {version}")

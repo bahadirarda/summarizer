@@ -3,6 +3,59 @@
 Bu dosya otomatik olarak generate edilmiştir.
 Düzenlemeler için `changelog.json` dosyasını kullanın.
 
+## 2025-06-20 00:59:11
+
+### 1. YAPISAL ANALİZ:
+
+Değişiklikler `summarizer.py` dosyasını etkilemiştir. Bu dosya, projenin giriş noktası (entry point) görevi görmektedir.  Kod, büyük ölçüde fonksiyonel bir yaklaşımla yazılmıştır ve  `argparse` kütüphanesini kullanarak komut satırı argümanlarını işler.  Sistem, temelde üç katmandan oluşmaktadır:
+
+* **Giriş Katmanı (`summarizer.py`):** Komut satırı argümanlarını işler,  fonksiyon çağrılarını yönetir ve  `src.main`, `features` alt dizinlerindeki modülleri kullanarak işlevselliği sağlar.  Bu katman,  `CallableModule` sınıfını kullanarak kendisini çağrılabilir bir modül gibi gösterir. Bu, doğrudan `import summarizer; summarizer()`  şeklinde çağrılmasını sağlar.
+
+* **İşlevsellik Katmanı (`src/main`, `features`):**  `src/main`  asıl özetleme işlevini (`_summarizer` fonksiyonu) içerir (dosyanın kesik olduğu için içeriği tam olarak bilinmiyor). `features` alt dizini ise,  parametre kontrolü (`parameter_checker`), ekran görüntüsü alma (`screenshot`), terminal komutları (`terminal_commands`) ve GUI (`gui_installer`) gibi çeşitli özellik modüllerini barındırır.
+
+* **Alt Katmanlar (diğer kütüphaneler):**  `os`, `sys`, `argparse`, `pathlib`, `types` gibi standart Python kütüphaneleri ve projede kullanılan diğer kütüphaneler (kesik kod nedeniyle tam listesi bilinmiyor).
+
+Mimari değişiklik, esas olarak giriş noktasının (entry point) ve komut satırı argümanlarının işlenmesinde iyileştirmeler yapılmış olmasından ibarettir.  `CallableModule` sınıfının kullanımı, kodu daha temiz ve daha kullanışlı hale getirir.  Kod organizasyonunda,  `features` alt dizinindeki modüler yaklaşım,  kodu daha okunabilir ve bakımı daha kolay hale getirir.
+
+
+### 2. İŞLEVSEL ETKİ:
+
+Değişiklikler,  `summarizer` komutunun işlevselliğine önemli eklemeler getirmiştir:
+
+* **Eklenen Özellikler:**  `summarizer ss chrome`, `summarizer ss firefox`, `summarizer ss code` gibi uygulamaya özgü ekran görüntüsü alma komutları eklenmiştir.  `summarizer --gui`  ile GUI tabanlı bir konfigürasyon arabirimi kullanılabilir hale getirilmiştir. `summarizer --setup` ile interaktif bir kurulum seçeneği eklenmiştir.
+
+* **Değiştirilen Özellikler:** Eski sürümde muhtemelen sadece temel özetleme fonksiyonu bulunuyordu. Bu yeni sürümde  ekran görüntüsü alma ve kurulum işlemleri gibi ek fonksiyonlar eklendi.
+
+* **Kaldırılan Özellikler:** Kesik kod nedeniyle bu konuda bilgi verilmemiştir.
+
+Kullanıcı deneyimi önemli ölçüde iyileştirilmiştir.  Kullanıcılar artık daha fazla komut ve seçenek ile daha esnek bir şekilde çalışabilirler.  Komut satırı arayüzü daha zenginleştirilmiştir ve GUI seçeneği sunulması kullanıcı dostu bir deneyim sağlamaktadır.
+
+Performans, güvenlik ve güvenilirlik konuları kodun kesik olması nedeniyle tam olarak değerlendirilemez. Ancak, eklenen özellikler performansı biraz etkileyebilir. Güvenlik ve güvenilirlik açısından, kullanılan kütüphanelerin güvenilirliğine bağlıdır.
+
+
+### 3. TEKNİK DERINLIK:
+
+* **Tasarım Desenleri:**  Modüler tasarım deseni açıkça kullanılmıştır.  `features` alt dizini, farklı işlevleri ayrı modüller halinde düzenler.  `argparse` modülünün kullanımı da iyi bir tasarım pratiğidir. `CallableModule` sınıfının kullanımı ise yeni bir yaklaşım ekler. Bu sınıf, modülü çağrılabilir yaparak kullanımı basitleştirir.
+
+* **Kod Kalitesi ve Sürdürülebilirlik:**  Kod, genel olarak okunaklı ve iyi yapılandırılmıştır.  Modüler yaklaşım, kodu daha sürdürülebilir hale getirir.  Ancak,  TODO yorumlarının bolluğu,  gelecekte yapılması gereken geliştirmeleri gösterir ve teknik borcun bir göstergesidir.
+
+* **Yeni Bağımlılıklar:**  Kesik kod nedeniyle yeni eklenen bağımlılıkların tam listesi belirlenememiştir. Ancak, GUI'nin eklenmesiyle ek bağımlılıklar eklenmiş olması muhtemeldir.
+
+
+### 4. SONUÇ YORUMU:
+
+Bu değişiklikler, `summarizer` aracının işlevselliğini ve kullanıcı deneyimini önemli ölçüde geliştirmiştir.  Eklenen ekran görüntüsü alma ve GUI seçenekleri, aracı daha kullanışlı ve çok yönlü hale getirmiştir. Modüler tasarım, kodu daha sürdürülebilir ve ölçeklenebilir hale getirmiştir.
+
+Ancak, TODO yorumlarında belirtilen geliştirmelerin yapılması, projenin uzun vadeli değerini artıracaktır.  Özellikle AI destekli bir "Summarizer Eye" özelliğinin eklenmesi, projenin geleceği için büyük bir potansiyel sunmaktadır.  Bu değişiklikler, teknik borcu kısmen azaltırken (modüler tasarım sayesinde),  TODO listesindeki geliştirmeler için yeni teknik borç eklemiştir.  Gelecekteki geliştirmeler için sağlam bir temel oluşturulmuştur.  Özellikle,  sesli komut sistemi ve otomatik güncelleme gibi özellikler, projenin daha da gelişmesi için önemli adımlar olacaktır.
+
+**Değişen Dosyalar:** summarizer.py
+**Etki Seviyesi:** High
+**Değişiklik Tipi:** Other
+**Satır Değişiklikleri:** +339
+**Etiketler:** gui, summarizer, api
+
+---
+
 ## 2025-06-20 00:55:47
 
 ### 1. YAPISAL ANALİZ:
