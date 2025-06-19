@@ -134,6 +134,18 @@ class VersionManager:
 
         return new_version, current_version, increment_type
 
+    def auto_increment(self, increment_type: str) -> Tuple[str, str]:
+        """
+        Increments the version based on the provided type ('major', 'minor', 'patch').
+        Returns the new version and the old version.
+        """
+        old_version = self.get_current_version()
+        new_version = self.increment_version(old_version, increment_type)
+        logger.info(
+            f"Incrementing version: {old_version} -> {new_version} (type: {increment_type})"
+        )
+        return new_version, old_version
+
     def auto_increment_based_on_changes(self, changed_files: list, impact_level: str) -> str:
         """Auto-increment version based on change analysis"""
         current_version_before_update = self.get_current_version() # Get version before any changes

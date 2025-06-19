@@ -302,28 +302,24 @@ def update_changelog(project_root: Optional[Path] = None):
     try:
         print("   🏷️  Analyzing changes for version management...")
         version_manager = VersionManager(project_root)
-        
-        # Auto-increment version based on change impact
-        current_version = version_manager.get_current_version()
-        
-        # Determine increment type based on impact level and change analysis
-        increment_type = "patch"  # Default
+        git_manager = GitManager(project_root)
+
+        # Determine increment type based on impact level ONLY. This is the single source of truth.
+        increment_type = "patch"
         if impact_level == ImpactLevel.CRITICAL:
             increment_type = "major"
         elif impact_level == ImpactLevel.HIGH:
-            increment_type = "minor" 
+            increment_type = "minor"
         elif impact_level == ImpactLevel.MEDIUM:
             increment_type = "minor"
-        else:
-            increment_type = "patch"
-            
-        # Auto-increment based on changes for better version management
-        new_version, old_version, _ = version_manager.auto_increment_based_on_branch()
-        
+
+        # Use the new centralized incrementer
+        new_version, old_version = version_manager.auto_increment(increment_type)
+
         if new_version != old_version and version_manager.update_version_in_files(new_version):
-            print(f"   📈 Version updated: {current_version} → {new_version}")
+            print(f"   📈 Version updated: {old_version} → {new_version}")
             print(f"   🎯 Change Impact: {impact_level.value} ({increment_type} increment)")
-            
+
             # Get version codename
             major, minor, _ = version_manager.parse_version(new_version)
             codename = version_manager._get_version_codename(major, minor, new_version, gemini_client)
@@ -336,12 +332,26 @@ def update_changelog(project_root: Optional[Path] = None):
                 print(f"   🏷️  Git tag created: v{new_version}")
             except Exception as tag_error:
                 print(f"   ⚠️  Could not create git tag: {tag_error}")
-                
+
+            # Pre-commit CI checks for main/develop branches
+            current_branch_name = git_manager.get_current_branch()
+            if current_branch_name in ['main', 'develop', 'staging']:
+                print(f"\n   🔬 Running pre-commit CI checks for '{current_branch_name}' branch...")
+                if not _run_ci_checks(project_root):
+                    if not _ask_user("   ⚠️  CI checks failed. Continue with commit anyway?"):
+                        print("   ⚪️ Commit aborted by user.")
+                        # Revert version bump if commit is aborted
+                        version_manager.update_version_in_files(old_version)
+                        print(f"   ⏪ Version reverted to {old_version}.")
+                        return
+                    print("   ⚪️ CI checks failed, but proceeding with commit as requested.")
+                else:
+                    print("   ✅ Pre-commit CI checks passed.")
+
             # Commit changes to git
-            git_manager = GitManager(project_root)
             if not git_manager.is_working_directory_clean():
                 if _ask_user("   ❔ Summarizer updated project files. Commit these maintenance changes?"):
-                    commit_message = f"chore(summarizer): Update project to v{new_version}"
+                    commit_message = f"chore(summarizer): Auto-update to v{new_version}\n\n{summary}"
                     if not (git_manager.stage_all() and git_manager.commit(commit_message)):
                         print("   ❌ Failed to commit maintenance changes. Aborting next git actions.")
                         return
@@ -360,12 +370,6 @@ def update_changelog(project_root: Optional[Path] = None):
             elif branch_for_pr in ['main', 'develop', 'staging']:
                 # This is a core branch. After a maintenance commit, we should just push.
                 if _ask_user(f"   ❔ Push the maintenance commit directly to '{branch_for_pr}'?"):
-                    print("   🚀 Running pre-push CI checks...")
-                    if not _run_ci_checks(project_root):
-                        if not _ask_user("   ⚠️  CI checks failed. Push anyway?"):
-                            print("   ⚪️ Push aborted by user.")
-                            return
-                    
                     print(f"   🚀 Pushing changes to '{branch_for_pr}'...")
                     success, output = git_manager.push(branch_for_pr)
                     if success:
