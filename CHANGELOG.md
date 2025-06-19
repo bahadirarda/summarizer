@@ -3,6 +3,49 @@
 Bu dosya otomatik olarak generate edilmiştir.
 Düzenlemeler için `changelog.json` dosyasını kullanın.
 
+## 2025-06-20 00:53:37
+
+### 1. YAPISAL ANALİZ:
+
+Değişiklikler iki ana dosyayı etkilemiştir: `scripts/run_ci_checks.py` ve `src/utils/changelog_updater.py`.  Bu, projenin "scripts" (komut dosyaları) ve "src/utils" (yardımcı araçlar) katmanlarını etkilemektedir.  `run_ci_checks.py` dosyası, CI/CD pipeline'ının bir parçasıdır ve proje derleme ve test süreçlerini yönetir.  `changelog_updater.py` ise, proje sürüm güncellemelerini ve değişiklik kayıtlarını yönetmek için kullanılan yardımcı bir araçtır.
+
+Mimari açıdan, `run_ci_checks.py` dosyasındaki değişiklikler, CI/CD sürecinin daha sağlam ve güvenilir hale getirilmesine odaklanmıştır. Özellikle, build aşamasından sonra oluşturulan eserlerin kontrolü eklenmiştir.  Eğer "dist" dizininde herhangi bir eser bulunmazsa, script artık hata vererek durmaktadır.  Bu, bir build hatasının sessizce geçmesini önleyerek, olası sorunların erken tespitini sağlar.  `changelog_updater.py` dosyasındaki değişiklikler ise daha çok bu yardımcı fonksiyonun kapsamını genişletmektedir. Yeni fonksiyonlar eklenerek değişiklik kaydı yönetimi daha detaylı hale gelmiştir.
+
+Kod organizasyonu açısından, her iki dosya da iyi yapılandırılmış ve okunabilirdir. Fonksiyonlar mantıksal olarak gruplandırılmış ve açıklayıcı isimler kullanılmıştır. `changelog_updater.py` dosyasında bulunan fonksiyonların sayısındaki artış, kodun modülerliğini ve sürdürülebilirliğini olumlu etkileyebilir ancak aynı zamanda yönetimini zorlaştırabilir. Bu durum, daha fazla fonksiyonun eklenmesiyle ilerleyen zamanlarda modülleri daha küçük parçalara ayırmayı gerektirebilir.
+
+
+### 2. İŞLEVSEL ETKİ:
+
+`scripts/run_ci_checks.py` dosyasındaki değişiklikler, CI/CD sürecinin işlevselliğini artırmıştır.  Özellikle, build aşamasından sonra oluşturulan eserlerin varlığının kontrol edilmesi eklenmiştir.  Bu, hatalı bir build'in fark edilmemesini önler.  Test başarısızlığı durumunda script artık daha belirgin bir hata mesajı vererek, daha iyi hata ayıklama olanağı sunar.
+
+`src/utils/changelog_updater.py` dosyasındaki değişiklikler, changelog oluşturma ve güncelleme sürecini zenginleştirmiştir.  Yeni fonksiyonlar eklenerek, proje türünün otomatik tespiti, değişikliklerin etki seviyesinin otomatik belirlenmesi ve daha detaylı istatistiklerin toplanması gibi özellikler eklenmiştir. Kullanıcı deneyimi açısından, changelog'ın daha detaylı ve okunabilir hale gelmesi beklenebilir.
+
+Performans, güvenlik veya güvenilirlik açısından doğrudan bir etki gözlemlenmemektedir.  Ancak, CI sürecinin daha kapsamlı hale gelmesi, uzun vadede hataların daha erken tespit edilmesine ve daha kaliteli bir yazılım üretilmesine katkıda bulunabilir.
+
+
+### 3. TEKNİK DERINLIK:
+
+`run_ci_checks.py` dosyasında, `subprocess` modülü kullanılarak komut çalıştırma ve çıktının işlenmesi gerçekleştirilmiştir.  Hata kontrolü mekanizmaları iyileştirilmiştir.  `changelog_updater.py` dosyasında ise,  JsonChangelogManager gibi sınıflar ve fonksiyonlar kullanılarak değişiklik kaydı yönetimi yapılmıştır.  `_detect_impact_level` fonksiyonunda basit bir kural tabanlı sistem kullanılmıştır. Proje türü tespiti için ise basit bir dosya varlığı kontrolü metodu kullanılmıştır.
+
+Kod kalitesi ve sürdürülebilirlik açısından, fonksiyonların ayrılması ve açıklayıcı isimlerin kullanılması olumlu bir etki yaratmıştır. Ancak, `changelog_updater.py` dosyasının büyük boyutu ve fonksiyon sayısındaki artış, gelecekte kodun yönetimini zorlaştırabilir.  Yeni bağımlılık veya teknolojiler eklenmemiştir.
+
+
+### 4. SONUÇ YORUMU:
+
+Bu değişikliklerin uzun vadeli değeri, daha sağlam bir CI/CD süreci ve daha detaylı bir changelog yönetimi sunmasıdır.  Bu, hataların erken tespit edilmesine, daha kaliteli bir yazılım üretilmesine ve geliştiricilerin daha verimli çalışmasına katkıda bulunabilir.
+
+Projenin teknik borcu, build aşamasındaki ek kontrol mekanizmaları sayesinde azalmıştır.  Hata tespit sürecinin iyileştirilmesi, gelecekteki hataları önlemeye yardımcı olacaktır.
+
+Gelecekteki geliştirmelere hazırlık olarak, `changelog_updater.py` dosyasının modüler yapısı daha fazla fonksiyon eklenmesine imkan tanır.  Ancak, dosyanın büyüklüğü ve karmaşıklığı göz önünde bulundurularak, gelecekte modüllerin daha küçük parçalara ayrılması düşünülmelidir.  Ayrıca, `_detect_impact_level` ve `_detect_project_type` fonksiyonlarında kullanılan basit kontrol mekanizmaları, daha gelişmiş algoritmalarla değiştirilebilir.  Örneğin, proje türü tespiti için daha kapsamlı bir analiz veya makine öğrenmesi tabanlı bir yaklaşım kullanılabilir.
+
+**Değişen Dosyalar:** scripts/run_ci_checks.py, src/utils/changelog_updater.py
+**Etki Seviyesi:** High
+**Değişiklik Tipi:** Feature
+**Satır Değişiklikleri:** +91 -57
+**Etiketler:** changelog-updater, run-ci-checks, utils, scripts, manager, api
+
+---
+
 ## 2025-06-20 00:51:07
 
 ### 1. YAPISAL ANALİZ:
