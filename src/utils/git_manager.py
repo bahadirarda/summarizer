@@ -148,6 +148,25 @@ class GitManager:
 
         return None
 
+    def has_diff_between_branches(self, base_branch: str, head_branch: str) -> bool:
+        """Checks if there is a diff between two branches."""
+        try:
+            # Use --quiet to just get the exit code. 1 means diff exists, 0 means no diff.
+            subprocess.run(
+                ["git", "diff", "--quiet", f"{base_branch}..{head_branch}"],
+                cwd=self.project_root,
+                check=True,
+                capture_output=True,
+            )
+            # If check=True doesn't raise an exception, it means exit code was 0 (no diff)
+            return False
+        except subprocess.CalledProcessError:
+            # Exit code was non-zero, meaning a diff exists.
+            return True
+        except Exception as e:
+            logger.error(f"Error checking diff between branches: {e}")
+            return False # Assume no diff on other errors
+
     def stage_all(self) -> bool:
         """Stages all changes in the working directory.."""
         success, _ = self._run_git_command(["add", "."])

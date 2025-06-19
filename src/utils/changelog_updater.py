@@ -6,6 +6,7 @@ import re
 import sys
 import subprocess
 import urllib.parse
+import time
 
 from .file_tracker import (
     get_changed_files_since_last_run,
@@ -65,9 +66,15 @@ def _handle_pull_request_flow(project_root: Path, git_manager: GitManager, curre
         print("   ⚪️ Pull request creation skipped by user.")
         return
 
-    # Fetch latest updates from remote to ensure local info is up-to-date
-    # This is the key to solving the 'No commits between' race condition.
+    # Give the remote a moment to process the push
+    print("   ⏱️  Synchronizing with remote repository...")
+    time.sleep(3) 
     git_manager.fetch_updates()
+
+    # Final check: ensure there's a diff before creating the PR
+    if not git_manager.has_diff_between_branches(f"origin/{target_branch}", f"origin/{current_branch}"):
+        print(f"   ⚪️ No new unique commits found between '{current_branch}' and '{target_branch}'. No PR needed.")
+        return
 
     print("   🤖 Generating AI-powered pull request details...")
     pr_title, new_pr_body = git_manager.generate_pull_request_details(pr_body, gemini_client)
@@ -144,6 +151,13 @@ def update_changelog(project_root: Optional[Path] = None):
         project_root = Path(__file__).resolve().parent.parent.parent
     
     git_manager = GitManager(project_root)
+
+    # --- SETUP VALIDATION ---
+    # Ensure the fundamental Git structure is in place before doing anything else.
+    if not git_manager.ensure_project_structure():
+        print("   ❌ Project setup is incomplete. Aborting summarizer.")
+        return
+
     json_manager = JsonChangelogManager(project_root)
     
     changed_files = get_changed_files_since_last_run(project_root)
