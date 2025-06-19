@@ -1,60 +1,61 @@
-# 🚀 Summarizer Framework
-> 📝 Metin özetleme ve analizinde kullanılan, modüler ve genişletilebilir bir Python framework'üdür.  Ekran görüntüsü alma, GUI yönetimi ve AI destekli özetleme gibi gelişmiş özellikler sunar.
+# 🚀 project.110620251156
+> Changelog yönetimi ve terminal komutu entegrasyonu ile geliştirilmiş,  çeşitli proje türlerini destekleyen bir web projesi.
 
 ## 📊 Proje Durumu
-Geliştirme aşamasında.  Son değişiklikler, kodun modülerliğini ve organizasyonunu önemli ölçüde artırmış, yeni özellikler eklemiş ve konfigürasyon yönetimini iyileştirmiştir.  Ancak, API anahtarlarının güvenli bir şekilde yönetilmesi ve büyük `if-else` blokları gibi bazı alanlarda iyileştirmelere ihtiyaç duyulmaktadır.
-
+Proje aktif geliştirme aşamasındadır.  Son değişiklikler, changelog oluşturma sürecinin otomasyonunu ve kullanıcı deneyimini iyileştirmeye odaklanmıştır.  Yeni bir terminal komutu sayesinde `summarizer.py` betiğine erişim kolaylaştırılmıştır.
 
 ## ✨ Özellikler
-- 💻 Komut satırı arayüzü
-- 📸 Ekran görüntüsü alma (Chrome, Firefox, Code)
-- ⚙️ GUI kurulum ve kaldırma
-- 📊 Sistem durumu gösterimi
-- 📄 Değişiklik günlüğü güncellemeleri
-- 🤖 Basit metin üretme (Gemini AI entegrasyonu)
-- 📝 Gelişmiş özetleme (Gelecek özellik: Summarizer Eye)
+* Changelog oluşturma ve yönetim araçları.
+* Farklı proje türlerini (web, Python, genel) otomatik olarak tespit etme.
+* Değişikliklerin etki seviyesini otomatik olarak belirleme.
+* `summarizer.py` betiğini sistem genelinde çalıştıran bir terminal komutu.
+* Gelişmiş hata yönetimi ve daha güvenilir komut güncelleme mekanizması.
 
 
 ## Değişen Dosyalar:
-`summarizer.py`, `features/parameter_checker.py`, `features/terminal_commands.py`, `features/__init__.py`, `features/screenshot.py`, `features/gui_installer.py`, `src/core/configuration_manager.py`, `src/utils/changelog_updater.py`, `src/services/gemini_client.py`
+`src/utils/changelog_updater.py`, `features/terminal_commands.py`, (dolaylı olarak) `src/utils/version_manager.py`
 
 
 ## ANALİZ GÖREVİ:
 
 ### 1. YAPISAL ANALİZ:
 
-- **Hangi sistem bileşenleri ve katmanlar etkilendi?**  `summarizer.py` (ana giriş noktası), `features` dizini altındaki modüller (özelliklere özgü işlevler), `src/core/configuration_manager.py` (konfigürasyon yönetimi), `src/utils/changelog_updater.py` (değişiklik günlüğü yönetimi) ve `src/services/gemini_client.py` (Gemini API entegrasyonu) etkilendi.  Değişiklikler, framework'ün ana iş mantığını, konfigürasyonunu ve yardımcı araçlarını kapsayan birden fazla sistem bileşenini ve katmanı etkilemiştir.
+- **Etkilenen Sistem Bileşenleri ve Katmanlar:** Değişiklikler esas olarak `src/utils/changelog_updater.py` ve `features/terminal_commands.py` dosyalarını etkilemiştir.  `changelog_updater.py`, `utils` katmanında yer alan ve `file_tracker`, `json_changelog_manager`, `readme_generator`, `version_manager`, `git_manager` modülleri ile etkileşim halinde olan bir yardımcı araçtır. `features/terminal_commands.py` ise ana iş mantığı katmanında yer alır ve sistem genelinde terminal komutu entegrasyonunu sağlar. `version_manager.py` dolaylı olarak etkilenmiştir, çünkü gelecekteki sürüm güncellemelerinde terminal komutunun da güncellenmesi gerekebilir.
 
-- **Mimari değişikliklerin etkisi nedir?**  Esas olarak, özelliklerin daha modüler ve organize bir şekilde sunulmasına odaklanılmıştır.  `features` dizini,  *Yüksek Kohezyon, Düşük Bağlantı* prensibine uygun bir mimari oluşturarak farklı özellikleri bağımsız modüllere ayırmıştır.  Bu, kodun okunabilirliğini, bakımı ve test edilebilirliğini artırır.  Konfigürasyon yönetimi de iyileştirilerek konfigürasyon dosyalarının proje kök dizini altında `.summarizer` adlı bir dizinde tutulması sağlanmıştır. Bu, konfigürasyon verilerinin kaynak kodundan ayrılmasını ve daha düzenli bir proje yapısını sağlar.
+- **Mimari Değişikliklerin Etkisi:** Mimari değişiklikler minimaldir.  Yeni işlevsellikler mevcut mimariye eklenmiştir; temel mimari yapısında bir değişiklik yoktur.  `_detect_project_type` fonksiyonunun eklenmesi, `changelog_updater.py`'nin farklı proje türlerine uyum sağlama yeteneğini artırmıştır, ancak bu mimariyi temelde değiştirmez.  Terminal komutu entegrasyonu da mevcut mimariye yeni bir işlevsellik ekler.
 
-- **Kod organizasyonunda hangi iyileştirmeler yapıldı?**  `features` dizini altındaki modülleme ile kod daha organize ve anlaşılır hale getirilmiştir.  `summarizer.py`'deki argüman işleme mantığı iyileştirilmiş,  `changelog_updater.py` ve `gemini_client.py` dosyalarında fonksiyonlar daha iyi ayrıştırılmış ve isimleri daha açıklayıcı hale getirilmiştir.  Konfigürasyon dosyalarının konumunun daha net ve tutarlı hale getirilmesi de önemli bir iyileştirmedir.
+- **Kod Organizasyonundaki İyileştirmeler:** `_detect_project_type` fonksiyonunun eklenmesi, changelog oluşturma sürecinin daha esnek ve sürdürülebilir olmasını sağlayarak kod organizasyonunu iyileştirmiştir.  Bu fonksiyon, projenin türünü otomatik olarak tespit ederek manuel konfigürasyon ihtiyacını azaltır.  `features/terminal_commands.py` dosyasında, terminal komutu oluşturma ve kurulum mantığının tek bir yerde toplanması ve hata yönetiminin iyileştirilmesi de kod organizasyonuna katkıda bulunmuştur.
 
 
 ### 2. İŞLEVSEL ETKİ:
 
-- **Hangi özellikler eklendi, değiştirildi veya kaldırıldı?**  `screenshot` (ve `ss` kısaltması) komutu ile ekran görüntüsü alma özelliği eklenmiştir.  `--status` komutu ile sistem durumu gösterimi eklenmiştir.  `--setup`, `--gui`, `--install_gui`, `--install_terminal`, `--uninstall_terminal` komutları ile konfigürasyon ve GUI/terminal kurulum/kaldırma işlevleri eklenmiş veya iyileştirilmiştir.  `gemini_client.py` dosyasına basit metin üretme özelliği eklenmiş ve `changelog_updater.py` dosyasındaki değişiklik günlüğü işlevleri geliştirilmiştir.
+- **Eklenen Özellikler:**  `summarizer.py` betiği için sistem genelinde çalışan bir terminal komutu eklenmiştir.  `changelog_updater.py`'de ise projenin türünü otomatik olarak tespit etme özelliği eklenmiştir.
 
-- **Kullanıcı deneyimi nasıl etkilendi?**  Yeni komutların eklenmesiyle kullanıcılar daha fazla seçeneğe sahip olmuştur.  Ekran görüntüsü alma ve sistem durumu gösterimi özellikleri kullanıcı deneyimini iyileştirmiştir.  Konfigürasyon yönetiminin iyileştirilmesi de kullanıcı deneyimini olumlu etkilemiştir.
+- **Değiştirilen Özellikler:**  `summarizer` terminal komutunun kurulum ve güncelleme işlemleri iyileştirilmiştir. Daha önce farklı işletim sistemleri için ayrı komut dosyaları oluşturulurken, şimdi tek bir Python betiği kullanılmaktadır.
 
-- **Performans, güvenlik veya güvenilirlik üzerindeki etkiler?**  Performans üzerindeki doğrudan etki minimaldir.  Ancak, modüler yapı gelecekteki bakımı ve geliştirmeyi kolaylaştırarak dolaylı olarak güvenilirliği artırabilir.  Güvenlik açısından, API anahtarlarının komut satırı üzerinden alınması büyük bir güvenlik açığıdır.  Değişiklik günlüğü ve hata yönetimi iyileştirmeleri güvenilirliği artırmıştır.
+- **Kaldırılan Özellikler:**  Belirgin bir özellik kaldırılması yoktur.
+
+- **Kullanıcı Deneyimi:** Kullanıcı deneyimi önemli ölçüde iyileşmiştir.  `summarizer` betiğini çalıştırmak artık çok daha kolaydır ve changelog'lar daha doğru ve ilgilidir.
+
+- **Performans, Güvenlik veya Güvenilirlik:**  `_detect_project_type` fonksiyonunun performans üzerindeki etkisi ihmal edilebilir düzeydedir.  Terminal komutu güncelleme mekanizmasının iyileştirilmesi güvenilirliği artırır.  Güvenlik üzerinde doğrudan bir etkisi yoktur.
 
 
-### 3. TEKNİK DERINLIK:
+### 3. TEKNİK DERİNLİK:
 
-- **Hangi tasarım desenleri uygulandı veya değiştirildi?**  Modülleme prensibi açıkça uygulanmıştır.  `GeminiClient` sınıfı singleton deseninin özelliklerini göstermektedir.  MVC tarzı bir yaklaşımın izleri `JsonChangelogManager` sınıfında görülebilir.
+- **Tasarım Desenleri:** Belirgin bir tasarım deseni değişikliği veya yeni bir tasarım deseni uygulanması gözlenmemiştir. Ancak,  `JsonChangelogManager` sınıfının kullanımı, MVC veya benzeri bir mimari yaklaşımının varlığına işaret edebilir.  `_detect_project_type` fonksiyonunun kullanımı,  bir strateji deseni uygulaması olarak düşünülebilir (farklı proje türleri için farklı stratejiler uygulanabilir).
 
-- **Kod kalitesi ve sürdürülebilirlik nasıl gelişti?**  Kodun daha organize ve okunabilir hale getirilmesi kod kalitesini artırmıştır.  Modüler tasarım ve daha iyi hata yönetimi sürdürülebilirliği iyileştirmiştir.  Ancak, büyük `if-else` blokları potansiyel kod kokusudur ve iyileştirilmelidir.
+- **Kod Kalitesi ve Sürdürülebilirlik:**  `_detect_project_type` fonksiyonunun eklenmesi ve terminal komutu güncelleme mekanizmasının iyileştirilmesi kod kalitesini ve sürdürülebilirliği artırmıştır. Kod daha modüler, okunabilir ve gelecekteki değişikliklere daha uyumlu hale gelmiştir.
 
-- **Yeni bağımlılıklar veya teknolojiler eklendi mi?**  Yeni bağımlılıklar eklenmemiştir.  Ancak,  `changelog_updater.py` muhtemelen changelog yönetimi için bir kütüphane kullanmaktadır ve `gemini_client.py` Gemini API kütüphanesine bağımlıdır.
+- **Yeni Bağımlılıklar veya Teknolojiler:**  Yeni bir bağımlılık veya teknoloji eklenmemiştir.
 
 
 ### 4. SONUÇ YORUMU:
 
-- **Bu değişikliklerin uzun vadeli değeri ve etkisi nedir?**  Kodun daha sürdürülebilir ve genişletilebilir hale getirilmesi.  Modüler tasarım, yeni özelliklerin eklenmesini ve mevcut özelliklerin bakımını kolaylaştırır.
+- **Uzun Vadeli Değer ve Etki:** Bu değişiklikler, changelog oluşturma ve yönetiminin otomasyonunu artırarak, projenin uzun vadeli sürdürülebilirliğini ve geliştirilebilirliğini önemli ölçüde artırmıştır.  Kullanıcı deneyimi iyileştirilmiş, hata olasılığı azaltılmış ve gelecekteki geliştirmeler için sağlam bir temel oluşturulmuştur.
 
-- **Projenin teknik borcu nasıl etkilendi?**  Kodun daha organize hale getirilmesiyle teknik borç azalmıştır, ancak `summarizer.py`'deki büyük `if-else` bloğu ve API anahtarlarının güvensiz yönetimi hala iyileştirilmeyi beklemektedir.
+- **Projenin Teknik Borcunun Etkilenmesi:**  Projenin teknik borcu,  daha temiz ve daha iyi yapılandırılmış kod sayesinde azalmıştır.  Otomatik proje türü tespiti, gelecekteki proje türü eklemelerini kolaylaştırarak teknik borcun artmasını önlemeye yardımcı olacaktır.
 
-- **Gelecekteki geliştirmelere nasıl hazırlık yapıldı?**  Modüler mimari ve daha iyi organize edilmiş kod yapısı, gelecekteki geliştirmelere hazırlık oluşturmuştur.  Ancak, AI destekli özelliklerin (Summarizer Eye) eklenmesi için daha detaylı planlama ve mimari tasarıma ihtiyaç vardır.  API anahtarlarının güvenli yönetimi de acil bir ihtiyaçtır.
+- **Gelecekteki Geliştirmelere Hazırlık:**  Farklı proje türlerini destekleyen mimari,  gelecekteki özellik eklemelerini daha kolay hale getirir.  Terminal komutu entegrasyonu,  daha fazla terminal komutu eklenmesine olanak tanır.  Genel olarak,  sistem daha modüler ve genişletilebilir bir hale getirilmiştir.
 
 ## 🛠️ Kurulum (Installation)
 
@@ -215,7 +216,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**Last updated**: June 20, 2025 by Summarizer Framework v8.3.9
+**Last updated**: June 20, 2025 by Summarizer Framework v8.4.0
 *This README is automatically generated and updated based on project activity.*
 
 > *"Automatically maintained with AI-powered analysis"*
