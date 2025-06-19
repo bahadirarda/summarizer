@@ -178,29 +178,59 @@ class GitManager:
         return success
 
     def ensure_project_structure(self) -> bool:
-        """Interactively ensures the git repository and branch structure are set up correctly."""
+        """Interactively ensures the git repository and branch structure are set up correctly on local and remote."""
+        print("🔧 Checking project structure...")
+
         if not self.is_git_repository():
-            choice = input(
-                "   > This project is not a Git repository. Initialize now? (y/n): "
-            ).lower()
-            if choice == "y":
-                if not self.initialize_repository():
-                    return False
-            else:
+            if input("   > This project is not a Git repository. Initialize now? (y/n): ").lower() != 'y':
+                print("   ⚪️ Git setup skipped. Summarizer cannot proceed without a Git repository.")
                 return False
+            if not self.initialize_repository():
+                print("   ❌ Failed to initialize Git repository. Aborting.")
+                return False
+            print("   ✅ Git repository initialized.")
 
         existing_branches = self.get_existing_branches()
         source_branch = "main" if "main" in existing_branches else "master"
-        missing_branches = self.core_branches - set(existing_branches)
 
+        if not source_branch in existing_branches:
+             print(f"   ❌ Critical error: No '{source_branch}' branch found.")
+             return False
+
+        missing_branches = self.core_branches - set(existing_branches)
         if missing_branches:
-            choice = input(
-                f"   > Missing standard branches: {', '.join(missing_branches)}. Create them from '{source_branch}'? (y/n): "
-            ).lower()
-            if choice == "y":
+            if input(f"   > Missing local branches: {', '.join(missing_branches)}. Create them from '{source_branch}'? (y/n): ").lower() == 'y':
                 for branch in missing_branches:
                     if branch != source_branch:
-                        self.create_branch(branch, from_branch=source_branch)
+                        print(f"   > Creating local branch '{branch}'...")
+                        if self.create_branch(branch, from_branch=source_branch):
+                            print(f"   ✅ Branch '{branch}' created.")
+                        else:
+                            print(f"   ❌ Failed to create branch '{branch}'.")
+                            return False
+            else:
+                print("   ⚪️ Branch setup skipped.")
+                return False
+
+        # Now, ensure all core branches exist on the remote
+        print("\n   🔎 Verifying remote branches on 'origin'...")
+        pushed_any = False
+        all_core_branches = self.get_existing_branches() # Re-check after creation
+        for branch in self.core_branches:
+            if branch in all_core_branches and not self.remote_branch_exists(branch):
+                if input(f"   > Branch '{branch}' is missing on the remote. Push it now? (y/n): ").lower() == 'y':
+                    print(f"   🚀 Pushing branch '{branch}' to remote...")
+                    success, _ = self.push(branch)
+                    if success:
+                        print(f"   ✅ Branch '{branch}' pushed successfully.")
+                        pushed_any = True
+                    else:
+                        print(f"   ❌ Failed to push branch '{branch}'.")
+        
+        if pushed_any:
+            self.fetch_updates()
+
+        print("✅ Project structure check complete.")
         return True
 
     def generate_pull_request_details(self, summary: str, gemini_client: Any) -> Tuple[str, str]:
