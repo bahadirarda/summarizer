@@ -86,7 +86,9 @@ def _handle_git_workflow(project_root: Path, git_manager: GitManager, new_versio
     current_branch_name = git_manager.get_current_branch()
     print(f"\n   📂 Preparing to manage changes on branch '{current_branch_name}'...")
 
-    if not git_manager.is_working_directory_clean():
+    if git_manager.is_working_directory_clean():
+        print("   ⚪️ No new local changes to commit. Checking for existing unpushed commits...")
+    else:
         git_manager.stage_all()
         print("   ✅ All local changes have been staged.")
 
@@ -101,8 +103,6 @@ def _handle_git_workflow(project_root: Path, git_manager: GitManager, new_versio
             print("   ❌ Failed to commit changes. Aborting.")
             return
         print("   ✅ Changes committed successfully.")
-    else:
-        print("   ⚪️ No local changes to commit.")
 
     if not _ask_user(f"   ❔ Push the changes on '{current_branch_name}' to remote?"):
         print("   ⚪️ Push skipped by user.")
@@ -111,14 +111,15 @@ def _handle_git_workflow(project_root: Path, git_manager: GitManager, new_versio
     print(f"   🚀 Pushing changes to '{current_branch_name}'...")
     push_success, push_output = git_manager.push(current_branch_name)
 
-    if not push_success and "already up-to-date" not in push_output:
+    if not push_success:
         print(f"   ❌ Push failed. Git Error:\n{push_output}")
         return
     
     if "already up-to-date" in push_output or "up to date" in push_output:
-        print(f"   ⚪️ Branch is already up-to-date. No new commits were pushed.")
-    else:
-        print(f"   ✅ Successfully pushed new changes to '{current_branch_name}'.")
+        print(f"   ⚪️ Branch is already up-to-date with the remote. No new PR is needed.")
+        return
+
+    print(f"   ✅ Successfully pushed new changes to '{current_branch_name}'.")
 
     pr_target_map = {
         'feature/': 'develop', 'bugfix/': 'develop', 'develop': 'staging', 

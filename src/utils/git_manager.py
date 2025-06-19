@@ -230,34 +230,38 @@ class GitManager:
         self, title: str, body: str, base_branch: str, head_branch: str
     ) -> Optional[str]:
         """Creates a pull request on GitHub using the 'gh' CLI and returns the PR URL."""
-        # Ensure gh is installed
         success, _ = self._run_external_command(["gh", "--version"])
         if not success:
-            print(
-                "   ⚠️  GitHub CLI ('gh') not found. Cannot create pull request automatically."
-                "\n   To enable, install from: https://cli.github.com"
-            )
+            print("   ⚠️  GitHub CLI ('gh') not found. Cannot create pull request automatically.")
+            print("   To enable, install from: https://cli.github.com")
             return None
 
         command = [
-            "gh",
-            "pr",
-            "create",
-            "--title",
-            title,
-            "--body",
-            body,
-            "--base",
-            base_branch,
-            "--head",
-            head_branch,
+            "gh", "pr", "create",
+            "--title", title,
+            "--body-file", "-",  # Read body from stdin
+            "--base", base_branch,
+            "--head", head_branch,
         ]
-        success, output = self._run_external_command(command)
-        if success:
-            # The output of a successful `gh pr create` is the URL of the new PR
-            return output
-        else:
-            logger.error(f"Failed to create pull request. Raw output:\n{output}")
+        
+        try:
+            # Use subprocess.run directly to pass the body via stdin
+            process = subprocess.run(
+                command,
+                input=body,
+                cwd=self.project_root,
+                capture_output=True,
+                text=True,
+                check=True,
+                encoding="utf-8",
+            )
+            return process.stdout.strip()
+        except subprocess.CalledProcessError as e:
+            err_msg = e.stderr.strip()
+            logger.error(f"Failed to create pull request. Raw output:\n{err_msg}")
+            # Provide more specific feedback if possible
+            if "No commits between" in err_msg:
+                print("   ❌ No new commits found to create a Pull Request.")
             return None
 
     def checkout(self, branch_name: str) -> bool:
