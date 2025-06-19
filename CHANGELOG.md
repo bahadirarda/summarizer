@@ -3,6 +3,43 @@
 Bu dosya otomatik olarak generate edilmiştir.
 Düzenlemeler için `changelog.json` dosyasını kullanın.
 
+## 2025-06-20 01:09:18
+
+### 1. YAPISAL ANALİZ:
+
+Değişiklikler sadece `src/core/configuration_manager.py` dosyasını etkilemiştir. Bu dosya, uygulamanın konfigürasyon yönetimi için sorumludur.  Sistemin diğer bileşenleri veya katmanları doğrudan etkilenmemiştir.  Ancak, konfigürasyon yönetimindeki değişiklikler, konfigürasyon verilerine bağlı olan tüm sistem bileşenlerini dolaylı olarak etkileyebilir.
+
+Mimari değişiklik, konfigürasyon dosyalarının ve dizininin belirlenmesinde gerçekleşmiştir.  Önceki versiyonda konfigürasyon dizininin nasıl belirlendiği kodda açıkça belirtilmemiştir (kodun kesilmiş kısmı nedeniyle).  Ancak, yeni versiyonda, eğer kullanıcı tarafından bir `config_dir` sağlanmazsa, proje kök dizini altında `.summarizer` adlı bir dizin oluşturulmakta ve konfigürasyon dosyaları bu dizinin altına yerleştirilmektedir. Bu, konfigürasyon dosyalarının projenin kaynak kodundan ayrılmasını ve daha düzenli bir proje yapısını sağlamayı amaçlamaktadır.  `.env` dosyası ise çalışma dizininde aranmaya devam etmektedir.
+
+Kod organizasyonunda iyileştirme, konfigürasyon dosyalarının ve dizininin belirlenmesinin daha açık ve tutarlı hale getirilmesiyle sağlanmıştır.  Proje kök dizininin belirlenmesi için daha sağlam bir yöntem kullanılmıştır ( `Path(__file__).resolve().parent.parent.parent` ).  Ayrıca, `.summarizer` dizinini otomatik olarak oluşturarak, kullanıcı hatalarının önüne geçilmeye çalışılmıştır.
+
+### 2. İŞLEVSEL ETKİ:
+
+Yeni özellikler eklenmemiştir, ancak konfigürasyon yönetimi işlevi önemli ölçüde iyileştirilmiştir.  Konfigürasyon dosyalarının konumu daha net bir şekilde tanımlanmıştır ve proje yapısıyla uyumludur.  Kullanıcı deneyimi, konfigürasyon dizininin otomatik olarak belirlenmesi ile biraz daha kolaylaşmıştır. Kullanıcı artık konfigürasyon dizinini manuel olarak belirtmek zorunda kalmayabilir. Ancak,  `GEMINI_API_KEY` gibi önemli API anahtarlarının girilmesi için hala etkileşimli bir komut satırı arayüzü kullanılmaktadır.  Bu kısım, güvenlik açısından risk taşımaktadır çünkü API anahtarları komut satırında düz metin olarak görüntülenmektedir.
+
+Performans üzerindeki etki ihmal edilebilir düzeydedir.  Güvenlik açısından,  API anahtarlarının komut satırı üzerinden alınması güvenlik açığı oluşturmaktadır.  Güvenilirlik, konfigürasyon dosyalarının proje kök dizini altında tutulmasıyla ve hata yönetimi ile artmıştır.
+
+### 3. TEKNİK DERINLIK:
+
+Özel bir tasarım deseni uygulanmamıştır veya değiştirilmemiştir.  Kod, nesne yönelimli programlama prensiplerini takip ederek `ConfigurationManager` sınıfı kullanılarak yapılandırılmıştır.
+
+Kod kalitesi ve sürdürülebilirlik, konfigürasyon yönetiminin daha modüler ve anlaşılır hale getirilmesiyle geliştirilmiştir.  Konfigürasyon dosyalarının konumunun açıkça tanımlanması ve proje yapısına uyumu, kodun sürdürülebilirliğini artırmaktadır.
+
+Yeni bir bağımlılık eklenmemiştir. `dotenv`, `logging`, `getpass` gibi mevcut bağımlılıklar kullanılmaya devam edilmektedir.
+
+### 4. SONUÇ YORUMU:
+
+Bu değişiklikler, konfigürasyon yönetimini daha sağlam, modüler ve sürdürülebilir hale getirerek uzun vadeli değere sahiptir.  Projenin teknik borcu, konfigürasyon yönetiminin iyileştirilmesiyle azalmıştır.  Konfigürasyon dosyalarının merkezi bir yerde tutulması, gelecekteki geliştirmeleri kolaylaştıracaktır.
+
+Ancak,  `GEMINI_API_KEY` gibi hassas bilgilerin komut satırı üzerinden alınması, önemli bir güvenlik açığıdır.  Bu, gelecekteki geliştirmelerde ele alınması gereken bir konudur.  Örneğin,  API anahtarlarının daha güvenli bir şekilde yönetilmesi için (örneğin, şifrelenmiş bir konfigürasyon dosyası veya bir gizli değişken yönetimi hizmeti kullanarak) iyileştirmeler yapılabilir.  Ayrıca, daha kapsamlı bir konfigürasyon şeması doğrulama işlemi eklemek de faydalı olabilir.
+
+**Değişen Dosyalar:** src/core/configuration_manager.py
+**Etki Seviyesi:** High
+**Değişiklik Tipi:** Config
+**Etiketler:** config, core, configuration-manager, api, manager
+
+---
+
 ## 2025-06-20 01:06:49
 
 ### 1. YAPISAL ANALİZ:
