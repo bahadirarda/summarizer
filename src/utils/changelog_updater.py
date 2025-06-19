@@ -347,24 +347,33 @@ def update_changelog(project_root: Optional[Path] = None):
                         return
 
             # Handle GitFlow and CI checks
-            branch_name = git_manager.get_current_branch()
+            branch_for_pr = git_manager.get_current_branch()
             target_branch = None
-            if branch_name.startswith(('feature/', 'bugfix/')): target_branch = 'develop'
-            elif branch_name == 'develop': target_branch = 'staging'
-            elif branch_name.startswith('release/'): target_branch = 'main'
-            elif branch_name.startswith('hotfix/'): target_branch = 'main'
+            if branch_for_pr.startswith(('feature/', 'bugfix/')): target_branch = 'develop'
+            elif branch_for_pr == 'develop': target_branch = 'staging'
+            elif branch_for_pr.startswith('release/'): target_branch = 'main'
+            elif branch_for_pr.startswith('hotfix/'): target_branch = 'main'
             
-            if branch_name == 'staging':
-                _handle_release_creation(project_root, git_manager, new_version)
-            elif target_branch:
-                _handle_pull_request_flow(project_root, git_manager, branch_name, target_branch, summary)
-            elif branch_name.startswith(('release/', 'hotfix/')):
-                match = re.match(r"^(release|hotfix)\/v(\d+\.\d+\.\d+)", branch_name)
-                if match and match.group(2) != new_version:
-                    new_branch_name = f"{match.group(1)}/v{new_version}"
-                    if _ask_user(f"   ❔ On old branch. Create and switch to '{new_branch_name}'?"):
-                        if git_manager.create_branch(new_branch_name):
-                            _write_next_command(project_root, f"git checkout {new_branch_name}")
+            if target_branch:
+                # This is a feature, bugfix, or release branch that needs a PR.
+                _handle_pull_request_flow(project_root, git_manager, branch_for_pr, target_branch, summary)
+            elif branch_for_pr in ['main', 'develop', 'staging']:
+                # This is a core branch. After a maintenance commit, we should just push.
+                if _ask_user(f"   ❔ Push the maintenance commit directly to '{branch_for_pr}'?"):
+                    print("   🚀 Running pre-push CI checks...")
+                    if not _run_ci_checks(project_root):
+                        if not _ask_user("   ⚠️  CI checks failed. Push anyway?"):
+                            print("   ⚪️ Push aborted by user.")
+                            return
+                    
+                    print(f"   🚀 Pushing changes to '{branch_for_pr}'...")
+                    success, output = git_manager.push(branch_for_pr)
+                    if success:
+                        print("   ✅ Successfully pushed to remote.")
+                    else:
+                        print(f"   ❌ Push failed. Git Error:\n{output}")
+            else:
+                 print(f"   ⚪️ No standard GitFlow action defined for branch '{branch_for_pr}'.")
 
     except Exception as e:
         print(f"   ⚠️  Version management failed: {e}")
