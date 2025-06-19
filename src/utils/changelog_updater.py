@@ -65,6 +65,10 @@ def _handle_pull_request_flow(project_root: Path, git_manager: GitManager, curre
         print("   ⚪️ Pull request creation skipped by user.")
         return
 
+    # Fetch latest updates from remote to ensure local info is up-to-date
+    # This is the key to solving the 'No commits between' race condition.
+    git_manager.fetch_updates()
+
     print("   🤖 Generating AI-powered pull request details...")
     pr_title, new_pr_body = git_manager.generate_pull_request_details(pr_body, gemini_client)
     print(f"   📝 PR Title: {pr_title}")

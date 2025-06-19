@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "summarizer-framework"
-version = "14.1.0"
+version = "14.2.0"
 description = "An AI-powered project assistant for code analysis, versioning, and workflow automation."
 readme = "README.md"
 requires-python = ">=3.9"

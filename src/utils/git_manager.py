@@ -226,6 +226,14 @@ class GitManager:
             logger.error(f"AI PR detail generation failed: {e}")
             return default_title, default_body
 
+    def fetch_updates(self, remote_name: str = "origin") -> bool:
+        """Fetches the latest updates from the remote repository."""
+        logger.info(f"Fetching latest updates from remote '{remote_name}'...")
+        success, output = self._run_git_command(["fetch", remote_name])
+        if not success:
+            logger.error(f"Failed to fetch updates from remote. Output:\n{output}")
+        return success
+
     def create_pull_request(
         self, title: str, body: str, base_branch: str, head_branch: str
     ) -> Optional[str]:
