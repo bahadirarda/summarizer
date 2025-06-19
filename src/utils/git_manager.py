@@ -155,8 +155,57 @@ class GitManager:
 
     def commit(self, message: str) -> bool:
         """Commits the staged changes with the given message."""
-        success, _ = self._run_git_command(["commit", "-m", message])
-        return success
+        # Use -F - to allow multi-line commit messages from stdin
+        command = ["git", "commit", "-F", "-"]
+        try:
+            process = subprocess.run(
+                command,
+                input=message,
+                cwd=self.project_root,
+                capture_output=True,
+                text=True,
+                check=True,
+                encoding="utf-8",
+            )
+            return True
+        except subprocess.CalledProcessError as e:
+            err_msg = e.stderr.strip()
+            logger.error(f"Command failed: {' '.join(command)}\nError: {err_msg}")
+            return False
+
+    def create_pull_request(
+        self, title: str, body: str, base_branch: str, head_branch: str
+    ) -> Optional[str]:
+        """Creates a pull request on GitHub using the 'gh' CLI and returns the PR URL."""
+        # Ensure gh is installed
+        success, _ = self._run_external_command(["gh", "--version"])
+        if not success:
+            print(
+                "   ⚠️  GitHub CLI ('gh') not found. Cannot create pull request automatically."
+                "\n   To enable, install from: https://cli.github.com"
+            )
+            return None
+
+        command = [
+            "gh",
+            "pr",
+            "create",
+            "--title",
+            title,
+            "--body",
+            body,
+            "--base",
+            base_branch,
+            "--head",
+            head_branch,
+        ]
+        success, output = self._run_external_command(command)
+        if success:
+            # The output of a successful `gh pr create` is the URL of the new PR
+            return output
+        else:
+            logger.error(f"Failed to create pull request. Raw output:\n{output}")
+            return None
 
     def ensure_project_structure(self) -> bool:
         """Interactively ensures the git repository and branch structure are set up correctly."""
