@@ -1,78 +1,66 @@
-# 🚀 project.110620251156 - Akıllı Özetleyici ve Ekran Görüntüsü Aracı
->  project.110620251156, web tabanlı bir özetleme aracıdır.  Komut satırı arayüzü (CLI) ve grafiksel kullanıcı arayüzü (GUI) seçenekleri sunar.  Belgelerin, web sayfalarının ve uygulamaların özetlenmesini ve ekran görüntülerinin alınmasını sağlar.
+# 🚀 Summarizer Framework
+> Akıllı özetleme ve ekran görüntüsü alma yetenekleri sunan, komut satırı ve GUI arayüzüne sahip güçlü bir framework.
+
 
 ## 📊 Proje Durumu
-Proje aktif geliştirme aşamasındadır.  Son değişiklikler, kullanıcı deneyimini iyileştirmeye, işlevselliği genişletmeye ve kod tabanını daha sürdürülebilir hale getirmeye odaklanmıştır.  Ancak, TODO listesindeki bazı geliştirmeler (AI destekli özetleme, sesli komut, otomatik güncelleme) henüz tamamlanmamıştır.
+Proje aktif geliştirme aşamasındadır.  Son değişiklikler komut satırı arayüzünün zenginleştirilmesini,  GUI kurulumunun iyileştirilmesini ve kodun modülerliğinin artırılmasını hedeflemiştir.  AI destekli özetleme özelliği (Gemini API entegrasyonu) mevcuttur ve sürekli iyileştirilmektedir.  Gelecek geliştirme planları arasında sesli komut desteği ve otomatik güncelleme bulunmaktadır.
+
 
 ## ✨ Özellikler
-* 📄  Belge ve web sayfası özetleme
-* 📸 Uygulamaya özgü ekran görüntüsü alma (Chrome, Firefox, Code vb.)
-* ⚙️ Komut satırı arayüzü (CLI)
-* 🖥️ Grafiksel kullanıcı arayüzü (GUI)
-* 🔄 Interaktif kurulum seçeneği (`--setup`)
-* 🛠️ Detaylı değişiklik kaydı (changelog)
+* 📄  Metin özetleme (AI destekli Gemini API entegrasyonu)
+* 📸 Uygulamaya özel ekran görüntüsü alma (`summarizer ss chrome`, `summarizer ss firefox`, `summarizer ss code`)
+* 💻 Komut satırı arayüzü (CLI)
+* 🖥️ Grafik kullanıcı arayüzü (GUI) kurulumu ve konfigürasyonu
+* ⚙️ Interaktif kurulum (`summarizer --setup`)
+* ✨  (Gelecek) Sesli komut sistemi
+* 🔄 (Gelecek) Otomatik güncelleme
 
 
 ## Değişen Dosyalar:
-`summarizer.py`, `scripts/run_ci_checks.py`, `src/utils/changelog_updater.py`  ve `features` dizini altındaki modüller ( `parameter_checker`, `screenshot`, `terminal_commands`, `gui_installer`).
+`install_gui.py`, `src/main.py`, `summarizer.py`, `src/core/configuration_manager.py`, `src/utils/git_manager.py`, `src/services/gemini_client.py`, `src/utils/changelog_updater.py`, `scripts/run_ci_checks.py`, `features` klasörü altındaki modüller (kesin içerik bilinmiyor ancak `parameter_checker`, `screenshot`, `terminal_commands`, `gui_installer` gibi modüller olduğu tahmin ediliyor).
+
 
 
 ## ANALİZ GÖREVİ:
 
 ### 1. YAPISAL ANALİZ:
 
-- **Etkilenen Bileşenler ve Katmanlar:** Değişiklikler, projenin üç ana katmanını etkilemiştir:
-    * **Giriş Katmanı:** `summarizer.py`, komut satırı argümanlarının işlenmesi ve modül çağrılarının yönetimiyle ilgili değişiklikler içermektedir. `CallableModule` sınıfının eklenmesi, giriş noktasının fonksiyonel bir arayüz olarak sunulmasını sağlamıştır.
-    * **İşlevsellik Katmanı:** `src/main` (özetleme işlevi), ve `features` dizini altındaki modüller (ekran görüntüsü alma, parametre kontrolü, GUI, terminal komutları) değişikliklerden etkilenmiştir. Özellikle `screenshot` komutu için `screenshot_command` fonksiyonunun ayrılması, kodun modülerliğini artırmıştır.
-    * **CI/CD ve Yardımcı Araçlar:** `scripts/run_ci_checks.py` dosyasındaki değişiklikler CI/CD pipeline'ını, `src/utils/changelog_updater.py` ise changelog yönetimini etkilemiştir.
+* **Etkilenen Bileşenler ve Katmanlar:** Değişiklikler, Summarizer Framework'ün neredeyse tüm katmanlarını etkilemiştir.  Giriş katmanı (`summarizer.py`), işlevsellik katmanı (`src/main.py`, `features` klasörü), konfigürasyon yönetimi (`src/core/configuration_manager.py`),  API entegrasyonu (`src/services/gemini_client.py`),  Git entegrasyonu (`src/utils/git_manager.py`),  değişiklik günlüğü güncelleme (`src/utils/changelog_updater.py`) ve CI süreçleri (`scripts/run_ci_checks.py`)  hepsi değişikliklerden etkilenmiştir. GUI kurulumu da (`install_gui.py`) güncellenmiştir.
 
+* **Mimari Değişikliklerin Etkisi:**  Mimari açısından bakıldığında, değişiklikler katmanlar arası etkileşimleri değiştirmiştir.  Özellikle, `summarizer.py` ve `src/services/gemini_client.py` dosyalarındaki değişiklikler,  Gemini API ile etkileşimin nasıl yapıldığını ve sonuçların nasıl işlendiğini doğrudan etkiler.  `features` klasörünün kullanımıyla kodun modülerliğinin artması, mimariye bir iyileştirme getirir. `CallableModule` sınıfının kullanımı ile giriş noktası daha fonksiyonel ve temiz bir hale getirilmiştir.
 
-- **Mimari Değişikliklerin Etkisi:**  Mimari açıdan büyük değişiklikler yapılmamıştır.  Ancak, `CallableModule` sınıfının eklenmesi ve `screenshot_command` fonksiyonunun ayrılması, kodun daha modüler ve bakımı kolay bir yapıya kavuşmasını sağlamıştır.  `run_ci_checks.py`'deki değişiklikler CI/CD pipeline'ının güvenilirliğini artırmıştır (build sonrası eser kontrolü).
-
-
-- **Kod Organizasyonundaki İyileştirmeler:**  `screenshot` komutu için özel bir fonksiyon ayrılması (`screenshot_command`),  kodun daha okunabilir ve sürdürülebilir olmasını sağlamıştır.  `features` dizini altında modüler bir yaklaşım izlenmesi, farklı işlevlerin ayrı modüllerde yönetilmesine olanak sağlamıştır.  `changelog_updater.py` dosyasında fonksiyon sayısındaki artış, modülerliği artırmış ancak büyük bir dosya oluşturabileceği için gelecekte yeniden yapılandırılmayı gerektirebilir.
-
+* **Kod Organizasyonundaki İyileştirmeler:**  `features` klasörünün kullanımı ile kodun modülerliği artmıştır.  `screenshot` komutu için ayrı bir fonksiyon (`screenshot_command`) oluşturulması da kod okunabilirliğini ve sürdürülebilirliğini iyileştirmiştir.
 
 
 ### 2. İŞLEVSEL ETKİ:
 
-- **Eklenen Özellikler:**  Uygulamaya özel ekran görüntüsü alma komutları (`summarizer ss chrome`, `summarizer ss firefox`, `summarizer ss code`), GUI tabanlı konfigürasyon (`summarizer --gui`) ve interaktif kurulum (`summarizer --setup`) seçenekleri eklenmiştir.  `changelog_updater.py` dosyasındaki değişiklikler daha detaylı changelog oluşturma yeteneği kazandırmıştır.
+* **Eklenen Özellikler:**  `summarizer ss chrome`, `summarizer ss firefox`, `summarizer ss code` gibi uygulamaya özgü ekran görüntüsü alma komutları eklenmiştir.  `summarizer --gui` ile GUI tabanlı konfigürasyon ve  `summarizer --setup` ile interaktif kurulum seçenekleri eklenmiştir.
 
+* **Değiştirilen Özellikler:** Mevcut `summarizer screenshot` ve `summarizer ss` komutları geliştirilmiş ve daha spesifik hale getirilmiş olabilir (kodun tam içeriğinin olmaması nedeniyle kesin olarak söylenemez). `generate_simple_text` fonksiyonu iyileştirilmiş veya yeni basit metin üretme özelliği eklenmiş olabilir.
 
-- **Değiştirilen Özellikler:**  Mevcut ekran görüntüsü alma komutları (`summarizer screenshot`, `summarizer ss`)  daha modüler bir yapıya kavuşmuştur.
+* **Kaldırılan Özellikler:**  Bilgi yok.
 
+* **Kullanıcı Deneyimi:** Kullanıcı deneyimi, özellikle komut satırı arayüzü kullanımında önemli ölçüde iyileştirilmiştir. Yeni komutlar ve seçenekler eklenmesiyle daha esnek bir kullanım sağlanmıştır. GUI seçeneği, kullanıcı dostu bir deneyim sunar.
 
-- **Kaldırılan Özellikler:**  Belirtilen değişikliklerde bir özellik kaldırılması gözlenmemiştir.
-
-
-- **Kullanıcı Deneyimi:**  Kullanıcı deneyimi, uygulamaya özel ekran görüntüsü alma komutları, GUI ve interaktif kurulum sayesinde önemli ölçüde iyileştirilmiştir.  Daha fazla seçenek ve daha açıklayıcı komutlar sunulmuştur.
-
-
-- **Performans, Güvenlik ve Güvenilirlik:**  Eklenen özelliklerin performans üzerindeki doğrudan etkisi sınırlıdır.  Güvenlik ve güvenilirlik, kullanılan kütüphanelerin güvenilirliğine ve kodun genel kalitesine bağlıdır.  `run_ci_checks.py`'deki değişiklikler, build hatalarının daha erken tespit edilmesini sağlayarak güvenilirliği artırmıştır.
-
+* **Performans, Güvenlik ve Güvenilirlik:** Performans, güvenlik ve güvenilirlik üzerindeki etkiler, yapılan spesifik kod değişikliklerine bağlıdır ve kesin olarak belirlenemez. Hata yönetimi ve loglama iyileştirmeleri güvenilirliği artırabilir.  Ancak,  performans iyileştirmeleri veya güvenlik güçlendirmeleri olup olmadığı koddan açıkça görülmemektedir.
 
 
 ### 3. TEKNİK DERİNLİK:
 
-- **Tasarım Desenleri:**  `CallableModule` sınıfı, bir Facade tasarım deseni olarak işlev görerek `summarizer.py` modülünü daha basit bir arayüz olarak sunmaktadır.  `features` dizini altında modüler tasarım deseni kullanılmıştır.
+* **Tasarım Desenleri:**  `CallableModule` sınıfı, bir Facade veya Singleton deseni olarak düşünülebilir (kesin olarak söylenemez).  `features` klasörü, modüler tasarım desenini gösterir. `argparse` kütüphanesinin kullanımı da iyi bir tasarım pratiğidir.
 
+* **Kod Kalitesi ve Sürdürülebilirlik:**  Kodun modülerliği ve `CallableModule` sınıfının kullanımı, kod kalitesini ve sürdürülebilirliğini artırır.  Ancak, eksik kod parçaları nedeniyle kesin bir değerlendirme yapılamaz.  TODO yorumlarının varlığı, gelecekte yapılması gereken geliştirmeleri ve potansiyel teknik borcu göstermektedir.
 
-- **Kod Kalitesi ve Sürdürülebilirlik:**  Kod genel olarak okunaklı ve iyi yapılandırılmıştır.  Modüler yaklaşım, kodun sürdürülebilirliğini artırmıştır.  Ancak, TODO yorumları, gelecekte yapılması gereken geliştirmeleri göstermektedir ve teknik borcun bir göstergesidir.
-
-
-- **Yeni Bağımlılıklar:**  Kesik kod nedeniyle tam liste bilinmiyor.  GUI'nin eklenmesiyle yeni bağımlılıklar eklenmiş olması muhtemeldir.
-
+* **Yeni Bağımlılıklar:**  Yeni bağımlılıkların eklenip eklenmediği belirsizdir.  `requirements.txt` veya benzeri bir dosyanın içeriği olmadan bu sorunun cevabı verilemez. GUI'nin eklenmesi yeni bağımlılıklar gerektiriyor olabilir.
 
 
 ### 4. SONUÇ YORUMU:
 
-- **Uzun Vadeli Değer ve Etki:**  Bu değişiklikler, aracın işlevselliğini ve kullanıcı deneyimini önemli ölçüde geliştirmiştir.  Daha sağlam bir CI/CD süreci ve daha detaylı bir changelog yönetimi sağlanmıştır.  Ancak, TODO listesindeki geliştirmelerin tamamlanması, projenin uzun vadeli değerini daha da artıracaktır.
+* **Uzun Vadeli Değer ve Etki:** Bu değişiklikler, uygulamanın kullanıcı dostu bir şekilde gelişmesine ve AI özetleme özelliğinin daha sağlam bir şekilde entegre edilmesine katkıda bulunur. Komut satırı arayüzünün genişletilmesi ve GUI desteği olumlu etkilerdir.
 
+* **Teknik Borcun Etkilenmesi:**  Projenin teknik borcu, kodun modülerliğinin iyileştirilmesiyle kısmen azalmış olabilir, ancak TODO yorumlarının varlığı yeni teknik borçlar olduğunu gösterir.  
 
-- **Teknik Borç:**  Bazı geliştirmeler (TODO listesi) teknik borç olarak kalmaktadır.  Ancak, modüler tasarım ve CI/CD iyileştirmeleri, teknik borcun azaltılmasına katkı sağlamıştır.  Yeni eklenen özellikler de yeni teknik borç eklemiştir.
-
-
-- **Gelecekteki Geliştirmelere Hazırlık:**  Modüler tasarım, gelecekteki geliştirmelerin (AI destekli özetleme, sesli komut, otomatik güncelleme) daha kolay entegre edilebilmesi için sağlam bir temel oluşturmuştur.  CI/CD pipeline'ındaki iyileştirmeler de, gelecekteki geliştirmelerin daha güvenli bir şekilde uygulanmasını sağlayacaktır.
+* **Gelecekteki Geliştirmelere Hazırlık:** Modüler kod yapısı ve iyi dokümantasyon (eğer varsa), gelecekteki geliştirmeleri kolaylaştırır.  Ancak, spesifik olarak gelecek geliştirmeler için yapılmış hazırlıkların detayları koddan anlaşılmamaktadır.  AI destekli özelliklerin eklenmesine yönelik bir altyapı oluşturulmuş olması muhtemeldir.
 
 ## 🛠️ Kurulum (Installation)
 
@@ -233,7 +221,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**Last updated**: June 20, 2025 by Summarizer Framework v8.3.5
+**Last updated**: June 20, 2025 by Summarizer Framework v8.3.6
 *This README is automatically generated and updated based on project activity.*
 
 > *"Automatically maintained with AI-powered analysis"*
