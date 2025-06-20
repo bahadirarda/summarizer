@@ -104,21 +104,25 @@ def _handle_pull_request_flow(project_root: Path, git_manager: GitManager, curre
         print(f"   ✅ An open pull request already exists: {existing_pr['url']}")
         
         # Check if there are new commits to push
-        if not git_manager.has_diff_between_branches(f"origin/{target_branch}", f"origin/{current_branch}"):
+        sync_status, ahead, behind = git_manager.get_branch_sync_status(current_branch)
+        
+        if sync_status == SyncStatus.AHEAD:
+            # Only push if we have unpushed commits
+            if _ask_user(f"   ❔ Push {ahead} new commit(s) to the existing PR?"):
+                print(f"   🚀 Pushing new commits to '{current_branch}'...")
+                push_success, _ = git_manager.push(current_branch)
+                if push_success:
+                    print("   ✅ Successfully pushed new commits to the existing PR.")
+                    print(f"   📎 PR URL: {existing_pr['url']}")
+                else:
+                    print("   ❌ Failed to push updates to the PR branch.")
+        else:
             print(f"   ⚪️ No new commits since last push. PR is up to date.")
-            return
-            
-        if _ask_user("   ❔ Push new commits to the existing PR?"):
-            print(f"   🚀 Pushing new commits to '{current_branch}'...")
-            push_success, _ = git_manager.push(current_branch)
-            if push_success:
-                print("   ✅ Successfully pushed new commits to the existing PR.")
-                print(f"   📎 PR URL: {existing_pr['url']}")
-            else:
-                print("   ❌ Failed to push updates to the PR branch.")
+            print(f"   📎 PR URL: {existing_pr['url']}")
     else:
-        if not git_manager.has_diff_between_branches(f"origin/{target_branch}", f"origin/{current_branch}"):
-            print(f"   ⚪️ No differences between branches. A Pull Request is not needed.")
+        # Check if branch has been pushed
+        if not git_manager.remote_branch_exists(current_branch):
+            print(f"   ⚠️  Branch '{current_branch}' has not been pushed to remote yet.")
             return
             
         if _ask_user(f"   ❔ Create a new Pull Request from '{current_branch}' to '{target_branch}'?"):
