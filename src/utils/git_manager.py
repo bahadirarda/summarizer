@@ -496,16 +496,14 @@ class GitManager:
             
             remote_branch = f"{remote_name}/{branch_name}"
             # This command counts commits that are unique to each branch
-            output = self._run_git_command(["rev-list", "--left-right", "--count", f"{branch_name}...{remote_branch}"])
+            success, output = self._run_git_command(["rev-list", "--left-right", "--count", f"{branch_name}...{remote_branch}"])
             
-            if output is None:
+            if not success:
                 # This can happen if the remote branch doesn't exist
                 # Check if local branch is unpushed
-                local_commits_output = self._run_git_command(["rev-list", "--count", branch_name, f"^{remote_name}/{branch_name}"])
-                if local_commits_output is not None:
-                    ahead_count = int(local_commits_output)
-                    if ahead_count > 0:
-                        return SyncStatus.AHEAD, ahead_count, 0
+                ahead_success, ahead_output = self._run_git_command(["rev-list", "--count", branch_name, f"^{remote_name}/{branch_name}"])
+                if ahead_success and ahead_output and int(ahead_output) > 0:
+                    return SyncStatus.AHEAD, int(ahead_output), 0
                 return SyncStatus.SYNCED, 0, 0 # Assume synced if remote doesn't exist and local isn't ahead.
 
             ahead, behind = map(int, output.split())
