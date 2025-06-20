@@ -1,68 +1,59 @@
 # 🚀 project.110620251156
-> Bu web projesi, gelişmiş Git ve GitHub entegrasyonu ile daha verimli bir geliştirme süreci ve gelişmiş sürüm yönetimi sağlamaktadır.  Özetleyici bir çerçeve (Summarizer Framework) olarak da geliştirilmekte olup, ekran görüntüsü alma, GUI ve terminal komut yönetimi gibi özelliklere sahiptir.
+> Changelog güncelleme ve Git entegrasyonunu iyileştiren bir yardımcı araç.  Geliştirme süreçlerini otomatikleştirerek ve hızlandırarak daha verimli bir çalışma ortamı sağlar.
 
 ## 📊 Proje Durumu
-Proje, aktif geliştirme aşamasındadır.  `git_manager.py` dosyasındaki değişiklikler ile GitHub entegrasyonu önemli ölçüde iyileştirilmiştir. Ancak, `changelog_updater.py` dosyasındaki kodun bir kısmının eksik olması nedeniyle changelog güncelleme süreciyle ilgili tam bir değerlendirme yapılamamıştır. Summarizer Framework ise yeni özellikler kazanmış ve daha modüler bir yapıya kavuşmuştur.  Ancak bu framework'ün kapsamlı testleri hala eksiktir.
-
+Geliştirme aşamasında.  `changelog_updater.py` dosyasındaki değişiklikler tam olarak analiz edilemediği için, projenin tam durumu belirsizdir.  Ancak, `git_manager.py` dosyasındaki geliştirmeler sayesinde Git ve GitHub entegrasyonu önemli ölçüde iyileştirilmiştir.  Pull Request yönetimi otomatikleştirilmiş ve daha verimli hale getirilmiştir.
 
 ## ✨ Özellikler
-**Git ve GitHub Entegrasyonu:**
-* Pull Request oluşturma, güncelleme ve sorgulama yetenekleri eklendi.
-* `gh` CLI aracının kullanımı ile gelişmiş Git işlemleri.
-
-**Summarizer Framework:**
-* Komut satırı üzerinden ekran görüntüsü alma (Chrome, Firefox, Code).
-* Grafiksel kullanıcı arayüzü (GUI) desteği.
-* Terminal komutlarının kurulum ve kaldırılması.
-* Sistem durum raporlama (`--status` komutu).
-* Gelişmiş komut satırı argüman işleme (`argparse`).
-* Modüler tasarım ile yeni özelliklerin kolayca eklenmesi.
+* Changelog'in otomatik olarak güncellenmesi.
+* Git entegrasyonu ile Pull Request yönetimi (oluşturma, güncelleme).
+* Değişikliklerin etki seviyesinin (kritik, yüksek, düşük) otomatik tespiti.
+* Proje türünün otomatik tespiti.
+* JSON formatında changelog yönetimi.
+* README dosyasının otomatik güncellenmesi.
+* Yazılım versiyon yönetimi.
 
 
 ## Değişen Dosyalar:
-`src/utils/git_manager.py`, `src/utils/changelog_updater.py`, `src/main.py`, `src/core/configuration_manager.py`, `src/utils/version_manager.py`, `features` dizini altındaki modüller (`parameter_checker.py`, `screenshot.py`, `terminal_commands.py`, `gui_installer.py`), `tests/test_main.py`
+`src/utils/changelog_updater.py`, `src/utils/git_manager.py`
 
 
 ## ANALİZ GÖREVİ:
 
 ### 1. YAPISAL ANALİZ:
 
-* **Etkilenen Bileşenler:**  Analiz edilen kod değişiklikleri, iki ana proje bileşenini etkilemiştir:  Birincisi, Git ve GitHub entegrasyonunu sağlayan yardımcı araçlar (`src/utils/git_manager.py`, `src/utils/changelog_updater.py`, `src/utils/version_manager.py`); ikincisi ise, özetleyici çerçeve (`src/main.py`, `src/core/configuration_manager.py`, `features` dizini altındaki modüller).  Her iki bileşen de, yardımcı araçlar, iş mantığı ve konfigürasyon yönetimi katmanlarını içermektedir.  `tests` dizini altındaki testler ise kısmen etkilenmiştir.
+- **Etkilenen Bileşenler ve Katmanlar:**  `changelog_updater.py` ve `git_manager.py` dosyaları doğrudan etkilendi.  `changelog_updater.py` dosyası, `file_tracker`, `json_changelog_manager`, `readme_generator`, `version_manager` ve `git_manager` modülleriyle etkileşim halinde çalışır.  Bu modüllerin işlevselliği, `changelog_updater.py`'deki değişikliklerden dolaylı olarak etkilenir. `git_manager.py` dosyası ise doğrudan Git ve GitHub ile etkileşim kurar.
 
-* **Mimari Değişikliklerin Etkisi:** `git_manager.py`'deki değişiklikler, Git ve GitHub ile olan etkileşimi daha sağlam ve modüler hale getirmiştir.  `gh` CLI'nın entegrasyonu, Pull Request yönetimini kolaylaştırmıştır.  Summarizer Framework'te ise modüler tasarımın uygulanması, yeni özelliklerin eklenmesini ve mevcut fonksiyonların iyileştirilmesini kolaylaştırmıştır.  `features` dizini altındaki modüllerin kullanımı, iyi bir modülerlik örneğidir.
+- **Mimari Değişikliklerin Etkisi:**  `changelog_updater.py`'deki değişiklikler tam olarak analiz edilemese de, mevcut modüler mimari korunmuş gözükmektedir.  `git_manager.py`'deki değişiklikler,  Git entegrasyonunu iyileştirmiş ve GitHub'ın `gh` CLI aracının entegrasyonunu sağlamıştır.  Bu, Pull Request yönetimini otomatikleştirmiş ve sistemin GitHub ile olan etkileşimini daha kapsamlı hale getirmiştir.
 
-* **Kod Organizasyonunda Yapılan İyileştirmeler:** `git_manager.py`'de yardımcı fonksiyonların (`_run_external_command`, `_run_git_command`) kullanımı kod tekrarını azaltmış ve okunabilirliği artırmıştır. `SyncStatus` enum'unun eklenmesi de okunabilirliği ve bakımı kolaylaştırmıştır. Summarizer Framework'te ise `features` dizininin kullanımı, farklı özelliklerin ayrıştırılmasını ve kodun daha düzenli olmasını sağlamıştır.  `changelog_updater.py` ve `version_manager.py` dosyalarındaki değişiklikler de kodun daha modüler ve anlaşılır olmasına katkıda bulunmuştur, ancak eksik kod parçaları nedeniyle tam değerlendirme yapılamaz.
+- **Kod Organizasyonundaki İyileştirmeler:** `git_manager.py`'de `_run_external_command` ve `_run_git_command` gibi yardımcı fonksiyonların kullanımı, kod tekrarını azaltmış ve okunabilirliği artırmıştır.  `SyncStatus` enum'unun eklenmesi de kodun okunabilirliğini ve bakımı kolaylığını artırmıştır.  `changelog_updater.py`'deki olası iyileştirmeler (örneğin, fonksiyonların daha küçük parçalara ayrılması, daha açıklayıcı değişken isimleri) tam kod olmadan kesin olarak belirtilemez.
 
 
 ### 2. İŞLEVSEL ETKİ:
 
-* **Eklenen Özellikler:**  `git_manager.py`'de `get_existing_pr` ve `update_pr_details` fonksiyonlarının eklenmesiyle, GitHub Pull Request yönetimi otomatikleştirilmiştir. Summarizer Framework'te ise ekran görüntüsü alma (çeşitli uygulamalar için), GUI desteği, terminal komut yönetimi ve sistem durum raporlama gibi yeni özellikler eklenmiştir.
+- **Eklenen, Değiştirilen veya Kaldırılan Özellikler:** `git_manager.py`'de `get_existing_pr` ve `update_pr_details` fonksiyonlarının eklenmesiyle, GitHub Pull Request'lerinin yönetimi otomatikleştirilmiştir.  `changelog_updater.py`'deki değişiklikler, changelog güncelleme sürecinde iyileştirmeler getirmiş olabilir (tam kod olmadan kesin olarak belirlenemez).  Örneğin, `_detect_impact_level` ve `_detect_project_type` fonksiyonlarındaki olası geliştirmeler, changelog girişlerinin daha doğru ve kapsamlı olmasını sağlayabilir.
 
-* **Değiştirilen Özellikler:**  Summarizer Framework'te komut satırı argüman işleme (`argparse` ile) iyileştirilmiştir.  Özetleme fonksiyonunun çağrılma şekli de muhtemelen değiştirilmiştir.  `version_manager.py` ve `changelog_updater.py` dosyalarındaki değişiklikler, versiyon yönetimi ve değişiklik günlüğü güncelleme süreçlerini iyileştirmiştir.
+- **Kullanıcı Deneyimi Üzerindeki Etki:**  Kullanıcı deneyimi doğrudan etkilenmez, çünkü bu bir arka plan işlemidir.  Ancak, daha doğru ve otomatik bir changelog ve Pull Request yönetimi, geliştiricilerin işini kolaylaştırarak dolaylı olarak kullanıcı deneyimini iyileştirir.
 
-* **Kaldırılan Özellikler:**  Belirlenemedi.
-
-* **Kullanıcı Deneyimi:**  Git ve GitHub entegrasyonundaki iyileştirmeler, geliştiricilerin verimliliğini artırmıştır. Summarizer Framework'teki yeni özellikler ve GUI desteği, kullanıcılara daha iyi bir deneyim sunmaktadır.
-
-* **Performans, Güvenlik veya Güvenilirlik:** `git_manager.py`'deki hata yönetimi ( `try-except` blokları) sayesinde sistemin güvenilirliği artmıştır.  `subprocess` modülünün kullanımı, güvenlik açıklarını azaltmıştır.  Diğer performans, güvenlik ve güvenilirlik etkileri, eksik kod parçaları nedeniyle tam olarak değerlendirilememiştir.
+- **Performans, Güvenlik veya Güvenilirlik Üzerindeki Etkiler:**  `git_manager.py`'de `subprocess` modülünün kullanımı ve hata yönetimi, güvenliği ve güvenilirliği artırır.  `_run_external_command` fonksiyonundaki `try-except` blokları, olası hataların daha iyi yönetilmesini sağlar.  Performans etkisi, tam kod olmadan tahmin edilemez.
 
 
-### 3. TEKNİK DERİNLİK:
+### 3. TEKNİK DERINLIK:
 
-* **Tasarım Desenleri:** `git_manager.py`'de açık bir tasarım deseni kullanımı görülmemektedir. `subprocess` modülü teknik bir uygulama olarak kullanılmıştır. Summarizer Framework'te ise modüler tasarım ve komut deseni (komut satırı argümanları ile farklı fonksiyonların çağrılması) izlenmektedir. `VersionManager` sınıfı tek sorumluluk prensibine uygun tasarlanmıştır.
+- **Tasarım Desenleri:** `JsonChangelogManager` sınıfının kullanımı, Data Access Object (DAO) tasarım desenini işaret eder.  Bu, değişiklik günlüğü verilerine erişimi soyutlar ve veri kaynaklarından bağımsız bir kod yapısı sağlar.
 
-* **Kod Kalitesi ve Sürdürülebilirlik:**  `git_manager.py`'deki yardımcı fonksiyonlar ve hata yönetimi, kod kalitesini ve sürdürülebilirliğini artırmıştır.  Summarizer Framework'teki modüler tasarım da sürdürülebilirliğe katkıda bulunmuştur.  Ancak, Summarizer Framework'ün test kapsamının sınırlı olması bir teknik borç olarak değerlendirilebilir.
+- **Kod Kalitesi ve Sürdürülebilirlik:** `git_manager.py`'deki değişiklikler, kod kalitesini ve sürdürülebilirliği artırmıştır.  Yardımcı fonksiyonların ve enum'ların kullanımı, kodun okunabilirliğini ve bakımını kolaylaştırır. `changelog_updater.py` için bu değerlendirme tam kod olmadan yapılamaz.
 
-* **Yeni Bağımlılıklar veya Teknolojiler:** `git_manager.py`'de `gh` CLI aracının sistemde kurulu olması gerekir.  Summarizer Framework'te `argparse` kütüphanesi kullanılmaktadır. Diğer olası bağımlılıklar, eksik kod parçaları nedeniyle tespit edilememiştir.
+- **Yeni Bağımlılıklar veya Teknolojiler:**  `gh` CLI aracının sistemde kurulu olması gerekir.  Diğer bir yeni bağımlılık eklenmemiştir.
 
 
 ### 4. SONUÇ YORUMU:
 
-* **Uzun Vadeli Değer ve Etki:**  Bu değişiklikler, Git ve GitHub entegrasyonunu geliştirerek ve Summarizer Framework'e yeni özellikler ekleyerek, uzun vadede geliştirme verimliliğini ve kullanıcı deneyimini artıracaktır.
+- **Uzun Vadeli Değer ve Etki:**  Bu değişiklikler, changelog yönetimini ve Git entegrasyonunu otomatikleştirerek ve geliştirerek uzun vadede yazılım geliştirme sürecinin verimliliğini artırır.  Daha iyi organize edilmiş ve daha tutarlı bir changelog, daha iyi bir sürüm yönetimi ve daha kolay hata takibi sağlar.  Otomatik Pull Request yönetimi, geliştirme sürecini hızlandırır ve ekip verimliliğini artırır.
 
-* **Projenin Teknik Borcu:**  `changelog_updater.py`'deki eksik kod parçası ve Summarizer Framework'ün sınırlı test kapsamı, teknik borç olarak değerlendirilebilir.  `_has_breaking_changes` fonksiyonunun kural tabanlı yaklaşımı da potansiyel bir teknik borçtur.  Ancak, kodun genel okunabilirliği ve modüler tasarımı, teknik borcun yönetilebilir düzeyde kalmasına yardımcı olacaktır.
+- **Projenin Teknik Borcu Üzerindeki Etki:**  `git_manager.py`'deki değişiklikler, kodun okunabilirliğini ve sürdürülebilirliğini artırarak teknik borcu azaltmış olabilir.  `changelog_updater.py`'deki değişikliklerin etkisi tam kod olmadan belirlenemez.
 
-* **Gelecekteki Geliştirmelere Hazırlık:**  `git_manager.py`'deki değişiklikler, gelecekteki GitHub entegrasyonlarını kolaylaştıracaktır.  Summarizer Framework'teki modüler tasarım ise yeni özelliklerin eklenmesini kolaylaştıracaktır.  TODO yorumlarından da anlaşıldığı üzere, AI destekli bir "Summarizer Eye" özelliğinin eklenmesi için temel oluşturulmuştur.
+- **Gelecekteki Geliştirmelere Hazırlık:**  Modüler ve iyi yapılandırılmış bir kod tabanına sahip olmak, gelecekteki geliştirmeler için iyi bir temel oluşturur.  GitHub ile olan gelişmiş entegrasyon, gelecekteki GitHub odaklı geliştirmeleri kolaylaştırır.
 
 ## 🛠️ Kurulum (Installation)
 
@@ -223,7 +214,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**Last updated**: June 20, 2025 by Summarizer Framework v8.7.0
+**Last updated**: June 20, 2025 by Summarizer Framework v8.8.0
 *This README is automatically generated and updated based on project activity.*
 
 > *"Automatically maintained with AI-powered analysis"*
