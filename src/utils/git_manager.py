@@ -305,6 +305,123 @@ class GitManager:
                 return True
         return True  # Assume there are differences if we can't determine
 
+    def resolve_conflicts_with_pr(self, pr_number: int) -> bool:
+        """Resolve conflicts by updating PR branch with base branch"""
+        print("\n   🔧 Attempting to resolve conflicts automatically...")
+        
+        try:
+            # Get PR details
+            import subprocess
+            import json
+            
+            pr_cmd = ["gh", "pr", "view", str(pr_number), "--json", "headRefName,baseRefName"]
+            pr_process = subprocess.run(
+                pr_cmd,
+                cwd=self.project_root,
+                capture_output=True,
+                text=True,
+                check=True
+            )
+            
+            pr_data = json.loads(pr_process.stdout)
+            head_branch = pr_data['headRefName']
+            base_branch = pr_data['baseRefName']
+            
+            print(f"   📋 Updating '{head_branch}' with latest changes from '{base_branch}'...")
+            
+            # Save current branch
+            current_branch = self.get_current_branch()
+            
+            # Checkout PR branch
+            if not self.checkout(head_branch):
+                # If local branch doesn't exist, fetch it
+                print(f"   🔄 Fetching '{head_branch}' from remote...")
+                self._run_git_command(["fetch", "origin", f"{head_branch}:{head_branch}"])
+                if not self.checkout(head_branch):
+                    print("   ❌ Failed to checkout PR branch")
+                    return False
+            
+            # Pull latest changes
+            print(f"   📥 Pulling latest changes for '{head_branch}'...")
+            if not self.pull(head_branch):
+                print("   ❌ Failed to pull latest changes")
+                return False
+            
+            # Merge base branch
+            print(f"   🔀 Merging '{base_branch}' into '{head_branch}'...")
+            merge_success, merge_output = self._run_git_command(["merge", f"origin/{base_branch}"])
+            
+            if not merge_success:
+                if "CONFLICT" in merge_output:
+                    print("   ⚠️  Merge conflicts detected. Attempting automatic resolution...")
+                    
+                    # Try to resolve conflicts automatically
+                    # Strategy: Accept incoming changes for changelog files, ours for others
+                    conflict_files_cmd = self._run_git_command(["diff", "--name-only", "--diff-filter=U"])
+                    if conflict_files_cmd[0]:
+                        conflict_files = conflict_files_cmd[1].strip().split('\n')
+                        
+                        print(f"   📝 Conflicted files: {', '.join(conflict_files)}")
+                        
+                        for file in conflict_files:
+                            if file in ['CHANGELOG.md', 'changelog.json', 'package.json', 'pyproject.toml', 'README.md']:
+                                # For version/changelog files, accept theirs (from base branch)
+                                print(f"      • {file}: accepting changes from '{base_branch}'")
+                                self._run_git_command(["checkout", "--theirs", file])
+                                self._run_git_command(["add", file])
+                            else:
+                                # For code files, keep ours
+                                print(f"      • {file}: keeping changes from '{head_branch}'")
+                                self._run_git_command(["checkout", "--ours", file])
+                                self._run_git_command(["add", file])
+                        
+                        # Complete the merge
+                        commit_msg = f"chore: Merge '{base_branch}' into '{head_branch}' and resolve conflicts"
+                        if self.commit(commit_msg):
+                            print("   ✅ Conflicts resolved automatically!")
+                            
+                            # Push the changes
+                            print(f"   📤 Pushing resolved conflicts to '{head_branch}'...")
+                            push_success, _ = self.push(head_branch)
+                            
+                            if push_success:
+                                print("   ✅ Conflicts resolved and pushed successfully!")
+                                
+                                # Return to original branch
+                                if current_branch and current_branch != head_branch:
+                                    self.checkout(current_branch)
+                                
+                                return True
+                            else:
+                                print("   ❌ Failed to push resolved conflicts")
+                        else:
+                            print("   ❌ Failed to commit conflict resolution")
+                            self._run_git_command(["merge", "--abort"])
+                else:
+                    print(f"   ❌ Merge failed: {merge_output}")
+                    
+                # Return to original branch
+                if current_branch and current_branch != head_branch:
+                    self.checkout(current_branch)
+                    
+                return False
+            
+            # If merge was clean, push it
+            print("   ✅ Merge completed without conflicts!")
+            print(f"   📤 Pushing updates to '{head_branch}'...")
+            push_success, _ = self.push(head_branch)
+            
+            # Return to original branch
+            if current_branch and current_branch != head_branch:
+                self.checkout(current_branch)
+            
+            return push_success
+            
+        except Exception as e:
+            logger.error(f"Failed to resolve conflicts: {e}")
+            print(f"   ❌ Failed to resolve conflicts: {e}")
+            return False
+
     def get_branch_sync_status(self, branch_name: str, remote_name: str = "origin") -> Tuple[SyncStatus, int, int]:
         try:
             self.fetch_updates(remote_name)

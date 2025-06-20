@@ -318,11 +318,45 @@ def merge_command(args: List[str] = None) -> bool:
         if mergeable_data.get('mergeable') == 'CONFLICTING':
             print("   ❌ This PR has merge conflicts that must be resolved!")
             print("   📝 Conflicting files need to be resolved before merging.")
-            print("   💡 Options:")
-            print("      1. Use GitHub web editor to resolve conflicts")
-            print("      2. Checkout the branch locally and resolve conflicts")
-            print("      3. Run 'gh pr merge --auto' to auto-merge when conflicts are resolved")
-            return False
+            
+            # Offer to resolve conflicts automatically
+            if input("\n   ❔ Would you like to try resolving conflicts automatically? (y/n): ").lower() == 'y':
+                if git_manager.resolve_conflicts_with_pr(pr_to_merge['number']):
+                    print("\n   🎉 Conflicts resolved successfully!")
+                    print("   📋 The PR has been updated with the latest changes.")
+                    print("   ⏳ Waiting for checks to complete...")
+                    
+                    # Give GitHub a moment to update
+                    import time
+                    time.sleep(3)
+                    
+                    # Re-check mergeable status
+                    mergeable_process = subprocess.run(
+                        mergeable_cmd,
+                        cwd=project_root,
+                        capture_output=True,
+                        text=True,
+                        check=True
+                    )
+                    
+                    mergeable_data = json.loads(mergeable_process.stdout)
+                    if mergeable_data.get('mergeable') != 'CONFLICTING':
+                        print("   ✅ PR is now ready to merge!")
+                    else:
+                        print("   ⚠️  Some conflicts may still remain. Manual resolution required.")
+                        return False
+                else:
+                    print("   ❌ Automatic conflict resolution failed.")
+                    print("   💡 Please resolve conflicts manually:")
+                    print("      1. Use GitHub web editor to resolve conflicts")
+                    print("      2. Checkout the branch locally and resolve conflicts")
+                    return False
+            else:
+                print("   💡 Manual conflict resolution required:")
+                print("      1. Use GitHub web editor to resolve conflicts")
+                print("      2. Checkout the branch locally and resolve conflicts")
+                print("      3. Run 'gh pr merge --auto' to auto-merge when conflicts are resolved")
+                return False
         elif mergeable_data.get('mergeStateStatus') == 'BLOCKED':
             print("   ⚠️  PR is blocked from merging (required checks not passed)")
             if not input("   ❔ Continue anyway? (y/n): ").lower() == 'y':

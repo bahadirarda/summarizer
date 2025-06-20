@@ -84,6 +84,19 @@ def _write_next_command(project_root: Path, command: str):
         logger_changelog.error(f"Could not create next_command.sh file: {e}")
 
 
+def _extract_pr_number(pr_url: str) -> Optional[int]:
+    """Extract PR number from GitHub PR URL"""
+    try:
+        # URL format: https://github.com/owner/repo/pull/123
+        parts = pr_url.strip().split('/')
+        if 'pull' in parts:
+            pr_number = int(parts[-1])
+            return pr_number
+    except:
+        pass
+    return None
+
+
 def _handle_pull_request_flow(project_root: Path, git_manager: GitManager, current_branch: str, target_branch: str, summary: str, gemini_client: Any = None, auto_create: bool = True):
     """Handles the pull request creation/update process intelligently and offers next steps."""
     print("   ⏱️  Checking for existing PRs and remote branches...")
@@ -139,33 +152,41 @@ def _handle_pull_request_flow(project_root: Path, git_manager: GitManager, curre
                 
                 # Check if PR has conflicts after creation
                 print("   🔍 Checking for potential conflicts...")
-                try:
-                    # Extract PR number from URL
-                    pr_number = pr_url.split('/')[-1]
-                    
-                    import subprocess
-                    import json
-                    conflict_cmd = ["gh", "pr", "view", pr_number, "--json", "mergeable,mergeStateStatus"]
-                    conflict_process = subprocess.run(
-                        conflict_cmd,
-                        cwd=project_root,
-                        capture_output=True,
-                        text=True,
-                        check=True
-                    )
-                    
-                    conflict_data = json.loads(conflict_process.stdout)
-                    
-                    if conflict_data.get('mergeable') == 'CONFLICTING':
-                        print("   ⚠️  WARNING: This PR has merge conflicts!")
-                        print("   📝 You'll need to resolve conflicts before merging:")
-                        print("      • Use GitHub web editor, or")
-                        print("      • Pull latest changes from target branch and resolve locally")
-                    elif conflict_data.get('mergeStateStatus') == 'BLOCKED':
-                        print("   ⚠️  PR is blocked (required checks not passed)")
-                except:
-                    # Don't fail if conflict check fails
-                    pass
+                pr_number = _extract_pr_number(pr_url)
+                if pr_number:
+                    try:
+                        import subprocess
+                        import json
+                        conflict_cmd = ["gh", "pr", "view", str(pr_number), "--json", "mergeable,mergeStateStatus"]
+                        conflict_process = subprocess.run(
+                            conflict_cmd,
+                            cwd=project_root,
+                            capture_output=True,
+                            text=True,
+                            check=True
+                        )
+                        
+                        conflict_data = json.loads(conflict_process.stdout)
+                        
+                        if conflict_data.get('mergeable') == 'CONFLICTING':
+                            print("   ⚠️  WARNING: This PR has merge conflicts!")
+                            print("   📝 Conflicts need to be resolved before merging.")
+                            
+                            # Offer to resolve conflicts automatically
+                            if _ask_user("\n   ❔ Would you like to try resolving conflicts automatically?"):
+                                if git_manager.resolve_conflicts_with_pr(pr_number):
+                                    print("\n   🎉 Conflicts resolved successfully!")
+                                    print("   📋 The PR has been updated and is ready for review.")
+                                else:
+                                    print("   ❌ Automatic conflict resolution failed.")
+                                    print("   💡 Please resolve conflicts manually:")
+                                    print("      • Use GitHub web editor, or")
+                                    print("      • Pull latest changes from target branch and resolve locally")
+                        elif conflict_data.get('mergeStateStatus') == 'BLOCKED':
+                            print("   ⚠️  PR is blocked (required checks not passed)")
+                    except Exception as e:
+                        # Don't fail if conflict check fails
+                        print(f"   ⚠️  Could not check PR status: {e}")
             else:
                 print("   ❌ Failed to create Pull Request.")
 
