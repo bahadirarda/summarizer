@@ -31,29 +31,33 @@ class GitManager:
         self.project_root = project_root
         self.core_branches = {"main", "develop", "staging"}
 
-    def _run_external_command(self, command: List[str]) -> Tuple[bool, str]:
-        """Helper to run any external command. Returns (success, output/error string)."""
+    def _run_external_command(self, full_command: List[str], check: bool = True, capture_output: bool = True) -> Tuple[bool, str]:
+        """Run an external command and handle errors with improved logging."""
         try:
-            process = subprocess.run(
-                command, cwd=self.project_root, capture_output=True, text=True, check=True, encoding="utf-8",
-            )
-            return True, process.stdout.strip()
-        except FileNotFoundError:
-            tool = command[0]
-            err_msg = f"Command '{tool}' not found. Please ensure it is installed and in your system's PATH."
-            logger.error(err_msg)
-            return False, err_msg
+            kwargs = {"cwd": self.project_root, "text": True, "check": check}
+            if capture_output:
+                kwargs['capture_output'] = True
+            
+            process = subprocess.run(full_command, **kwargs)
+            output = process.stdout.strip() if process.stdout else ""
+            return True, output
         except subprocess.CalledProcessError as e:
-            err_msg = e.stderr.strip()
-            logger.error(f"Command failed: {' '.join(command)}\nError: {err_msg}")
-            if "unexpected EOF" in err_msg:
-                print("   ❌ A network error occurred while communicating with GitHub.")
-                print("      Please check your connection and try again.")
-            return False, err_msg
+            stderr = e.stderr.strip() if e.stderr else "No stderr output."
+            print("\n" + "="*70)
+            print(f"🚨 COMMAND FAILED: {' '.join(full_command)} 🚨".center(70))
+            print("="*70)
+            print(f"   🔴 Error: {stderr}")
+            print("="*70 + "\n")
+            logger.error(f"Command failed: {' '.join(full_command)}\n{stderr}")
+            return False, stderr
+        except FileNotFoundError:
+            error_msg = f"Command not found: {full_command[0]}. Is it installed and in your PATH?"
+            logger.error(error_msg)
+            return False, error_msg
 
-    def _run_git_command(self, command: List[str]) -> Tuple[bool, str]:
-        """Helper to run a git command. Returns (success, output/error string)."""
-        return self._run_external_command(["git"] + command)
+    def _run_git_command(self, command: List[str], check: bool = True, capture_output: bool = True) -> Tuple[bool, str]:
+        """Run a git command using the external command runner."""
+        return self._run_external_command(["git"] + command, check, capture_output)
 
     def _check_gh_auth(self) -> bool:
         """Checks if the user is authenticated with the gh CLI."""
@@ -504,3 +508,37 @@ class GitManager:
             print(f"   ❌ Force push failed:\n{output}")
 
         return success
+
+    def get_uncommitted_changes(self) -> List[str]:
+        """Returns a list of files with uncommitted changes."""
+        success, output = self._run_git_command(["status", "--porcelain"])
+        return output.splitlines() if success and output else []
+
+    def get_open_issues(self) -> List[Dict]:
+        """Fetches open issues from the GitHub repository using the gh CLI."""
+        logger.info("Fetching open issues from GitHub...")
+        command = ["gh", "issue", "list", "--state", "open", "--json", "number,title,labels"]
+        success, output = self._run_external_command(command)
+        if not success:
+            logger.warning("Could not fetch GitHub issues. Is 'gh' CLI installed and authenticated?")
+            return []
+        try:
+            issues = json.loads(output)
+            logger.info(f"Found {len(issues)} open issues.")
+            return issues
+        except json.JSONDecodeError:
+            logger.error("Failed to parse JSON response for issues.")
+            return []
+
+    def tag_exists(self, tag_name: str) -> bool:
+        """Check if a git tag exists."""
+        success, output = self._run_git_command(["tag", "-l", tag_name])
+        return success and bool(output)
+
+    def create_tag(self, tag_name: str, message: str) -> Tuple[bool, str]:
+        """Creates a new annotated git tag."""
+        return self._run_git_command(["tag", "-a", tag_name, "-m", message])
+
+    def stash_changes(self) -> Tuple[bool, str]:
+        """Stashes uncommitted changes."""
+        # ... existing code ...

@@ -5,6 +5,10 @@ from typing import Optional, Tuple
 from datetime import datetime
 import subprocess
 import re
+import toml
+from .git_manager import GitManager
+from .io import _ask_user
+from ..services.gemini_client import GeminiClient
 
 logger = logging.getLogger(__name__)
 
@@ -15,6 +19,7 @@ class VersionManager:
     def __init__(self, project_root: Path):
         self.project_root = project_root
         self.package_json_path = project_root / "package.json"
+        self.git_manager = GitManager(project_root)
         
     def get_current_branch(self) -> Optional[str]:
         """Get the current git branch name."""

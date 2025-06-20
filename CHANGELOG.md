@@ -3,6 +3,229 @@
 Bu dosya otomatik olarak generate edilmiştir.
 Düzenlemeler için `changelog.json` dosyasını kullanın.
 
+## 2025-06-20 07:56:46
+
+## Değişiklik Analizi: `src/utils/git_manager.py`
+
+### 1. YAPISAL ANALİZ:
+
+*   **Etkilenen Sistem Bileşenleri/Katmanlar:** `GitManager` sınıfı ve bu sınıfın kullanıldığı yerler etkilendi. Bu, esasında servis katmanında yer alan ve Git repository etkileşimlerini yöneten bir araçtır. Dolaylı olarak, Git repository ile etkileşim kuran tüm sistem bileşenleri etkilenebilir (örneğin, deployment scriptleri, CI/CD pipeline'ları vb.).
+*   **Mimari Değişikliklerin Etkisi:** Dosyada direkt olarak mimari bir değişiklik yok. Ancak, `GitManager` sınıfının davranışındaki değişiklikler (örneğin, hata yönetimi, force push onayı) sistemin Git işlemleriyle nasıl etkileşimde bulunduğunu etkileyebilir. Mimariye etkisini tam olarak anlamak için `GitManager`'ı kullanan diğer modüllerin davranışlarını da incelemek gerekir. Örneğin, eğer deployment sürecinde bir branch güncellenirken `force push` gerekiyorsa, bu değişiklik deployment sürecini etkileyecektir.
+*   **Kod Organizasyonundaki İyileştirmeler:**
+    *   `_run_external_command` fonksiyonunda hata yönetimi iyileştirilmiş.  `subprocess.CalledProcessError` yakalanıyor, hata mesajları daha ayrıntılı loglanıyor ve kullanıcıya daha bilgilendirici bir mesaj gösteriliyor. Bu, hata ayıklama sürecini kolaylaştırır.
+    *   `get_open_issues` fonksiyonu, GitHub Issues'ı çekmek için `gh` CLI aracını kullanıyor. Bu, harici bir bağımlılığın kullanımını gösterir. Fonksiyon, hem `gh` CLI'nın yüklü olmaması durumunu hem de JSON ayrıştırma hatalarını ele alarak daha sağlam hale getirilmiş.
+    *   Genel olarak, fonksiyonlar daha okunaklı hale getirilmiş ve hata durumları daha iyi ele alınmış.
+
+### 2. İŞLEVSEL ETKİ:
+
+*   **Eklenen/Değiştirilen/Kaldırılan Özellikler:**
+    *   `force_push_with_confirmation` fonksiyonu eklenerek, `force push` işlemi için kullanıcıdan üç aşamalı bir onay alınması sağlanmış. Bu, veri kaybı veya yanlışlıkla yapılan değişikliklerin önüne geçmek için önemlidir. Fonksiyonun eklenmesi, Git repository'deki kritik branch'ler üzerinde yapılan değişikliklerin daha kontrollü bir şekilde yönetilmesini sağlar.
+    *   `get_uncommitted_changes` fonksiyonu, uncommitted değişiklikleri olan dosyaların bir listesini döndürüyor. Bu, kullanıcıya Git durumu hakkında hızlı bir genel bakış sunar.
+    *   `get_open_issues` fonksiyonu, GitHub Issues'ı çekme yeteneği ekler. Bu özellik, projenin genel durumunu ve takibini kolaylaştırır.
+    *   `tag_exists` fonksiyonu, belirtilen bir tag'in var olup olmadığını kontrol eder.
+    *   `create_tag` fonksiyonu, yeni bir tag oluşturur.
+*   **Kullanıcı Deneyimi:**
+    *   `force_push_with_confirmation` ile kullanıcı, `force push` yapmadan önce üç aşamalı bir onay sürecinden geçer. Bu, istemeden veri kaybına neden olabilecek bir eylemin önüne geçilmesi için tasarlanmıştır. Onay mekanizması, deneyimli kullanıcılar için biraz yorucu olabilir, ancak veri güvenliğini önemli ölçüde artırır.
+    *   `get_uncommitted_changes` fonksiyonu sayesinde, kullanıcılar Git durumunu hızlı bir şekilde görebilir ve bu da iş akışını hızlandırır.
+    *   `get_open_issues` fonksiyonu sayesinde kullanıcılar GitHub Issues'ı kolayca görebilirler.
+*   **Performans, Güvenlik veya Güvenilirlik Üzerindeki Etkiler:**
+    *   `force_push_with_confirmation` fonksiyonu, yanlışlıkla veri kaybını önleyerek güvenilirliği artırır. Ancak, `force push` işlemlerinin sayısı arttıkça, kullanıcı onayı gerekliliği bir performans sorunu haline gelebilir.
+    *   `get_open_issues` fonksiyonu, harici bir API (GitHub API) kullandığı için ağ bağlantısına bağımlıdır. Ağ sorunları veya GitHub API'sindeki kesintiler, bu fonksiyonun çalışmasını engelleyebilir. Bu nedenle, hata yönetimi çok önemlidir.
+    *   `_run_external_command`'daki iyileştirilmiş hata yönetimi, güvenilirliği artırır.
+
+### 3. TEKNİK DERINLIK:
+
+*   **Uygulanan/Değiştirilen Tasarım Desenleri:**
+    *   **Facade:** `GitManager` sınıfı, karmaşık Git komutlarını basitleştirerek bir facade deseni görevi görür. Kullanıcılar, doğrudan Git komutlarıyla uğraşmak yerine, `GitManager` sınıfının sağladığı yüksek seviyeli fonksiyonları kullanabilirler.
+    *   **Template Method:**  `_run_external_command` fonksiyonu, subprocess'i çalıştırmak için ortak bir şablon sağlar, ancak bazı adımları (örn. `check`, `capture_output`) alt sınıfların veya çağırıcıların değiştirmesine izin verir.
+*   **Kod Kalitesi ve Sürdürülebilirlik:**
+    *   İyileştirilmiş hata yönetimi, kodun daha sağlam ve sürdürülebilir olmasını sağlar.
+    *   Fonksiyonların daha küçük ve daha spesifik görevlere bölünmesi, kodun okunabilirliğini ve bakımını kolaylaştırır.
+    *   `force_push_with_confirmation` gibi güvenlik önlemleri, projenin genel kalitesini artırır.
+*   **Eklenen Yeni Bağımlılıklar/Teknolojiler:**
+    *   `get_open_issues` fonksiyonu, `gh` CLI aracına bağımlıdır. Bu, harici bir bağımlılığın eklenmesi anlamına gelir. Proje, bu bağımlılığın yüklü ve yapılandırılmış olduğundan emin olmalıdır. Ek olarak `gh` CLI'nın JSON çıktı formatına bağımlılık oluşmuştur.
+
+### 4. SONUÇ YORUMU:
+
+*   **Değişikliklerin Uzun Vadeli Değeri ve Etkisi:**
+    *   `force_push_with_confirmation` fonksiyonu, veri kaybını önleyerek uzun vadede değerli bir katkı sağlar. Ancak, gereksiz onayla kullanıcıları yormamak için doğru dengeyi bulmak önemlidir.
+    *   `get_open_issues` fonksiyonu, proje takibini kolaylaştırarak geliştirme sürecini hızlandırır. Ancak, harici bağımlılığın yönetimi ve potansiyel API değişikliklerine karşı esneklik sağlanması önemlidir.
+*   **Projenin Teknik Borcu:**
+    *   Yeni bağımlılık (`gh` CLI) eklenmesi, teknik borcu biraz artırır. Bağımlılığın bakımı, güncellenmesi ve potansiyel güvenlik açıklarıyla ilgilenilmesi gerekecektir. Ancak, sağladığı işlevsellik, bu teknik borcu haklı çıkarabilir.
+    *   İyileştirilmiş hata yönetimi ve kod kalitesi, teknik borcu azaltır.
+*   **Gelecekteki Geliştirmelere Hazırlık:**
+    *   Kodun daha modüler hale getirilmesi, gelecekteki geliştirmeler için daha esnek bir temel sağlar.
+    *   Hata yönetimi iyileştirmeleri, gelecekteki hataları daha kolay teşhis etmeyi ve düzeltmeyi sağlar.
+    *   `get_open_issues` fonksiyonu, GitHub Issues'ı çekme yeteneği ekleyerek gelecekteki entegrasyonlar için bir başlangıç noktası oluşturur. Örneğin, Issue'lara otomatik olarak yorum eklemek veya Issue durumunu otomatik olarak güncellemek gibi özellikler geliştirilebilir.
+
+Özetle, bu değişiklikler projenin güvenilirliğini, güvenliğini ve sürdürülebilirliğini artırır. Yeni bağımlılık eklenmesi teknik borcu biraz artırsa da, sağladığı işlevsellik genel olarak olumlu bir etki yaratır.
+
+**Değişen Dosyalar:** src/utils/git_manager.py
+**Etki Seviyesi:** High
+**Değişiklik Tipi:** Feature
+**Satır Değişiklikleri:** -1
+**Etiketler:** git-manager, manager, utils, api
+
+---
+
+## 2025-06-20 07:53:55
+
+Tamamdır, `src/utils/version_manager.py`, `src/utils/git_manager.py` ve `src/utils/changelog_updater.py` dosyalarındaki değişikliklerin kapsamlı bir analizini aşağıdaki gibi sunuyorum:
+
+### 1. YAPISAL ANALİZ:
+
+*   **Etkilenen Sistem Bileşenleri ve Katmanlar:**
+    *   **Yardımcı Araçlar:** `src/utils/changelog_updater.py` dosyası, changelog (değişiklik günlüğü) oluşturma ve güncelleme süreçlerini yöneten yardımcı araç katmanını etkiliyor.
+    *   **Servis Katmanı:** `src/utils/version_manager.py` (versiyon yönetimi) ve `src/utils/git_manager.py` (Git işlemleri) dosyaları, uygulamanın versiyonlama ve kaynak kontrol süreçlerini yöneten servis katmanını etkiliyor. Özellikle `VersionManager` sınıfı, versiyon numaralarını okuma, arttırma ve proje genelinde (package.json, pyproject.toml gibi dosyalarda) güncelleme sorumluluğunu üstleniyor. `GitManager` ise Git deposuyla etkileşimde bulunuyor (branch, tag, commit bilgilerini alma gibi).
+
+*   **Mimari Değişikliklerin Etkisi:**
+    *   Kod yapısında bir miktar yeniden düzenleme ve modülerleşme görülüyor. `VersionManager` sınıfı, Git işlemleri için `GitManager` sınıfına bağımlı hale getirilerek sorumlulukların ayrılması sağlanmış. Ayrıca, Gemini (büyük dil modeli) entegrasyonu ile versiyon yükseltme önerileri alınması, mimariye yeni bir karar destek katmanı ekliyor.
+
+*   **Kod Organizasyonunda İyileştirmeler:**
+    *   **Sorumlulukların Ayrılması (Separation of Concerns):** `GitManager` sınıfının oluşturulması, Git ile ilgili mantığın `VersionManager` sınıfından ayrılmasını sağlıyor. Bu, `VersionManager` sınıfının daha odaklı ve yönetilebilir olmasını sağlıyor.
+    *   **Hata Yönetimi:** Kodun farklı yerlerinde `try-except` blokları ile hata yönetimi sağlanmış. Özellikle `get_current_branch` ve `get_current_version` fonksiyonlarında, Git ve dosya okuma hataları yakalanarak uygulamanın çökmesi engelleniyor ve loglama ile hata ayıklama kolaylaştırılıyor.
+    *   **Konfigürasyon Yönetimi:** Proje konfigürasyonlarının (package.json, pyproject.toml) okunması için standart kütüphaneler (json, toml) kullanılarak, farklı konfigürasyon formatlarına destek sağlanmış.
+
+### 2. İŞLEVSEL ETKİ:
+
+*   **Eklenen, Değiştirilen veya Kaldırılan Özellikler:**
+    *   **Yeni Özellik:** Gemini entegrasyonu ile commit özetlerine ve dosya değişikliklerine göre versiyon yükseltme önerileri alınması. Bu, geliştiricilere versiyon kararlarında yardımcı oluyor.
+    *   **Yeni Özellik:** Mevcut açık GitHub/GitLab issue'larına göre versiyon yükseltme önerisi sunulması. Bu, geliştiricilerin issue'lara göre versiyonlama yapmasını kolaylaştırıyor.
+    *   **Geliştirme:** Versiyon yükseltme sürecinde kullanıcı etkileşimini artırmak için onay mekanizması eklenmiş. Kullanıcıya versiyon değişikliği hakkında bilgi veriliyor ve onay isteniyor.
+    *   **Geliştirme:** Otomatik etiketleme (tagging) mekanizması geliştirilmiş. Kullanıcıya etiket oluşturma ve push etme seçenekleri sunuluyor.
+    *   **Geliştirme:** Commit mesajlarını daha anlamlı hale getirmek için otomatik mesaj oluşturma özelliği eklenmiş.
+    *   **Geliştirme:** Otomatik changelog oluşturma ve güncelleme süreçleri geliştirilmiş.
+    *   **Değişiklik:** `get_next_version` fonksiyonu, versiyon yükseltme mantığını daha esnek hale getirecek şekilde yeniden düzenlenmiş.
+    *   **Değişiklik:** `_detect_impact_level` fonksiyonu, dosya sayısı ve commit özetine göre versiyon etkisini otomatik olarak belirleme yeteneği kazanmış.
+
+*   **Kullanıcı Deneyimi:**
+    *   Kullanıcıya daha fazla kontrol ve bilgi sağlayan etkileşimli bir versiyon yükseltme süreci sunuluyor.
+    *   Otomatik öneriler ve mesaj oluşturma gibi özellikler, geliştiricilerin iş yükünü azaltıyor.
+    *   Daha anlamlı commit mesajları ve changelog'lar sayesinde, projenin anlaşılabilirliği artıyor.
+
+*   **Performans, Güvenlik veya Güvenilirlik Üzerindeki Etkiler:**
+    *   **Performans:** Gemini entegrasyonu, ek bir API çağrısı gerektirdiği için versiyon yükseltme sürecini biraz yavaşlatabilir. Ancak, bu gecikme, daha iyi versiyon kararları alınmasıyla dengelenebilir.
+    *   **Güvenlik:** Gemini API anahtarının güvenli bir şekilde saklanması ve yönetilmesi gerekiyor. Aksi takdirde, güvenlik açığı oluşabilir.
+    *   **Güvenilirlik:** Hata yönetimi sayesinde, Git ve dosya okuma hatalarından kaynaklanan çökmeler engelleniyor. Ayrıca, kullanıcı onayı mekanizması, yanlışlıkla yapılan versiyon yükseltmelerini önlüyor.
+
+### 3. TEKNİK DERINLIK:
+
+*   **Uygulanan veya Değiştirilen Tasarım Desenleri:**
+    *   **Factory Pattern (Dolaylı):** Gemini istemcisinin oluşturulması, Factory Pattern'ın dolaylı bir örneği olarak düşünülebilir. `GeminiClient` sınıfı, doğrudan değil, ihtiyaç duyulduğunda oluşturuluyor.
+    *   **Strategy Pattern (Dolaylı):** Farklı versiyon yükseltme stratejileri (major, minor, patch) ve otomatik etki seviyesi belirleme, Strategy Pattern'ın dolaylı bir örneği olarak düşünülebilir.
+
+*   **Kod Kalitesi ve Sürdürülebilirlik:**
+    *   **Tip İpuçları (Type Hints):** Kodun okunabilirliğini ve sürdürülebilirliğini artırmak için tip ipuçları kullanılmış.
+    *   **Docstring'ler:** Fonksiyonların ve sınıfların ne yaptığını açıklayan docstring'ler eklenmiş.
+    *   **Loglama:** Hata ayıklamayı ve sorun gidermeyi kolaylaştırmak için loglama kullanılmış.
+    *   **Modülerlik:** Kod, daha küçük ve bağımsız modüllere ayrılmış. Bu, kodun test edilebilirliğini ve yeniden kullanılabilirliğini artırıyor.
+
+*   **Yeni Bağımlılıklar veya Teknolojiler:**
+    *   **Gemini API:** Google Gemini (eski adıyla Bard) dil modeline bağımlılık eklenmiş. `GeminiClient` sınıfı bu API ile etkileşime geçiyor.
+    *   **Toml:** `pyproject.toml` dosyalarını okumak için toml kütüphanesi kullanılmış.
+
+### 4. SONUÇ YORUMU:
+
+*   **Bu Değişikliklerin Uzun Vadeli Değeri ve Etkisi:**
+    *   Otomatik versiyonlama önerileri ve commit mesajı oluşturma gibi özellikler, geliştiricilerin verimliliğini artırıyor.
+    *   Daha anlamlı commit mesajları ve changelog'lar, projenin anlaşılabilirliğini ve bakımını kolaylaştırıyor.
+    *   Git ve GitHub/GitLab entegrasyonu, versiyonlama sürecini daha sorunsuz hale getiriyor.
+    *   Genel olarak, bu değişiklikler, projenin uzun vadeli değerini ve sürdürülebilirliğini artırıyor.
+
+*   **Projenin Teknik Borcu Nasıl Etkilendi:**
+    *   Kodun modülerleştirilmesi, tip ipuçları ve docstring'ler ile belgelendirilmesi, teknik borcu azaltıyor.
+    *   Ancak, Gemini API'ye bağımlılık eklenmesi, teknik borcu biraz artırabilir (API'nin kullanılabilirliği, performansı vb. konularında).
+
+*   **Gelecekteki Geliştirmelere Nasıl Hazırlık Yapıldı:**
+    *   Modüler tasarım, gelecekte yeni özellikler eklemeyi veya mevcut özellikleri değiştirmeyi kolaylaştırıyor.
+    *   Tip ipuçları ve docstring'ler, kodun anlaşılabilirliğini artırarak, yeni geliştiricilerin projeye daha kolay katkıda bulunmasını sağlıyor.
+    *   Test edilebilir tasarım, gelecekte kodun daha güvenilir ve hatasız olmasını sağlıyor.
+
+**Değişen Dosyalar:** src/utils/version_manager.py, src/utils/git_manager.py, src/utils/changelog_updater.py
+**Etki Seviyesi:** High
+**Değişiklik Tipi:** Feature
+**Satır Değişiklikleri:** +4
+**Etiketler:** api, git-manager, manager, client, version-manager, utils, changelog-updater
+
+---
+
+## 2025-06-20 07:52:36
+
+Tamamdır, istenen detay seviyesinde ve yapıda analizi sunuyorum:
+
+### 1. YAPISAL ANALİZ:
+
+*   **Etkilenen Sistem Bileşenleri ve Katmanlar:**
+    *   **Yardımcı Araçlar Katmanı:** `src/utils/changelog_updater.py` dosyası doğrudan etkilendi. Bu dosya, sürüm güncellemelerini otomatikleştirerek geliştirme sürecini kolaylaştıran bir yardımcı araçtır.
+    *   **Servis Katmanı:** `src/utils/version_manager.py` ve `src/utils/git_manager.py` dosyaları etkilendi. Bu dosyalar, sürüm yönetimi ve Git işlemleri ile ilgili temel servisleri içerir. `VersionManager`, `GitManager`'ı kullanır ve `package.json` ile etkileşime girer.
+*   **Mimari Değişikliklerin Etkisi:**
+    *   **Sorumlulukların Ayrılması (SoC):** `VersionManager` sınıfı, Git ile ilgili işlemleri `GitManager`'a devrederek daha modüler bir yapıya kavuştu. Bu, tek sorumluluk prensibine (SRP) uygun bir yaklaşımdır. `VersionManager` artık sadece sürüm yönetimine odaklanırken, `GitManager` Git ile ilgili karmaşık işlemleri yönetir.
+    *   **Bağımlılık Yönetimi:** `VersionManager`'ın `GitManager`'a olan bağımlılığı, `__init__` metodu üzerinden enjekte edilir. Bu, bağımlılık enjeksiyonu (DI) prensibine bir örnektir ve test edilebilirliği artırır.
+    *   **Çalışma Şekli (Workflow) Entegrasyonu:** Değişiklikler, sürüm güncelleme sürecini Git akışıyla daha sıkı bir şekilde entegre etmeyi hedefliyor. Örneğin, otomatik değişiklik günlüğü oluşturma ve issue'lara bağlama yetenekleri, geliştirme sürecini daha şeffaf ve izlenebilir hale getiriyor.
+*   **Kod Organizasyonunda İyileştirmeler:**
+    *   **Sınıf Yapısı:** `VersionManager` ve `GitManager` sınıfları, mantıksal olarak ayrılmış ve iyi tanımlanmış sorumluluklara sahip.
+    *   **Modülerlik:** Git işlemleri `GitManager` içerisinde kapsüllenerek `VersionManager` sınıfının daha okunabilir ve bakımı daha kolay hale gelmesi sağlandı.
+    *   **Tip İpuçları (Type Hints):** Tip ipuçlarının kullanımı yaygınlaştırıldı (örneğin, `-> Optional[str]`, `-> Tuple[int, int, int]`). Bu, kodun okunabilirliğini ve statik analiz araçlarıyla uyumluluğunu artırır.
+    *   **Loglama:** `logging` modülü kullanılarak, hataların ve uyarıların daha iyi yönetilmesi sağlandı. Bu, hata ayıklama (debugging) sürecini kolaylaştırır.
+
+### 2. İŞLEVSEL ETKİ:
+
+*   **Eklenen, Değiştirilen veya Kaldırılan Özellikler:**
+    *   **Otomatik Sürüm Artışı:** Belirli Git commit mesajlarına veya issue'lardaki etiketlere göre otomatik olarak sürüm artışı yapabilme özelliği eklendi.
+    *   **Değişiklik Günlüğü (Changelog) Güncellemesi:** Otomatik olarak değişiklik günlüğü oluşturma ve güncelleme yeteneği geliştirildi.
+    *   **Git Entegrasyonu:** `GitManager` sınıfı aracılığıyla Git ile ilgili işlemler (branch adı alma, etiketleri listeleme, commit mesajlarını alma) daha kolay ve tutarlı bir şekilde gerçekleştirilebilir hale geldi.
+    *   **Issue Entegrasyonu:** GitHub API'si kullanılarak, open issue'lara bağlama ve issue'lardaki etiketlere göre sürüm artışı belirleme yeteneği eklendi. Bu, development'ı daha organize ve izlenebilir hale getirir.
+*   **Kullanıcı Deneyimi:**
+    *   **Otomasyon:** Sürüm yönetimi ve değişiklik günlüğü oluşturma süreçlerinin otomatikleştirilmesi, geliştiricilerin zamanını ve çabasını azaltır.
+    *   **Bilgilendirme:** Loglama sayesinde, sürüm yönetimi sürecinde ortaya çıkan hatalar ve uyarılar daha kolay tespit edilebilir.
+    *   **İnteraktiflik:** Kullanıcıya hangi sürüm artışının yapılacağına dair öneriler sunulması ve onay alınması, daha bilinçli bir sürüm yönetimi süreci sağlar.
+*   **Performans, Güvenlik veya Güvenilirlik Üzerindeki Etkiler:**
+    *   **Performans:** `subprocess` modülü kullanılarak Git komutlarının çalıştırılması, ek yük getirebilir. Ancak, bu yük genellikle kabul edilebilir düzeydedir. Özellikle, `subprocess.run` fonksiyonunun `capture_output=True` ve `text=True` parametreleri ile kullanılması, performansı artırır.
+    *   **Güvenlik:** `subprocess` modülünün dikkatli kullanılması önemlidir. Özellikle, kullanıcıdan alınan verilerin doğrudan Git komutlarına geçirilmesinden kaçınılmalıdır. Bunun nedeni, komut enjeksiyonu (command injection) saldırılarına karşı savunmasız kalınabilmesidir.
+    *   **Güvenilirlik:** Hata yönetimi ve loglama sayesinde, sürüm yönetimi sürecindeki hatalar daha kolay tespit edilebilir ve giderilebilir. Bu, sistemin genel güvenilirliğini artırır.
+
+### 3. TEKNİK DERINLIK:
+
+*   **Uygulanan veya Değiştirilen Tasarım Desenleri:**
+    *   **Facade:** `GitManager` sınıfı, karmaşık Git işlemlerini basitleştirerek `VersionManager` sınıfına daha kullanıcı dostu bir arayüz sunar.
+    *   **Strategy:** Sürüm artışı stratejileri (major, minor, patch) farklı sınıflar veya fonksiyonlar olarak uygulanabilir ve çalışma zamanında seçilebilir. Bu, sürüm artışı sürecinin daha esnek ve özelleştirilebilir olmasını sağlar.
+    *   **Dependency Injection:** `VersionManager` sınıfının `GitManager`'a olan bağımlılığı, constructor injection ile sağlanır.
+*   **Kod Kalitesi ve Sürdürülebilirlik:**
+    *   **Okunabilirlik:** Tip ipuçları, anlamlı değişken isimleri ve iyi yapılandırılmış fonksiyonlar sayesinde kodun okunabilirliği artırıldı.
+    *   **Bakım Kolaylığı:** Modüler tasarım ve sorumlulukların ayrılması sayesinde kodun bakımı ve güncellenmesi kolaylaştırıldı.
+    *   **Test Edilebilirlik:** Bağımlılık enjeksiyonu sayesinde kodun test edilebilirliği artırıldı.
+    *   **Hata Yönetimi:** `try-except` blokları ve loglama sayesinde hata yönetimi iyileştirildi.
+*   **Eklenen Yeni Bağımlılıklar veya Teknolojiler:**
+    *   **`requests` kütüphanesi (Muhtemel):** GitHub API'sine erişmek için `requests` kütüphanesinin kullanılması gerekebilir (KOD PARÇASI GÖSTERİLMEDİĞİ HALDE İŞLEVSELLİK GEREĞİ).
+    *   **`subprocess` modülü:** Git komutlarını çalıştırmak için `subprocess` modülü kullanılıyor.
+    *   **`pathlib` modülü:** Dosya ve dizin işlemleri için `pathlib` modülü kullanılıyor.
+    *   **GitHub API:** Issue'lara bağlanma ve etiketleri kontrol etme amacıyla GitHub API'si kullanılıyor.
+
+### 4. SONUÇ YORUMU:
+
+*   **Değişikliklerin Uzun Vadeli Değeri ve Etkisi:**
+    *   **Geliştirme Sürecini Hızlandırma:** Otomatik sürüm yönetimi ve değişiklik günlüğü oluşturma, geliştiricilerin zamanını ve çabasını azaltarak geliştirme sürecini hızlandırır.
+    *   **Kod Kalitesini Artırma:** Kodun okunabilirliği, bakımı ve test edilebilirliği artırılarak kod kalitesi yükseltilir.
+    *   **Şeffaflığı Artırma:** Sürüm yönetimi sürecinin şeffaflığı ve izlenebilirliği artırılır.
+    *   **Daha İyi İşbirliği:** Issue'lara bağlama ve etiketlere göre sürüm artışı belirleme, geliştirme ekipleri arasındaki işbirliğini kolaylaştırır.
+*   **Projenin Teknik Borcu:**
+    *   **Azaltma:** Kodun modülerleştirilmesi, okunabilirliğinin artırılması ve hata yönetiminin iyileştirilmesi, teknik borcu azaltır.
+    *   **Artırma (Potansiyel):** `subprocess` modülünün aşırı kullanımı veya güvenlik açıkları, teknik borcu artırabilir. Ayrıca, GitHub API'sine olan bağımlılık, API değişiklikleri durumunda teknik borca neden olabilir.
+*   **Gelecekteki Geliştirmelere Hazırlık:**
+    *   **Modüler Tasarım:** Modüler tasarım, gelecekteki geliştirmeleri kolaylaştırır. Yeni özellikler veya servisler, mevcut koda minimum etkiyle eklenebilir.
+    *   **Test Edilebilirlik:** Test edilebilir kod, gelecekteki değişikliklerin daha güvenli bir şekilde yapılmasını sağlar.
+    *   **API Entegrasyonu:** GitHub API'sine olan entegrasyon, gelecekteki otomasyon ve işbirliği senaryoları için bir temel oluşturur.
+
+Bu analiz, kod değişikliklerinin yapısal, işlevsel ve teknik derinlikteki etkilerini detaylı bir şekilde açıklamaktadır. Ayrıca, değişikliklerin uzun vadeli değeri ve etkisi, teknik borç üzerindeki etkisi ve gelecekteki geliştirmelere hazırlık açısından da değerlendirilmiştir.
+
+**Değişen Dosyalar:** src/utils/version_manager.py, src/utils/git_manager.py, src/utils/changelog_updater.py
+**Etki Seviyesi:** High
+**Değişiklik Tipi:** Feature
+**Satır Değişiklikleri:** +101
+**Etiketler:** version-manager, git-manager, utils, changelog-updater, api, manager
+
+---
+
 ## 2025-06-20 07:43:10
 
 İşte `src/utils/version_manager.py` dosyasındaki değişikliklerin kapsamlı ve analitik bir özeti:

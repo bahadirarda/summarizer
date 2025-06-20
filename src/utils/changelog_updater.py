@@ -17,6 +17,8 @@ from .json_changelog_manager import JsonChangelogManager, ImpactLevel, ChangeTyp
 from .readme_generator import update_readme
 from .version_manager import VersionManager
 from .git_manager import GitManager, SyncStatus
+from ..utils.io import _ask_user
+from ..services.gemini_client import GeminiClient
 logger_changelog = logging.getLogger(__name__)
 def _detect_impact_level(summary: str, changed_files: list) -> ImpactLevel:
     """Auto-detect impact level based on summary and files"""
@@ -404,14 +406,16 @@ def update_changelog(project_root: Optional[Path] = None):
         print("   🏷️  Analyzing changes for version management...")
         version_manager = VersionManager(project_root)
         git_manager = GitManager(project_root)
-        # Determine increment type based on impact level ONLY. This is the single source of truth.
-        increment_type = "patch"
-        if impact_level == ImpactLevel.CRITICAL:
-            increment_type = "major"
-        elif impact_level == ImpactLevel.HIGH:
-            increment_type = "minor"
-        elif impact_level == ImpactLevel.MEDIUM:
-            increment_type = "minor"
+        # First, try to determine version bump from linked GitHub issue
+        increment_type = _determine_version_increment_from_issue()
+
+        # Get the current version
+        current_version = version_manager.get_current_version()
+        
+        # Increment version based on the determined type or fallback to default
+        new_version = version_manager.increment_version(current_version, increment_type)
+        print(f"   ✅ Determined new version: {new_version}")
+
         # Use the new centralized incrementer
         new_version, old_version = version_manager.auto_increment(increment_type)
         if new_version != old_version and version_manager.update_version_in_files(new_version):
@@ -787,4 +791,61 @@ Return a JSON object with:
                 "workflow": "direct",
                 "reasoning": "Standard workflow for this branch type"
             }
+def _determine_version_increment_from_issue() -> Optional[str]:
+    """
+    Fetches open GitHub issues, asks the user to link their work, 
+    and determines the semantic version increment type ('patch', 'minor', 'major').
+    """
+    git_manager = GitManager(Path.cwd())
+    issues = git_manager.get_open_issues()
+
+    if not issues:
+        print("   ⚪️ No open issues found. Proceeding with standard versioning.")
+        return None
+
+    print("\n" + "="*60)
+    print(" " * 18 + "🔗 Link Work to an Issue")
+    print("="*60)
+    print("   The following open issues were found. Is this work related to any of them?")
+    
+    for i, issue in enumerate(issues):
+        labels = ", ".join([label['name'] for label in issue['labels']])
+        print(f"   [{i+1}] #{issue['number']}: {issue['title']} (Labels: {labels or 'None'})")
+    
+    print("   [0] None of the above")
+
+    while True:
+        try:
+            choice_str = input("   Enter your choice (0-" + str(len(issues)) + "): ").strip()
+            choice = int(choice_str)
+            if 0 <= choice <= len(issues):
+                break
+            else:
+                print(f"   ⚠️  Invalid choice. Please enter a number between 0 and {len(issues)}.")
+        except ValueError:
+            print("   ⚠️  Invalid input. Please enter a number.")
+
+    if choice == 0:
+        print("   ⚪️ No issue selected. Using default versioning logic.")
+        return None
+
+    selected_issue = issues[choice - 1]
+    labels = {label['name'].lower() for label in selected_issue['labels']}
+    
+    print(f"   ✅ Linked to issue #{selected_issue['number']}.")
+
+    # Determine increment based on labels
+    if 'breaking change' in labels or 'major' in labels:
+        print("   📈 Detected 'breaking change' label. Recommending MAJOR version bump.")
+        return 'major'
+    if 'feature' in labels or 'enhancement' in labels:
+        print("   ✨ Detected 'feature' label. Recommending MINOR version bump.")
+        return 'minor'
+    if 'bug' in labels or 'fix' in labels or 'bugfix' in labels:
+        print("   🐞 Detected 'bug' label. Recommending PATCH version bump.")
+        return 'patch'
+
+    print("   ⚪️ No clear versioning label found on issue. Using default logic.")
+    return None
+
 # Test comment
