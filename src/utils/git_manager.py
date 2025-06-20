@@ -9,6 +9,15 @@ from typing import Any, Dict, List, Optional, Tuple
 
 logger = logging.getLogger(__name__)
 
+def _ask_user(prompt: str) -> bool:
+    """Gets user confirmation from the console."""
+    try:
+        return input(f"{prompt} (y/n): ").lower().strip() == 'y'
+    except (EOFError, KeyboardInterrupt):
+        # Handle cases where the user presses Ctrl+D or Ctrl+C
+        print("\n   ⚪️ User cancelled operation.")
+        return False
+
 class SyncStatus(Enum):
     SYNCED = "synced"
     AHEAD = "ahead"
@@ -460,3 +469,38 @@ class GitManager:
         except Exception as e:
             logger.error(f"Could not get sync status for '{branch_name}': {e}")
             return SyncStatus.DIVERGED, 0, 0
+
+    def force_push_with_confirmation(self, branch_name: str) -> bool:
+        """
+        Executes a force push only after a series of explicit user confirmations.
+        Uses --force-with-lease for slightly safer operation.
+        """
+        print(f"   ⚠️  Force Push Warning for branch '{branch_name}'")
+        print("="*60)
+        
+        # Question 1: Initial check
+        q1 = "Your local files seem more up-to-date as a whole. Do you want to consider force pushing to overwrite the remote branch?"
+        if not _ask_user(f"   ❔ {q1}"):
+            print("   ⚪️ Force push cancelled.")
+            return False
+
+        # Question 2: Explain the danger
+        q2 = "This will use 'force push', which can permanently delete commits on the remote branch. Are you sure you want to proceed?"
+        if not _ask_user(f"   ❔ {q2}"):
+            print("   ⚪️ Force push cancelled.")
+            return False
+            
+        # Question 3: Final, irreversible confirmation
+        q3 = "This action cannot be undone. Do you approve overwriting the remote branch with your local version?"
+        if not _ask_user(f"   ❔ {q3}"):
+            print("   ⚪️ Force push cancelled.")
+            return False
+
+        print(f"\n   🚀 Executing force push for '{branch_name}'...")
+        success, output = self.force_push(branch_name)
+        if success:
+            print("   ✅ Force push completed successfully.")
+        else:
+            print(f"   ❌ Force push failed:\n{output}")
+        
+        return success

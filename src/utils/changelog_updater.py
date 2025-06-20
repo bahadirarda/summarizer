@@ -17,7 +17,7 @@ from .file_tracker import (  # Import for getting changed files
 from .json_changelog_manager import JsonChangelogManager, ImpactLevel, ChangeType
 from .readme_generator import update_readme
 from .version_manager import VersionManager
-from .git_manager import GitManager, SyncStatus
+from .git_manager import GitManager, SyncStatus, _ask_user
 
 logger_changelog = logging.getLogger(__name__)
 
@@ -51,13 +51,6 @@ def _detect_impact_level(summary: str, changed_files: list) -> ImpactLevel:
         return ImpactLevel.LOW
 
     return ImpactLevel.MEDIUM
-
-
-def _ask_user(prompt: str) -> bool:
-    try:
-        return input(f"{prompt} (y/n): ").lower() == 'y'
-    except (EOFError, KeyboardInterrupt):
-        return False
 
 
 def _run_ci_checks(project_root: Path) -> bool:
@@ -221,7 +214,13 @@ def _post_workflow_sync(git_manager: GitManager):
         if _ask_user(f"   ❔ Your branch is {behind} commit(s) behind. Pull latest changes?"):
             git_manager.pull(current_branch)
     elif status == SyncStatus.DIVERGED:
-        print(f"   ⚠️  Branch has diverged. Manual intervention required.")
+        print(f"   ⚠️  Branch '{current_branch}' has diverged from the remote. You have unique local and remote commits.")
+        print("   💡 This requires manual intervention. Your options:")
+        print("      1. 'git pull' - to merge remote changes into your local branch (may cause conflicts).")
+        print("      2. Force push - to overwrite the remote branch with your local changes (DANGEROUS).")
+        
+        if _ask_user("\n   ❔ Do you want to attempt a force push to resolve the divergence?"):
+            git_manager.force_push_with_confirmation(current_branch)
     
     print("\n   📋 Workflow Summary:")
     print(f"   • Current branch: {current_branch}")
