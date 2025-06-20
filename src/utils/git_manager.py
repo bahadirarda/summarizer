@@ -504,3 +504,16 @@ class GitManager:
             print(f"   ❌ Force push failed:\n{output}")
         
         return success
+
+    def get_open_issues(self) -> List[Dict]:
+        """Get all open issues for the repository."""
+        logger.info("Fetching open GitHub issues...")
+        try:
+            cmd = ["gh", "issue", "list", "--json", "number,title,labels"]
+            result = self._run_external_command(cmd)
+            if result[0]:
+                return json.loads(result[1])
+            return []
+        except (subprocess.CalledProcessError, json.JSONDecodeError, FileNotFoundError) as e:
+            logger.error(f"Could not fetch GitHub issues: {e}")
+            return []

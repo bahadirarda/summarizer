@@ -22,6 +22,43 @@ from .git_manager import GitManager, SyncStatus, _ask_user
 logger_changelog = logging.getLogger(__name__)
 
 
+def _prompt_for_issue(issues: list) -> Optional[dict]:
+    """Displays a list of issues and prompts the user to select one."""
+    if not issues:
+        return None
+        
+    print("\n   🔗 Link to an open GitHub Issue?")
+    print("   " + "="*40)
+    for i, issue in enumerate(issues):
+        print(f"      {i+1}. #{issue['number']}: {issue['title']}")
+    print("      0. None of these / Skip")
+    print("   " + "="*40)
+    
+    while True:
+        try:
+            choice = input("   Enter your choice (number): ").strip()
+            if not choice: # User just pressed enter
+                print("   ⚪️ Skipping issue linking.")
+                return None
+            
+            choice_num = int(choice)
+            
+            if choice_num == 0:
+                print("   ⚪️ Skipping issue linking.")
+                return None
+            if 1 <= choice_num <= len(issues):
+                selected = issues[choice_num - 1]
+                print(f"   ✅ Linking to Issue #{selected['number']}: {selected['title']}")
+                return selected
+            else:
+                print(f"   ⚠️  Invalid selection. Please try again.")
+        except ValueError:
+            print(f"   ⚠️  Invalid input. Please enter a number from the list.")
+        except (EOFError, KeyboardInterrupt):
+            print("\n   ⚪️ Operation cancelled by user.")
+            return None
+
+
 def _detect_impact_level(summary: str, changed_files: list) -> ImpactLevel:
     """Auto-detect impact level based on summary and files"""
     summary_lower = summary.lower()
@@ -368,6 +405,16 @@ def update_changelog(project_root: Optional[Path] = None):
             impact_level = _detect_impact_level(ai_summary, changed_files)
             print(f"   🎯 Impact level: {impact_level.value}")
 
+            # Ask user to link to a GitHub issue
+            selected_issue = None
+            try:
+                git_manager = GitManager(project_root)
+                open_issues = git_manager.get_open_issues()
+                if open_issues:
+                    selected_issue = _prompt_for_issue(open_issues)
+            except Exception as e:
+                logger_changelog.warning(f"Could not check for GitHub issues: {e}")
+
         except Exception as e:
             print("   ⚠️  AI analysis failed, using fallback")
             logger_changelog.error(
@@ -500,7 +547,11 @@ def update_changelog(project_root: Optional[Path] = None):
             if not git_manager.is_working_directory_clean():
                 prompt_message = f"   ❔ Commit changes to '{current_branch_name}'?"
                 if _ask_user(prompt_message):
-                    commit_message = f"chore(summarizer): Auto-update to v{new_version}\n\n{summary}"
+                    commit_body = summary
+                    if selected_issue:
+                        commit_body += f"\n\nCloses #{selected_issue['number']}"
+                    
+                    commit_message = f"chore(summarizer): Auto-update to v{new_version}\n\n{commit_body}"
                     if not (git_manager.stage_all() and git_manager.commit(commit_message)):
                         print("   ❌ Failed to commit changes. Aborting.")
                         return

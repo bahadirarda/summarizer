@@ -14,6 +14,7 @@ import subprocess
 import json
 import getpass
 import re
+from enum import Enum, auto
 
 # Add parent directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -24,6 +25,13 @@ from src.utils.json_changelog_manager import ImpactLevel
 from src.core.configuration_manager import ConfigurationManager
 from src.services.gemini_client import GeminiClient
 from features.parameter_checker import setup_command
+
+
+class MergeStatus(Enum):
+    SUCCESS = auto()
+    FAILED = auto()
+    PAUSED = auto()
+    CANCELLED = auto()
 
 
 def get_open_prs(project_root: Path) -> List[dict]:
@@ -180,7 +188,7 @@ def check_pr_status(pr_number: int, project_root: Path) -> bool:
         return True
 
 
-def execute_merge(pr_to_merge: dict, merge_method: str, project_root: Path, git_manager: GitManager) -> bool:
+def execute_merge(pr_to_merge: dict, merge_method: str, project_root: Path, git_manager: GitManager) -> MergeStatus:
     """Execute the actual merge"""
     pr_number = pr_to_merge['number']
     
@@ -219,25 +227,26 @@ def execute_merge(pr_to_merge: dict, merge_method: str, project_root: Path, git_
                     if git_manager.resolve_conflicts_with_pr(pr_number):
                         print("\n   🎉 Conflicts resolved successfully!")
                         print("   📋 The PR has been updated. You may need to re-run the merge command.")
-                        return True # Indicate that an action was taken, but merge needs re-run
+                        return MergeStatus.PAUSED
                     else:
                         print("   ❌ Automatic conflict resolution failed.")
                         print("   💡 Please resolve conflicts manually.")
-                    break 
+                        return MergeStatus.FAILED
                 elif choice == '2':
                     pr_branch_name = pr_to_merge['headRefName']
                     if git_manager.force_push_with_confirmation(pr_branch_name):
                          print("\n   🎉 Force push completed.")
                          print("   📋 The PR has been updated. You may need to re-run the merge command.")
+                         return MergeStatus.PAUSED
                     else:
                         print("   ❌ Force push was cancelled or failed.")
-                    break
+                        return MergeStatus.CANCELLED
                 elif choice == '3':
                     print("   ⚪️ Merge cancelled. Please resolve conflicts manually.")
-                    return False # Explicitly stop the merge
+                    return MergeStatus.CANCELLED
                 else:
                     print("   ⚠️  Invalid choice. Please enter 1, 2, or 3.")
-            return False
+            return MergeStatus.FAILED # Fallback if loop is broken unexpectedly
     except Exception as e:
         print(f"   ⚠️  Could not check merge conflicts: {e}")
         # Continue anyway
@@ -279,13 +288,13 @@ def execute_merge(pr_to_merge: dict, merge_method: str, project_root: Path, git_
             git_manager.pull(current_branch)
         
         print("   ✅ Local repository synced")
-        return True
+        return MergeStatus.SUCCESS
         
     except subprocess.CalledProcessError as e:
         print(f"   ❌ Merge failed: {e}")
         if e.stderr:
             print(f"   📝 Error details: {e.stderr}")
-        return False
+        return MergeStatus.FAILED
 
 
 def _get_bulk_ai_analysis(prs: List[Dict], gemini_client: Any) -> Optional[Dict]:
@@ -495,14 +504,24 @@ def merge_command(project_root: Path):
         password = getpass.getpass("   🔑 Enter security password: ")
         if password != "merge2main":  # You should use env var or better auth
             print("   ❌ Invalid password. Merge cancelled.")
-            return
+            return MergeStatus.CANCELLED
         
         print("   ✅ Security check passed")
     
     # Execute merge
-    if execute_merge(pr_to_merge, recommendation['merge_method'], project_root, git_manager):
+    merge_status = execute_merge(pr_to_merge, recommendation['merge_method'], project_root, git_manager)
+    
+    if merge_status == MergeStatus.SUCCESS:
         print("\n   🎉 Merge completed successfully!")
-    else:
+        print("   🔄 Syncing local repository with remote changes...")
+        git_manager.pull(pr_to_merge['baseRefName'])
+        git_manager.delete_branch(pr_to_merge['headRefName'])
+    elif merge_status == MergeStatus.PAUSED:
+        print("\n   ⏸️  Merge Paused: Action was taken to resolve conflicts.")
+        print("   💡 Please re-run 'summarizer merge' to proceed with the now-updated PR.")
+    elif merge_status == MergeStatus.CANCELLED:
+        print("\n   🛑 Merge was cancelled by the user.")
+    else: # FAILED
         print("\n   ❌ Merge failed. Please check the errors above.")
 
 
