@@ -441,10 +441,10 @@ def update_changelog(project_root: Optional[Path] = None):
                 # Create PR to target branch
                 target_branch = workflow_decision.get('target_branch', 'develop')
                 
-                if _ask_user(f"   ❔ Push '{current_branch_name}' to remote?"):
+                if _ask_user(f"   ❔ Push '{current_branch_name}' to GitHub and create PR to '{target_branch}'?"):
                     success, output = git_manager.push(current_branch_name)
                     if success:
-                        print("   ✅ Branch pushed successfully.")
+                        print("   ✅ Branch pushed to GitHub successfully.")
                         # Now handle PR creation/update
                         _handle_pull_request_flow(project_root, git_manager, current_branch_name, target_branch, summary, gemini_client)
                         
@@ -458,10 +458,10 @@ def update_changelog(project_root: Optional[Path] = None):
             elif workflow_decision['workflow'] == 'direct':
                 # Direct push (only for non-protected branches)
                 if current_branch_name not in ['main', 'master']:
-                    if _ask_user(f"   ❔ Push changes directly to '{current_branch_name}'?"):
+                    if _ask_user(f"   ❔ Push changes directly to '{current_branch_name}' on GitHub (no PR)?"):
                         success, output = git_manager.push(current_branch_name)
                         if success:
-                            print("   ✅ Changes pushed successfully.")
+                            print("   ✅ Changes pushed directly to GitHub.")
                         else:
                             print(f"   ❌ Push failed: {output}")
                 else:
@@ -470,10 +470,10 @@ def update_changelog(project_root: Optional[Path] = None):
             elif workflow_decision['workflow'] == 'release':
                 # Special release workflow
                 print("   📦 Following release workflow...")
-                if _ask_user(f"   ❔ Push '{current_branch_name}' to remote?"):
+                if _ask_user(f"   ❔ Push '{current_branch_name}' to GitHub and create release PR to 'main'?"):
                     success, output = git_manager.push(current_branch_name)
                     if success:
-                        print("   ✅ Release branch pushed.")
+                        print("   ✅ Release branch pushed to GitHub.")
                         # Now handle PR creation for release
                         _handle_pull_request_flow(project_root, git_manager, current_branch_name, 'main', summary, gemini_client)
                     else:
