@@ -1,58 +1,24 @@
-# 🚀 project.110620251156
-> Geliştirme sürecini otomatikleştiren ve changelog yönetimini iyileştiren bir web projesi. GitHub entegrasyonu ve yapay zeka destekli changelog güncellemeleri ile geliştiricilerin verimliliğini artırmayı hedefliyor.
-
-## 📊 Proje Durumu
-Proje, `git_manager.py` ve `changelog_updater.py` dosyalarında önemli iyileştirmeler içeren güncellemeler aldı.  GitHub pull request'lerinin otomatik birleştirilmesi ve yapay zeka destekli changelog güncellemeleri gibi yeni özellikler eklendi.  Proje şu anda test aşamasında olup, yakın zamanda üretime alınması planlanmaktadır.
-
-## ✨ Özellikler
-* **Otomatik Pull Request Birleştirme:** `gh` CLI aracılığıyla GitHub pull request'lerinin otomatik olarak birleştirilmesi.
-* **Yapay Zeka Destekli Changelog Güncellemeleri:** Changelog girdilerinin etki seviyesinin otomatik olarak belirlenmesi ve daha akıllı changelog oluşturma.
-* **Geliştirilmiş Hata Yönetimi:** `git_manager.py`'deki `try-except` blokları ile hata yönetiminin iyileştirilmesi.
-* **Geliştirilmiş Kod Organizasyonu:**  `git_manager.py` ve `changelog_updater.py` dosyalarında kod tekrarının azaltılması ve işlevselliğin daha iyi gruplandırılması.
-* **GitHub Yetkilendirme Kontrolü:**  Güvenliği artırmak için GitHub yetkilendirme kontrolü mekanizması.
-
-
-## Değişen Dosyalar:
-* `src/utils/git_manager.py`: GitHub pull request birleştirme özelliği eklendi, hata yönetimi iyileştirildi.
-* `src/utils/changelog_updater.py`: Yapay zeka destekli changelog güncelleme mekanizması eklendi.
-
-
-## ANALİZ GÖREVİ:
-
-### 1. YAPISAL ANALİZ:
-
-- **Hangi sistem bileşenleri ve katmanlar etkilendi?**  Değişiklikler, projenin `src/utils` dizini altındaki yardımcı modüller olan `git_manager.py` ve `changelog_updater.py` dosyalarını etkiledi. Bu, projenin servis katmanı ve yardımcı araçlar katmanını temsil eder. Diğer katmanlar dolaylı olarak etkilenebilir, ancak doğrudan bir etki gözlemlenmemiştir.
-
-- **Mimari değişikliklerin etkisi nedir?**  Mimari açıdan büyük bir değişiklik yok.  `git_manager.py`'deki eklemeler mevcut işlevselliği genişletirken, `changelog_updater.py`'deki değişiklikler ise yeni bir yapay zeka entegrasyonunu içeriyor.  Bu, `changelog_updater.py`'nin iç işleyişini önemli ölçüde değiştirse de, genel proje mimarisinde büyük bir değişikliğe yol açmaz.  Ancak, AI entegrasyonu nedeniyle daha karmaşık bir mimariye doğru bir evrim gözlemlenebilir.
-
-- **Kod organizasyonunda hangi iyileştirmeler yapıldı?** `git_manager.py`'de `GitManager` sınıfının işlevselliği genişletilerek ilgili işlevler daha iyi gruplandırıldı. `_run_external_command` ve `_run_git_command` gibi yardımcı fonksiyonlar, kod tekrarını azaltarak ve hata yönetimini iyileştirerek kod organizasyonunu geliştirdi. `changelog_updater.py`'de ise, yapay zeka entegrasyonu ile daha yapılandırılmış bir karar alma süreci oluşturulmuş olabilir (kesilen kod nedeniyle kesin olarak söylenemez).
-
-
-### 2. İŞLEVSEL ETKİ:
-
-- **Hangi özellikler eklendi, değiştirildi veya kaldırıldı?**  `git_manager.py`'ye GitHub pull request'lerini otomatik olarak birleştiren `merge_pull_request` metodu eklendi.  `changelog_updater.py`'ye ise yapay zeka destekli changelog güncelleme mekanizması eklendi.  Mevcut işlevsellik genişletildi, hiçbir özellik kaldırılmadı.
-
-- **Kullanıcı deneyimi nasıl etkilendi?** Kullanıcı deneyimi doğrudan etkilenmedi.  Ancak, geliştiricilerin iş akışı önemli ölçüde iyileştirildi. Pull request birleştirme ve changelog güncelleme süreçlerinin otomatikleştirilmesi, geliştiricilerin verimliliğini artırır.
-
-- **Performans, güvenlik veya güvenilirlik üzerindeki etkiler?** Performans, `git` ve `gh` komutlarının yürütülme süresine ve yapay zeka modelinin yanıt süresine bağlıdır. Genellikle ihmal edilebilir düzeyde olsa da, yüksek yük altında performans düşüşü gözlemlenebilir. Güvenlik, GitHub yetkilendirme kontrolü ile artırılır.  Ancak, `gh` CLI'nin ve yapay zeka servisinin güvenlik açıkları güvenliği etkileyebilir. Güvenilirlik, hata yönetimi mekanizmalarının ve yapay zeka modelinin güvenilirliğine bağlıdır. `try-except` blokları ve fallback mekanizmaları güvenilirliği artırır.
-
-
-### 3. TEKNİK DERINLIK:
-
-- **Hangi tasarım desenleri uygulandı veya değiştirildi?** `git_manager.py`'deki `_run_external_command` ve `_run_git_command` fonksiyonları, Template Method tasarım deseni örneği sergiler.  `changelog_updater.py`'de ise, yapay zeka entegrasyonu ile muhtemelen Strateji Deseni veya Durum Makinesi Deseni kullanılmış olabilir (kesilen kod nedeniyle kesin olarak belirtilemez).
-
-- **Kod kalitesi ve sürdürülebilirlik nasıl gelişti?**  Hata yönetimi (`try-except` blokları) ve logging (kodda açıkça belirtilmese de, iyileştirme yapıldığı varsayımıyla) iyileştirilmesi kod kalitesini artırdı.  Modüler tasarım ve iyi hata yönetimi, sürdürülebilirliği yükseltti.
-
-- **Yeni bağımlılıklar veya teknolojiler eklendi mi?**  Yeni bağımlılık olarak GitHub CLI (`gh`) eklendi.  `changelog_updater.py`'de ise, yapay zeka modeli ve ona erişim sağlayan bir kütüphane veya API eklenmiş olabilir.
-
-
-### 4. SONUÇ YORUMU:
-
-- **Bu değişikliklerin uzun vadeli değeri ve etkisi nedir?** Bu değişiklikler, geliştirme sürecini otomatikleştirerek ve hızlandırarak uzun vadede verimliliği artırır.  Otomatik pull request birleştirme ve yapay zeka destekli changelog güncellemeleri, geliştiricilerin zamanını ve çabasını önemli ölçüde azaltır.
-
-- **Projenin teknik borcu nasıl etkilendi?**  Hata yönetimi ve logging'in iyileştirilmesi teknik borcu azalttı. Ancak, yeni yapay zeka bağımlılığı ve `gh` CLI'nin bakımı yeni bir teknik borç unsuru oluşturabilir.
-
-- **Gelecekteki geliştirmelere nasıl hazırlık yapıldı?** `git_manager.py`'nin modüler yapısı ve iyi hata yönetimi, yeni Git ve GitHub entegrasyonlarının eklenmesini kolaylaştırır.  Ancak, yapay zeka modelinin sürekli olarak kullanılabilirliği ve güvenilirliği gelecekteki geliştirmeler için kritik öneme sahiptir.  AI karar verme sürecinin şeffaflığı ve fallback mekanizmasının geliştirilmesi de önemlidir.
+Genel bir güncelleme yapıldı. (AI özeti alınamadı: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. [violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+  quota_id: "GenerateRequestsPerDayPerProjectPerModel-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-flash"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+  quota_value: 500
+}
+, links {
+  description: "Learn more about Gemini API quotas"
+  url: "https://ai.google.dev/gemini-api/docs/rate-limits"
+}
+, retry_delay {
+  seconds: 40
+}
+])
 
 ## 🛠️ Kurulum (Installation)
 
@@ -213,7 +179,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**Last updated**: June 20, 2025 by Summarizer Framework v8.17.0
+**Last updated**: June 20, 2025 by Summarizer Framework v8.18.0
 *This README is automatically generated and updated based on project activity.*
 
 > *"Automatically maintained with AI-powered analysis"*

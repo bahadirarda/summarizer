@@ -3,6 +3,38 @@
 Bu dosya otomatik olarak generate edilmiştir.
 Düzenlemeler için `changelog.json` dosyasını kullanın.
 
+## 2025-06-20 07:36:19
+
+Kod tabanında güncellemeler yapıldı. Değişen dosyalar: test_force_push.py, summarizer.py, src/utils/git_manager.py, src/utils/changelog_updater.py, src/services/gemini_client.py. (AI özeti alınamadı: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. [violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+  quota_id: "GenerateRequestsPerDayPerProjectPerModel-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-flash"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+  quota_value: 500
+}
+, links {
+  description: "Learn more about Gemini API quotas"
+  url: "https://ai.google.dev/gemini-api/docs/rate-limits"
+}
+, retry_delay {
+  seconds: 40
+}
+])
+
+**Değişen Dosyalar:** test_force_push.py, summarizer.py, src/utils/git_manager.py, src/utils/changelog_updater.py, src/services/gemini_client.py
+**Etki Seviyesi:** High
+**Değişiklik Tipi:** Test
+**Satır Değişiklikleri:** +372 -87
+**Etiketler:** gemini-client, manager, changelog-updater, git-manager, client, utils, summarizer, services, api, test-force-push
+
+---
+
 ## 2025-06-20 06:08:20
 
 ### 1. YAPISAL ANALİZ:
