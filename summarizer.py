@@ -130,12 +130,9 @@ def main():
     
     # Handle merge command
     if args and args[0] == 'merge':
-        try:
-            from features.merge_command import merge_command
-            return merge_command(Path(__file__).parent)
-        except ImportError as e:
-            print(f"❌ Merge command not available: {e}")
-            return False
+        from features.merge_command import merge_command
+        merge_command(Path.cwd())
+        return True
     
     # Handle setup and configuration commands
     if args and args[0] == '--setup':
@@ -178,9 +175,9 @@ Examples:
   summarizer --setup            # Interactive setup
   summarizer --gui              # Launch GUI configuration
   summarizer --check            # Check configuration
-  summarizer merge              # AI-powered PR merge assistant
   summarizer screenshot         # Full screen analysis
   summarizer ss chrome          # Chrome window analysis
+  summarizer merge              # Merge PR with security checks
   
   # Python usage:
   import summarizer
@@ -287,14 +284,6 @@ Examples:
     if parsed_args.command in ['screenshot', 'ss']:
         return screenshot_command(parsed_args.args)
     
-    if parsed_args.command == 'merge':
-        try:
-            from features.merge_command import merge_command
-            return merge_command(Path(__file__).parent)
-        except ImportError as e:
-            print(f"❌ Merge command not available: {e}")
-            return False
-    
     # Default behavior - run summarizer
     print("🚀 Summarizer Framework")
     print("=" * 30)
@@ -315,4 +304,3 @@ if __name__ == "__main__":
 # TODO: summarizer ss <comment> - screenshot with comment özelliği ekle (Commente göre yorumlasın.)
 # BiG TODO: Summarizer Enter: sesli komut sistemiyle terminal kullanımı. Cihaz ile tam erişim halinde iletişime geçme konusunda ilk versiyon.
 # TODO: Summarizer Updater : otomatik olarak güncellemeleri kontrol etme ve yükleme. Yeni sürüm çıktığında kullanıcıyı bilgilendir.
-

@@ -3,6 +3,566 @@
 Bu dosya otomatik olarak generate edilmiştir.
 Düzenlemeler için `changelog.json` dosyasını kullanın.
 
+## 2025-06-20 07:00:36
+
+### 1. YAPISAL ANALİZ:
+
+**Etkilenen Sistem Bileşenleri ve Katmanlar:**
+
+*   **Yardımcı Araçlar:** `src/utils/changelog_updater.py` dosyası doğrudan etkilenmiştir. Bu dosya, değişiklik geçmişi (changelog) yönetiminden sorumludur ve projenin yardımcı araç katmanında yer alır.
+*   **Servis Katmanı:** `src/utils/version_manager.py` dosyası doğrudan etkilenmiştir. Bu dosya, versiyon yönetimi ile ilgili işlevselliği sağlar ve projenin servis katmanında yer alır. Temelde, sürüm numaralarını okuma, artırma, analiz etme ve bu bilgileri kullanarak projeyi yönetme görevlerini üstlenir.
+
+**Mimari Değişikliklerin Etkisi:**
+
+*   Değişiklikler, projenin versiyon yönetimi ve changelog güncelleme süreçlerini iyileştirmeye odaklanmıştır. Bu durum, mimari anlamda temel katmanlarda değişiklik yaratmasa da, sürdürülebilirlik ve geliştirici deneyimi açısından önemli etkileri bulunmaktadır. Örneğin, akıllı branch oluşturma mantığı, geliştirme akışını otomatikleştirerek geliştiricilerin iş yükünü azaltır.
+*   Projenin genel mimarisinde doğrudan büyük değişiklikler olmasa da, `version_manager` ve `changelog_updater` arasındaki etkileşimde ince ayarlar ve mantıksal akışlarda iyileştirmeler yapılmış olabilir.
+
+**Kod Organizasyonunda Yapılan İyileştirmeler:**
+
+*   Kodun tamamı incelenmeden net bir şey söylemek zor olsa da, dosya isimleri ve sınıf adları (`VersionManager`, `ChangelogUpdater`) kodun amacını açıkça belirtmektedir. Bu da kodun okunabilirliğini artırmaktadır.
+*   Loglama mekanizmasının kullanılması, hata ayıklama ve sorun giderme süreçlerini kolaylaştırır.
+*   Tip ipuçlarının (typing) kullanılması, kodun daha güvenli ve anlaşılır olmasını sağlar.
+
+### 2. İŞLEVSEL ETKİ:
+
+**Eklenen, Değiştirilen veya Kaldırılan Özellikler:**
+
+*   **Akıllı Branch Oluşturma:** `changelog_updater.py`'deki AI entegrasyonu ve akıllı branch oluşturma mantığı önemli bir yeniliktir. Bu özellik, commit mesajlarına, değişen dosyalara ve proje durumuna göre otomatik olarak uygun branch adı ve geliştirme akışı önerileri sunar.
+*   **Gelişmiş Versiyon Analizi:** `version_manager.py`'deki versiyon parsing (ayrıştırma) ve analiz yetenekleri geliştirilmiştir. Semantik versiyonlamaya (semantic versioning) uygun olarak, major, minor ve patch versiyonlarını doğru bir şekilde belirleme ve artırma yeteneği önemlidir.
+*   **Otomatik Changelog Güncelleme:** Değişiklikler, changelog dosyasının otomatik olarak güncellenmesini ve yeni versiyon bilgilerinin eklenmesini kolaylaştırır. Bu, sürüm notlarının manuel olarak hazırlanması sürecini ortadan kaldırarak zaman tasarrufu sağlar.
+*   **FallBack Mekanizmaları:** AI başarısız olduğunda, akıllıca alternatif bir plan devreye sokulmuştur.
+
+**Kullanıcı Deneyimi Nasıl Etkilendi:**
+
+*   Geliştirici deneyimi önemli ölçüde iyileşmiştir. Otomatik branch oluşturma ve changelog güncelleme özellikleri, geliştiricilerin manuel olarak yapması gereken işlemleri azaltarak daha verimli çalışmalarını sağlar.
+*   Sürüm yayınlama süreçleri daha tutarlı ve hatasız hale gelir.
+
+**Performans, Güvenlik veya Güvenilirlik Üzerindeki Etkiler:**
+
+*   Performans üzerinde doğrudan olumsuz bir etkisi beklenmez. Ancak, AI tabanlı branch oluşturma mantığı, ilk çalıştırmada hafif bir gecikmeye neden olabilir.
+*   Güvenlik üzerinde doğrudan bir etkisi olmasa da, daha düzenli ve tutarlı sürüm yayınlama süreçleri, güvenlik açıklarının daha hızlı giderilmesine ve dağıtılmasına yardımcı olabilir.
+*   Güvenilirlik, akıllı branch oluşturma ve otomatik changelog güncelleme süreçlerinin doğru ve tutarlı bir şekilde çalışmasına bağlıdır. Bu nedenle, bu özelliklerin kapsamlı bir şekilde test edilmesi önemlidir.
+
+### 3. TEKNİK DERINLIK:
+
+**Uygulanan veya Değiştirilen Tasarım Desenleri:**
+
+*   **Facade:** `VersionManager` ve `ChangelogUpdater` sınıfları, versiyon yönetimi ve changelog güncelleme süreçlerinin karmaşıklığını gizleyerek daha basit bir arayüz sunar.
+*   **Strategy:** AI tabanlı branch oluşturma mantığı, farklı algoritmaları (stratejileri) dinamik olarak seçerek farklı senaryolara uyum sağlayabilir.
+
+**Kod Kalitesi ve Sürdürülebilirlik Nasıl Gelişti:**
+
+*   Tip ipuçlarının (typing) kullanılması, kodun okunabilirliğini ve güvenilirliğini artırır.
+*   Loglama mekanizmasının kullanılması, hata ayıklama ve sorun giderme süreçlerini kolaylaştırır.
+*   Modüler tasarım, kodun yeniden kullanılabilirliğini ve test edilebilirliğini artırır.
+*   Akıllı branch oluşturma ve otomatik changelog güncelleme özellikleri, sürüm yayınlama süreçlerini otomatikleştirerek geliştirici hatalarını azaltır.
+
+**Yeni Bağımlılıklar veya Teknolojiler Eklendi mi:**
+
+*   AI entegrasyonu için muhtemelen yeni bir bağımlılık (örneğin, OpenAI API'si) eklenmiş olabilir. Bu durum, projenin bağımlılıklarını artırır ve potansiyel güvenlik risklerini beraberinde getirebilir. (Tam olarak kod analizine bakılmadan emin olunamaz)
+
+### 4. SONUÇ YORUMU:
+
+**Bu Değişikliklerin Uzun Vadeli Değeri ve Etkisi Nedir:**
+
+*   Değişiklikler, projenin sürdürülebilirliği, geliştirici deneyimi ve sürüm yayınlama süreçleri açısından önemli bir değere sahiptir.
+*   Akıllı branch oluşturma ve otomatik changelog güncelleme özellikleri, uzun vadede geliştirici verimliliğini artırır ve sürüm yayınlama hatalarını azaltır.
+
+**Projenin Teknik Borcu Nasıl Etkilendi:**
+
+*   Yeni bağımlılıkların eklenmesi, teknik borcu hafifçe artırabilir. Ancak, kod kalitesindeki iyileştirmeler ve otomatikleştirilmiş süreçler, bu artışı dengeleyebilir.
+
+**Gelecekteki Geliştirmelere Nasıl Hazırlık Yapıldı:**
+
+*   Modüler tasarım ve tip ipuçlarının kullanılması, gelecekteki geliştirmeleri kolaylaştırır.
+*   AI entegrasyonu, gelecekteki otomasyon ve akıllı özellikler için bir temel oluşturur.
+*   Loglama mekanizmasının kullanılması, gelecekteki hata ayıklama ve sorun giderme süreçlerini kolaylaştırır.
+
+Özetle, bu değişiklikler, projenin versiyon yönetimi ve changelog güncelleme süreçlerini iyileştirmeye odaklanmıştır. Akıllı branch oluşturma, gelişmiş versiyon analizi ve otomatik changelog güncelleme gibi özellikler eklenerek geliştirici deneyimi ve sürdürülebilirlik artırılmıştır. Teknik borç hafifçe artmış olsa da, kod kalitesindeki iyileştirmeler ve otomatikleştirilmiş süreçler bu durumu dengelemektedir. Gelecekteki geliştirmeler için sağlam bir temel oluşturulmuştur.
+
+**Değişen Dosyalar:** src/utils/version_manager.py, src/utils/changelog_updater.py
+**Etki Seviyesi:** High
+**Değişiklik Tipi:** Feature
+**Satır Değişiklikleri:** +16
+**Etiketler:** manager, version-manager, changelog-updater, api, utils
+
+---
+
+## 2025-06-20 06:58:24
+
+Tamamdır, `src/utils/version_manager.py` dosyasındaki değişikliklerin kapsamlı analizini aşağıda sunuyorum.
+
+### 1. YAPISAL ANALİZ:
+
+*   **Etkilenen Sistem Bileşenleri ve Katmanlar:** Bu değişiklikler doğrudan "Servis Katmanı" olarak belirtilen katmanı etkiliyor. Özel olarak, sürüm yönetimi ile ilgili yardımcı fonksiyonları içeren `src/utils/version_manager.py` dosyası etki altında. Dolayısıyla, projenin sürümleme ve dağıtım süreçlerine odaklanan bir bölümü etkileniyor.
+*   **Mimari Değişikliklerin Etkisi:** Bu kod parçası, daha geniş bir yazılım mimarisinin parçası olarak sürüm kontrolü ve sürüm bilgilerine erişim sağlama görevini üstleniyor. Burada görülen değişiklikler, özellikle sürüm numaralarını elde etme, ayrıştırma ve potansiyel olarak sürüm atlama (version bumping) süreçlerini içeriyor. Dolaylı olarak, bu modülün etkileşimde bulunduğu diğer modüller (örneğin, yapılandırma yönetimi, dağıtım otomasyonu) de bu değişikliklerden etkilenebilir. Bu modülün doğru ve güvenilir bir şekilde çalışması, otomatik dağıtım sistemlerinin ve sürüm kontrol sistemlerinin (örn. CI/CD pipeline'ları) düzgün işlemesi için kritik öneme sahip. Mimari açıdan bakıldığında, sürümleme mantığının merkezi bir yerde toplanması, kod tekrarını azaltır ve sürümleme stratejilerindeki değişikliklerin daha kolay yönetilmesini sağlar.
+*   **Kod Organizasyonunda İyileştirmeler:** `VersionManager` sınıfının kullanılması, sürüm yönetimi ile ilgili mantığı kapsülleyerek daha düzenli ve modüler bir yapı sunar. Belirli fonksiyonların (örn. `get_current_branch`, `get_current_version`, `parse_version`) ayrı ayrı tanımlanması, kodun okunabilirliğini ve test edilebilirliğini artırır. Ayrıca, `logger` kullanımı, hataların ve istisnaların daha iyi yönetilmesini ve izlenmesini sağlar. Belirli branch türlerini analiz etmek için kullanılan `_analyze_branch_type` fonksiyonu, sürüm stratejilerinin branch yapısına göre uyarlanmasına olanak tanır ve bu da sürümleme süreçlerini daha dinamik hale getirir. Projenin kök dizinini argüman olarak almasıyla class'ın proje dizininden bağımsızlığı sağlanır.
+
+### 2. İŞLEVSEL ETKİ:
+
+*   **Eklenen, Değiştirilen veya Kaldırılan Özellikler:**
+    *   **get_current_branch:** Mevcut git branch'ini döndüren fonksiyon.
+    *   **get_current_version:** `package.json` dosyasından mevcut sürümü okur. Dosya bulunamazsa veya okuma hatası oluşursa varsayılan bir sürüm döndürür.
+    *   **parse_version:** Semantic version string'ini ayrıştırır.
+    *   **bump_version:** Mevcut sürümü artırır (major, minor veya patch).
+    *   **get_last_tags:** Son tag'leri getirir.
+    *   **get_recent_commits:** Son commit'leri getirir.
+    *   **_analyze_branch_type:** Branch türünü analiz eder.
+
+    Bu fonksiyonlar genel olarak sürüm yönetimi ile ilgili işlemleri kolaylaştırır ve otomatize eder.
+*   **Kullanıcı Deneyimi:** Doğrudan bir kullanıcı arayüzü olmadığı için, kullanıcı deneyimi dolaylı olarak etkilenir. Sürümleme süreçlerinin daha iyi yönetilmesi, hataların daha hızlı tespit edilmesine ve düzeltilmesine olanak tanır. Ayrıca, otomatik sürüm atlama ve sürüm notlarının oluşturulması gibi özellikler, geliştiricilerin iş akışını kolaylaştırır. Bu da nihayetinde, kullanıcıların daha stabil ve güvenilir bir ürün kullanmasına katkıda bulunur. Örneğin, hatalı bir sürüm yayınlandığında, `hotfix/` branch'inden otomatik olarak patch sürümü oluşturulabilir.
+*   **Performans, Güvenlik veya Güvenilirlik Üzerindeki Etkiler:** Bu kod parçası, performans açısından nispeten hafiftir. Ancak, `subprocess` modülünün kullanılması, dış komutların (git) çalıştırılmasına neden olur. Bu, güvenlik açısından bir risk oluşturabilir, özellikle de `project_root` değişkeni güvenilir olmayan bir kaynaktan geliyorsa. Bu nedenle, `project_root` değişkeninin dikkatli bir şekilde yönetilmesi ve doğrulanması önemlidir. Güvenilirlik açısından, hataların ve istisnaların uygun şekilde yönetilmesi (örn. `try-except` blokları ve `logger` kullanımı) önemlidir. Sürüm numaralarının doğru ve tutarlı bir şekilde yönetilmesi, dağıtım süreçlerinin ve bağımlılık yönetiminin sorunsuz bir şekilde çalışmasını sağlar.
+
+### 3. TEKNİK DERINLIK:
+
+*   **Uygulanan veya Değiştirilen Tasarım Desenleri:**
+    *   **Singleton:** `VersionManager` sınıfından tek bir instance oluşturulması gerekirse (örneğin, global bir sürüm yönetimi nesnesine ihtiyaç duyulursa), Singleton tasarım deseni uygulanabilir. Ancak, bu kod parçasında doğrudan bir Singleton uygulaması görülmemektedir.
+    *   **Strategy:** `bump_version` fonksiyonu, hangi sürüm bölümünün (major, minor, patch) artırılacağını belirlemek için Strategy tasarım desenini kullanabilir. Bu, farklı sürüm atlama stratejilerinin kolayca değiştirilmesine ve genişletilmesine olanak tanır.
+    *   **Facade:** `VersionManager` sınıfı, daha karmaşık sürüm yönetimi işlemlerini basitleştirmek için bir Facade olarak kullanılabilir. Örneğin, `get_current_version` ve `bump_version` fonksiyonları, farklı kaynaklardan sürüm bilgilerini okuma ve güncelleme işlemlerini kapsülleyebilir.
+*   **Kod Kalitesi ve Sürdürülebilirlik:** Kod kalitesi genellikle iyi görünüyor. Fonksiyonların açıkça tanımlanmış sorumlulukları var ve hatalar uygun şekilde yönetiliyor. Ancak, bazı potansiyel iyileştirmeler yapılabilir:
+    *   **Tip İpuçları:** Daha fazla tip ipucu eklenerek kodun okunabilirliği ve güvenilirliği artırılabilir.
+    *   **Testler:** Birim testleri yazılarak kodun doğru çalıştığı ve gelecekteki değişikliklerden etkilenmediği garanti altına alınabilir.
+    *   **Belgelendirme:** Docstring'ler daha ayrıntılı hale getirilerek kodun kullanımı ve amacı daha iyi açıklanabilir.
+*   **Yeni Bağımlılıklar veya Teknolojiler:** Bu kod parçasında, standart Python kütüphaneleri (örn. `json`, `pathlib`, `subprocess`) kullanılmaktadır. Yeni bir bağımlılık eklenmemiştir. Ancak, `subprocess` modülünün kullanılması, sistemde `git` komutunun kurulu olmasını gerektirir.
+
+### 4. SONUÇ YORUMU:
+
+*   **Bu Değişikliklerin Uzun Vadeli Değeri ve Etkisi:** Bu değişiklikler, projenin sürüm yönetimi süreçlerini iyileştirmek için önemli bir adım. Otomatik sürüm atlama, sürüm notlarının oluşturulması ve branch yapısına göre sürüm stratejilerinin uyarlanması gibi özellikler, geliştiricilerin iş akışını kolaylaştırır ve hataların azaltılmasına yardımcı olur. Bu da nihayetinde, daha stabil ve güvenilir bir ürün ortaya çıkmasına katkıda bulunur.
+*   **Projenin Teknik Borcu:** Bu değişiklikler, teknik borcu azaltmaya yardımcı olur. Sürümleme mantığının merkezi bir yerde toplanması, kod tekrarını azaltır ve sürümleme stratejilerindeki değişikliklerin daha kolay yönetilmesini sağlar. Ancak, testlerin yazılmaması ve kodun belgelendirilmemesi gibi eksiklikler, teknik borcun artmasına neden olabilir.
+*   **Gelecekteki Geliştirmelere Hazırlık:** Bu değişiklikler, gelecekteki geliştirmelere zemin hazırlar. Sürümleme süreçlerinin daha iyi yönetilmesi, otomatik dağıtım sistemlerinin ve CI/CD pipeline'larının daha kolay entegre edilmesine olanak tanır. Ayrıca, kodun modüler ve okunabilir olması, gelecekteki değişikliklerin daha kolay yapılmasını sağlar. Gelecekte, bu modül, sürümleme ile ilgili daha karmaşık işlemleri desteklemek için genişletilebilir (örn. sürüm notlarının otomatik olarak oluşturulması, sürümleme stratejilerinin farklı ortamlara göre uyarlanması).
+
+**Değişen Dosyalar:** src/utils/version_manager.py
+**Etki Seviyesi:** Critical
+**Değişiklik Tipi:** Feature
+**Satır Değişiklikleri:** -22
+**Etiketler:** manager, utils, version-manager, api
+
+---
+
+## 2025-06-20 06:57:18
+
+## Değişiklik Analizi: `src/utils/version_manager.py`
+
+Bu analiz, sağlanan `src/utils/version_manager.py` dosyasındaki değişiklikleri detaylı bir şekilde inceleyecektir. Amaç, değişikliklerin yapısal, işlevsel ve teknik etkilerini belirlemek ve projenin genel sağlığı üzerindeki etkisini değerlendirmektir. Dosyanın kısaltılmış versiyonu sunulduğundan analiz, mevcut kod parçacıkları ve belirtilen bağlam dahilinde yapılabilecektir.
+
+### 1. YAPISAL ANALİZ:
+
+*   **Etkilenen Sistem Bileşenleri ve Katmanlar:**
+    *   Bu değişiklik doğrudan `utils` katmanını ve `VersionManager` sınıfını etkilemektedir. `VersionManager` sınıfı, projenin sürüm yönetimi ve dağıtımı ile ilgili işlevleri içerdiğinden, projenin core altyapısını etkiler.
+*   **Mimari Değişikliklerin Etkisi:**
+    *   Sunulan kod parçacığına göre önemli bir mimari değişiklik görünmemektedir. Ancak, `VersionManager` sınıfının iyileştirilmesi ve genişletilmesi, sürüm yönetimi sürecini daha sağlam ve otomatik hale getirerek geliştirme sürecinin mimarisine dolaylı olarak katkıda bulunabilir.  Örneğin `_analyze_branch_type` fonksiyonu ile dallara göre aksiyon alınması gibi,
+*   **Kod Organizasyonunda İyileştirmeler:**
+    *   Kod organizasyonunda iyileştirmeler, özellikle hata yönetimi (exception handling) ve logging mekanizmalarında belirgindir. `try-except` blokları, hataların yakalanmasını ve uygun şekilde loglanmasını sağlar. Bu, hata ayıklama ve sorun giderme süreçlerini kolaylaştırır. `subprocess` kullanılarak dış sistemlere (git) çağrı yapılması, modüler bir yaklaşım sergiler. Kodun geri kalanında tam olarak nasıl kullanıldığı bilinmemekle beraber bağımsız bir servis katmanının işlevlerini yerine getirmesi hedeflenmiş olabilir.
+
+### 2. İŞLEVSEL ETKİ:
+
+*   **Eklenen, Değiştirilen veya Kaldırılan Özellikler:**
+    *   **Eklenenler:**
+        *   `get_current_branch()`: Git'ten mevcut dal adını alma işlevi eklendi.
+        *   `_analyze_branch_type()`: Dal türünü analiz ederek (feature, hotfix, release, vb.) AI bağlamında kullanılabilecek bir bilgi sağlama işlevi eklendi.
+        *   `_get_existing_tags()`: Son 10 tag bilgisini alarak ilgili verileri AI bağlamında kullanılabilecek bir formata dönüştürme işlevi eklendi.
+        *   `_get_recent_commits()`: Son 5 commit mesajını alarak ilgili verileri AI bağlamında kullanılabilecek bir formata dönüştürme işlevi eklendi.
+    *   **Değiştirilenler:**
+        *   `get_current_version()`: `package.json` dosyasından versiyonu okuma işlevi güncellendi. Okuma başarısız olursa varsayılan bir değer döndürüyor.
+    *   **Kaldırılanlar:**
+        *   Dosyanın tam sürümü olmadığı için kaldırma bilgisi belirlenemiyor.
+*   **Kullanıcı Deneyimi:**
+    *   Bu değişiklikler doğrudan kullanıcı deneyimini etkilemez. Ancak, sürüm yönetimi sürecinin otomasyonu ve iyileştirilmesi, yazılım geliştirme sürecini hızlandırarak dolaylı olarak kullanıcıya daha hızlı ve güvenilir güncellemeler sunulmasını sağlayabilir. Özellikle AI bağlamında kullanılacak yeni özellikler (branch tipi analizi, tag ve commit bilgileri), gelecekteki otomasyon senaryoları için bir temel oluşturabilir.
+*   **Performans, Güvenlik veya Güvenilirlik Üzerindeki Etkiler:**
+    *   **Performans:** `subprocess` ile git komutlarının çağrılması ek bir yük getirebilir. Ancak, bu işlemlerin sıklığı ve süresi performansı önemli ölçüde etkileyecek düzeyde olmayabilir.
+    *   **Güvenlik:** Dış sistemlere (git) çağrı yapılması, güvenlik riskleri oluşturabilir. Ancak, sağlanan kodda herhangi bir güvenlik açığına rastlanmamıştır. Yine de, yetkilendirme ve girdi doğrulama konularına dikkat edilmelidir.
+    *   **Güvenilirlik:** Hata yönetimi ve logging mekanizmalarının iyileştirilmesi, uygulamanın güvenilirliğini artırır. Özellikle `package.json` dosyasının okunamaması durumunda varsayılan bir değer döndürülmesi, uygulamanın çalışmaya devam etmesini sağlar.
+
+### 3. TEKNİK DERINLIK:
+
+*   **Uygulanan veya Değiştirilen Tasarım Desenleri:**
+    *   `VersionManager` sınıfı, **Facade** tasarım desenine benzer bir rol üstlenmektedir. Karmaşık sürüm yönetimi işlemlerini basit bir arayüz üzerinden sunar.
+    *   **Şablon Metot (Template Method)** tasarım deseni düşünülebilir. Özellikle `_get_existing_tags()` ve `_get_recent_commits()` fonksiyonları, benzer yapıya sahip olup farklı git komutlarını çalıştırarak farklı veriler elde eder. Bu, ortak bir şablonun farklı adımlarla uygulandığı bir senaryoya benzetilebilir.
+*   **Kod Kalitesi ve Sürdürülebilirlik:**
+    *   Kodun okunabilirliği ve anlaşılabilirliği iyi düzeydedir. Açıklayıcı değişken isimleri, docstring'ler ve anlamlı fonksiyon isimleri kullanılmıştır.
+    *   Hata yönetimi ve logging mekanizmalarının eklenmesi, kodun sürdürülebilirliğini artırır.
+    *   Modüler bir yaklaşım benimsenmesi, kodun yeniden kullanılabilirliğini ve test edilebilirliğini artırır.
+*   **Yeni Bağımlılıklar veya Teknolojiler:**
+    *   Yeni bir bağımlılık görünmüyor. `subprocess` modülü zaten Python'da yerleşik olarak bulunmaktadır. Ancak, git'in sistemde kurulu olması ve PATH'e eklenmiş olması bir gerekliliktir.
+
+### 4. SONUÇ YORUMU:
+
+*   **Değişikliklerin Uzun Vadeli Değeri ve Etkisi:**
+    *   Bu değişiklikler, projenin sürüm yönetimi altyapısını güçlendirerek uzun vadede değer sağlar. Özellikle AI tabanlı araçlarla entegrasyon için gerekli olan temel verilerin (branch tipi, tag bilgisi, commit mesajları) toplanması, gelecekteki otomasyon senaryolarının önünü açar.
+*   **Projenin Teknik Borcu:**
+    *   Bu değişiklikler, teknik borcu azaltmaya yönelik adımlar atmaktadır. Hata yönetimi, logging ve modülerlik gibi konulara dikkat edilmesi, kodun bakımını ve geliştirilmesini kolaylaştırır.
+*   **Gelecekteki Geliştirmelere Hazırlık:**
+    *   AI bağlamında kullanılacak verilerin toplanması, gelecekteki geliştirmeler için bir temel oluşturur. Örneğin, otomatik sürüm numarası belirleme, otomatik release notları oluşturma veya otomatik test süreçleri gibi senaryolar bu verilerle mümkün olabilir. `VersionManager` sınıfının genişletilebilir bir yapıda olması, yeni özelliklerin eklenmesini kolaylaştırır.
+
+**Özetle:** Yapılan değişiklikler, sürüm yönetimi süreçlerini iyileştirmeye ve projenin gelecekteki geliştirmelerine yönelik önemli adımlar atmaya odaklanmıştır. Kod kalitesi ve sürdürülebilirlik artırılmış, teknik borç azaltılmaya çalışılmıştır. AI entegrasyonu için gerekli olan temel verilerin toplanması, projenin gelecekteki otomasyon potansiyelini artırmaktadır.
+
+**Değişen Dosyalar:** src/utils/version_manager.py
+**Etki Seviyesi:** Critical
+**Değişiklik Tipi:** Feature
+**Satır Değişiklikleri:** +15
+**Etiketler:** manager, utils, api, version-manager
+
+---
+
+## 2025-06-20 06:55:04
+
+### 1. YAPISAL ANALİZ:
+
+Etkilenen sistem bileşenleri temel olarak `summarizer.py` giriş noktası dosyası ve dolaylı olarak bu dosya üzerinden çağrılan modüllerdir. Dosya, komut satırı arayüzü (CLI), GUI arayüzü ve ana özetleme işlevselliği arasındaki bağlantı noktasını oluşturuyor.
+
+*   **Etkilenen Katmanlar:** Sunum katmanı (CLI ve GUI arayüzleri), uygulama katmanı (ana özetleme mantığı) ve bazı yardımcı özellik katmanları (ekran görüntüsü alma, konfigürasyon yönetimi vb.).
+*   **Mimari Değişikliklerin Etkisi:** Ana mimari değişiklik, argüman ayrıştırması ve farklı özellik modüllerinin çağrılma şeklindeki düzenlemelerdir. Bu değişiklikler, CLI komutlarının yönetimi ve farklı özelliklerin etkinleştirilmesi için daha modüler ve genişletilebilir bir yapı sunmayı amaçlıyor. Özellikle `argparse` kullanımı ve farklı komutların işlenmesi için ayrı fonksiyonlara yönlendirme, kontrol akışını merkezileştiriyor. Ek olarak, geliştiricilerin yeni komutlar ve özellikler eklemesini kolaylaştırıyor.
+*   **Kod Organizasyonunda İyileştirmeler:** Kod, farklı özellikler için ayrı modüllere ayrılmış durumda (`features/parameter_checker.py`, `features/screenshot.py`, vb.). Bu, sorumlulukların ayrılması prensibine (SRP) uygun olarak, her modülün belirli bir işlevselliğe odaklanmasını sağlıyor. Ayrıca, `summarizer.py` giriş noktası dosyası, bu modüllerin bir orkestratörü olarak görev yapıyor. Komut satırı argümanlarını ayrıştırıyor ve ilgili modülleri çağırıyor. Bu durum, kodun daha okunaklı, test edilebilir ve bakımı kolay hale gelmesine yardımcı oluyor. Yeni yapılacak geliştirmelerin ana mantıktan ayrılması ve yeni dosyalarda yapılandırılması sistemin okunabilirliğini artırır.
+
+### 2. İŞLEVSEL ETKİ:
+
+*   **Eklenen, Değiştirilen veya Kaldırılan Özellikler:**
+    *   **Eklenenler:** Yeni komut satırı seçenekleri (örneğin, `--gui`, `--setup`, `--check`, `--install-gui`, `--install-terminal`, `--uninstall-terminal`, `--status`).
+    *   **Değiştirilenler:** `screenshot` ve `ss` komutları artık argüman alabiliyor, bu sayede belirli bir uygulamadan ekran görüntüsü alınabiliyor (örneğin, `summarizer ss chrome`).
+    *   **Kaldırılanlar:** Herhangi bir özelliğin kaldırıldığına dair bir bilgi yok.
+*   **Kullanıcı Deneyimi:**
+    *   CLI kullanımı daha esnek ve sezgisel hale geliyor. Kullanıcılar, farklı özelliklere kolayca erişebilir ve yapılandırma işlemlerini gerçekleştirebilir.
+    *   GUI arayüzü entegrasyonu, daha görsel ve kullanıcı dostu bir deneyim sunuyor.
+    *   `screenshot` komutunun geliştirilmesi, kullanıcılara belirli uygulamalardan ekran görüntüsü alma imkanı sağlıyor, bu da kullanım senaryolarını genişletiyor.
+*   **Performans, Güvenlik veya Güvenilirlik Üzerindeki Etkiler:**
+    *   Performans: Kod değişikliklerinin performansı nasıl etkilediğine dair somut bir kanıt bulunmamakla birlikte, modüler yapı ve optimize edilmiş argüman ayrıştırması potansiyel olarak performansı artırabilir. Ancak, her yeni özellik (örneğin, GUI) kaynak tüketimini artırabilir.
+    *   Güvenlik: Eklenen yeni özellikler (özellikle GUI) potansiyel güvenlik riskleri taşıyabilir. GUI arayüzünün güvenli bir şekilde uygulanması ve yetkilendirme mekanizmalarının doğru bir şekilde yapılandırılması önemlidir.
+    *   Güvenilirlik: Modüler yapı, hataların diğer bileşenleri etkilemesini önleyebilir, bu da genel sistemin güvenilirliğini artırır. Ancak, her yeni özellik, yeni hatalara yol açma potansiyeli taşır.
+
+### 3. TEKNİK DERINLIK:
+
+*   **Uygulanan veya Değiştirilen Tasarım Desenleri:**
+    *   **Komut (Command) Deseni:** CLI komutlarının her biri, ayrı bir komut nesnesi olarak düşünülebilir. Bu, komutların işlenmesini daha modüler ve genişletilebilir hale getirir.
+    *   **Fabrika (Factory) Deseni:** GUI arayüzünün başlatılması veya farklı ekran görüntüsü alma yöntemlerinin seçimi için bir fabrika deseni kullanılabilir.
+    *   **Orkestratör Deseni:** `summarizer.py` dosyası, farklı özellik modüllerini çağırarak bir orkestratör görevi görüyor.
+*   **Kod Kalitesi ve Sürdürülebilirlik:**
+    *   Kodun modüler yapısı, okunabilirliği ve sürdürülebilirliği artırıyor.
+    *   Fonksiyonların ve modüllerin iyi tanımlanmış sorumlulukları, kodun test edilebilirliğini kolaylaştırıyor.
+    *   Yorum satırları ve dokümantasyon, kodun anlaşılabilirliğini artırıyor.
+*   **Yeni Bağımlılıklar veya Teknolojiler:**
+    *   GUI arayüzü için yeni bir GUI kütüphanesi (örneğin, Tkinter, PyQt, Kivy) eklenmiş olabilir. Bu, yeni bir bağımlılık yaratır.
+    *   Ekran görüntüsü alma işlemleri için yeni bir kütüphane (örneğin, Pillow, PyAutoGUI) eklenmiş olabilir. Bu da yeni bir bağımlılık yaratır.
+
+### 4. SONUÇ YORUMU:
+
+*   **Uzun Vadeli Değer ve Etki:** Bu değişiklikler, Summarizer Framework'ün daha esnek, kullanıcı dostu ve genişletilebilir hale gelmesini sağlıyor. Yeni özellikler ve CLI komutları, kullanıcıların özetleme işlemlerini daha verimli bir şekilde gerçekleştirmesine olanak tanıyor. GUI arayüzü entegrasyonu, daha geniş bir kullanıcı kitlesine ulaşılmasını sağlayabilir.
+*   **Projenin Teknik Borcu:** Yeni özellikler ve bağımlılıklar, teknik borcu artırabilir. Özellikle, GUI arayüzünün karmaşıklığı ve potansiyel güvenlik riskleri, teknik borcun artmasına neden olabilir. Kodun iyi dokümante edilmesi, test edilmesi ve sürdürülebilir bir şekilde geliştirilmesi, teknik borcun azaltılmasına yardımcı olabilir. `TODO` notları da teknik borcun bir göstergesi. Bunların çözülmesi teknik borcun azalmasına yardımcı olacaktır.
+*   **Gelecekteki Geliştirmelere Hazırlık:** Modüler yapı, gelecekteki geliştirmeler için sağlam bir temel oluşturuyor. Yeni özelliklerin eklenmesi ve mevcut özelliklerin değiştirilmesi daha kolay hale geliyor. Ancak, kodun iyi organize edilmesi ve dokümante edilmesi önemlidir. Ayrıca, projenin sürekli olarak test edilmesi ve iyileştirilmesi gerekiyor. Özellikle sondaki `TODO` notları, sonraki geliştirme adımları için önemli yol haritası niteliğinde.
+
+Özetle, bu değişiklikler, Summarizer Framework'ü daha işlevsel, kullanıcı dostu ve sürdürülebilir hale getirmeyi amaçlıyor. Ancak, yeni özelliklerin ve bağımlılıkların potansiyel riskleri de göz önünde bulundurulmalı ve kodun sürekli olarak test edilmesi ve iyileştirilmesi gerekiyor. Özellikle TODO notları iyileştirme için bir fırsat sunuyor.
+
+**Değişen Dosyalar:** summarizer.py
+**Etki Seviyesi:** High
+**Değişiklik Tipi:** Other
+**Satır Değişiklikleri:** +306
+**Etiketler:** api, summarizer, gui
+
+---
+
+## 2025-06-20 06:53:42
+
+İşte `src/utils/version_manager.py` dosyasındaki değişikliklerin kapsamlı ve analitik bir özeti:
+
+### 1. YAPISAL ANALİZ:
+
+*   **Etkilenen Sistem Bileşenleri ve Katmanlar:** Bu değişiklik doğrudan "Servis Katmanı" olarak tanımlanan `src/utils/version_manager.py` dosyasını etkiliyor. Bu katman, uygulamanın versiyon bilgilerini yönetmek, sürüm kontrol sistemi (Git) ile etkileşimde bulunmak ve versiyonlama mantığını merkezileştirmekten sorumludur.
+
+*   **Mimari Değişikliklerin Etkisi:** Dosyanın kendisi bir sınıf ( `VersionManager` ) içerdiğinden, değişiklikler genellikle bu sınıfın iç yapısını ve davranışını etkiler. Burada tam dosya içeriği olmadığı için somut mimari değişiklikleri belirtmek zor, ancak genel olarak bu tür bir dosyadaki değişiklikler şunları etkileyebilir:
+    *   Versiyon bilgisi edinme ve ayrıştırma yöntemleri.
+    *   Git ile etkileşimde bulunma yöntemleri (örneğin, branch adını alma, tag'leri listeleme, commit log'larını okuma).
+    *   Versiyon artırma stratejileri.
+    *   Versiyon bilgisini raporlama ve kullanma şekli (örneğin, AI tabanlı analiz için bağlam oluşturma).
+
+*   **Kod Organizasyonunda İyileştirmeler:** Dosyanın amacı, versiyon yönetimini merkezileştirmek ve kolaylaştırmaktır.  Kod organizasyonundaki iyileştirmeler şunlar olabilir:
+    *   Daha modüler ve yeniden kullanılabilir fonksiyonlar yazılması.
+    *   Hata yönetimi ve logging mekanizmalarının iyileştirilmesi (gerekirse).
+    *   Kodun okunabilirliğini ve anlaşılabilirliğini artırmak için daha iyi isimlendirme ve dokümantasyon kullanılması.
+    *   Sorumlulukların daha iyi ayrılması (örneğin, versiyon bilgisini edinme ve versiyon artırma logic'i ayrı fonksiyonlara bölünmesi).
+
+### 2. İŞLEVSEL ETKİ:
+
+*   **Eklenen, Değiştirilen veya Kaldırılan Özellikler:** Kesin kod farklılıkları olmadan, olası işlevsel etkiler şunlardır:
+    *   **Yeni Özellikler:** AI entegrasyonu için yeni bağlam oluşturma (branch tipi analizi, commit log'ları, tag'ler).
+    *   **Değiştirilen Özellikler:** `get_current_version` fonksiyonu daha güvenli hale getirilmiş, varsayılan değer belirtilmiş ve daha kapsamlı hata yönetimi eklenmiş olabilir.
+    *   **Kaldırılan Özellikler:** Dosyada kullanılmayan veya gereksiz fonksiyonlar kaldırılmış olabilir.
+        `_analyze_branch_type` metodu, branch adını analiz ederek AI'a bağlam sağlamak üzere geliştirilmiş.
+
+*   **Kullanıcı Deneyimi Nasıl Etkilendi:** Bu dosya doğrudan kullanıcı arayüzünü etkilemese de, uygulamanın versiyon bilgisinin doğru ve tutarlı bir şekilde yönetilmesini sağlayarak dolaylı olarak kullanıcı deneyimini etkileyebilir. Örneğin:
+    *   Doğru versiyon bilgisi, hata raporlamasını kolaylaştırır.
+    *   Versiyon tabanlı özelliklerin etkinleştirilmesi veya devre dışı bırakılması doğru çalışır.
+    *   AI destekli analizler için doğru versiyon bilgisinin sağlanması, sonuçların doğruluğunu artırır.
+
+*   **Performans, Güvenlik veya Güvenilirlik Üzerindeki Etkiler:**
+    *   **Performans:** `subprocess.run` kullanılarak Git komutlarının çalıştırılması performansı etkileyebilir. Ancak, commit sayısını sınırlandırma ve tag sayısını kısıtlama gibi optimizasyonlar yapılmış olabilir.
+    *   **Güvenlik:** `subprocess.run` kullanırken komut enjeksiyonu riskine dikkat edilmeli.  Kullanıcı girdisi kullanılmıyorsa, bu risk düşük olur.
+    *   **Güvenilirlik:** Hata yönetimi (try-except blokları) ve logging mekanizmaları sayesinde dosyanın güvenilirliği artırılmış olabilir. `get_current_version` fonksiyonunda, `package.json` dosyasının okunamaması durumunda varsayılan bir değer döndürülmesi güvenilirliği artırır.
+
+### 3. TEKNİK DERINLIK:
+
+*   **Uygulanan veya Değiştirilen Tasarım Desenleri:**
+    *   **Singleton:** `VersionManager` sınıfından sadece bir örnek oluşturulması gerekiyorsa, Singleton deseni uygulanmış olabilir.
+    *   **Strategy:** Farklı versiyon artırma stratejileri (örneğin, major, minor, patch) Strategy deseni ile uygulanabilir.
+    *   **Facade:** `VersionManager` sınıfı, Git ve `package.json` gibi karmaşık sistemlere erişimi kolaylaştıran bir Facade olarak kullanılabilir.
+        Branch tipini analiz eden `_analyze_branch_type` metodu, strateji deseninin basit bir uygulaması olarak düşünülebilir. Farklı branch tipleri için farklı analiz stratejileri eklenebilir.
+
+*   **Kod Kalitesi ve Sürdürülebilirlik Nasıl Gelişti:**
+    *   Daha iyi hata yönetimi ve logging.
+    *   Daha modüler ve yeniden kullanılabilir fonksiyonlar.
+    *   Daha iyi dokümantasyon (docstring'ler).
+    *   Tip ipuçlarının kullanılması (typing).
+    *   Kodun okunabilirliğini artıran isimlendirme ve formatlama.
+
+*   **Yeni Bağımlılıklar veya Teknolojiler Eklendi mi:** Değişiklikte görülen bağımlılıklar (`json`, `logging`, `pathlib`, `typing`, `datetime`, `subprocess`, `re`) zaten Python'da standart olarak gelen kütüphaneler. Yeni bir bağımlılık eklenmemiş. Ancak, AI entegrasyonu için kullanılan bir kütüphane (örneğin, OpenAI API) eklenebilir, ancak bu kod parçasında belirtilmemiş.
+
+### 4. SONUÇ YORUMU:
+
+*   **Bu Değişikliklerin Uzun Vadeli Değeri ve Etkisi Nedir:**
+    *   Versiyon yönetimini merkezileştirerek ve otomatikleştirerek geliştirme sürecini hızlandırır.
+    *   Doğru ve tutarlı versiyon bilgisi sağlayarak hata ayıklama ve sorun çözme süreçlerini iyileştirir.
+    *   AI entegrasyonu için bağlam sağlayarak daha akıllı ve otomatikleştirilmiş araçlar geliştirmeye olanak tanır.
+
+*   **Projenin Teknik Borcu Nasıl Etkilendi:**
+    *   İyi yazılmış ve bakımı kolay bir `VersionManager` sınıfı, teknik borcu azaltır.
+    *   Kötü yazılmış veya bakımı zor bir sınıf ise teknik borcu artırır. (Dosyanın tamamını görmeden kesin bir şey söylemek mümkün değil.)
+
+*   **Gelecekteki Geliştirmelere Nasıl Hazırlık Yapıldı:**
+    *   Modüler tasarım, gelecekteki geliştirmeleri kolaylaştırır.
+    *   İyi dokümantasyon, yeni geliştiricilerin kodu anlamasını kolaylaştırır.
+    *   AI entegrasyonu için sağlanan bağlam, gelecekteki AI tabanlı araçların geliştirilmesini destekler.
+    *   Branch tipi analizi, farklı branch stratejileri için özelleşmiş versiyonlama logic'i eklenmesine olanak tanır.
+
+Özetle, bu değişiklikler `src/utils/version_manager.py` dosyasını daha sağlam, güvenilir ve kullanışlı hale getirmeyi amaçlamaktadır. AI entegrasyonu için bağlam sağlamak gibi yeni özellikler eklenirken, hata yönetimi ve logging mekanizmaları gibi mevcut özellikler iyileştirilmiştir. Dosyanın tam içeriği bilinmeden kesin bir değerlendirme yapmak mümkün olmasa da, bu değişikliklerin projenin uzun vadeli başarısı için önemli bir katkı sağladığı söylenebilir.
+
+**Değişen Dosyalar:** src/utils/version_manager.py
+**Etki Seviyesi:** High
+**Değişiklik Tipi:** Feature
+**Etiketler:** version-manager, api, utils, manager
+
+---
+
+## 2025-06-20 06:53:07
+
+İşte `src/utils/version_manager.py` dosyasındaki değişikliklerin detaylı analizi:
+
+### 1. YAPISAL ANALİZ:
+
+*   **Etkilenen Sistem Bileşenleri ve Katmanlar:** Bu dosya, servis katmanında yer almaktadır ve temel amacı versiyon yönetimi işlevselliği sağlamaktır. `VersionManager` sınıfı, projenin versiyon bilgilerini okuma, ayrıştırma ve manipüle etme işlemlerini kapsar. Etkilenen bileşenler, projenin diğer kısımlarında bu sınıf kullanılarak versiyon bilgisini gerektiren yerlerdir (örneğin, API sürüm kontrolü, özellik etkinleştirme, hata raporlama).
+
+*   **Mimari Değişikliklerin Etkisi:** Dosyada yapılan değişiklikler büyük olasılıkla ana mimariyi etkilemez. Ancak, versiyon yönetimi stratejisinde bir değişiklik varsa (örneğin, semantik versiyonlamaya geçiş, branch-based versioning), bu durum diğer servislerin ve modüllerin versiyon kontrolüne olan yaklaşımını değiştirebilir. Dosyada yapılan iyileştirmeler, versiyon yönetimi mantığının daha merkezi ve tutarlı olmasını sağlayarak mimari bütünlüğünü artırabilir.
+
+*   **Kod Organizasyonunda İyileştirmeler:** Dosya içeriği tamamı verilmediği için tam bir değerlendirme yapmak zordur. Ancak, sınıf yapısı ve fonksiyon isimleri, kodun iyi organize edildiğini göstermektedir. `VersionManager` sınıfı, versiyonla ilgili tüm işlevleri bir araya getirerek sorumlulukları ayırmış ve okunabilirliği artırmıştır.  `get_current_branch`, `get_current_version`, `parse_version`, `get_existing_tags`, `_get_recent_commits`, `_analyze_branch_type` gibi metotların varlığı, işlevsel ayrımı ve modüler yapıyı desteklemektedir. Metot isimlerinin anlaşılır olması da organizasyonun iyi olduğunu gösterir.
+
+### 2. İŞLEVSEL ETKİ:
+
+*   **Eklenen, Değiştirilen veya Kaldırılan Özellikler:** Dosyanın tamamı verilmediği için kesin olarak belirlemek zordur. Ancak dosyadaki fonksiyonlara bakarak yorum yapabiliriz:
+    *   `get_current_branch` fonksiyonu, mevcut git branch'ini bulma özelliği ekler. Bu özellik, branch bazlı versiyonlama veya farklı ortamlarda (development, staging, production) versiyon farklılıklarını yönetme senaryolarında faydalı olabilir.
+    *   `get_current_version` fonksiyonu, `package.json` dosyasından versiyonu okuma özelliğini sağlar.
+    *   `parse_version` fonksiyonu, versiyon stringini ayrıştırma özelliği sunar.
+    *   `get_existing_tags` fonksiyonu, mevcut git tag'lerini alma özelliği ekler. Bu, sürüm notları oluşturma veya belirli bir sürüme geri dönme gibi senaryolarda kullanılabilir.
+    *   `_get_recent_commits` fonksiyonu, son commit mesajlarını alma özelliği sağlar. Bu, versiyon değişikliği ile ilgili commitleri bulma veya sürüm notları oluşturma senaryolarında faydalı olabilir.
+    *   `_analyze_branch_type` fonksiyonu, branch tipini analiz ederek (feature, hotfix, release, bugfix vb.) versiyonlama stratejisini bu tiplere göre ayarlama imkanı verir.
+
+*   **Kullanıcı Deneyimi:** Direkt olarak bir kullanıcı arayüzü olmadığı için kullanıcı deneyimi üzerindeki etki dolaylıdır. Ancak, versiyon bilgisinin doğru ve güvenilir bir şekilde yönetilmesi, sistem hatalarının azaltılmasına, doğru özelliklerin etkinleştirilmesine ve genel sistem kararlılığının artmasına katkıda bulunarak kullanıcı deneyimini olumlu yönde etkileyebilir. Özellikle, hatalı versiyon bilgisinden kaynaklanabilecek uyumsuzluk sorunlarının önüne geçilmesi önemlidir.
+
+*   **Performans, Güvenlik veya Güvenilirlik Üzerindeki Etkiler:** Performans açısından, dosyadaki `subprocess.run` çağrıları (özellikle `git` komutları) potansiyel bir darboğaz oluşturabilir. Eğer bu fonksiyonlar sık sık çağrılıyorsa, sonuçların önbelleğe alınması veya daha verimli bir git kütüphanesi kullanılması performansı artırabilir. Güvenlik açısından, `subprocess.run` ile dış komut çalıştırmak potansiyel güvenlik riskleri taşıyabilir (örneğin, komut enjeksiyonu). Girdi validasyonu ve yetkilendirme kontrolleri ile bu risk azaltılabilir. Güvenilirlik açısından, hata yönetimi (try-except blokları) önemlidir. Dosyada bulunan hata yakalama blokları, hataların loglanmasını ve varsayılan bir değere dönülmesini sağlayarak sistemin beklenmedik durumlarda çökmesini engeller.
+
+### 3. TEKNİK DERINLIK:
+
+*   **Uygulanan veya Değiştirilen Tasarım Desenleri:** Kod parçacığına göre, Factory veya Abstract Factory deseni gibi kompleks tasarım desenleri direkt olarak uygulanmamıştır. Daha çok basit bir sınıf yapısı (VersionManager) ile sorumlulukların ayrılması prensibi (Single Responsibility Principle) benimsenmiştir. Dependency Injection deseni de dolaylı olarak kullanılabilir; `project_root` parametresi, sınıfın dış bağımlılığını belirtir.
+
+*   **Kod Kalitesi ve Sürdürülebilirlik:** Kod kalitesi genellikle iyidir. Fonksiyon isimleri anlamlıdır, tiplendirme (typing) kullanılmıştır ve hata yönetimi yapılmıştır. Sürdürülebilirlik açısından, `VersionManager` sınıfının modüler ve bağımsız olması, gelecekteki değişikliklerin ve genişlemelerin kolayca yapılabilmesini sağlar. Yorum satırlarının eklenmesi, kodun anlaşılabilirliğini artırarak sürdürülebilirliğe katkıda bulunur.
+
+*   **Yeni Bağımlılıklar veya Teknolojiler:** Verilen kodda yeni bir bağımlılık eklenmemiş. Mevcut bağımlılıklar: `json`, `logging`, `pathlib`, `typing`, `datetime`, `subprocess`, `re` modülleridir. Bu modüller Python standart kütüphanesinin parçasıdır, bu da projenin bağımlılık yönetimini kolaylaştırır. Eğer `subprocess` ile çalıştırılan `git` komutları yerine bir Python git kütüphanesi (örneğin, GitPython) kullanılsaydı, bu durum yeni bir bağımlılık eklenmesi anlamına gelirdi.
+
+### 4. SONUÇ YORUMU:
+
+*   **Değişikliklerin Uzun Vadeli Değeri ve Etkisi:** Bu değişiklikler, projenin versiyon yönetimi yeteneklerini büyük ölçüde geliştirir. Branch bazlı versiyonlama, otomatik versiyon artışı, ve versiyon bilgilerinin diğer sistem bileşenleri tarafından kolayca erişilebilir olması, geliştirme süreçlerini hızlandırır ve hataları azaltır.  AI entegrasyonuna hazırlık olarak branch tipini analiz etme yeteneği, otomatik sürüm notları oluşturma veya akıllı test senaryoları belirleme gibi senaryolarda kullanılabilir.
+
+*   **Projenin Teknik Borcu:** Mevcut kod parçacığı teknik borcu artırmaz. Aksine, versiyon yönetimini daha tutarlı ve güvenilir hale getirerek teknik borcu azaltır. Ancak, `subprocess.run` kullanımından kaynaklanabilecek potansiyel güvenlik riskleri ve performans sorunları teknik borç olarak değerlendirilebilir. Bu risklerin azaltılması için ek çalışmalar yapılması gerekebilir.
+
+*   **Gelecekteki Geliştirmelere Hazırlık:** Dosyadaki değişiklikler, gelecekteki geliştirmelere zemin hazırlar. Versiyon bilgilerinin daha detaylı analiz edilmesi, otomatik sürüm notları oluşturulması, ve versiyon bazlı özellik etkinleştirme gibi senaryolar kolayca implemente edilebilir. `_analyze_branch_type` fonksiyonu, yapay zeka destekli versiyonlama stratejileri için bir başlangıç noktası olabilir.
+
+**Değişen Dosyalar:** src/utils/version_manager.py
+**Etki Seviyesi:** Critical
+**Değişiklik Tipi:** Feature
+**Satır Değişiklikleri:** -3
+**Etiketler:** api, utils, version-manager, manager
+
+---
+
+## 2025-06-20 06:50:49
+
+Tamamdır, `src/utils/version_manager.py` dosyasındaki değişikliklere dair detaylı ve analitik bir özet aşağıda sunulmuştur.
+
+### 1. YAPISAL ANALİZ:
+
+*   **Etkilenen Sistem Bileşenleri ve Katmanlar:** Değişiklikler, temel olarak uygulamanın sürüm yönetimi mantığını barındıran `src/utils/version_manager.py` dosyasında yoğunlaşmıştır. Bu dosya, servis katmanında yer alır ve uygulamanın sürüm bilgisini okuma, ayrıştırma, güncelleme ve ilgili diğer işlemleri yönetir. Bu, uygulamanın yapılandırma ve yönetim katmanlarını doğrudan etkiler.
+*   **Mimari Değişikliklerin Etkisi:** Bu dosyadaki değişiklikler doğrudan mimari bir değişiklik olarak değerlendirilmemelidir. Ancak, `VersionManager` sınıfının işlevselliğinin artırılması, sürüm yönetimi süreçlerinin daha modüler ve esnek hale gelmesini sağlar. Özellikle AI entegrasyonu için gerekli bağlam bilgisinin toplanması, gelecekteki otomasyon senaryoları için bir temel oluşturur.
+*   **Kod Organizasyonunda İyileştirmeler:** Kod organizasyonu açısından, değişiklikler genellikle mevcut işlevselliği genişletmeye ve daha fazla bilgi sağlamaya yöneliktir. Mevcut fonksiyonların daha sağlam hata yönetimi ve loglama ile geliştirildiği görülmektedir. Ayrıca, yardımcı fonksiyonlar (`_get_recent_commits`, `_analyze_branch_type` vb.) eklenerek, kodun okunabilirliği ve bakımı kolaylaştırılmıştır. Bu fonksiyonlar, sorumlulukları ayrıştırarak kodun daha modüler olmasını sağlamıştır.
+
+### 2. İŞLEVSEL ETKİ:
+
+*   **Eklenen, Değiştirilen veya Kaldırılan Özellikler:**
+    *   **Eklenenler:**
+        *   `get_current_branch()` fonksiyonu ile mevcut Git dalının adını alma özelliği eklenmiştir. Bu, sürüm oluşturma veya dağıtım süreçlerinde hangi dalın kullanıldığını belirlemek için önemlidir.
+        *   `_get_existing_tags()` fonksiyonu ile mevcut Git etiketlerini alma özelliği eklenmiştir. Bu, önceki sürümlerin izlenmesi ve karşılaştırılması için kullanışlıdır.
+        *   `_get_recent_commits()` fonksiyonu ile son commit mesajlarını alma özelliği eklenmiştir. Bu, değişikliklerin takibi ve sürüm notlarının oluşturulması için önemlidir.
+        *   `_analyze_branch_type()` fonksiyonu ile dal türünü analiz etme özelliği eklenmiştir. Bu, dalların amacına göre otomatik sürüm artışları veya değişiklik yönetimi için kullanılabilir.
+    *   **Değiştirilenler:**
+        *   `get_current_version()` fonksiyonu, hata yönetimi ve varsayılan değer döndürme konusunda geliştirilmiştir.
+*   **Kullanıcı Deneyimi:** Bu değişiklikler doğrudan son kullanıcı deneyimini etkilemez. Ancak, sürüm yönetimi süreçlerinin daha verimli ve doğru hale gelmesi, dolaylı olarak geliştirme ve dağıtım süreçlerini hızlandırabilir.
+*   **Performans, Güvenlik veya Güvenilirlik Üzerindeki Etkiler:**
+    *   **Performans:** `subprocess.run` çağrıları nedeniyle küçük bir performans etkisi olabilir. Ancak, bu çağrılar genellikle sürüm oluşturma veya dağıtım gibi seyrek yapılan işlemler sırasında gerçekleştiği için önemli bir sorun teşkil etmez.
+    *   **Güvenlik:** `subprocess.run` çağrılarında, kullanıcıdan gelen girdilerin doğrudan komutlara eklenmemesine dikkat edilmelidir. Bu tür durumlarda güvenlik açıkları oluşabilir. Kodda bu tür bir risk bulunmamaktadır.
+    *   **Güvenilirlik:** Hata yönetimi ve loglama geliştirmeleri sayesinde, sürüm yönetimi işlemlerinin daha güvenilir hale gelmesi sağlanmıştır.
+
+### 3. TEKNİK DERINLIK:
+
+*   **Uygulanan veya Değiştirilen Tasarım Desenleri:** Kodda belirgin bir tasarım deseni uygulanmamıştır. Ancak, `VersionManager` sınıfı, strateji veya fabrika tasarım desenlerinin temelini oluşturabilecek bir yapıya sahiptir. Gelecekteki geliştirmelerde, bu desenler kullanılarak kodun daha esnek ve genişletilebilir hale getirilmesi mümkündür.
+*   **Kod Kalitesi ve Sürdürülebilirlik:** Kod kalitesi, modüler yapı ve açık hata yönetimi sayesinde artmıştır. Fonksiyonların daha spesifik görevler için tasarlanması, kodun okunabilirliğini ve bakımını kolaylaştırmıştır. Ancak, kodun daha fazla test kapsamına alınması, sürdürülebilirliği daha da artıracaktır.
+*   **Yeni Bağımlılıklar veya Teknolojiler:** Kodda yeni bir bağımlılık eklenmemiştir. Mevcut `json`, `logging`, `pathlib`, `typing`, `datetime`, `subprocess` ve `re` modülleri kullanılmıştır.
+
+### 4. SONUÇ YORUMU:
+
+*   **Değişikliklerin Uzun Vadeli Değeri ve Etkisi:** Bu değişiklikler, projenin sürüm yönetimi süreçlerini daha otomatik ve verimli hale getirme potansiyeline sahiptir. Özellikle, AI entegrasyonu için gerekli bağlam bilgisinin toplanması, gelecekteki otomasyon senaryoları için önemli bir adımdır. Sürüm oluşturma, etiketleme ve dağıtım süreçlerinin otomasyonu, geliştirme ekiplerinin daha verimli çalışmasını sağlayacaktır.
+*   **Projenin Teknik Borcu Nasıl Etkilendi:** Yapılan değişiklikler, projenin teknik borcunu azaltmaya yardımcı olmuştur. Kodun daha modüler ve okunabilir hale gelmesi, bakım maliyetlerini düşürecektir. Ancak, test kapsamının artırılması ve potansiyel güvenlik açıklarının giderilmesi, teknik borcun daha da azaltılması için önemlidir.
+*   **Gelecekteki Geliştirmelere Nasıl Hazırlık Yapıldı:** Bu değişiklikler, projenin gelecekteki gelişimine katkıda bulunmaktadır. Sürüm yönetimi süreçlerinin daha sağlam bir temele oturtulması, yeni özelliklerin eklenmesi ve mevcut özelliklerin geliştirilmesi için uygun bir zemin hazırlamıştır. Özellikle, AI entegrasyonu için gerekli verilerin toplanması, gelecekteki otomasyon senaryoları için bir başlangıç noktasıdır. Ayrıca, kodun modüler yapısı, gelecekte farklı sürüm yönetimi stratejilerinin veya araçlarının entegre edilmesini kolaylaştıracaktır.
+
+**Değişen Dosyalar:** src/utils/version_manager.py
+**Etki Seviyesi:** High
+**Değişiklik Tipi:** Feature
+**Etiketler:** version-manager, manager, api, utils
+
+---
+
+## 2025-06-20 06:50:31
+
+Tamamdır, `src/utils/version_manager.py` dosyasındaki değişiklikleri detaylı bir şekilde analiz edip, belirtilen başlıklar altında özetleyeceğim. Lütfen unutmayın, dosyanın tamamı verilmediği için analizim mevcut kod parçacıklarıyla sınırlı olacaktır. Tam bir analiz için dosyanın tamamına ihtiyaç duyulmaktadır.
+
+### 1. YAPISAL ANALİZ:
+
+Etkilenen sistem bileşenleri ve katmanlar:
+
+*   **Servis Katmanı (Utilities):** `src/utils/version_manager.py` dosyası, projenin versiyon yönetimi işlevselliğini sağlayan bir yardımcı araçtır. Bu dosyadaki değişiklikler, projenin versiyonlama, branch yönetimi ve related işlevleri etkiler.
+*   **Çekirdek Bileşen:** `VersionManager` sınıfı, sistemin temel versiyonlama mantığını kapsar ve bu mantıktaki değişiklikler sistemin diğer bölümleriyle (örneğin, deployment süreçleri, API versiyonlama) doğrudan veya dolaylı olarak etkileşime girebilir.
+
+Mimari değişikliklerin etkisi:
+
+*   Verilen kod parçacıklarına bakarak, belirgin bir mimari değişiklik yok. Değişiklikler daha çok mevcut fonksiyonların iyileştirilmesi ve yeni helper fonksiyonların eklenmesi şeklinde görünüyor. Fakat `VersionManager` sınıfının yapısı ve amacı değişmemiştir. Eğer dosyanın tamamında büyük refactorlar yapıldıysa bu durum değişebilir.
+
+Kod organizasyonunda hangi iyileştirmeler yapıldı:
+
+*   **Daha İyi Hata Yönetimi:** `get_current_branch`, `get_current_version`, `_get_existing_tags`, `_get_recent_commits` gibi fonksiyonlardaki `try-except` blokları sayesinde, hatalar daha iyi yakalanıp loglanıyor. Bu, uygulamanın daha stabil çalışmasını sağlar.
+*   **Branch Analizi:** `_analyze_branch_type` fonksiyonu, branch isimlerini analiz ederek hangi türde bir çalışma yapıldığını (feature, hotfix, release vb.) belirlemeye yardımcı oluyor. Bu, AI bağlamında versiyonlama ve release süreçlerini otomatikleştirmek için kullanılabilir.
+
+### 2. İŞLEVSEL ETKİ:
+
+Hangi özellikler eklendi, değiştirildi veya kaldırıldı:
+
+*   **Yeni Fonksiyonlar:** `_get_existing_tags` ve `_get_recent_commits` gibi yeni fonksiyonlar eklendi. Bu fonksiyonlar, sırasıyla en son commit mesajlarını ve git tag'lerini çekerek versiyonlama bağlamı için daha fazla bilgi sağlıyor.
+*   **Daha Detaylı Loglama:**  Hata durumlarında daha açıklayıcı log mesajları yazılıyor. Bu, sorun giderme sürecini kolaylaştırır.
+*   **Branch Tipi Analizi:** `_analyze_branch_type` fonksiyonu, branch tipini analiz ederek AI'ya daha fazla bağlam bilgisi sağlıyor.
+
+Kullanıcı deneyimi nasıl etkilendi:
+
+*   Doğrudan bir kullanıcı arayüzü olmadığı için, kullanıcı deneyimi dolaylı olarak etkilenir. Daha iyi versiyon yönetimi ve hata takibi, projenin geliştirme ve deployment süreçlerini hızlandırabilir.
+
+Performans, güvenlik veya güvenilirlik üzerindeki etkiler:
+
+*   **Performans:** `subprocess.run` çağrıları sistem kaynaklarını tüketebilir. Özellikle sık sık çağrılırlarsa performansı olumsuz etkileyebilirler. Ancak, bu çağrıların sayısı ve sıklığı bilinmediği için kesin bir şey söylemek mümkün değil.
+*   **Güvenlik:** `subprocess.run` ile dış komut çalıştırmak, özellikle kullanıcı girdisi veya harici verilerle birlikte kullanılıyorsa güvenlik riskleri oluşturabilir. Bu kodda doğrudan kullanıcı girdisi kullanılmıyor gibi görünse de, `project_root` değişkeninin güvenilirliğinden emin olmak gerekir.
+*   **Güvenilirlik:** Geliştirilmiş hata yönetimi ve loglama sayesinde, sistem daha güvenilir hale gelir. Hataların daha hızlı tespit edilip düzeltilmesi, uygulamanın kesintisiz çalışmasını sağlar.
+
+### 3. TEKNİK DERINLIK:
+
+Hangi tasarım desenleri uygulandı veya değiştirildi:
+
+*   **Singleton:** `VersionManager` sınıfı global bir singleton ise, versiyon yönetimi işlevselliği için tek bir erişim noktası sağlanmış olur. Kodda bu pattern'in uygulanıp uygulanmadığı tam olarak belli değil.
+*   **Strategy:** Branch analizinde kullanılan `_analyze_branch_type` fonksiyonu, farklı branch türlerine göre farklı stratejiler uygulamak için kullanılabilir. Ancak bu pattern'in tam olarak uygulanıp uygulanmadığı kodun tamamı incelenmeden anlaşılamaz.
+
+Kod kalitesi ve sürdürülebilirlik nasıl gelişti:
+
+*   **Daha İyi Hata Yönetimi:** `try-except` blokları ile hataların yakalanması ve loglanması, kodun daha sağlam ve sürdürülebilir olmasını sağlar.
+*   **Modülerlik:** Yeni fonksiyonların eklenmesi (örneğin, `_get_existing_tags`, `_get_recent_commits`), `VersionManager` sınıfının daha modüler ve okunabilir hale gelmesine yardımcı olur.
+
+Yeni bağımlılıklar veya teknolojiler eklendi mi:
+
+*   Kod parçacıklarında yeni bir bağımlılık görünmüyor. `json`, `logging`, `pathlib`, `typing`, `datetime`, `subprocess` ve `re` modülleri zaten standart Python kütüphaneleri veya yaygın olarak kullanılan modüllerdir.
+
+### 4. SONUÇ YORUMU:
+
+Bu değişikliklerin uzun vadeli değeri ve etkisi nedir:
+
+*   Bu değişiklikler, projenin versiyon yönetimi süreçlerini daha otomatik, güvenilir ve izlenebilir hale getirir. Özellikle AI destekli otomasyon için daha fazla bağlam bilgisi sağlanması, versiyonlama ve release süreçlerinin daha akıllı hale getirilmesine olanak tanır.
+
+Projenin teknik borcu nasıl etkilendi:
+
+*   Geliştirilmiş hata yönetimi, loglama ve modülerlik sayesinde teknik borç azalır. Daha kolay test edilebilir ve bakımı yapılabilir bir kod tabanı oluşturulur.
+
+Gelecekteki geliştirmelere nasıl hazırlık yapıldı:
+
+*   Branch analiz fonksiyonu (`_analyze_branch_type`), gelecekte branch türlerine göre farklı versiyonlama stratejileri uygulamak için bir temel oluşturur. Ayrıca, AI desteği ile versiyonlama ve release süreçlerinin otomasyonu için bir altyapı hazırlanmış olur.
+
+Özetle, `src/utils/version_manager.py` dosyasındaki bu değişiklikler, projenin versiyon yönetimi işlevselliğini geliştirerek daha güvenilir, sürdürülebilir ve geleceğe yönelik bir hale getirir.
+
+**Değişen Dosyalar:** src/utils/version_manager.py
+**Etki Seviyesi:** Critical
+**Değişiklik Tipi:** Feature
+**Satır Değişiklikleri:** +151
+**Etiketler:** manager, utils, api, version-manager
+
+---
+
+## 2025-06-20 06:48:40
+
+## Değişiklik Analizi: `src/utils/version_manager.py`
+
+### 1. YAPISAL ANALİZ:
+
+*   **Etkilenen Sistem Bileşenleri ve Katmanlar:** Bu değişiklikler öncelikle yardımcı (utility) katmanını ve dolaylı olarak sürüm yönetimiyle ilgili diğer katmanları (örneğin, dağıtım, test) etkiliyor. `VersionManager` sınıfı, projenin sürümünü alma, ayrıştırma ve sürüm numarasına göre dinamik kod adı oluşturma mantığını kapsüllemektedir. Bu nedenle, bu sınıfı kullanan herhangi bir bileşen bu değişikliklerden etkilenecektir. Spesifik olarak, `project_root` üzerinde işlem yapılması, dosya sistemiyle olan etkileşimleri ve dolayısıyla dosya sistemi katmanını da etkileyebilir.
+*   **Mimari Değişikliklerin Etkisi:** Bu değişiklikler, sistemin genel mimarisine büyük bir değişiklik getirmiyor. Bununla birlikte, sürüm yönetimi ile ilgili sorumlulukların daha merkezi bir konumda (VersionManager) toplanması, modülerliği ve sürdürülebilirliği artırıyor. Sürüm belirleme ve yönetimi daha tutarlı hale getiriliyor. Sürüm belirleme süreçlerindeki olası farklılıkları azaltarak, dağıtım süreçlerini basitleştirme potansiyeli taşıyor.
+*   **Kod Organizasyonunda İyileştirmeler:**
+    *   **Sorumlulukların Ayrımı (SoC):** `VersionManager` sınıfı, sürüm yönetimi ile ilgili tüm mantığı tek bir yerde toplar. Bu, kodun daha okunabilir, bakımı daha kolay ve test edilebilir olmasını sağlar.
+    *   **Encapsulation (Kapsülleme):** Sürüm belirleme ve kod adı oluşturma mantığı, `VersionManager` sınıfının içinde gizlenmiştir. Bu, diğer bileşenlerin bu ayrıntıları bilmesine gerek kalmadan sürüm bilgilerine erişmesini sağlar.
+    *   **Git Entegrasyonu:** Git komutlarını çalıştırma mantığı, `get_current_branch` metodu içinde bulunur. Bu, git ile ilgili işlemleri soyutlayarak, kodun daha temiz ve anlaşılır olmasını sağlar.
+    *   **Logging (Günlükleme):** Hata durumlarında logging mekanizmalarının kullanılması, debug sürecini kolaylaştırır ve olası sorunları daha hızlı tespit etmeye yardımcı olur.
+
+### 2. İŞLEVSEL ETKİ:
+
+*   **Eklenen, Değiştirilen veya Kaldırılan Özellikler:** Dosya içeriğini tam olarak göremediğimiz için değişikliklerin tam listesini belirlemek mümkün değil. Ancak, verilen kod parçacıklarından çıkarılabilecek olası eklemeler ve değişiklikler şunlardır:
+    *   **Dinamik Kod Adı Oluşturma:** Sürüme göre dinamik kod adları oluşturma özelliği, uygulamanın sürüm geçmişini daha anlamlı hale getirir.
+    *   **Sürüm Kontrolü:** `_has_breaking_changes` ve `_has_new_features` metotları ile dosyalarda yapılan değişikliklere göre sürüm numarasının otomatik olarak güncellenmesine olanak sağlanabilir.
+    *   **Git Branch Tespiti:** Uygulamanın hangi git branch'inde çalıştığını otomatik olarak tespit etme.
+*   **Kullanıcı Deneyimi:** Kullanıcı deneyimi doğrudan etkilenmeyebilir. Ancak, dinamik kod adları ve otomatik sürüm kontrolü gibi özellikler, geliştiricilerin uygulamanın farklı sürümlerini daha kolay anlamalarına yardımcı olabilir. Hata mesajlarının iyileştirilmesi (logger ile) sorun gidermeyi kolaylaştırarak dolaylı olarak kullanıcı deneyimini iyileştirir.
+*   **Performans, Güvenlik veya Güvenilirlik Üzerindeki Etkiler:**
+    *   **Performans:** `subprocess.run` kullanılarak git komutlarının çalıştırılması, ek bir işlem maliyeti yaratır. Ancak, bu maliyet genellikle çok düşüktür. Eğer sık sık çağrılırsa cache mekanizması düşünülebilir.
+    *   **Güvenlik:** `subprocess.run` kullanırken komut enjeksiyonu riskine karşı dikkatli olunmalıdır. Kullanıcı girdilerinden elde edilen verilerin doğrudan komutlara eklenmesinden kaçınılmalıdır. (Verilen kodda bu risk görünmüyor.)
+    *   **Güvenilirlik:** Hata yönetimi (try-except blokları) sayesinde kodun daha güvenilir olması sağlanmıştır. Git ve `package.json` dosyasına erişim sırasında oluşabilecek hatalar düzgün bir şekilde ele alınır ve varsayılan bir değere geri dönülür.
+
+### 3. TEKNİK DERINLIK:
+
+*   **Uygulanan veya Değiştirilen Tasarım Desenleri:**
+    *   **Factory Pattern:** Dinamik kod adı oluşturma mantığı, bir "factory" gibi davranarak, farklı sürüm numaralarına göre farklı kod adları üretir.
+    *   **Strategy Pattern:** Farklı sürümleme stratejileri (örneğin, semantic versioning) uygulanabilir ve `VersionManager` sınıfı bu stratejiler arasında dinamik olarak geçiş yapabilir.
+*   **Kod Kalitesi ve Sürdürülebilirlik:**
+    *   Kodun modülerliği ve okunabilirliği artırılmıştır.
+    *   Hata yönetimi iyileştirilmiştir.
+    *   Logging mekanizmaları sayesinde debug süreci kolaylaştırılmıştır.
+*   **Eklenen Yeni Bağımlılıklar veya Teknolojiler:** Verilen kod parçacığına göre yeni bir bağımlılık eklenmemiştir. `subprocess` modülü zaten standart bir Python modülüdür.
+
+### 4. SONUÇ YORUMU:
+
+*   **Uzun Vadeli Değer ve Etki:** Bu değişiklikler, projenin sürüm yönetimi sürecini daha tutarlı, otomatik ve kullanıcı dostu hale getirir. Dinamik kod adları, sürüm geçmişini daha anlamlı hale getirerek, geliştiricilerin uygulamanın farklı sürümlerini daha kolay anlamalarına yardımcı olur. Otomatik sürüm kontrolü, sürüm numaralarının manuel olarak güncellenmesi ihtiyacını azaltır ve hataları önler.
+*   **Projenin Teknik Borcu:** Bu değişiklikler, teknik borcu azaltır. Sürüm yönetimi ile ilgili mantığın merkezi bir yerde toplanması, kodun daha sürdürülebilir ve bakımı daha kolay olmasını sağlar.
+*   **Gelecekteki Geliştirmelere Hazırlık:** Bu değişiklikler, gelecekteki geliştirmelere hazırlar. `VersionManager` sınıfı, farklı sürümleme stratejilerini destekleyecek şekilde genişletilebilir. Ayrıca, otomatik sürüm kontrolü, sürekli entegrasyon ve sürekli dağıtım (CI/CD) süreçlerine entegre edilebilir. Örneğin, commit mesajlarını analiz ederek sürüm numarasının otomatik olarak güncellenmesi sağlanabilir. Hatta AI araçları ile kod değişikliklerini analiz ederek sürüm numarasının yükseltme türü belirlenebilir (major, minor, patch).
+
+**Değişen Dosyalar:** src/utils/version_manager.py
+**Etki Seviyesi:** High
+**Değişiklik Tipi:** Feature
+**Etiketler:** manager, utils, version-manager, api
+
+---
+
 ## 2025-06-20 06:44:45
 
 İşte belirtilen formatta ve derinlikte analiz:

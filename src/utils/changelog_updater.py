@@ -425,8 +425,15 @@ def update_changelog(project_root: Optional[Path] = None):
                 
             # Create git tag for new version
             try:
-                version_manager.create_git_tag(new_version, codename=codename)
-                print(f"   🏷️  Git tag created: v{new_version}")
+                success, final_version = version_manager.create_git_tag(new_version, codename=codename)
+                if success:
+                    print(f"   🏷️  Git tag created: v{final_version}")
+                    # Update new_version to the final version that was actually used
+                    if final_version != new_version:
+                        new_version = final_version
+                        print(f"   🔄 Version updated to: {new_version}")
+                else:
+                    print(f"   ⚠️  Could not create git tag for v{new_version}")
             except Exception as tag_error:
                 print(f"   ⚠️  Could not create git tag: {tag_error}")
             # Get AI workflow decision
