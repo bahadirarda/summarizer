@@ -18,6 +18,8 @@ from .json_changelog_manager import JsonChangelogManager, ImpactLevel, ChangeTyp
 from .readme_generator import update_readme
 from .version_manager import VersionManager
 from .git_manager import GitManager, SyncStatus
+from ..utils.io import _ask_user
+from ..services.gemini_client import GeminiClient
 
 logger_changelog = logging.getLogger(__name__)
 
@@ -51,13 +53,6 @@ def _detect_impact_level(summary: str, changed_files: list) -> ImpactLevel:
         return ImpactLevel.LOW
 
     return ImpactLevel.MEDIUM
-
-
-def _ask_user(prompt: str) -> bool:
-    try:
-        return input(f"{prompt} (y/n): ").lower() == 'y'
-    except (EOFError, KeyboardInterrupt):
-        return False
 
 
 def _run_ci_checks(project_root: Path) -> bool:

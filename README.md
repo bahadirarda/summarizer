@@ -1,58 +1,46 @@
+```markdown
 # 🚀 project.110620251156
-> Geliştirme sürecini otomatikleştiren ve changelog yönetimini iyileştiren bir web projesi. GitHub entegrasyonu ve yapay zeka destekli changelog güncellemeleri ile geliştiricilerin verimliliğini artırmayı hedefliyor.
+> Web projeniz için akıllı özetleme ve geliştirme otomasyonu araçları. Kod kalitesini artırırken, kullanıcı deneyimini iyileştirin ve geliştirme süreçlerini hızlandırın. 🛠️
 
 ## 📊 Proje Durumu
-Proje, `git_manager.py` ve `changelog_updater.py` dosyalarında önemli iyileştirmeler içeren güncellemeler aldı.  GitHub pull request'lerinin otomatik birleştirilmesi ve yapay zeka destekli changelog güncellemeleri gibi yeni özellikler eklendi.  Proje şu anda test aşamasında olup, yakın zamanda üretime alınması planlanmaktadır.
+**Aktif Geliştirme:** Proje sürekli olarak geliştiriliyor ve yeni özellikler ekleniyor. Şu anda, AI entegrasyonu ve geliştirme otomasyonu üzerinde yoğunlaşılıyor. 🚧
 
 ## ✨ Özellikler
-* **Otomatik Pull Request Birleştirme:** `gh` CLI aracılığıyla GitHub pull request'lerinin otomatik olarak birleştirilmesi.
-* **Yapay Zeka Destekli Changelog Güncellemeleri:** Changelog girdilerinin etki seviyesinin otomatik olarak belirlenmesi ve daha akıllı changelog oluşturma.
-* **Geliştirilmiş Hata Yönetimi:** `git_manager.py`'deki `try-except` blokları ile hata yönetiminin iyileştirilmesi.
-* **Geliştirilmiş Kod Organizasyonu:**  `git_manager.py` ve `changelog_updater.py` dosyalarında kod tekrarının azaltılması ve işlevselliğin daha iyi gruplandırılması.
-* **GitHub Yetkilendirme Kontrolü:**  Güvenliği artırmak için GitHub yetkilendirme kontrolü mekanizması.
-
+*   📝 **AI Destekli Özetleme:** Google Gemini API entegrasyonu ile metin özetleme. 🤖
+*   📸 **Ekran Görüntüsü Analizi:** Uygulamaların ekran görüntülerini alıp analiz etme yeteneği. 🖼️
+*   🔄 **Otomatik Güncelleme Notları:** Değişikliklerin otomatik olarak takip edilerek güncelleme notları oluşturma. ✍️
+*   ⌨️ **Gelişmiş Komut Satırı Arayüzü:** Farklı komut satırı argümanları ile kullanıcı dostu etkileşim. 💻
+*   🚀 **Otomatik Pull Request Birleştirme:** GitHub Pull Request'lerinin otomatik olarak birleştirilmesi. ✅
 
 ## Değişen Dosyalar:
-* `src/utils/git_manager.py`: GitHub pull request birleştirme özelliği eklendi, hata yönetimi iyileştirildi.
-* `src/utils/changelog_updater.py`: Yapay zeka destekli changelog güncelleme mekanizması eklendi.
-
+summarizer.py, features/merge_command.py, src/utils/version_manager.py, src/utils/git_manager.py, src/utils/changelog_updater.py, src/services/gemini_client.py
 
 ## ANALİZ GÖREVİ:
 
 ### 1. YAPISAL ANALİZ:
 
-- **Hangi sistem bileşenleri ve katmanlar etkilendi?**  Değişiklikler, projenin `src/utils` dizini altındaki yardımcı modüller olan `git_manager.py` ve `changelog_updater.py` dosyalarını etkiledi. Bu, projenin servis katmanı ve yardımcı araçlar katmanını temsil eder. Diğer katmanlar dolaylı olarak etkilenebilir, ancak doğrudan bir etki gözlemlenmemiştir.
-
-- **Mimari değişikliklerin etkisi nedir?**  Mimari açıdan büyük bir değişiklik yok.  `git_manager.py`'deki eklemeler mevcut işlevselliği genişletirken, `changelog_updater.py`'deki değişiklikler ise yeni bir yapay zeka entegrasyonunu içeriyor.  Bu, `changelog_updater.py`'nin iç işleyişini önemli ölçüde değiştirse de, genel proje mimarisinde büyük bir değişikliğe yol açmaz.  Ancak, AI entegrasyonu nedeniyle daha karmaşık bir mimariye doğru bir evrim gözlemlenebilir.
-
-- **Kod organizasyonunda hangi iyileştirmeler yapıldı?** `git_manager.py`'de `GitManager` sınıfının işlevselliği genişletilerek ilgili işlevler daha iyi gruplandırıldı. `_run_external_command` ve `_run_git_command` gibi yardımcı fonksiyonlar, kod tekrarını azaltarak ve hata yönetimini iyileştirerek kod organizasyonunu geliştirdi. `changelog_updater.py`'de ise, yapay zeka entegrasyonu ile daha yapılandırılmış bir karar alma süreci oluşturulmuş olabilir (kesilen kod nedeniyle kesin olarak söylenemez).
-
+*   **Etkilenen Bileşenler ve Katmanlar:** Proje, uygulamanın giriş noktası (`summarizer.py`), özellik modülleri (`features/*`), yardımcı araçlar (`src/utils/*`) ve servis katmanı (`src/services/*`) olmak üzere çeşitli katmanlarını etkiliyor. `git_manager.py` ve `changelog_updater.py` dosyalarındaki değişiklikler, geliştirme otomasyonu süreçlerine odaklanıyor. `version_manager.py` dosyasındaki değişiklikler versiyon kontrolüyle alakalı süreçlerde güncellemeler yapıldığını gösteriyor.
+*   **Mimari Değişikliklerin Etkisi:** `git_manager.py`'deki `merge_pull_request` metodu, Git işlemlerinin daha kapsamlı yönetilmesini sağlayarak mimariye entegre bir otomasyon katmanı ekliyor. Gemini API entegrasyonu ile projenin dış bir servise olan bağımlılığı artıyor, ancak `RequestManager` ve `is_ready()` metodu bu bağımlılığı yönetilebilir kılıyor.
+*   **Kod Organizasyonunda İyileştirmeler:** `GitManager` sınıfının işlevselliği, özellikle `merge_pull_request` metodu ile genişletilerek ilgili işlevlerin daha iyi gruplandırılması sağlanıyor. Etki seviyesini otomatik belirleyen fonksiyon, changelog güncellemelerinin otomasyonunu artırıyor. Modülerlik sayesinde test yazmak kolaylaşıyor ve sürdürülebilirlik artıyor.
 
 ### 2. İŞLEVSEL ETKİ:
 
-- **Hangi özellikler eklendi, değiştirildi veya kaldırıldı?**  `git_manager.py`'ye GitHub pull request'lerini otomatik olarak birleştiren `merge_pull_request` metodu eklendi.  `changelog_updater.py`'ye ise yapay zeka destekli changelog güncelleme mekanizması eklendi.  Mevcut işlevsellik genişletildi, hiçbir özellik kaldırılmadı.
-
-- **Kullanıcı deneyimi nasıl etkilendi?** Kullanıcı deneyimi doğrudan etkilenmedi.  Ancak, geliştiricilerin iş akışı önemli ölçüde iyileştirildi. Pull request birleştirme ve changelog güncelleme süreçlerinin otomatikleştirilmesi, geliştiricilerin verimliliğini artırır.
-
-- **Performans, güvenlik veya güvenilirlik üzerindeki etkiler?** Performans, `git` ve `gh` komutlarının yürütülme süresine ve yapay zeka modelinin yanıt süresine bağlıdır. Genellikle ihmal edilebilir düzeyde olsa da, yüksek yük altında performans düşüşü gözlemlenebilir. Güvenlik, GitHub yetkilendirme kontrolü ile artırılır.  Ancak, `gh` CLI'nin ve yapay zeka servisinin güvenlik açıkları güvenliği etkileyebilir. Güvenilirlik, hata yönetimi mekanizmalarının ve yapay zeka modelinin güvenilirliğine bağlıdır. `try-except` blokları ve fallback mekanizmaları güvenilirliği artırır.
-
+*   **Eklenen/Değiştirilen Özellikler:** `merge_pull_request` metodu ile GitHub Pull Request'lerinin otomatik birleştirilmesi sağlandı. Bu, geliştirme sürecini hızlandırıyor ve manuel müdahaleyi azaltıyor. `changelog_updater.py`'deki etki seviyesi belirleme mekanizması, changelog'ların daha düzenli ve anlamlı olmasını sağlıyor. `version_manager.py` ile versiyon güncellemeleri daha kontrollü hale geliyor.
+*   **Kullanıcı Deneyimi:** Kullanıcı deneyimi doğrudan etkilenmese de, otomatik Pull Request birleştirme ve otomatik changelog güncellemeleri sayesinde geliştiricilerin iş akışı önemli ölçüde iyileşiyor. Komut satırı argümanları sayesinde uygulamanın farklı şekillerde çalıştırılabilmesi kullanıcı deneyimini dolaylı olarak geliştiriyor.
+*   **Performans, Güvenlik ve Güvenilirlik:** GitHub yetkilendirme kontrolü (`_check_gh_auth`) güvenliği artırıyor. Performans etkisi, `git` ve `gh` komutlarının yürütülme süresine bağlı olmakla birlikte genellikle ihmal edilebilir düzeyde. Hata yönetimi mekanizmaları (`try-except` blokları) güvenilirliği artırıyor. `_truncate_content_for_prompt` fonksiyonu ile API limitlerinin aşılması önlenerek performans sorunları engelleniyor.
 
 ### 3. TEKNİK DERINLIK:
 
-- **Hangi tasarım desenleri uygulandı veya değiştirildi?** `git_manager.py`'deki `_run_external_command` ve `_run_git_command` fonksiyonları, Template Method tasarım deseni örneği sergiler.  `changelog_updater.py`'de ise, yapay zeka entegrasyonu ile muhtemelen Strateji Deseni veya Durum Makinesi Deseni kullanılmış olabilir (kesilen kod nedeniyle kesin olarak belirtilemez).
-
-- **Kod kalitesi ve sürdürülebilirlik nasıl gelişti?**  Hata yönetimi (`try-except` blokları) ve logging (kodda açıkça belirtilmese de, iyileştirme yapıldığı varsayımıyla) iyileştirilmesi kod kalitesini artırdı.  Modüler tasarım ve iyi hata yönetimi, sürdürülebilirliği yükseltti.
-
-- **Yeni bağımlılıklar veya teknolojiler eklendi mi?**  Yeni bağımlılık olarak GitHub CLI (`gh`) eklendi.  `changelog_updater.py`'de ise, yapay zeka modeli ve ona erişim sağlayan bir kütüphane veya API eklenmiş olabilir.
-
+*   **Tasarım Desenleri:** `GitManager` sınıfı, Git işlemlerini soyutlayarak tek bir noktadan yönetilmelerini sağlıyor. Bu, tam olarak Singleton deseni olmasa da, sınıf seviyesinde bir soyutlama sağlıyor. Farklı AI istemcilerini (`Gemini, OpenAI`) `RequestManager`'a kaydetme yeteneği, Strategy tasarım deseninin bir uygulaması olarak değerlendirilebilir.
+*   **Kod Kalitesi ve Sürdürülebilirlik:** Kod kalitesi, detaylı hata mesajları ve loglama kullanımı sayesinde iyileştirilmiş durumda. Modüler tasarım, birim testlerini yazmayı ve çalıştırmayı kolaylaştırıyor. `changelog_updater.py`'deki keyword-based yaklaşım, daha karmaşık algoritmalarla geliştirilebilir.
+*   **Yeni Bağımlılıklar ve Teknolojiler:** GitHub CLI (`gh`) yeni bir bağımlılık olarak eklendi, ancak bu genellikle geliştiriciler tarafından zaten kurulu olan bir araç. Google Gemini API entegrasyonu ile proje, AI tabanlı özetleme yeteneği kazanıyor.
 
 ### 4. SONUÇ YORUMU:
 
-- **Bu değişikliklerin uzun vadeli değeri ve etkisi nedir?** Bu değişiklikler, geliştirme sürecini otomatikleştirerek ve hızlandırarak uzun vadede verimliliği artırır.  Otomatik pull request birleştirme ve yapay zeka destekli changelog güncellemeleri, geliştiricilerin zamanını ve çabasını önemli ölçüde azaltır.
-
-- **Projenin teknik borcu nasıl etkilendi?**  Hata yönetimi ve logging'in iyileştirilmesi teknik borcu azalttı. Ancak, yeni yapay zeka bağımlılığı ve `gh` CLI'nin bakımı yeni bir teknik borç unsuru oluşturabilir.
-
-- **Gelecekteki geliştirmelere nasıl hazırlık yapıldı?** `git_manager.py`'nin modüler yapısı ve iyi hata yönetimi, yeni Git ve GitHub entegrasyonlarının eklenmesini kolaylaştırır.  Ancak, yapay zeka modelinin sürekli olarak kullanılabilirliği ve güvenilirliği gelecekteki geliştirmeler için kritik öneme sahiptir.  AI karar verme sürecinin şeffaflığı ve fallback mekanizmasının geliştirilmesi de önemlidir.
+*   **Uzun Vadeli Değer ve Etki:** Geliştirme sürecinin otomasyonunu artırarak uzun vadede verimliliği yükseltiyor. Pull Request birleştirme işleminin otomatikleştirilmesi, geliştiricilerin zamanını ve çabasını önemli ölçüde azaltıyor. Otomatik etkilenme seviyesi belirleme, changelog'ların tutarlılığını ve okunabilirliğini artırıyor. Gemini API entegrasyonu, uygulamanın özetleme yeteneklerini önemli ölçüde artırıyor.
+*   **Teknik Borç:** API bağımlılığı (Gemini API) ve eksik test kapsamı teknik borç olarak değerlendirilebilir. Özellikle Gemini API entegrasyonu için testler yazmak, API'nin doğru çalıştığını ve hataların düzgün şekilde ele alındığını doğrulamak için önemlidir. Kod içindeki `TODO` notları (örneğin, otomatik release tespiti) çözülmesi gereken teknik borçları temsil ediyor.
+*   **Gelecekteki Geliştirmelere Hazırlık:** Modüler tasarım sayesinde gelecekte yeni özellikler eklemek veya mevcut olanları değiştirmek daha kolay olacaktır. `git_manager.py`'nin modüler yapısı ve iyi hata yönetimi, yeni Git ve GitHub entegrasyonlarının eklenmesini kolaylaştırıyor. `RequestManager` kullanılarak API'lerin soyutlanması, farklı AI modellerini veya servislerini kolayca entegre etme imkanı sunuyor. AI karar verme sürecinde fallback mekanizmasının olması olumlu bir gelişme ancak bu mekanizmanın da geliştirilmeye açık olduğunu belirtmek gerekir.
+```
 
 ## 🛠️ Kurulum (Installation)
 
@@ -213,7 +201,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**Last updated**: June 20, 2025 by Summarizer Framework v8.17.0
+**Last updated**: June 20, 2025 by Summarizer Framework v8.19.0
 *This README is automatically generated and updated based on project activity.*
 
 > *"Automatically maintained with AI-powered analysis"*

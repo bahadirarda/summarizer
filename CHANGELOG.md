@@ -3,6 +3,127 @@
 Bu dosya otomatik olarak generate edilmiştir.
 Düzenlemeler için `changelog.json` dosyasını kullanın.
 
+## 2025-06-20 07:32:17
+
+Tamamdır, projedeki değişiklikleri detaylı bir şekilde analiz ediyorum.
+
+### 1. YAPISAL ANALİZ:
+
+Bu değişiklikler, uygulamanın çeşitli katmanlarını etkiliyor:
+
+*   **Giriş Noktası ve Özellikler (summarizer.py, features/\*)**: `summarizer.py`, uygulamanın ana giriş noktasıdır ve komut satırı arayüzünü yönetir. Özellik modülleri (`features/`) ise komut satırı argümanlarını işleyen, GUI kurulumunu başlatan, terminal komutlarını yöneten ve ekran görüntüsü alma gibi işlevleri barındırır. `merge_command.py` dosyasındaki değişiklikler, bu komutların birleşimi veya yönetimi ile ilgili olabilir.
+*   **Yardımcı Araçlar (src/utils/\*)**: `src/utils/io.py` dosyasındaki değişiklikler, dosya okuma/yazma işlemlerini iyileştirmeyi veya değiştirmeyi amaçlayabilir. `src/utils/changelog_updater.py`, otomatik değişiklik günlüğü (changelog) oluşturma veya güncelleme süreçlerini yönetir. `src/utils/git_manager.py`, Git işlemleriyle etkileşimde bulunur (commit alma, branch yönetimi vb.).
+*   **Servis Katmanı (src/services/\*)**: `src/services/gemini_client.py`, Google Gemini API'sini kullanarak AI tabanlı özetleme yetenekleri sağlar.
+
+**Mimari Değişikliklerin Etkisi:**
+
+*   **Artan Modülerlik:** Özelliklerin ayrı modüllerde tutulması, kodun daha modüler ve yönetilebilir olmasını sağlar. Yeni özellik eklemek veya mevcut olanları değiştirmek daha kolay hale gelir.
+*   **Bağımlılık Yönetimi:** Gemini API entegrasyonu, harici bir servise bağımlılığı artırır. Bu, API kullanılabilirliği ve performansına bağımlılık anlamına gelir. `GeminiClient`'ın düzgün konfigüre edilip edilmediğini kontrol eden `is_ready()` metodu sayesinde, bu bağımlılık daha iyi yönetilebilir.
+*   **API Soyutlama:** `RequestManager` kullanılarak `GeminiClient`'ın kaydedilmesi, ileride farklı AI modellerini veya servislerini kolayca entegre etme imkanı sunar. Bu, sistemin daha esnek ve ölçeklenebilir olmasına yardımcı olur.
+
+**Kod Organizasyonunda İyileştirmeler:**
+
+*   **Ayrılmış Sorumluluklar:** Her modül belirli bir işlevi yerine getirir (komut satırı argümanlarını işleme, dosya işlemleri, AI özetleme vb.). Bu, kodun okunabilirliğini ve bakımını kolaylaştırır.
+*   **Hata Yönetimi:** Gemini API'sıyla ilgili hataların yakalanması ve loglanması, uygulamanın daha güvenilir çalışmasını sağlar. Ayrıca, API anahtarı olmasa bile sistemin entegrasyon için kaydedilmesi, ileride API anahtarı eklendiğinde sistemin otomatik olarak çalışmasına olanak tanır.
+
+### 2. İŞLEVSEL ETKİ:
+
+**Eklenen, Değiştirilen veya Kaldırılan Özellikler:**
+
+*   **Geliştirilmiş Komut Satırı Arayüzü:** `summarizer.py`'deki değişiklikler, farklı komut satırı argümanlarını (örneğin, `--gui`, `--setup`, `screenshot`) destekleyerek kullanıcıların uygulamayla etkileşimini kolaylaştırır.
+*   **Ekran Görüntüsü Alma ve Analiz:** `screenshot` komutu, belirli bir uygulamanın ekran görüntüsünü alıp analiz etme yeteneği sunar.
+*   **Otomatik Güncelleme Notları (Changelog) Yönetimi:** `changelog_updater.py` sayesinde, yapılan değişiklikler otomatik olarak takip edilerek güncelleme notları oluşturulabilir.
+*   **Gemini API Entegrasyonu:** `gemini_client.py`, Gemini API'sini kullanarak metin özetleme yeteneği sağlar. Eğer API anahtarı bulunamazsa, sistem entegrasyonu için kaydedilir, ancak AI özetleri oluşturulamaz.
+*   **Basit Metin Üretimi:** `generate_simple_text()` metodu, Gemini API'sini kullanarak karmaşık analiz şablonları olmadan basit metin yanıtları oluşturma imkanı sunar. Bu, farklı kullanım senaryoları için esneklik sağlar.
+
+**Kullanıcı Deneyimi:**
+
+*   **Daha Kullanıcı Dostu Komut Satırı:** Komut satırı argümanları sayesinde kullanıcılar uygulamayı farklı şekillerde (GUI, kurulum, ekran görüntüsü alma vb.) çalıştırabilir.
+*   **AI Destekli Özetleme:** Gemini API entegrasyonu, daha akıllı ve kapsamlı özetler oluşturma potansiyeli sunar.
+
+**Performans, Güvenlik veya Güvenilirlik:**
+
+*   **Hata Yönetimi:** Gemini API hatalarının yakalanması ve loglanması, uygulamanın daha güvenilir çalışmasını sağlar.
+*   **API Limiti Yönetimi:** `_truncate_content_for_prompt` fonksiyonu, Gemini API'sine gönderilecek metinlerin boyutunu kontrol altında tutarak, API limitlerinin aşılmasını ve performans sorunlarını önler.
+*   **Güvenlik:** `GEMINI_API_KEY` ortam değişkeni kullanılarak API anahtarının güvenli bir şekilde saklanması sağlanır.
+
+### 3. TEKNİK DERINLIK:
+
+**Uygulanan veya Değiştirilen Tasarım Desenleri:**
+
+*   **Singleton (RequestManager):** `RequestManager` muhtemelen bir singleton deseni kullanılarak tasarlanmıştır. Bu, sistemde sadece bir `RequestManager` örneği olmasını ve tüm istemcilerin (örneğin, `GeminiClient`) bu örneğe erişmesini sağlar.
+*   **Strategy (AI Client):** Farklı AI istemcilerini (örneğin, Gemini, OpenAI) `RequestManager`'a kaydetme yeteneği, Strategy tasarım deseninin bir uygulaması olabilir. Bu, uygulamanın farklı AI modellerini kolayca değiştirebilmesini veya kullanabilmesini sağlar.
+
+**Kod Kalitesi ve Sürdürülebilirlik:**
+
+*   **Modülerlik:** Kodun farklı modüllere ayrılması, kodun okunabilirliğini ve bakımını kolaylaştırır.
+*   **Test Edilebilirlik:** Modüler kod, birim testlerini yazmayı ve çalıştırmayı kolaylaştırır.
+*   **Loglama:** `f.logger` kullanılarak loglama yapılması, uygulamanın davranışını izlemeyi ve hataları ayıklamayı kolaylaştırır.
+
+**Yeni Bağımlılıklar veya Teknolojiler:**
+
+*   **Google Gemini API:** Uygulama, Google Gemini API'sini kullanarak AI tabanlı özetleme yeteneği kazanmıştır.
+
+### 4. SONUÇ YORUMU:
+
+**Uzun Vadeli Değer ve Etki:**
+
+*   **Gelişmiş Özetleme Yetenekleri:** Gemini API entegrasyonu, uygulamanın özetleme yeteneklerini önemli ölçüde artırır.
+*   **Daha Esnek ve Ölçeklenebilir Mimari:** Modüler tasarım ve Strategy deseni sayesinde uygulama, farklı AI modellerini veya servislerini kolayca entegre edebilir.
+*   **Kullanıcı Deneyiminde İyileşme:** Geliştirilmiş komut satırı arayüzü ve AI destekli özetleme, kullanıcı deneyimini iyileştirir.
+
+**Projenin Teknik Borcu:**
+
+*   **API Bağımlılığı:** Gemini API'sine olan bağımlılık, teknik borç olarak değerlendirilebilir. API'nin kullanılabilirliği ve performansına bağımlılık, uygulamanın güvenilirliğini etkileyebilir. Bu nedenle, API hatalarını yönetmek ve alternatif çözümler düşünmek önemlidir.
+*   **Test Kapsamı:** Modüler kod, test yazmayı kolaylaştırsa da, her modül için yeterli test kapsamının sağlanması önemlidir. Özellikle Gemini API entegrasyonu için testler yazmak, API'nin doğru çalıştığını ve hataların düzgün bir şekilde ele alındığını doğrulamak için önemlidir.
+*   **TODO'lar:** Kod içerisinde bulunan `TODO` notları, çözülmesi gereken teknik borçları temsil eder. Örneğin, "Her pushtan sonra otomatik olarak release boyutunda olabilecek bir güncelleme ise release olduğunu anlasın vs." gibi notlar, otomatikleştirilmesi gereken süreçleri işaret eder.
+
+**Gelecekteki Geliştirmelere Hazırlık:**
+
+*   **Modüler Tasarım:** Modüler tasarım sayesinde, gelecekte yeni özellikler eklemek veya mevcut olanları değiştirmek daha kolay olacaktır.
+*   **API Soyutlama:** `RequestManager` kullanılarak API'lerin soyutlanması, farklı AI modellerini veya servislerini kolayca entegre etme imkanı sunar.
+*   **AI Destekli Geliştirme (Summarizer Eye):** Kodda bahsedilen "Summarizer Eye" fikri, AI'nin kod analizi, değişiklik takibi, özellik önerisi ve optimizasyon gibi konularda kullanılması potansiyelini gösterir. Bu, gelecekteki geliştirmeler için büyük bir potansiyele sahiptir.
+
+**Değişen Dosyalar:** summarizer.py, features/merge_command.py, src/utils/io.py, src/utils/git_manager.py, src/utils/changelog_updater.py, src/services/gemini_client.py
+**Etki Seviyesi:** High
+**Değişiklik Tipi:** Feature
+**Satır Değişiklikleri:** +1014 -5
+**Etiketler:** client, utils, changelog-updater, api, gui, merge-command, features, git-manager, io, services
+
+---
+
+## 2025-06-20 07:15:26
+
+Kod tabanında güncellemeler yapıldı. Değişen dosyalar: summarizer.py, features/merge_command.py, src/utils/version_manager.py, src/utils/git_manager.py, src/utils/changelog_updater.py, src/services/gemini_client.py. (AI özeti alınamadı: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. [violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+  quota_id: "GenerateRequestsPerDayPerProjectPerModel-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-flash"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+  quota_value: 500
+}
+, links {
+  description: "Learn more about Gemini API quotas"
+  url: "https://ai.google.dev/gemini-api/docs/rate-limits"
+}
+, retry_delay {
+  seconds: 33
+}
+])
+
+**Değişen Dosyalar:** summarizer.py, features/merge_command.py, src/utils/version_manager.py, src/utils/git_manager.py, src/utils/changelog_updater.py, src/services/gemini_client.py
+**Etki Seviyesi:** High
+**Değişiklik Tipi:** Feature
+**Satır Değişiklikleri:** +899 -330
+**Etiketler:** summarizer, merge-command, version-manager, utils, changelog-updater, api, client, git-manager, features, gemini-client
+
+---
+
 ## 2025-06-20 06:08:20
 
 ### 1. YAPISAL ANALİZ:

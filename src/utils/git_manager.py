@@ -6,6 +6,9 @@ import getpass
 from enum import Enum
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
+from ..services.gemini_client import GeminiClient
+from .io import _ask_user
+import sys
 
 logger = logging.getLogger(__name__)
 
@@ -42,9 +45,44 @@ class GitManager:
                 print("      Please check your connection and try again.")
             return False, err_msg
 
-    def _run_git_command(self, command: List[str]) -> Tuple[bool, str]:
-        """Helper to run a git command. Returns (success, output/error string)."""
-        return self._run_external_command(["git"] + command)
+    def _run_git_command(self, command: List[str], check: bool = True, capture_output: bool = True) -> Tuple[bool, str]:
+        """Run a git command and handle errors with improved logging."""
+        try:
+            # Setup arguments for subprocess.run
+            kwargs = {
+                "cwd": self.project_root,
+                "text": True,
+                "check": check,
+            }
+            if capture_output:
+                kwargs['capture_output'] = True
+            # When not capturing, stdout/stderr are not passed, letting them default to None, 
+            # which means they inherit from the parent process (i.e., print to console).
+            # This avoids the ValueError.
+
+            process = subprocess.run(["git"] + command, **kwargs)
+            
+            output = process.stdout.strip() if process.stdout else ""
+            return True, output
+        except subprocess.CalledProcessError as e:
+            error_message = f"Command failed: git {' '.join(command)}"
+            # If capture_output was false, stderr is already printed. 
+            # If true, it's in e.stderr.
+            stderr = e.stderr.strip() if e.stderr else "No stderr output."
+            
+            # More prominent error display
+            print("\n" + "="*70)
+            print("🚨 GIT COMMAND FAILED! 🚨".center(70))
+            print("="*70)
+            print(f"   🔵 Command : git {' '.join(command)}")
+            print(f"   🔴 Error   : {stderr}")
+            print("="*70 + "\n")
+            
+            logger.error(f"{error_message}\n{stderr}")
+            return False, stderr
+        except FileNotFoundError:
+            logger.error("Git command not found. Is Git installed and in your PATH?")
+            return False, "Git not found."
 
     def _check_gh_auth(self) -> bool:
         """Checks if the user is authenticated with the gh CLI."""
@@ -78,6 +116,38 @@ class GitManager:
         """Force push all local changes to remote, overwriting remote history completely"""
         logger.warning(f"Force-pushing ALL local changes for '{branch_name}' to remote '{remote_name}'...")
         return self._run_git_command(["push", "--force", remote_name, branch_name])
+
+    def force_overwrite_target_branch(self, source_branch: str, target_branch: str, remote_name: str = "origin") -> Tuple[bool, str]:
+        """EXTREMELY DANGEROUS: Force pushes the source branch to the target branch, overwriting it."""
+        logger.critical(f"Executing force overwrite of '{target_branch}' with '{source_branch}' on remote '{remote_name}'!")
+        return self._run_git_command(["push", "--force", remote_name, f"{source_branch}:{target_branch}"])
+
+    def force_push_with_confirmation(self, source_branch: str, target_branch: Optional[str] = None) -> bool:
+        """Asks for triple confirmation before executing a destructive push."""
+        
+        if target_branch:
+            # This is the new, more dangerous overwrite operation
+            print(f"   🚨 DANGER: You are about to overwrite '{target_branch}' with the content of '{source_branch}'.")
+            print("="*60)
+            if not _ask_user(f"   ❔ This will ERASE all unique history on '{target_branch}'. Are you sure?"): return False
+            if not _ask_user(f"   ❔ Any work on '{target_branch}' that isn't in '{source_branch}' will be PERMANENTLY LOST. Proceed?"): return False
+            if not _ask_user(f"   ❔ FINAL WARNING: Overwrite '{target_branch}'? This cannot be undone."): return False
+            
+            print(f"   🚀 Force overwriting '{target_branch}'...")
+            success, _ = self.force_overwrite_target_branch(source_branch, target_branch)
+
+        else:
+            # This is the original, safer force push on the same branch
+            print(f"   ⚠️  Force Push Warning for branch '{source_branch}'")
+            print("="*60)
+            if not _ask_user("   ❔ This action will overwrite the remote branch. Are you sure?"): return False
+            if not _ask_user("   ❔ This can permanently delete commits made by others. Really proceed?"): return False
+            if not _ask_user("   ❔ FINAL WARNING: This action cannot be undone. Confirm force push?"): return False
+
+            print(f"   🚀 Executing force push for '{source_branch}'...")
+            success, _ = self.force_push_all(source_branch)
+
+        return success
 
     def is_git_repository(self) -> bool:
         success, _ = self._run_git_command(["rev-parse", "--is-inside-work-tree"])
@@ -329,3 +399,20 @@ class GitManager:
         except Exception as e:
             logger.error(f"Could not get sync status for '{branch_name}': {e}")
             return SyncStatus.DIVERGED, 0, 0
+
+    def get_uncommitted_changes(self) -> List[str]:
+        """Returns a list of files with uncommitted changes."""
+        success, output = self._run_git_command(["status", "--porcelain"])
+        return output.splitlines() if success and output else []
+
+    def stash_changes(self) -> Tuple[bool, str]:
+        """Stashes uncommitted changes."""
+        return self._run_git_command(["stash", "push", "-m", "summarizer_autostash"])
+
+    def stash_pop(self) -> Tuple[bool, str]:
+        """Applies the last stash."""
+        return self._run_git_command(["stash", "pop"])
+
+    def delete_local_branch(self, branch_name: str) -> Tuple[bool, str]:
+        """Deletes a local branch."""
+        return self._run_git_command(["branch", "-D", branch_name])
