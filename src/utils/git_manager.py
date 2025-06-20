@@ -263,6 +263,17 @@ class GitManager:
         success, output = self._run_git_command(["ls-remote", "--heads", remote_name, branch_name])
         return success and bool(output.strip())
 
+    def has_diff_between_branches(self, branch1: str, branch2: str) -> bool:
+        """Check if there are differences between two branches."""
+        success, output = self._run_git_command(["rev-list", "--count", f"{branch1}..{branch2}"])
+        if success and output:
+            try:
+                count = int(output.strip())
+                return count > 0
+            except ValueError:
+                return True
+        return True  # Assume there are differences if we can't determine
+
     def get_branch_sync_status(self, branch_name: str, remote_name: str = "origin") -> Tuple[SyncStatus, int, int]:
         try:
             self.fetch_updates(remote_name)
