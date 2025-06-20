@@ -17,7 +17,7 @@ from .file_tracker import (
 from .json_changelog_manager import JsonChangelogManager, ImpactLevel, ChangeType
 from .readme_generator import update_readme
 from .version_manager import VersionManager
-from .git_manager import GitManager
+from .git_manager import GitManager, SyncStatus
 
 logger_changelog = logging.getLogger(__name__)
 
@@ -120,41 +120,52 @@ def _handle_pull_request_flow(project_root: Path, git_manager: GitManager, curre
 
 
 def _post_workflow_sync(git_manager: GitManager):
-    """After a workflow, offers to sync the main branch with the latest development changes."""
+    """After a workflow, offers a safe, professional, and context-aware way to sync the local repo."""
     print("\n" + "="*50)
-    print("   🚀 Workflow Complete")
+    print("   🚀 Workflow Complete - Final Sync Step")
     print("="*50)
     
     develop_branch = 'develop'
     main_branch = 'main'
+    original_branch = git_manager.get_current_branch()
 
-    # Ensure both branches exist locally before offering
-    if git_manager.branch_exists(develop_branch) and git_manager.branch_exists(main_branch):
-        prompt = (
-            f"\n   ❔ Keep your local repository synchronized? "
-            f"This will merge '{develop_branch}' into your local '{main_branch}' branch."
-        )
-        if _ask_user(prompt):
-            original_branch = git_manager.get_current_branch()
-            
-            print(f"   > Switching to '{main_branch}'...")
-            if not git_manager.checkout(main_branch):
-                print(f"   ❌ Failed to switch to '{main_branch}'. Aborting sync.")
-                if original_branch: git_manager.checkout(original_branch) # Attempt to return user
-                return
+    def sync_branch(branch_name: str) -> bool:
+        """Inner helper to handle syncing a single branch."""
+        print(f"\n   🔎 Analyzing '{branch_name}' branch sync status...")
+        status, ahead, behind = git_manager.get_branch_sync_status(branch_name)
 
-            print(f"   > Merging '{develop_branch}' into '{main_branch}'...")
-            if git_manager.merge_from(develop_branch):
-                print(f"   ✅ Successfully merged '{develop_branch}' into '{main_branch}'.")
-            else:
-                print(f"   ❌ Merge failed. Please check for conflicts. The sync was not completed.")
+        if status == SyncStatus.SYNCED:
+            print(f"   ✅ Local '{branch_name}' is already in sync with the remote.")
+            return True
+        elif status == SyncStatus.AHEAD:
+            if _ask_user(f"   ❔ Your local '{branch_name}' is {ahead} commit(s) ahead. Push these changes?"):
+                return git_manager.push(branch_name)[0]
+        elif status == SyncStatus.BEHIND:
+            if _ask_user(f"   ❔ Your local '{branch_name}' is {behind} commit(s) behind. Update from remote?"):
+                return git_manager.pull(branch_name)
+        elif status == SyncStatus.DIVERGED:
+            print(f"   ❌ Critical: Your local '{branch_name}' has diverged from the remote.")
+            print("      Automatic sync is not safe. Please resolve this manually using 'git pull' or 'git rebase'.")
+            return False
+        return False
 
-            # Always switch back to the original branch
-            if original_branch:
-                print(f"   > Returning to '{original_branch}' branch...")
-                git_manager.checkout(original_branch)
+    # Sync both main branches
+    if not sync_branch(main_branch):
+        if original_branch: git_manager.checkout(original_branch)
+        return
+    if not sync_branch(develop_branch):
+        if original_branch: git_manager.checkout(original_branch)
+        return
+        
+    # --- Final Merge Preparation ---
+    print("\n   ✅ All branches are now synchronized with the remote.")
+    if _ask_user(f"   ❔ Prepare for final release by merging '{develop_branch}' into '{main_branch}'?"):
+        print(f"   > Switching to '{main_branch}'...")
+        if git_manager.checkout(main_branch):
+            print(f"   Ready for merge. To complete, run: git merge {develop_branch}")
         else:
-            print("   ⚪️ Local sync skipped.")
+            print(f"   ❌ Failed to switch to '{main_branch}'.")
+            if original_branch: git_manager.checkout(original_branch)
 
 
 def _handle_git_workflow(project_root: Path, git_manager: GitManager, new_version: str, summary: str, gemini_client: Any):

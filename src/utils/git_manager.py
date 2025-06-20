@@ -5,9 +5,15 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 import re
 import getpass
+from enum import Enum
 
 logger = logging.getLogger(__name__)
 
+class SyncStatus(Enum):
+    SYNCED = "synced"
+    AHEAD = "ahead"
+    BEHIND = "behind"
+    DIVERGED = "diverged"
 
 class GitManager:
     """Manages Git repository structure, initialization, and interactions..."""
@@ -212,6 +218,45 @@ class GitManager:
         
         logger.info(f"Successfully merged from '{source_branch}'.")
         return True
+
+    def pull(self, branch_name: str, remote_name: str = "origin") -> bool:
+        """Pulls the latest changes for a specific branch from the remote."""
+        logger.info(f"Pulling latest changes for '{branch_name}' from remote '{remote_name}'...")
+        
+        # It's safer to checkout the branch first, then pull.
+        original_branch = self.get_current_branch()
+        if original_branch != branch_name:
+            if not self.checkout(branch_name):
+                return False # Failed to switch to the branch to be pulled
+
+        success, output = self._run_git_command(["pull", remote_name, branch_name])
+        
+        if original_branch and original_branch != branch_name:
+             self.checkout(original_branch) # Switch back if we changed branch
+
+        if not success:
+            logger.error(f"Failed to pull changes for '{branch_name}'. Output:\n{output}")
+        
+        return success
+
+    def reset_to_remote(self, branch_name: str, remote_name: str = "origin") -> bool:
+        """
+        Forcefully resets the local branch to match the remote branch. 
+        This is a destructive operation for local changes on that branch.
+        """
+        logger.info(f"Resetting local branch '{branch_name}' to '{remote_name}/{branch_name}'...")
+        
+        # First, fetch the latest updates
+        if not self.fetch_updates(remote_name):
+            return False
+
+        # Then, perform the reset
+        success, output = self._run_git_command(["reset", "--hard", f"{remote_name}/{branch_name}"])
+        
+        if not success:
+            logger.error(f"Failed to reset branch '{branch_name}'. Output:\n{output}")
+
+        return success
 
     def ensure_project_structure(self) -> bool:
         """Interactively ensures the git repository and branch structure are set up correctly on local and remote."""
@@ -431,3 +476,42 @@ class GitManager:
             print(f"      Auth status output:\n{output}")
             print("\n      Please run 'gh auth login' in your terminal and follow the prompts.")
             return False
+
+    def get_branch_sync_status(self, branch_name: str, remote_name: str = "origin") -> Tuple[SyncStatus, int, int]:
+        """
+        Compares a local branch with its remote counterpart.
+        Returns a SyncStatus enum and the number of ahead/behind commits.
+        """
+        try:
+            # Ensure remote info is up-to-date
+            self.fetch_updates(remote_name)
+            
+            remote_branch = f"{remote_name}/{branch_name}"
+            # This command counts commits that are unique to each branch
+            output = self._run_git_command(["rev-list", "--left-right", "--count", f"{branch_name}...{remote_branch}"])
+            
+            if output is None:
+                # This can happen if the remote branch doesn't exist
+                # Check if local branch is unpushed
+                local_commits_output = self._run_git_command(["rev-list", "--count", branch_name, f"^{remote_name}/{branch_name}"])
+                if local_commits_output is not None:
+                    ahead_count = int(local_commits_output)
+                    if ahead_count > 0:
+                        return SyncStatus.AHEAD, ahead_count, 0
+                return SyncStatus.SYNCED, 0, 0 # Assume synced if remote doesn't exist and local isn't ahead.
+
+            ahead, behind = map(int, output.split())
+            
+            if ahead > 0 and behind > 0:
+                return SyncStatus.DIVERGED, ahead, behind
+            elif ahead > 0:
+                return SyncStatus.AHEAD, ahead, behind
+            elif behind > 0:
+                return SyncStatus.BEHIND, ahead, behind
+            else:
+                return SyncStatus.SYNCED, 0, 0
+                
+        except Exception as e:
+            logger.error(f"Could not get sync status for branch '{branch_name}': {e}")
+            # In case of error, assume diverged to be safe
+            return SyncStatus.DIVERGED, 0, 0
