@@ -433,26 +433,17 @@ def update_changelog(project_root: Optional[Path] = None):
                 # Create PR to target branch
                 target_branch = workflow_decision.get('target_branch', 'develop')
                 
-                # Security check BEFORE push for main/master
-                if target_branch in ['main', 'master']:
-                    print("\n   🔒 SECURITY CHECK: This will create a PR to MAIN branch!")
-                    print("   ⚠️  Main branch should only receive thoroughly tested code.")
-                    
-                    import getpass
-                    try:
-                        password = getpass.getpass("   🔑 Enter password to continue (or press Enter to cancel): ")
-                        if not password:
-                            print("   ❌ Operation cancelled.")
-                            return
-                    except (EOFError, KeyboardInterrupt):
-                        print("\n   ❌ Operation cancelled.")
-                        return
-                
                 if _ask_user(f"   ❔ Push '{current_branch_name}' and create PR to '{target_branch}'?"):
                     success, output = git_manager.push(current_branch_name)
                     if success:
                         print("   ✅ Branch pushed successfully.")
                         _handle_pull_request_flow(project_root, git_manager, current_branch_name, target_branch, summary, gemini_client)
+                        
+                        # Info about main branch protection
+                        if target_branch in ['main', 'master']:
+                            print("\n   🔒 Note: This PR targets the MAIN branch.")
+                            print("   📋 The PR will need to be reviewed and approved before merging.")
+                            print("   💡 Merge protection is enforced on the main branch.")
                     else:
                         print(f"   ❌ Push failed: {output}")
             elif workflow_decision['workflow'] == 'direct':
