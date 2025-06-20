@@ -63,7 +63,7 @@ def get_framework_version():
         return '2.2.0'
 
 def print_version_info():
-    """Print comprehensive version information"""
+    """Print comprehensive version information!."""
     # Get version from VersionManager for consistency
     try:
         from src.utils.version_manager import VersionManager
@@ -128,6 +128,12 @@ def main():
     if args and args[0] in ['screenshot', 'ss']:
         return screenshot_command(args[1:])
     
+    # Handle merge command
+    if args and args[0] == 'merge':
+        from features.merge_command import merge_command
+        merge_command(Path.cwd())
+        return True
+    
     # Handle setup and configuration commands
     if args and args[0] == '--setup':
         return setup_command()
@@ -171,6 +177,7 @@ Examples:
   summarizer --check            # Check configuration
   summarizer screenshot         # Full screen analysis
   summarizer ss chrome          # Chrome window analysis
+  summarizer merge              # Merge PR with security checks
   
   # Python usage:
   import summarizer
@@ -297,4 +304,3 @@ if __name__ == "__main__":
 # TODO: summarizer ss <comment> - screenshot with comment özelliği ekle (Commente göre yorumlasın.)
 # BiG TODO: Summarizer Enter: sesli komut sistemiyle terminal kullanımı. Cihaz ile tam erişim halinde iletişime geçme konusunda ilk versiyon.
 # TODO: Summarizer Updater : otomatik olarak güncellemeleri kontrol etme ve yükleme. Yeni sürüm çıktığında kullanıcıyı bilgilendir.
-
