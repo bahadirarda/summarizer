@@ -75,26 +75,34 @@ def _handle_pull_request_flow(project_root: Path, git_manager: GitManager, curre
     # --- STEP 2: HANDLE EXISTING PR ---
     existing_pr = git_manager.get_existing_pr(current_branch)
     current_version = VersionManager(project_root).get_current_version()
-    
-    # Define a standardized title that includes the version
     pr_title = f"feat: Release v{current_version} - Automated Changelog Update"
     
     if existing_pr:
         print(f"   ✅ An open pull request already exists: {existing_pr['url']}")
-        pr_version_match = re.search(r'v(\d+\.\d+\.\d+)', existing_pr['title'])
         
-        if not pr_version_match or pr_version_match.group(1) != current_version:
-            print(f"      But it seems to be for an outdated version.")
-            if _ask_user("   ❔ Update the existing PR with the latest info and title?"):
-                print("   🤖 Generating updated AI-powered pull request body...")
-                new_body = git_manager.generate_pull_request_body(summary, gemini_client)
-                if git_manager.update_pr_details(existing_pr['number'], pr_title, new_body):
-                    print("   ✅ Successfully updated the existing pull request.")
-                else:
-                    print("   ❌ Failed to update the pull request.")
+        # Always offer to update the PR with the latest content and description
+        prompt = (
+            f"   ❔ The existing PR will be updated with your latest commits and a new description.\n"
+            f"      This will overwrite the PR's current title and body. Continue?"
+        )
+        if _ask_user(prompt):
+            # 1. Force push the branch to update the PR's file content
+            print(f"   🚀 Force-pushing '{current_branch}' to update PR content...")
+            push_success, _ = git_manager.force_push(current_branch)
+            if not push_success:
+                print("   ❌ Failed to push updates to the PR branch. Aborting update.")
+                return
+
+            # 2. Update the PR's title and body
+            print("   🤖 Generating updated AI-powered pull request body...")
+            new_body = git_manager.generate_pull_request_body(summary, gemini_client)
+            if git_manager.update_pr_details(existing_pr['number'], pr_title, new_body):
+                print("   ✅ Successfully updated the existing pull request with the latest changes.")
+            else:
+                print("   ❌ Failed to update the pull request metadata.")
         else:
-            print("      Your recent push has been added to it. All up-to-date.")
-    
+            print("   ⚪️ PR update skipped. The existing PR remains unchanged.")
+
     # --- STEP 3: CREATE NEW PR ---
     else:
         if not _ask_user(f"   ❔ Create a new Pull Request from '{current_branch}' to '{target_branch}'?"):

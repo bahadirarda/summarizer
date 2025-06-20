@@ -61,7 +61,15 @@ class GitManager:
     def push(self, branch_name: str, remote_name: str = "origin") -> Tuple[bool, str]:
         """Pushes a branch to the specified remote."""
         logger.info(f"Pushing '{branch_name}' to remote '{remote_name}'...")
-        return self._run_git_command(["push", remote_name, branch_name, "--force-with-lease"])
+        return self._run_git_command(["push", remote_name, branch_name])
+
+    def force_push(self, branch_name: str, remote_name: str = "origin") -> Tuple[bool, str]:
+        """
+        Forcefully pushes a branch to the specified remote.
+        Uses --force-with-lease for safety.
+        """
+        logger.warning(f"Force-pushing '{branch_name}' to remote '{remote_name}'...")
+        return self._run_git_command(["push", "--force-with-lease", remote_name, branch_name])
 
     def has_remote(self, remote_name: str = "origin") -> bool:
         """Checks if a remote with the given name exists."""
