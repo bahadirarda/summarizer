@@ -3,6 +3,203 @@
 Bu dosya otomatik olarak generate edilmiştir.
 Düzenlemeler için `changelog.json` dosyasını kullanın.
 
+## 2025-06-20 07:43:10
+
+İşte `src/utils/version_manager.py` dosyasındaki değişikliklerin kapsamlı ve analitik bir özeti:
+
+### 1. YAPISAL ANALİZ:
+
+*   **Etkilenen Sistem Bileşenleri ve Katmanlar:** Bu değişiklikler öncelikle servis katmanındaki `src/utils/version_manager.py` dosyasını etkilemektedir. Bu dosya, proje versiyonunu yönetmek ve Git repository bilgileri (branch, tag, commit) üzerinden bağlamsal bilgiler sağlamakla sorumludur.  Dolayısıyla, bu değişiklikler yazılımın çekirdek işlevselliğine doğrudan hizmet eden bir yardımcı sınıfı etkiler.
+*   **Mimari Değişikliklerin Etkisi:** Temelde mimari bir değişiklik bulunmamaktadır. `VersionManager` sınıfının yapısı ve sorumlulukları korunmuştur. Ancak, sınıfın içindeki bazı metodların davranışları ve hata yönetimi güncellenmiştir. Bu, sınıfın daha sağlam ve bilgilendirici olmasını sağlamayı amaçlar.  Mimari anlamda bir servis katmanı içerisinde yer alan bir utility sınıfında yapılan iyileştirmeler, diğer katmanlar tarafından kullanılan versiyon bilgisinin daha güvenilir bir şekilde elde edilmesini sağlayarak dolaylı bir etki yaratır.
+*   **Kod Organizasyonunda İyileştirmeler:** Dosya içinde belirgin bir kod organizasyonu iyileştirmesi olmasa da, hata yönetimi ve logging mekanizmalarının güçlendirilmesi, kodun daha okunabilir ve sürdürülebilir olmasına katkıda bulunur.  Ek olarak, git komutlarının çalıştırılmasındaki hata durumlarının daha iyi ele alınması ve bilgilendirici log mesajlarının üretilmesi, ileride yaşanabilecek sorunların teşhisini kolaylaştırır. `get_current_branch` fonksiyonundaki hata yönetimi örnek gösterilebilir.
+
+### 2. İŞLEVSEL ETKİ:
+
+*   **Eklenen, Değiştirilen veya Kaldırılan Özellikler:**
+    *   **Değişiklik:** `get_current_version` metodunda, `package.json` dosyasını okurken `utf-8` kodlamasının belirtilmesi, farklı karakter setleriyle uyumluluğu artırır. Ayrıca dosya bulunamadığında veya okuma hatası oluştuğunda önceden tanımlanmış bir varsayılan versiyon döndürülerek uygulamanın çalışmaya devam etmesi sağlanır.
+    *   **Değişiklik:** `_get_existing_tags` metodunda en son 10 tag'in alınması, AI bağlamının daha güncel olmasını sağlar. Hata yönetimi geliştirilerek hata durumunda daha bilgilendirici bir mesaj döndürülür.
+    *   **Değişiklik:** `_get_recent_commits` metodunda da benzer şekilde hata yönetimi geliştirilmiştir.
+*   **Kullanıcı Deneyimi:** Bu değişiklikler doğrudan kullanıcı deneyimini etkilemez. Ancak, versiyon bilgisinin doğru ve güvenilir bir şekilde elde edilmesi, sistemin genel kararlılığına katkıda bulunur.  Dolaylı olarak, hata durumlarının daha iyi raporlanması ve loglanması, geliştiricilerin sorunları daha hızlı teşhis etmesine ve çözmesine yardımcı olarak kullanıcı deneyimini iyileştirebilir.
+*   **Performans, Güvenlik veya Güvenilirlik Üzerindeki Etkiler:** Performans üzerinde önemli bir etkisi beklenmez. Güvenlik açısından, dosya okuma ve dış komut çalıştırma işlemlerinde dikkatli olunarak güvenlik açıkları en aza indirilmeye çalışılmıştır.  Güvenilirlik ise, hata yönetiminin güçlendirilmesi ve varsayılan değerlerin kullanılmasıyla artırılmıştır. Özellikle, `git` komutlarının bulunamaması durumunda hatanın loglanması ve uygulamanın çökmemesi, sistemin güvenirliğini artırır.
+
+### 3. TEKNİK DERINLIK:
+
+*   **Uygulanan veya Değiştirilen Tasarım Desenleri:** Açıkça belirtilmiş bir tasarım deseni uygulanmamıştır. Ancak, `VersionManager` sınıfı, "Utility Class" (Yardımcı Sınıf) olarak düşünülebilir. Bu değişiklikler, bu yardımcı sınıfın daha sağlam ve kullanışlı hale getirilmesine odaklanmıştır.
+*   **Kod Kalitesi ve Sürdürülebilirlik:** Kod kalitesi, hata yönetimi ve logging mekanizmalarının iyileştirilmesiyle artırılmıştır. `get_current_version` içinde `utf-8` kodlamasının belirtilmesi, kodun daha geniş bir karakter setini desteklemesini sağlayarak sürdürülebilirliğini artırır. Ayrıca, `package.json` dosyasının bulunamaması veya okuma hatası durumunda varsayılan bir değer döndürülmesi, kodun daha esnek ve dayanıklı olmasını sağlar.
+*   **Yeni Bağımlılıklar veya Teknolojiler:** Yeni bir bağımlılık veya teknoloji eklenmemiştir. Mevcut `subprocess` modülü, `git` komutlarını çalıştırmak için kullanılmaya devam etmektedir.
+
+### 4. SONUÇ YORUMU:
+
+*   **Değişikliklerin Uzun Vadeli Değeri ve Etkisi:** Bu değişiklikler, proje versiyonunu yönetme sürecini daha güvenilir ve sağlam hale getirerek uzun vadeli değere sahiptir. Hata yönetimi ve logging mekanizmalarının iyileştirilmesi, gelecekteki sorunların teşhisini kolaylaştırarak geliştirme sürecini hızlandırır. Versiyon bilgisinin doğru bir şekilde elde edilmesi, otomatikleştirilmiş build ve deployment süreçleri için kritik öneme sahiptir.
+*   **Projenin Teknik Borcu:** Bu değişiklikler, projenin teknik borcunu azaltmaya yardımcı olur. Hata yönetimi ve logging mekanizmalarının iyileştirilmesi, kodun daha kolay anlaşılmasını ve bakımının yapılmasını sağlar. Ayrıca, versiyon yönetimi sürecinin güvenilirliğinin artırılması, gelecekte oluşabilecek hataların önüne geçer.
+*   **Gelecekteki Geliştirmelere Hazırlık:** Hata yönetimi ve logging'in iyileştirilmesi, gelecekteki geliştirmeler için daha sağlam bir temel oluşturur. Ayrıca, versiyon bilgisinin doğru bir şekilde elde edilmesi, otomatikleştirilmiş süreçlerin daha güvenilir bir şekilde çalışmasını sağlayarak gelecekteki geliştirmeleri kolaylaştırır. Özellikle, AI bağlamında kullanılacak branch, tag ve commit bilgilerinin doğru ve güncel olması, daha akıllı ve etkili otomasyonlar için zemin hazırlar. `_get_existing_tags` metodunda en son 10 tag'in alınması, gelecekte AI'ın daha geniş bir zaman aralığındaki değişiklikleri analiz etme yeteneğini geliştirme potansiyeli sunar.
+
+**Değişen Dosyalar:** src/utils/version_manager.py
+**Etki Seviyesi:** High
+**Değişiklik Tipi:** Feature
+**Satır Değişiklikleri:** +149
+**Etiketler:** utils, api, version-manager, manager
+
+---
+
+## 2025-06-20 07:41:36
+
+Tamamdır, verilen değişiklikleri detaylı bir şekilde analiz edip istenen formatta sunuyorum.
+
+### 1. YAPISAL ANALİZ:
+
+Etkilenen sistem bileşenleri ve katmanlar şunlardır:
+
+*   **Yardımcı Araçlar Katmanı:** `src/utils/changelog_updater.py` dosyası güncellenmiş. Bu dosya, projenin sürüm notları (changelog) oluşturma ve güncelleme mekanizmalarını içerir. Bu katman, sürüm yönetimi süreçlerini destekleyen yardımcı fonksiyonlar ve sınıfları içerir.
+*   **Servis Katmanı:** `src/utils/version_manager.py` ve `src/utils/git_manager.py` dosyaları güncellenmiş. `version_manager.py`, projenin sürüm numaralarını yönetmek, artırmak ve ilgili metadata'yı (kod adı, sürüm türü vb.) belirlemekle ilgilenir. `git_manager.py`, Git repolarıyla etkileşim kurarak branch bilgilerini almak, commit mesajlarını analiz etmek ve repoya commit/tag işlemlerini yapmak gibi görevleri üstlenir. Bu katman, projenin temel sürümleme ve versiyonlama süreçlerini yönetir.
+
+**Mimari Değişikliklerin Etkisi:**
+
+Yapılan değişiklikler mimari olarak büyük bir devrime işaret etmese de, sürümleme ve dağıtım süreçlerini daha akıllı ve otomatik hale getirme potansiyeli taşıyor.  Özellikle `changelog_updater.py` ve `version_manager.py` arasındaki entegrasyon, sürüm notlarının otomatik olarak güncellenmesini ve yeni sürüm özelliklerinin daha kolay takip edilmesini sağlayabilir. Git entegrasyonu, hangi branch'e commit yapılacağını veya PR açılacağını otomatik olarak belirleme yeteneği, geliştirme akışını hızlandırabilir ve insan hatalarını azaltabilir.
+
+**Kod Organizasyonunda İyileştirmeler:**
+
+*   **Sorumlulukların Ayrılması (Separation of Concerns):** `version_manager.py` ve `git_manager.py` dosyalarının ayrı tutulması, her bir modülün kendi uzmanlık alanına odaklanmasını sağlayarak kodun daha okunabilir ve sürdürülebilir olmasına katkıda bulunur.
+*   **Merkezi Sürüm Yönetimi:** `VersionManager` sınıfı, tüm sürümleme işlemlerini tek bir noktadan yöneterek tutarlılık ve kolay bakım sağlar.
+*   **Modülerlik:** Her bir fonksiyon ve sınıf, belirli bir görevi yerine getirecek şekilde tasarlanmıştır. Bu, kodun yeniden kullanılabilirliğini ve test edilebilirliğini artırır.
+
+### 2. İŞLEVSEL ETKİ:
+
+*   **Özellik Ekleme/Değiştirme:**
+    *   **Akıllı Sürüm Artırma:**  Commit mesajlarını ve değiştirilen dosyaları analiz ederek sürüm numarasının (major, minor, patch) otomatik olarak belirlenmesi.
+    *   **Otomatik Kod Adı Oluşturma:** Sürüm numarasına göre anlamlı ve tutarlı kod adları üretilmesi.
+    *   **Branch Önerisi:** Yapay zeka veya önceden tanımlanmış kurallara göre hangi branch'e commit yapılacağını/PR açılacağını otomatik olarak belirleme.
+    *   **Otomatik Changelog Güncellemesi:** Yeni sürüm özelliklerinin otomatik olarak sürüm notlarına eklenmesi.
+    *   **Geriye Dönük Uyumluluk Kontrolü:** Breaking change'lerin otomatik olarak tespit edilmesi.
+
+*   **Kullanıcı Deneyimi:**
+    *   Geliştiriciler için sürümleme süreci daha kolay ve hızlı hale gelir.
+    *   Sürüm notları daha tutarlı ve bilgilendirici olur.
+    *   Hangi branch'e commit yapılması gerektiği konusunda belirsizlik azalır.
+
+*   **Performans, Güvenlik, Güvenilirlik:**
+    *   Performans açısından, AI tabanlı analizler ek bir yük getirebilir, ancak doğru optimize edilirse kabul edilebilir bir seviyede tutulabilir.
+    *   Güvenlik açısından, otomatik sürümleme ve branch yönetimi, hatalı commit'lerin veya yetkisiz değişikliklerin önüne geçebilir.
+    *   Güvenilirlik açısından, testlerin otomatik olarak çalıştırılması ve hataların erken tespit edilmesi, daha stabil ve güvenilir bir ürün ortaya çıkmasını sağlar.
+
+### 3. TEKNİK DERINLIK:
+
+*   **Tasarım Desenleri:**
+    *   **Strategy:** Farklı sürüm artırma stratejileri (AI tabanlı, rule-based, manuel) kullanılabilir ve runtime'da değiştirilebilir.
+    *   **Template Method:** Sürümleme sürecinin genel adımları tanımlanır ve alt sınıflar (örneğin, AI tabanlı veya rule-based stratejiler) belirli adımları uygular.
+
+*   **Kod Kalitesi ve Sürdürülebilirlik:**
+    *   Kodun modüler ve okunabilir olması, bakımı ve geliştirilmesini kolaylaştırır.
+    *   Otomatik testler, kodun kalitesini ve güvenilirliğini artırır.
+    *   Tip ipuçları (type hints) ve dokümantasyon, kodun anlaşılabilirliğini ve sürdürülebilirliğini artırır.
+
+*   **Yeni Bağımlılıklar/Teknolojiler:**
+    *   AI tabanlı analizler için bir yapay zeka modeli veya API (örneğin, OpenAI) kullanılabilir. Bu, yeni bir bağımlılık eklenmesi anlamına gelir.
+    *   `subprocess` modülü kullanılarak Git komutları çalıştırılır. Bu modül Python'ın standart kütüphanesinde bulunur.
+
+### 4. SONUÇ YORUMU:
+
+Bu değişiklikler, projenin sürümleme ve dağıtım süreçlerini önemli ölçüde iyileştirme potansiyeline sahiptir. Akıllı sürüm artırma, otomatik kod adı oluşturma ve branch önerisi gibi özellikler, geliştiricilerin iş yükünü azaltır ve daha tutarlı ve güvenilir bir sürümleme süreci sağlar.
+
+*   **Uzun Vadeli Değer ve Etki:**
+    *   Geliştirme maliyetlerini azaltır.
+    *   Sürüm notlarının kalitesini artırır.
+    *   Dağıtım sürecini hızlandırır.
+    *   Geliştiricilerin iş memnuniyetini artırır.
+
+*   **Projenin Teknik Borcu:**
+    *   AI tabanlı analizlerin eklenmesi, teknik borcu artırabilir (modelin eğitimi, bakımı vb.).
+    *   Ancak, otomatik testlerin ve kod kalitesi standartlarının uygulanması, teknik borcu azaltabilir.
+
+*   **Gelecekteki Geliştirmelere Hazırlık:**
+    *   Modüler tasarım, yeni özelliklerin ve stratejilerin kolayca eklenmesini sağlar.
+    *   AI tabanlı analizlerin kullanılması, gelecekte daha akıllı ve otomatik sürümleme süreçlerinin geliştirilmesine olanak tanır.
+
+Bu analiz, verilen kod değişikliklerinin kapsamlı bir değerlendirmesini sunmaktadır. Değişikliklerin yapısal, işlevsel ve teknik etkileri ayrıntılı olarak incelenmiş ve uzun vadeli değeri ve etkisi hakkında yorumlar yapılmıştır.
+
+**Değişen Dosyalar:** src/utils/version_manager.py, src/utils/git_manager.py, src/utils/changelog_updater.py
+**Etki Seviyesi:** High
+**Değişiklik Tipi:** Feature
+**Satır Değişiklikleri:** +5
+**Etiketler:** manager, changelog-updater, utils, api, git-manager, version-manager
+
+---
+
+## 2025-06-20 07:39:42
+
+İşte `src/services/gemini_client.py` dosyasındaki değişikliklerin detaylı analizi:
+
+### 1. YAPISAL ANALİZ:
+
+*   **Etkilenen Sistem Bileşenleri ve Katmanlar:** Bu değişiklikler, servis katmanındaki `GeminiClient` sınıfını doğrudan etkiliyor. `GeminiClient`, dışarıdan bir API (Google Gemini) ile etkileşim kuran bir servis olarak projenin ana bileşenlerinden birini oluşturuyor. Ayrıca `src.core.configuration_manager.ConfigurationManager` ve `src/services/request_manager.py` dosyaları da dolaylı olarak etkileniyor.
+*   **Mimari Değişikliklerin Etkisi:** Yapılan değişiklikler, dependency injection (bağımlılık enjeksiyonu) prensibinin uygulanmasını sağlıyor. `GeminiClient` artık `ConfigurationManager` örneğini doğrudan oluşturmak yerine, constructor aracılığıyla alıyor. Bu, `GeminiClient`'ın test edilebilirliğini ve yeniden kullanılabilirliğini artırıyor. Ayrıca `RequestManager`'a kayıt işlemi her durumda yapılıyor, bu da istemci olmasa bile bu servisin bir şekilde sistemde yer almasını sağlıyor. Bu, uygulamanın genel mimarisine esneklik kazandırıyor.
+*   **Kod Organizasyonunda İyileştirmeler:** `ConfigurationManager`'ın doğrudan örneklenmesi yerine constructor'a parametre olarak geçirilmesi, kodun daha temiz ve modüler olmasını sağlıyor. Bu, birim testlerinin yazılmasını kolaylaştırır ve uygulamanın farklı konfigürasyonlarda çalışabilmesini sağlar. Ayrıca, `GeminiClient`'ın API anahtarı olmadan da çalışabilmesi, uygulamanın daha dirençli olmasını sağlıyor (örneğin, API anahtarı geçici olarak kullanılamaz hale geldiğinde).
+
+### 2. İŞLEVSEL ETKİ:
+
+*   **Eklenen, Değiştirilen veya Kaldırılan Özellikler:**
+    *   **Eklenen:** `ConfigurationManager` bağımlılığı eklendi. `generate_simple_text` metodu eklendi. Bu metot, Gemini'den basit metin üretimi için daha az karmaşık bir arayüz sunuyor.
+    *   **Değiştirilen:** `__init__` metodu, `ConfigurationManager` nesnesini alacak şekilde değiştirildi. Bu, `GeminiClient`'ın API anahtarına nasıl eriştiğini değiştiriyor.
+    *   **Kaldırılan:** Herhangi bir özellik doğrudan kaldırılmadı, ancak `GEMINI_API_KEY` ortam değişkenine olan doğrudan bağımlılık azaltıldı ve `ConfigurationManager` aracılığıyla yönetilmesi sağlandı.
+*   **Kullanıcı Deneyimi:** Kullanıcı deneyimi doğrudan etkilenmiyor, ancak dolaylı olarak daha güvenilir bir sistem sağlanarak iyileşebilir. API anahtarı yoksa veya Gemini servisi kullanılamıyorsa, sistem hala düzgün bir şekilde çalışmaya devam edebilir (özet oluşturma özelliği olmasa bile). `generate_simple_text` metodu ile daha hızlı ve basit özetler elde edilebilir, bu da kullanıcının bekleme süresini azaltabilir.
+*   **Performans, Güvenlik veya Güvenilirlik:**
+    *   **Performans:** Performans üzerindeki etki minimal olmalıdır. `ConfigurationManager`'dan API anahtarını almak, ortam değişkeninden doğrudan okumaktan biraz daha yavaş olabilir, ancak bu fark genellikle ihmal edilebilir düzeydedir. `generate_simple_text` metodu daha basit bir metin üretimi sağladığı için, daha karmaşık analiz şablonu kullanan metotlara göre daha hızlı çalışabilir.
+    *   **Güvenlik:** API anahtarının `ConfigurationManager` aracılığıyla yönetilmesi, daha güvenli bir yaklaşım olabilir. `ConfigurationManager`, anahtarın güvenli bir şekilde saklanmasını ve yetkisiz erişime karşı korunmasını sağlayabilir.
+    *   **Güvenilirlik:** Sistem, API anahtarı yoksa bile çalışmaya devam edebildiği için daha güvenilir hale geliyor. Ayrıca, `GeminiClient`'ın `RequestManager`'a her zaman kayıtlı olması, sistemin genel olarak daha sağlam olmasını sağlıyor.
+
+### 3. TEKNİK DERINLIK:
+
+*   **Uygulanan veya Değiştirilen Tasarım Desenleri:**
+    *   **Bağımlılık Enjeksiyonu (Dependency Injection):** `ConfigurationManager`'ın constructor aracılığıyla geçirilmesi, bağımlılık enjeksiyonu tasarım deseninin bir örneğidir. Bu, `GeminiClient`'ı daha esnek ve test edilebilir hale getiriyor.
+    *   **Singleton (Dolaylı):** `RequestManager`, singleton tasarım deseninin bir uygulaması olabilir. `GeminiClient`, `RequestManager`'a kaydolduğunda, sistemdeki tek bir `RequestManager` örneğine erişir.
+*   **Kod Kalitesi ve Sürdürülebilirlik:** Kod kalitesi ve sürdürülebilirlik, bağımlılık enjeksiyonu ve daha iyi konfigürasyon yönetimi sayesinde gelişiyor. Kod daha modüler, test edilebilir ve bakımı daha kolay hale geliyor. Ayrıca, `generate_simple_text` metodu ile kod tekrarı azaltılıyor ve daha okunabilir bir API sunuluyor.
+*   **Yeni Bağımlılıklar veya Teknolojiler:** `src.core.configuration_manager.ConfigurationManager` bağımlılığı eklendi. Bu, projenin genel mimarisinin konfigürasyon yönetimi yeteneklerini artırıyor. Herhangi bir yeni dış kütüphane eklenmedi.
+
+### 4. SONUÇ YORUMU:
+
+*   **Uzun Vadeli Değer ve Etki:** Bu değişiklikler, projenin uzun vadeli değeri ve etkisi açısından olumlu sonuçlar doğuracaktır. Bağımlılık enjeksiyonu ve daha iyi konfigürasyon yönetimi, kodun daha esnek, test edilebilir ve sürdürülebilir olmasını sağlıyor. Bu, gelecekteki geliştirmelerin daha kolay ve hızlı bir şekilde yapılabilmesini sağlayacaktır.
+*   **Projenin Teknik Borcu:** Bu değişiklikler, teknik borcu azaltmaya yardımcı oluyor. Bağımlılıkların daha iyi yönetilmesi ve kodun daha modüler hale getirilmesi, gelecekteki bakım ve iyileştirme maliyetlerini düşürecektir.
+*   **Gelecekteki Geliştirmelere Hazırlık:** Bu değişiklikler, gelecekteki geliştirmeler için iyi bir temel oluşturuyor. `GeminiClient`'ın daha esnek ve test edilebilir olması, yeni özelliklerin ve iyileştirmelerin daha kolay bir şekilde entegre edilmesini sağlayacaktır. Örneğin, farklı Gemini modelleri veya farklı konfigürasyonlar kolaylıkla desteklenebilir. `generate_simple_text` metodunun eklenmesi, uygulamanın farklı kullanım durumlarına daha iyi adapte olmasını sağlar.
+
+**Değişen Dosyalar:** src/services/gemini_client.py
+**Etki Seviyesi:** High
+**Değişiklik Tipi:** Feature
+**Etiketler:** manager, services, client, gemini-client, api, config
+
+---
+
+## 2025-06-20 07:38:54
+
+Kod tabanında güncellemeler yapıldı. Değişen dosyalar: features/merge_command.py, src/utils/io.py, src/utils/git_manager.py, src/utils/changelog_updater.py. (AI özeti alınamadı: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. [violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+  quota_id: "GenerateRequestsPerDayPerProjectPerModel-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-flash"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+  quota_value: 500
+}
+, links {
+  description: "Learn more about Gemini API quotas"
+  url: "https://ai.google.dev/gemini-api/docs/rate-limits"
+}
+, retry_delay {
+  seconds: 5
+}
+])
+
+**Değişen Dosyalar:** features/merge_command.py, src/utils/io.py, src/utils/git_manager.py, src/utils/changelog_updater.py
+**Etki Seviyesi:** High
+**Değişiklik Tipi:** Feature
+**Satır Değişiklikleri:** +767
+**Etiketler:** changelog-updater, manager, utils, git-manager, api, features, merge-command, io
+
+---
+
 ## 2025-06-20 07:36:19
 
 Kod tabanında güncellemeler yapıldı. Değişen dosyalar: test_force_push.py, summarizer.py, src/utils/git_manager.py, src/utils/changelog_updater.py, src/services/gemini_client.py. (AI özeti alınamadı: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. [violations {

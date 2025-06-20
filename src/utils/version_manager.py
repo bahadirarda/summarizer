@@ -171,8 +171,9 @@ class VersionManager:
             logger.error(f"Failed to update version files. Version remains {current_version_before_update}")
             return current_version_before_update # Return the version as it was before attempting update
         
-    def create_git_tag(self, version: str, codename: Optional[str] = None) -> bool:
-        """Create git tag for version, optionally with a codename in the message."""
+    def create_git_tag(self, version: str, codename: Optional[str] = None) -> tuple[bool, str]:
+        """Create git tag for version, optionally with a codename in the message.
+        Returns (success, final_version_used)"""
         try:
             tag_name = f"v{version}"
             
@@ -186,7 +187,26 @@ class VersionManager:
             
             if result.stdout.strip():
                 logger.warning(f"Tag {tag_name} already exists")
-                return False
+                
+                # Ask AI for a new version suggestion
+                suggested_version = self._get_ai_version_suggestion(version)
+                if suggested_version and suggested_version != version:
+                    logger.info(f"AI suggested new version: {suggested_version}")
+                    print(f"   🤖 AI suggests using version {suggested_version} instead of {version}")
+                    
+                    # Update files with the new suggested version
+                    if self.update_version_in_files(suggested_version):
+                        logger.info(f"Updated files with new version: {suggested_version}")
+                        
+                        # Try to create tag with suggested version (recursive call)
+                        success, final_version = self.create_git_tag(suggested_version, codename)
+                        return success, final_version
+                    else:
+                        logger.error("Failed to update files with suggested version")
+                        return False, version
+                else:
+                    logger.info("No valid AI suggestion received, keeping original version")
+                    return False, version
                 
             # Create the tag with a message
             message = f"Release {tag_name}"
@@ -201,15 +221,15 @@ class VersionManager:
             )
             
             if result.returncode == 0:
-                logger.info(f"Git tag {tag_name} created successfully with message: '{message}'")
-                return True
+                logger.info(f"Created git tag: {tag_name}")
+                return True, version
             else:
                 logger.error(f"Failed to create git tag: {result.stderr}")
-                return False
+                return False, version
                 
         except Exception as e:
             logger.error(f"Error creating git tag: {e}")
-            return False
+            return False, version
             
     def update_version_in_files(self, new_version: str) -> bool:
         """Update version in package.json and pyproject.toml."""
@@ -316,8 +336,6 @@ class VersionManager:
                     f"Do not add any explanation, just return the word."
                 )
                 ai_codename = gemini_client.generate_simple_text(prompt)
-                # Clean up the response to ensure it's a single word
-                ai_codename = re.sub(r'[\s\W_]+', '', ai_codename)
                 if ai_codename:
                     logger.info(f"AI generated codename: {ai_codename}")
                     return ai_codename
@@ -375,3 +393,135 @@ class VersionManager:
         
         return any(any(indicator in file.lower() for indicator in feature_indicators) 
                   for file in changed_files)
+
+    def _get_ai_version_suggestion(self, existing_version: str) -> Optional[str]:
+        """Get AI suggestion for new version when tag already exists"""
+        try:
+            # Try to get AI client
+            from src.core.configuration_manager import ConfigurationManager
+            from src.services.gemini_client import GeminiClient
+            
+            config_manager = ConfigurationManager()
+            if not config_manager.get_api_key():
+                logger.info("No AI client available for version suggestion")
+                return None
+                
+            gemini_client = GeminiClient(config_manager)
+            if not gemini_client.is_ready():
+                logger.info("AI client not ready for version suggestion")
+                return None
+
+            # Gather project context
+            current_branch = self.get_current_branch()
+            current_version = self.get_current_version()
+            
+            # Get existing tags for context
+            existing_tags = self._get_existing_tags()
+            
+            # Get recent commits for context
+            recent_commits = self._get_recent_commits()
+            
+            prompt = f"""
+You are a semantic versioning expert. Analyze the Git tags and suggest the next logical version number.
+
+**CURRENT SITUATION:**
+- Attempted version: {existing_version} (CONFLICTS with existing tag)
+- Current branch: {current_branch}
+- Branch type: {self._analyze_branch_type(current_branch)}
+
+**ALL EXISTING TAGS (sorted by version):**
+{existing_tags}
+
+**YOUR TASK:**
+1. Find the HIGHEST version number from the existing tags above
+2. Based on the branch type, increment appropriately:
+   - Feature branch (feature/*): increment MINOR version
+   - Hotfix branch (hotfix/*): increment PATCH version  
+   - Release branch (release/*): use branch version or increment MINOR
+   - Main branch: increment PATCH version
+
+**EXAMPLES:**
+- If highest existing tag is v8.25.0 and branch is feature/*: suggest 8.26.0
+- If highest existing tag is v8.25.0 and branch is hotfix/*: suggest 8.25.1
+- If highest existing tag is v8.25.0 and branch is main: suggest 8.25.1
+
+**CRITICAL:** Look at the tag list, find the HIGHEST version number, then increment it.
+
+**OUTPUT:** Return ONLY the version number (e.g., "8.26.0"). No explanations."""
+            
+            response = gemini_client.generate_simple_text(prompt)
+            
+            # Extract version from response
+            if response:
+                # Look for version pattern X.Y.Z
+                import re
+                version_match = re.search(r'\b(\d+\.\d+\.\d+)\b', response)
+                if version_match:
+                    suggested_version = version_match.group(1)
+                    logger.info(f"AI suggested version: {suggested_version}")
+                    return suggested_version
+            
+            logger.warning("Could not extract valid version from AI response")
+            return None
+            
+        except Exception as e:
+            logger.error(f"Error getting AI version suggestion: {e}")
+            return None
+
+    def _get_existing_tags(self) -> str:
+        """Get list of existing git tags for context"""
+        try:
+            result = subprocess.run(
+                ["git", "tag", "--sort=-version:refname"],
+                cwd=self.project_root,
+                capture_output=True,
+                text=True
+            )
+            
+            if result.returncode == 0:
+                tags = result.stdout.strip().split('\n')[:10]  # Last 10 tags
+                return '\n'.join(f"  - {tag}" for tag in tags if tag)
+            return "  - No tags found"
+            
+        except Exception as e:
+            logger.error(f"Error getting existing tags: {e}")
+            return "  - Error reading tags"
+
+    def _get_recent_commits(self) -> str:
+        """Get recent commit messages for context"""
+        try:
+            result = subprocess.run(
+                ["git", "log", "--oneline", "-5"],
+                cwd=self.project_root,
+                capture_output=True,
+                text=True
+            )
+            
+            if result.returncode == 0:
+                commits = result.stdout.strip().split('\n')
+                return '\n'.join(f"  - {commit}" for commit in commits if commit)
+            return "  - No commits found"
+            
+        except Exception as e:
+            logger.error(f"Error getting recent commits: {e}")
+            return "  - Error reading commits"
+
+    def _analyze_branch_type(self, branch_name: Optional[str]) -> str:
+        """Analyze branch type for AI context"""
+        if not branch_name:
+            return "unknown"
+        
+        if branch_name.startswith("feature/"):
+            return "feature"
+        elif branch_name.startswith("hotfix/"):
+            return "hotfix"
+        elif branch_name.startswith("release/"):
+            return "release"
+        elif branch_name.startswith("bugfix/"):
+            return "bugfix"
+        elif branch_name in ["main", "master"]:
+            return "main"
+        elif branch_name == "develop":
+            return "develop"
+        else:
+            return "other"
