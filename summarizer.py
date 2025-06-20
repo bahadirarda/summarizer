@@ -131,7 +131,8 @@ def main():
     # Handle merge command
     if args and args[0] == 'merge':
         from features.merge_command import merge_command
-        return merge_command(args[1:])
+        merge_command(Path.cwd())
+        return True
     
     # Handle setup and configuration commands
     if args and args[0] == '--setup':

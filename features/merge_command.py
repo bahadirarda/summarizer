@@ -12,299 +12,184 @@ from pathlib import Path
 from typing import List, Optional
 import subprocess
 import json
+import getpass
 
 # Add parent directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from src.utils.git_manager import GitManager
+from src.services.request_manager import RequestManager
+from src.utils.json_changelog_manager import ImpactLevel
 
 
-def get_open_prs(git_manager: GitManager) -> List[dict]:
-    """Get list of open pull requests"""
+def get_open_prs(project_root: Path) -> List[dict]:
+    """Get all open PRs for the repository"""
     try:
-        cmd = ["gh", "pr", "list", "--state", "open", "--json", "number,title,headRefName,baseRefName,url"]
-        process = subprocess.run(
-            cmd, 
-            cwd=git_manager.project_root,
-            capture_output=True, 
-            text=True, 
+        cmd = ["gh", "pr", "list", "--json", "number,title,headRefName,baseRefName,url,author,mergeable,isDraft"]
+        result = subprocess.run(
+            cmd,
+            cwd=project_root,
+            capture_output=True,
+            text=True,
             check=True
         )
         
-        if process.stdout:
-            return json.loads(process.stdout)
-        return []
-    except subprocess.CalledProcessError:
+        prs = json.loads(result.stdout)
+        # Filter out draft PRs
+        return [pr for pr in prs if not pr.get('isDraft', False)]
+    except subprocess.CalledProcessError as e:
+        print(f"   ❌ Failed to get PRs: {e}")
         return []
     except json.JSONDecodeError:
+        print("   ❌ Failed to parse PR data")
         return []
 
 
-def get_ai_merge_recommendation(prs: List[dict], gemini_client) -> Optional[dict]:
-    """Get AI recommendation for which PR to merge"""
-    if not gemini_client or not gemini_client.is_ready():
-        return None
+def get_pr_impact_level(pr_number: int, project_root: Path, gemini_client) -> ImpactLevel:
+    """Analyze PR and determine impact level using AI"""
+    try:
+        # Get PR diff
+        cmd = ["gh", "pr", "diff", str(pr_number)]
+        result = subprocess.run(
+            cmd,
+            cwd=project_root,
+            capture_output=True,
+            text=True,
+            check=True
+        )
+        
+        diff_content = result.stdout
+        
+        if gemini_client and gemini_client.is_ready():
+            prompt = f"""Analyze this PR diff and determine the impact level.
+            
+PR Diff:
+{diff_content[:3000]}...
+
+Determine impact level:
+- CRITICAL: Breaking changes, security fixes, major API changes
+- HIGH: New features, significant refactors
+- MEDIUM: Bug fixes, minor features
+- LOW: Documentation, typos, minor tweaks
+
+Return only one word: CRITICAL, HIGH, MEDIUM, or LOW"""
+            
+            response = gemini_client.generate_simple_text(prompt)
+            
+            # Parse response
+            for level in ["CRITICAL", "HIGH", "MEDIUM", "LOW"]:
+                if level in response.upper():
+                    return ImpactLevel[level]
+        
+        # Fallback based on diff size
+        lines = len(diff_content.splitlines())
+        if lines > 500:
+            return ImpactLevel.HIGH
+        elif lines > 100:
+            return ImpactLevel.MEDIUM
+        else:
+            return ImpactLevel.LOW
+            
+    except Exception as e:
+        print(f"   ⚠️  Could not analyze PR impact: {e}")
+        return ImpactLevel.MEDIUM
+
+
+def get_ai_merge_recommendation(pr: dict, impact_level: ImpactLevel, gemini_client) -> dict:
+    """Get AI recommendation for merging this PR"""
+    if not (gemini_client and gemini_client.is_ready()):
+        return {
+            "should_merge": True,
+            "merge_method": "merge",
+            "reasoning": "AI unavailable - using default merge strategy"
+        }
     
     try:
-        pr_info = "\n".join([
-            f"PR #{pr['number']}: {pr['title']} ({pr['headRefName']} → {pr['baseRefName']})"
-            for pr in prs
-        ])
-        
-        prompt = f"""You are a senior software engineer reviewing pull requests.
-Based on the following open PRs, recommend which one should be merged first and why.
+        prompt = f"""As a senior engineer, analyze this PR and recommend merge strategy:
 
-Open Pull Requests:
-{pr_info}
+PR Title: {pr['title']}
+Source Branch: {pr['headRefName']}
+Target Branch: {pr['baseRefName']}
+Impact Level: {impact_level.value}
 
-Analyze each PR based on:
-1. Target branch (main/master PRs are critical)
-2. PR title and implied changes
-3. Branch naming (hotfix > release > feature)
-4. PR age (older PRs might have priority)
+Recommend:
+1. Should this be merged now? (yes/no)
+2. Merge method: merge (create merge commit), squash (squash commits), or rebase
+3. Any security considerations for main branch?
 
-Response format:
-RECOMMENDED_PR: <number>
-REASON: <brief explanation>
-PRIORITY: <HIGH/MEDIUM/LOW>
-WARNING: <any concerns or warnings>
-"""
-        
+Return JSON:
+{{
+    "should_merge": true/false,
+    "merge_method": "merge|squash|rebase",
+    "reasoning": "explanation",
+    "requires_security": true/false
+}}"""
+
         response = gemini_client.generate_simple_text(prompt)
-        if response:
-            # Parse AI response
-            lines = response.strip().split('\n')
-            recommended_pr = None
-            reason = ""
-            priority = ""
-            warning = ""
-            
-            for line in lines:
-                if line.startswith("RECOMMENDED_PR:"):
-                    try:
-                        recommended_pr = int(line.split(":", 1)[1].strip())
-                    except:
-                        pass
-                elif line.startswith("REASON:"):
-                    reason = line.split(":", 1)[1].strip()
-                elif line.startswith("PRIORITY:"):
-                    priority = line.split(":", 1)[1].strip()
-                elif line.startswith("WARNING:"):
-                    warning = line.split(":", 1)[1].strip()
-            
-            # Find the recommended PR
-            for pr in prs:
-                if pr['number'] == recommended_pr:
-                    return {
-                        'pr': pr,
-                        'reason': reason,
-                        'priority': priority,
-                        'warning': warning
-                    }
+        
+        # Parse JSON from response
+        import re
+        json_match = re.search(r'\{.*\}', response, re.DOTALL)
+        if json_match:
+            return json.loads(json_match.group())
     except Exception as e:
         print(f"   ⚠️  AI recommendation failed: {e}")
     
-    return None
-
-
-def select_pr_interactive(prs: List[dict], gemini_client=None) -> Optional[dict]:
-    """Interactive PR selection"""
-    if not prs:
-        print("   ❌ No open pull requests found.")
-        return None
-    
-    print("\n📋 Open Pull Requests:")
-    print("=" * 60)
-    
-    for i, pr in enumerate(prs, 1):
-        print(f"{i}. PR #{pr['number']}: {pr['title']}")
-        print(f"   Branch: {pr['headRefName']} → {pr['baseRefName']}")
-        print(f"   URL: {pr['url']}")
-        print()
-    
-    # Get AI recommendation if available
-    if gemini_client:
-        print("🤖 Getting AI recommendation...")
-        recommendation = get_ai_merge_recommendation(prs, gemini_client)
-        
-        if recommendation:
-            print("\n" + "="*60)
-            print("🎯 AI RECOMMENDATION")
-            print("="*60)
-            pr = recommendation['pr']
-            print(f"   📌 Recommended: PR #{pr['number']}")
-            print(f"   📝 Reason: {recommendation['reason']}")
-            print(f"   🔥 Priority: {recommendation['priority']}")
-            if recommendation['warning']:
-                print(f"   ⚠️  Warning: {recommendation['warning']}")
-            print("="*60)
-    
-    while True:
-        try:
-            if gemini_client and recommendation:
-                choice = input("\nAction: [y]es to merge recommended / [n]umber to select / [q]uit: ")
-                
-                if choice.lower() == 'y':
-                    return recommendation['pr']
-                elif choice.lower() == 'q':
-                    return None
-                elif choice.isdigit():
-                    idx = int(choice) - 1
-                    if 0 <= idx < len(prs):
-                        return prs[idx]
-                    else:
-                        print("   ⚠️  Invalid selection. Please try again.")
-                else:
-                    print("   ⚠️  Invalid input. Use 'y', a number, or 'q'.")
-            else:
-                choice = input("Select PR number to merge (or 'q' to quit): ")
-                if choice.lower() == 'q':
-                    return None
-                
-                idx = int(choice) - 1
-                if 0 <= idx < len(prs):
-                    return prs[idx]
-                else:
-                    print("   ⚠️  Invalid selection. Please try again.")
-        except ValueError:
-            print("   ⚠️  Please enter a valid number.")
-
-
-def merge_command(args: List[str] = None) -> bool:
-    """
-    Handle PR merge with security checks
-    
-    Usage:
-        summarizer merge          # Interactive PR selection
-        summarizer merge 123      # Merge specific PR number
-    """
-    print("🔀 Summarizer Merge Command")
-    print("=" * 30)
-    
-    # Initialize managers
-    project_root = Path.cwd()
-    git_manager = GitManager(project_root)
-    
-    # Setup configuration like in main.py
-    from src.main import setup_configuration
-    config_manager = setup_configuration(project_root)
-    
-    # Initialize Gemini client for AI recommendations
-    gemini_client = None
-    try:
-        # Get API key from configuration manager
-        api_key = config_manager.get_field_value("GEMINI_API_KEY")
-        
-        if api_key:
-            from src.services.gemini_client import GeminiClient
-            # GeminiClient expects a ConfigurationManager, not just the API key
-            gemini_client = GeminiClient(config_manager=config_manager)
-            if gemini_client.is_ready():
-                print("   ✅ AI recommendation system ready")
-            else:
-                print("   ⚠️  AI features unavailable: Client not ready")
-                gemini_client = None
-        else:
-            print("   ⚠️  AI features unavailable: GEMINI_API_KEY not found")
-    except Exception as e:
-        print(f"   ⚠️  AI features unavailable: {e}")
-    
-    # Check if we're in a git repository
-    if not git_manager.is_git_repository():
-        print("   ❌ Not in a git repository!")
-        return False
-    
-    # Check GitHub CLI authentication
-    try:
-        auth_check = subprocess.run(
-            ["gh", "auth", "status"],
-            capture_output=True,
-            text=True
-        )
-        if auth_check.returncode != 0:
-            print("   ❌ GitHub CLI not authenticated!")
-            print("   💡 Run 'gh auth login' to authenticate.")
-            return False
-    except FileNotFoundError:
-        print("   ❌ GitHub CLI (gh) not found!")
-        print("   💡 Install it from: https://cli.github.com/")
-        return False
-    
-    # Determine which PR to merge
-    pr_to_merge = None
-    
-    if args and args[0].isdigit():
-        # PR number provided
-        pr_number = int(args[0])
-        print(f"   🔍 Looking for PR #{pr_number}...")
-        
-        # Get PR details
-        try:
-            cmd = ["gh", "pr", "view", str(pr_number), "--json", "number,title,headRefName,baseRefName,state,url"]
-            process = subprocess.run(
-                cmd,
-                cwd=project_root,
-                capture_output=True,
-                text=True,
-                check=True
-            )
-            pr_data = json.loads(process.stdout)
-            
-            if pr_data['state'] != 'OPEN':
-                print(f"   ❌ PR #{pr_number} is not open (state: {pr_data['state']})")
-                return False
-                
-            pr_to_merge = pr_data
-            
-        except subprocess.CalledProcessError:
-            print(f"   ❌ PR #{pr_number} not found!")
-            return False
-        except json.JSONDecodeError:
-            print("   ❌ Failed to parse PR data!")
-            return False
+    # Intelligent fallback
+    if pr['baseRefName'] == 'main':
+        return {
+            "should_merge": impact_level != ImpactLevel.CRITICAL,
+            "merge_method": "squash" if pr['headRefName'].startswith('feature/') else "merge",
+            "reasoning": "Main branch requires careful consideration",
+            "requires_security": True
+        }
     else:
-        # Interactive selection
-        print("   🔍 Fetching open pull requests...")
-        open_prs = get_open_prs(git_manager)
-        pr_to_merge = select_pr_interactive(open_prs, gemini_client)
-        
-        if not pr_to_merge:
-            print("   ⚪️ Merge cancelled.")
-            return False
-    
-    # Display PR details
-    print(f"\n📌 Selected PR:")
-    print(f"   • PR #{pr_to_merge['number']}: {pr_to_merge['title']}")
-    print(f"   • Branch: {pr_to_merge['headRefName']} → {pr_to_merge['baseRefName']}")
-    print(f"   • URL: {pr_to_merge['url']}")
-    
-    # Check merge status
-    print("\n   🔍 Checking merge status...")
+        return {
+            "should_merge": True,
+            "merge_method": "merge",
+            "reasoning": "Standard merge for development branches",
+            "requires_security": False
+        }
+
+
+def check_pr_status(pr_number: int, project_root: Path) -> bool:
+    """Check if PR is ready to merge (all checks passed)"""
     try:
-        status_cmd = ["gh", "pr", "checks", str(pr_to_merge['number'])]
-        status_process = subprocess.run(
-            status_cmd,
+        cmd = ["gh", "pr", "checks", str(pr_number), "--json", "state"]
+        result = subprocess.run(
+            cmd,
             cwd=project_root,
             capture_output=True,
-            text=True
+            text=True,
+            check=True
         )
         
-        if status_process.returncode == 0:
-            print("   ✅ All checks passed!")
-        else:
-            print("   ⚠️  Some checks may have failed.")
-            if not input("   ❔ Continue anyway? (y/n): ").lower() == 'y':
-                print("   ⚪️ Merge cancelled.")
+        checks = json.loads(result.stdout)
+        
+        # Check if all checks passed
+        for check in checks:
+            if check.get('state') not in ['SUCCESS', 'NEUTRAL', 'SKIPPED']:
                 return False
+        
+        return True
     except:
-        # Checks command might not be available, continue
-        pass
+        # If we can't get check status, assume it's okay
+        return True
+
+
+def execute_merge(pr_to_merge: dict, merge_method: str, project_root: Path, git_manager: GitManager) -> bool:
+    """Execute the actual merge"""
+    pr_number = pr_to_merge['number']
     
-    # Check for merge conflicts
-    print("   🔍 Checking for merge conflicts...")
+    print(f"\n   🔄 Merging PR #{pr_number}: {pr_to_merge['title']}")
+    print(f"   📋 Method: {merge_method}")
+    print(f"   🔀 {pr_to_merge['headRefName']} → {pr_to_merge['baseRefName']}")
+    
+    # Check for conflicts first
     try:
-        # Get PR mergeable status
-        mergeable_cmd = ["gh", "pr", "view", str(pr_to_merge['number']), "--json", "mergeable,mergeStateStatus"]
+        print("   🔍 Checking for merge conflicts...")
+        
+        mergeable_cmd = ["gh", "pr", "view", str(pr_number), "--json", "mergeable,mergeStateStatus"]
         mergeable_process = subprocess.run(
             mergeable_cmd,
             cwd=project_root,
@@ -357,50 +242,15 @@ def merge_command(args: List[str] = None) -> bool:
                 print("      2. Checkout the branch locally and resolve conflicts")
                 print("      3. Run 'gh pr merge --auto' to auto-merge when conflicts are resolved")
                 return False
-        elif mergeable_data.get('mergeStateStatus') == 'BLOCKED':
-            print("   ⚠️  PR is blocked from merging (required checks not passed)")
-            if not input("   ❔ Continue anyway? (y/n): ").lower() == 'y':
-                print("   ⚪️ Merge cancelled.")
-                return False
-        else:
-            print("   ✅ No merge conflicts detected!")
-            
-    except subprocess.CalledProcessError:
-        print("   ⚠️  Could not check merge conflicts (continuing anyway)")
-    except json.JSONDecodeError:
-        print("   ⚠️  Could not parse conflict status (continuing anyway)")
+    except Exception as e:
+        print(f"   ⚠️  Could not check merge conflicts: {e}")
+        # Continue anyway
     
-    # Final confirmation
-    target_branch = pr_to_merge['baseRefName']
-    
-    if target_branch in ['main', 'master']:
-        print("\n" + "="*50)
-        print("   🔒 SECURITY CHECK: Merging to MAIN branch!")
-        print("   ⚠️  This action will deploy code to production.")
-        print("="*50)
-        
-        # Get security confirmation
-        import getpass
-        try:
-            password = getpass.getpass("   🔑 Enter admin password to merge to main: ")
-            if not password:
-                print("   ❌ Merge cancelled.")
-                return False
-            # You can add actual password validation here
-        except (EOFError, KeyboardInterrupt):
-            print("\n   ❌ Merge cancelled.")
-            return False
-    else:
-        # Non-main branch merge confirmation
-        if not input(f"\n   ❔ Merge PR #{pr_to_merge['number']} to '{target_branch}'? (y/n): ").lower() == 'y':
-            print("   ⚪️ Merge cancelled.")
-            return False
-    
-    # Perform the merge
-    print(f"\n   🔀 Merging PR #{pr_to_merge['number']}...")
-    
+    # Execute the merge
     try:
-        merge_cmd = ["gh", "pr", "merge", str(pr_to_merge['number']), "--merge", "--delete-branch"]
+        merge_cmd = ["gh", "pr", "merge", str(pr_number), f"--{merge_method}"]
+        
+        print(f"\n   🚀 Executing merge...")
         merge_process = subprocess.run(
             merge_cmd,
             cwd=project_root,
@@ -409,33 +259,194 @@ def merge_command(args: List[str] = None) -> bool:
             check=True
         )
         
-        print(f"   ✅ PR #{pr_to_merge['number']} successfully merged!")
-        print(f"   🗑️  Branch '{pr_to_merge['headRefName']}' deleted.")
+        print("   ✅ PR merged successfully!")
         
-        # Update local repository
-        print("\n   🔄 Updating local repository...")
+        # Sync local repository
+        print("\n   🔄 Syncing local repository...")
+        current_branch = git_manager.get_current_branch()
+        
+        # Fetch latest changes
         git_manager.fetch_updates()
         
-        current_branch = git_manager.get_current_branch()
+        # If we're on the merged branch, switch to base branch
         if current_branch == pr_to_merge['headRefName']:
-            # We're on the deleted branch, switch to target
-            print(f"   📋 Switching to '{target_branch}' branch...")
-            git_manager.checkout(target_branch)
-            git_manager.pull(target_branch)
-        elif current_branch == target_branch:
-            # Update the target branch
-            git_manager.pull(target_branch)
+            print(f"   📋 Switching from merged branch to {pr_to_merge['baseRefName']}...")
+            git_manager.checkout(pr_to_merge['baseRefName'])
+            git_manager.pull(pr_to_merge['baseRefName'])
+            
+            # Offer to delete the merged branch locally
+            if input(f"\n   ❔ Delete local branch '{pr_to_merge['headRefName']}'? (y/n): ").lower() == 'y':
+                git_manager._run_git_command(["branch", "-d", pr_to_merge['headRefName']])
+                print(f"   ✅ Local branch '{pr_to_merge['headRefName']}' deleted")
+        else:
+            # Just pull latest on current branch
+            git_manager.pull(current_branch)
         
-        print("\n   🎉 Merge completed successfully!")
+        print("   ✅ Local repository synced")
         return True
         
     except subprocess.CalledProcessError as e:
-        print(f"   ❌ Merge failed!")
+        print(f"   ❌ Merge failed: {e}")
         if e.stderr:
-            print(f"   Error: {e.stderr}")
+            print(f"   📝 Error details: {e.stderr}")
         return False
 
 
+def merge_command(project_root: Path):
+    """Main merge command handler"""
+    print("\n🔀 Intelligent PR Merge Assistant")
+    print("="*50)
+    
+    # Initialize git manager
+    git_manager = GitManager(project_root)
+    
+    # Get AI client
+    gemini_client = None
+    try:
+        from src.core.configuration_manager import ConfigurationManager
+        from src.services.gemini_client import GeminiClient
+        from features.parameter_checker import setup_command
+
+        config_manager = ConfigurationManager()
+        
+        # Check if API key is missing
+        if not config_manager.get_api_key():
+            print("   ⚠️  AI features require a GEMINI_API_KEY.")
+            if input("   ❔ Run setup now to add it? (y/n): ").lower() == 'y':
+                setup_command()
+                # Re-initialize after setup
+                config_manager = ConfigurationManager()
+        
+        # Try to initialize the client if we have a key
+        if config_manager.get_api_key():
+            gemini_client = GeminiClient(config_manager)
+            if gemini_client.is_ready():
+                print("   ✅ AI assistant connected")
+            else:
+                gemini_client = None
+                print("   ⚠️  AI assistant could not be initialized. The API key might be invalid.")
+        else:
+            print("   ⚠️  AI assistant unavailable - API key not provided.")
+
+    except Exception as e:
+        print(f"   ⚠️  AI assistant unavailable - using fallback logic. Error: {e}")
+    
+    # Get open PRs
+    print("\n   🔍 Fetching open pull requests...")
+    prs = get_open_prs(project_root)
+    
+    if not prs:
+        print("   ℹ️  No open pull requests found")
+        return
+    
+    print(f"   ✅ Found {len(prs)} open PR(s)")
+    
+    # Analyze each PR
+    pr_analysis = []
+    for pr in prs:
+        print(f"\n   📊 Analyzing PR #{pr['number']}: {pr['title']}")
+        impact = get_pr_impact_level(pr['number'], project_root, gemini_client)
+        recommendation = get_ai_merge_recommendation(pr, impact, gemini_client)
+        checks_passed = check_pr_status(pr['number'], project_root)
+        
+        pr_analysis.append({
+            'pr': pr,
+            'impact': impact,
+            'recommendation': recommendation,
+            'checks_passed': checks_passed
+        })
+    
+    # Display analysis
+    print("\n" + "="*50)
+    print("📋 PR Analysis Summary")
+    print("="*50)
+    
+    for i, analysis in enumerate(pr_analysis):
+        pr = analysis['pr']
+        print(f"\n{i+1}. PR #{pr['number']}: {pr['title']}")
+        print(f"   • Branch: {pr['headRefName']} → {pr['baseRefName']}")
+        print(f"   • Impact: {analysis['impact'].value}")
+        print(f"   • Checks: {'✅ Passed' if analysis['checks_passed'] else '❌ Failed'}")
+        print(f"   • AI Says: {analysis['recommendation']['reasoning']}")
+        if analysis['recommendation'].get('requires_security', False):
+            print(f"   • 🔒 Security: Main branch protection required")
+    
+    # Let user select
+    print("\n" + "="*50)
+    
+    while True:
+        try:
+            choice = input("\n   ❔ Select PR to merge (number) or 'q' to quit: ").strip()
+            
+            if choice.lower() == 'q':
+                print("   👋 Merge cancelled")
+                return
+            
+            idx = int(choice) - 1
+            if 0 <= idx < len(pr_analysis):
+                selected = pr_analysis[idx]
+                break
+            else:
+                print("   ❌ Invalid selection")
+        except ValueError:
+            print("   ❌ Please enter a number or 'q'")
+    
+    # Confirm merge
+    pr_to_merge = selected['pr']
+    recommendation = selected['recommendation']
+    
+    print(f"\n   🎯 Selected: PR #{pr_to_merge['number']}")
+    
+    # Check if already pushed
+    sync_status, ahead, _ = git_manager.get_branch_sync_status(git_manager.get_current_branch())
+    if ahead > 0:
+        print(f"\n   ⚠️  You have {ahead} unpushed commit(s) on current branch.")
+        if input("   ❔ Push changes before merging? (y/n): ").lower() == 'y':
+            git_manager.push(git_manager.get_current_branch())
+    
+    # Security check for main branch
+    if recommendation.get('requires_security', False) and pr_to_merge['baseRefName'] in ['main', 'master']:
+        print("\n   🔒 SECURITY CHECK: This PR targets the MAIN branch")
+        print("   ⚠️  Merging to main requires additional authorization")
+        
+        # Simple password check (in real world, use proper auth)
+        password = getpass.getpass("   🔑 Enter security password: ")
+        if password != "merge2main":  # You should use env var or better auth
+            print("   ❌ Invalid password. Merge cancelled.")
+            return
+        
+        print("   ✅ Security check passed")
+    
+    # Check for failed checks
+    if not selected['checks_passed']:
+        print("\n   ⚠️  Warning: Some checks have not passed!")
+        if input("   ❔ Continue anyway? (y/n): ").lower() != 'y':
+            print("   ❌ Merge cancelled")
+            return
+    
+    # Final confirmation
+    print(f"\n   📋 Ready to merge:")
+    print(f"      • PR: #{pr_to_merge['number']} - {pr_to_merge['title']}")
+    print(f"      • Method: {recommendation['merge_method']}")
+    print(f"      • Target: {pr_to_merge['baseRefName']}")
+    
+    if input("\n   ❔ Proceed with merge? (y/n): ").lower() != 'y':
+        print("   ❌ Merge cancelled")
+        return
+    
+    # Execute merge
+    if execute_merge(pr_to_merge, recommendation['merge_method'], project_root, git_manager):
+        print("\n   🎉 Merge completed successfully!")
+    else:
+        print("\n   ❌ Merge failed. Please check the errors above.")
+
+
 if __name__ == "__main__":
-    # Allow direct execution
-    merge_command(sys.argv[1:]) 
+    # Run from project root
+    project_root = Path.cwd()
+    
+    # If run from scripts directory, go up
+    if project_root.name == "features":
+        project_root = project_root.parent
+    
+    merge_command(project_root) 

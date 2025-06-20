@@ -332,6 +332,9 @@ class GitManager:
             # Save current branch
             current_branch = self.get_current_branch()
             
+            # Stash any local changes
+            self._run_git_command(["stash", "push", "-m", "Auto-stash before conflict resolution"])
+            
             # Checkout PR branch
             if not self.checkout(head_branch):
                 # If local branch doesn't exist, fetch it
@@ -359,7 +362,7 @@ class GitManager:
                     # Strategy: Accept incoming changes for changelog files, ours for others
                     conflict_files_cmd = self._run_git_command(["diff", "--name-only", "--diff-filter=U"])
                     if conflict_files_cmd[0]:
-                        conflict_files = conflict_files_cmd[1].strip().split('\n')
+                        conflict_files = [f for f in conflict_files_cmd[1].strip().split('\n') if f]
                         
                         print(f"   📝 Conflicted files: {', '.join(conflict_files)}")
                         
@@ -390,6 +393,8 @@ class GitManager:
                                 # Return to original branch
                                 if current_branch and current_branch != head_branch:
                                     self.checkout(current_branch)
+                                    # Pop stash if any
+                                    self._run_git_command(["stash", "pop"], check=False)
                                 
                                 return True
                             else:
@@ -403,6 +408,8 @@ class GitManager:
                 # Return to original branch
                 if current_branch and current_branch != head_branch:
                     self.checkout(current_branch)
+                    # Pop stash if any
+                    self._run_git_command(["stash", "pop"], check=False)
                     
                 return False
             
@@ -414,12 +421,24 @@ class GitManager:
             # Return to original branch
             if current_branch and current_branch != head_branch:
                 self.checkout(current_branch)
+                # Pop stash if any
+                self._run_git_command(["stash", "pop"], check=False)
             
             return push_success
             
         except Exception as e:
             logger.error(f"Failed to resolve conflicts: {e}")
             print(f"   ❌ Failed to resolve conflicts: {e}")
+            
+            # Try to return to original state
+            try:
+                self._run_git_command(["merge", "--abort"], check=False)
+                if 'current_branch' in locals() and current_branch:
+                    self.checkout(current_branch)
+                    self._run_git_command(["stash", "pop"], check=False)
+            except:
+                pass
+                
             return False
 
     def get_branch_sync_status(self, branch_name: str, remote_name: str = "origin") -> Tuple[SyncStatus, int, int]:
