@@ -300,6 +300,42 @@ def merge_command(args: List[str] = None) -> bool:
         # Checks command might not be available, continue
         pass
     
+    # Check for merge conflicts
+    print("   🔍 Checking for merge conflicts...")
+    try:
+        # Get PR mergeable status
+        mergeable_cmd = ["gh", "pr", "view", str(pr_to_merge['number']), "--json", "mergeable,mergeStateStatus"]
+        mergeable_process = subprocess.run(
+            mergeable_cmd,
+            cwd=project_root,
+            capture_output=True,
+            text=True,
+            check=True
+        )
+        
+        mergeable_data = json.loads(mergeable_process.stdout)
+        
+        if mergeable_data.get('mergeable') == 'CONFLICTING':
+            print("   ❌ This PR has merge conflicts that must be resolved!")
+            print("   📝 Conflicting files need to be resolved before merging.")
+            print("   💡 Options:")
+            print("      1. Use GitHub web editor to resolve conflicts")
+            print("      2. Checkout the branch locally and resolve conflicts")
+            print("      3. Run 'gh pr merge --auto' to auto-merge when conflicts are resolved")
+            return False
+        elif mergeable_data.get('mergeStateStatus') == 'BLOCKED':
+            print("   ⚠️  PR is blocked from merging (required checks not passed)")
+            if not input("   ❔ Continue anyway? (y/n): ").lower() == 'y':
+                print("   ⚪️ Merge cancelled.")
+                return False
+        else:
+            print("   ✅ No merge conflicts detected!")
+            
+    except subprocess.CalledProcessError:
+        print("   ⚠️  Could not check merge conflicts (continuing anyway)")
+    except json.JSONDecodeError:
+        print("   ⚠️  Could not parse conflict status (continuing anyway)")
+    
     # Final confirmation
     target_branch = pr_to_merge['baseRefName']
     

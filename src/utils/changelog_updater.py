@@ -134,8 +134,40 @@ def _handle_pull_request_flow(project_root: Path, git_manager: GitManager, curre
             new_body = git_manager.generate_pull_request_body(summary, gemini_client)
             print(f"   📝 PR Title: {pr_title}")
             pr_url = git_manager.create_pull_request(title=pr_title, body=new_body, base_branch=target_branch, head_branch=current_branch)
-            if pr_url: print(f"   ✅ Successfully created Pull Request: {pr_url}")
-            else: print("   ❌ Failed to create Pull Request.")
+            if pr_url:
+                print(f"   ✅ Successfully created Pull Request: {pr_url}")
+                
+                # Check if PR has conflicts after creation
+                print("   🔍 Checking for potential conflicts...")
+                try:
+                    # Extract PR number from URL
+                    pr_number = pr_url.split('/')[-1]
+                    
+                    import subprocess
+                    import json
+                    conflict_cmd = ["gh", "pr", "view", pr_number, "--json", "mergeable,mergeStateStatus"]
+                    conflict_process = subprocess.run(
+                        conflict_cmd,
+                        cwd=project_root,
+                        capture_output=True,
+                        text=True,
+                        check=True
+                    )
+                    
+                    conflict_data = json.loads(conflict_process.stdout)
+                    
+                    if conflict_data.get('mergeable') == 'CONFLICTING':
+                        print("   ⚠️  WARNING: This PR has merge conflicts!")
+                        print("   📝 You'll need to resolve conflicts before merging:")
+                        print("      • Use GitHub web editor, or")
+                        print("      • Pull latest changes from target branch and resolve locally")
+                    elif conflict_data.get('mergeStateStatus') == 'BLOCKED':
+                        print("   ⚠️  PR is blocked (required checks not passed)")
+                except:
+                    # Don't fail if conflict check fails
+                    pass
+            else:
+                print("   ❌ Failed to create Pull Request.")
 
 
 def _handle_release_creation(project_root: Path, git_manager: GitManager, new_version: str):
