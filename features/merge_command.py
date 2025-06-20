@@ -559,7 +559,30 @@ def merge_command(project_root: Path):
     merge_status = execute_merge(pr_to_merge, recommendation['merge_method'], project_root, git_manager)
     
     if merge_status == MergeStatus.SUCCESS:
-        print("\n   🎉 Merge completed successfully!")
+        print("\n   🎉 Merge operation reported success!")
+
+        # Auto-close linked issue
+        print("   🔍 Checking for linked issues to close...")
+        try:
+            pr_number = pr_to_merge['number']
+            success, pr_body = git_manager.get_pr_body(pr_number)
+            if success and pr_body:
+                issue_number = git_manager.find_linked_issue_in_text(pr_body)
+                if issue_number:
+                    comment = f"Automatically closed by merging pull request #{pr_number}."
+                    print(f"   ✅ Found linked issue #{issue_number}. Closing with a comment...")
+                    close_success, _ = git_manager.close_issue(issue_number, comment)
+                    if close_success:
+                        print(f"   ✅ Issue #{issue_number} closed successfully.")
+                    else:
+                        print(f"   ⚠️  Failed to close issue #{issue_number}.")
+                else:
+                    print("   ⚪️ No auto-closeable issue keyword (e.g., 'Closes #123') found in PR description.")
+            else:
+                print("   ⚠️  Could not fetch PR body to check for linked issues.")
+        except Exception as e:
+            print(f"   💥 An unexpected error occurred while handling issue closing: {e}")
+        
         print("   🔄 Syncing local repository with remote changes...")
         try:
             git_manager.checkout(pr_to_merge['baseRefName'])

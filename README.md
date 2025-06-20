@@ -1,106 +1,117 @@
-Tamamdır, istediğiniz formatta README açıklaması, proje durumu ve özellikler bölümlerini oluşturuyorum. Ardından da kapsamlı ve analitik özeti sunacağım.
+Tamamdır, istenilen formatta ve detayda analizi ve README taslağını sunuyorum.
 
 ```markdown
 # 🚀 project.110620251156
-> Web projesi sürüm yönetimi ve otomasyon süreçlerini iyileştiren, geliştirici deneyimini ön planda tutan araçlar ve iyileştirmeler içerir.
+> Web projesi, Git işlemleri otomasyonu ve versiyon yönetimi süreçlerini iyileştirmeye odaklanmıştır. Otomatik issue kapatma, geliştirilmiş hata yönetimi ve Gemini entegrasyonu ile geliştirici deneyimini ve proje sürdürülebilirliğini artırmayı hedefler.
 
 ## 📊 Proje Durumu
-✅ Geliştirme tamamlandı, test aşamasında. 
-🔥 Sürüm yönetimi ve değişiklik takibi süreçleri optimize edildi.
-🛡️ Güvenlik önlemleri artırıldı.
+Proje aktif olarak geliştiriliyor. Otomatik issue kapatma özelliği tamamlandı ve test edildi. Versiyon yönetimi iyileştirmeleri devam ediyor, Gemini entegrasyonu beta aşamasında.
 
 ## ✨ Özellikler
-*   ✨ **Otomatik Sürüm Artışı:** Commit mesajlarına ve issue etiketlerine göre akıllı sürüm önerileri.
-*   📝 **Otomatik Değişiklik Günlüğü (Changelog) Oluşturma:** Sürüm notlarınızı zahmetsizce oluşturun ve güncelleyin.
-*   🤝 **GitHub/GitLab Entegrasyonu:** Issue'lara otomatik olarak bağlama ve etiketleri kullanma.
-*   🛡️ **`force push` Onayı:** Veri kaybını önlemek için üç aşamalı onay süreci.
-*   ⚡ **Hızlı Git Durumu:** Çalışma dizinindeki değişiklikleri anında görüntüleyin.
-*   🤖 **Gemini Entegrasyonu:** Yapay zeka destekli sürüm yükseltme önerileri ve commit mesajı oluşturma.
-*   🏷️ **Otomatik Etiketleme (Tagging):** Sürüm etiketlerini kolayca oluşturun ve yayınlayın.
+*   ✅ Otomatik Issue Kapatma: PR açıklamalarındaki issue'ları otomatik olarak kapatır.
+*   🛡️ Gelişmiş Hata Yönetimi: Detaylı loglama ve hata yakalama ile daha güvenilir bir birleştirme süreci.
+*   🤖 Gemini Entegrasyonu: Commit özetlerine ve dosya değişikliklerine göre akıllı versiyon yükseltme önerileri.
+*   🔖 Otomatik Etiketleme: Kullanıcı etkileşimli etiket oluşturma ve push etme seçenekleri.
+*   📝 Otomatik Commit Mesajı Oluşturma: Daha anlamlı commit mesajları için öneriler.
+*   🔄 Otomatik Changelog Güncelleme: Değişiklikleri takip etmek için otomatik changelog oluşturma ve güncelleme.
+*   🔒 Force Push Onayı: Veri kaybını önlemek için üç aşamalı onay mekanizması ile güvenli "force push" işlemi.
+*   📂 Uncommitted Değişiklikleri Listeleme: Git durumuna hızlı bir bakış.
+*   🎫 GitHub Issues'ı Çekme: Açık issue'ları kolayca görüntüleme.
+*   ✔️ Tag Varlığını Kontrol Etme: Etiketlerin mevcut olup olmadığını doğrulama.
 
 ## Değişen Dosyalar:
-*   `src/utils/version_manager.py`: Sürüm yönetimi mantığını içerir.
-*   `src/utils/git_manager.py`: Git işlemleri için yardımcı araçlar.
-*   `src/utils/changelog_updater.py`: Değişiklik günlüğü oluşturma ve güncelleme işlemleri.
+*   `features/merge_command.py`: Ana iş mantığı, birleştirme komutu işlemleri
+*   `src/utils/git_manager.py`: Git işlemleri için servis katmanı
+*   `src/utils/version_manager.py`: Versiyon yönetimi işlemleri
+*   `src/utils/changelog_updater.py`: Changelog oluşturma ve güncelleme işlemleri
 ```
 
-Şimdi de detaylı ve analitik özeti hazırlıyorum:
+## ANALİZ GÖREVİ:
 
 ### 1. YAPISAL ANALİZ:
 
-*   **Etkilenen Sistem Bileşenleri ve Katmanlar:**
-    *   **Yardımcı Araçlar Katmanı:** `src/utils/changelog_updater.py` dosyası, değişiklik günlüğü oluşturma süreçlerini otomatikleştirerek bu katmanı etkiliyor. Bu, sürüm yayınlama süreçlerini daha verimli hale getiriyor.
-    *   **Servis Katmanı:** `src/utils/version_manager.py` ve `src/utils/git_manager.py` dosyaları, uygulamanın sürüm yönetimi ve kaynak kontrol süreçlerini yöneten servis katmanını etkiliyor. Özellikle `VersionManager`, `GitManager`'ı kullanarak Git repository ile etkileşim kuruyor ve sürüm bilgilerini okuyup güncelliyor. `package.json` gibi proje konfigürasyon dosyaları da bu katmanın bir parçası.
-*   **Mimari Değişikliklerin Etkisi:**
-    *   **Sorumlulukların Ayrılması:** `GitManager` sınıfının oluşturulması, Git ile ilgili işlemlerin `VersionManager` sınıfından ayrılmasını sağlayarak daha modüler bir mimari oluşturuyor. Bu sayede `VersionManager` sınıfı sadece sürüm yönetimiyle ilgilenirken, `GitManager` Git repository etkileşimlerini yönetiyor.
-    *   **Bağımlılık Yönetimi:** `VersionManager`, `GitManager`'a bağımlı hale getirilerek bağımlılık enjeksiyonu kullanılıyor. Bu, test edilebilirliği artırıyor ve farklı Git repository implementations'larının kullanımını kolaylaştırıyor.
-    *   **Karar Destek Katmanı:** Gemini entegrasyonu ile sürüm yükseltme önerileri alınması, mimariye yeni bir karar destek katmanı ekliyor. Bu, geliştiricilere daha bilinçli sürüm kararları vermelerinde yardımcı oluyor.
-*   **Kod Organizasyonunda İyileştirmeler:**
-    *   **Sınıf Tasarımı:** `VersionManager` ve `GitManager` sınıfları, iyi tanımlanmış sorumluluklara sahip ve mantıksal olarak ayrılmış.
-    *   **Tip İpuçları (Type Hints):** Tip ipuçlarının kullanımı, kodun okunabilirliğini ve anlaşılabilirliğini artırıyor. Ayrıca, statik analiz araçlarıyla uyumluluğu sağlıyor.
-    *   **Hata Yönetimi:** `try-except` blokları ile hata yönetimi iyileştirilmiş. Git ve dosya okuma hataları yakalanarak uygulamanın çökmesi engelleniyor ve loglama ile hata ayıklama kolaylaştırılıyor.
-    *   **Konfigürasyon Yönetimi:** `json` ve `toml` gibi standart kütüphaneler kullanılarak farklı konfigürasyon formatlarına destek sağlanmış.
+-   **Etkilenen Sistem Bileşenleri ve Katmanlar:**
+
+    *   **Ana İş Mantığı (`features/merge_command.py`):** Birleştirme komutunun işleyişini kontrol eden katman. Değişiklikler, birleştirme sürecini tetikleme, güvenlik kontrollerini uygulama ve işlem sonrası adımları (issue kapatma gibi) yönetme şeklini etkiliyor.
+    *   **Servis Katmanı (`src/utils/git_manager.py`, `src/utils/version_manager.py`):** `GitManager`, düşük seviyeli Git operasyonlarını (branch oluşturma, tag oluşturma, commit bilgisi alma vb.) soyutlar. `VersionManager` ise versiyon numaralarını okuma, arttırma ve proje dosyalarında güncelleme işlemlerini yönetir. `changelog_updater.py` ise changelog oluşturma süreçlerini yönetmektedir. Bu katman, uygulamanın Git deposu ve versiyonlama sistemi ile etkileşimini kolaylaştırır ve tutarlı hale getirir.
+    *   **Yardımcı Araçlar (`src/utils/changelog_updater.py`):** changelog (değişiklik günlüğü) oluşturma ve güncelleme süreçlerini yöneten yardımcı araç katmanı etkilenmektedir.
+
+-   **Mimari Değişikliklerin Etkisi:**
+
+    *   **Modülerlik ve Sorumluluk Ayrımı:** `GitManager` sınıfının oluşturulması ve `VersionManager` sınıfının Git işlemleri için bu sınıfa bağımlı hale getirilmesi, mimaride sorumluluk ayrımını güçlendiriyor. Bu, her bir bileşenin daha odaklı ve yönetilebilir olmasını sağlıyor.
+    *   **Karar Destek Katmanı (Gemini Entegrasyonu):** Gemini (büyük dil modeli) entegrasyonu ile versiyon yükseltme önerileri alınması, mimariye yeni bir karar destek katmanı ekliyor. Bu, geliştiricilerin versiyon kararlarını daha bilinçli bir şekilde almasına yardımcı olabilir, ancak aynı zamanda harici bir servise bağımlılık getiriyor.
+    *   **`force_push_with_confirmation` fonksiyonu eklenerek,** `force push` işlemi için kullanıcıdan üç aşamalı bir onay alınması sağlanmış. Bu, veri kaybı veya yanlışlıkla yapılan değişikliklerin önüne geçmek için önemlidir. Fonksiyonun eklenmesi, Git repository'deki kritik branch'ler üzerinde yapılan değişikliklerin daha kontrollü bir şekilde yönetilmesini sağlar.
+
+-   **Kod Organizasyonunda Yapılan İyileştirmeler:**
+
+    *   **Merkezi Hata Yönetimi:** `_run_external_command` fonksiyonunda iyileştirilmiş hata yönetimi, Git komutlarını çalıştırma sürecini daha güvenilir hale getiriyor. Hata mesajları daha ayrıntılı loglanıyor ve kullanıcıya daha bilgilendirici bir mesaj gösteriliyor.
+    *   **Konfigürasyon Yönetimi Standardizasyonu:** Proje konfigürasyonlarının (package.json, pyproject.toml) okunması için standart kütüphanelerin (json, toml) kullanılması, farklı konfigürasyon formatlarına destek sağlıyor ve kodun daha okunabilir olmasını sağlıyor.
+    *   **Fonksiyonların Sorumluluk Alanlarının Belirginleştirilmesi:** Fonksiyonların daha küçük ve spesifik görevlere bölünmesi, kodun okunabilirliğini ve bakımını kolaylaştırıyor. Örneğin, `get_current_branch`, `get_current_version` gibi fonksiyonlar, sadece ilgili bilgiyi almaktan sorumlu tutuluyor.
 
 ### 2. İŞLEVSEL ETKİ:
 
-*   **Eklenen, Değiştirilen veya Kaldırılan Özellikler:**
-    *   **Otomatik Sürüm Artışı:** Commit mesajlarına veya issue'lardaki etiketlere göre otomatik sürüm artışı yapabilme özelliği eklendi. Bu, sürüm yönetimi sürecini hızlandırıyor ve kolaylaştırıyor.
-    *   **Değişiklik Günlüğü (Changelog) Güncellemesi:** Otomatik olarak değişiklik günlüğü oluşturma ve güncelleme yeteneği geliştirildi. Bu, sürüm notlarının güncel tutulmasını sağlıyor ve geliştiricilerin harcadığı zamanı azaltıyor.
-    *   **Git Entegrasyonu:** `GitManager` sınıfı ile Git ile ilgili işlemler daha kolay ve tutarlı bir şekilde gerçekleştirilebilir hale geldi. Bu, farklı Git komutlarını kullanma ihtiyacını ortadan kaldırıyor.
-    *   **Issue Entegrasyonu:** GitHub API'si kullanılarak açık issue'lara bağlama ve issue'lardaki etiketlere göre sürüm artışı belirleme yeteneği eklendi. Bu, geliştirme sürecini daha organize ve izlenebilir hale getiriyor.
-    *   **`force push` Onayı:** Veri kaybını önlemek için `force push` işlemi için kullanıcıdan üç aşamalı bir onay alınması sağlanmış. Bu, özellikle kritik branch'ler üzerinde yapılan değişikliklerde önemli bir güvenlik önlemi.
-    *   **Gemini Entegrasyonu:** Commit özetlerine ve dosya değişikliklerine göre sürüm yükseltme önerileri alınması. Bu, geliştiricilere versiyon kararlarında yardımcı oluyor. Mevcut açık GitHub/GitLab issue'larına göre versiyon yükseltme önerisi sunulması da bu kapsamda değerlendirilebilir.
-*   **Kullanıcı Deneyimi:**
-    *   **Otomasyon:** Sürüm yönetimi ve değişiklik günlüğü oluşturma süreçlerinin otomatikleştirilmesi, geliştiricilerin zamanını ve çabasını azaltıyor.
-    *   **Bilgilendirme:** Loglama sayesinde, sürüm yönetimi sürecinde ortaya çıkan hatalar ve uyarılar daha kolay tespit edilebilir.
-    *   **İnteraktiflik:** Kullanıcıya hangi sürüm artışının yapılacağına dair öneriler sunulması ve onay alınması, daha bilinçli bir sürüm yönetimi süreci sağlıyor.
-    *   **Kullanıcı Etkileşimi:** Versiyon yükseltme sürecinde kullanıcı etkileşimini artırmak için onay mekanizması eklenmiş. Kullanıcıya versiyon değişikliği hakkında bilgi veriliyor ve onay isteniyor.
-*   **Performans, Güvenlik veya Güvenilirlik Üzerindeki Etkiler:**
-    *   **Performans:** Gemini entegrasyonu, ek bir API çağrısı gerektirdiği için sürüm yükseltme sürecini biraz yavaşlatabilir. Ancak, bu gecikme, daha iyi sürüm kararları alınmasıyla dengelenebilir.
-    *   **Güvenlik:** Gemini API anahtarının güvenli bir şekilde saklanması ve yönetilmesi gerekiyor. `force push` onayı da veri kaybını önleyerek güvenilirliği artırıyor.
-    *   **Güvenilirlik:** Hata yönetimi sayesinde, Git ve dosya okuma hatalarından kaynaklanan çökmeler engelleniyor.
+-   **Eklenen, Değiştirilen veya Kaldırılan Özellikler:**
+
+    *   **Yeni Özellik: Otomatik Issue Kapatma:** Birleştirme işleminden sonra, PR açıklamalarında bulunan ilgili issue'ları otomatik olarak kapatma özelliği eklendi. Bu özellik, geliştirme sürecini hızlandırır ve issue takibini kolaylaştırır.
+    *   **Yeni Özellik: Gemini Entegrasyonu:** Commit özetlerine, dosya değişikliklerine ve mevcut açık issue'lara göre versiyon yükseltme önerileri sunulması.
+    *   **Geliştirme: Kullanıcı Etkileşimi Artırma:** Versiyon yükseltme sürecinde kullanıcı etkileşimini artırmak için onay mekanizması eklenmiş. Kullanıcıya versiyon değişikliği hakkında bilgi veriliyor ve onay isteniyor.
+    *   **Geliştirme: Otomatik Etiketleme:** Otomatik etiketleme (tagging) mekanizması geliştirilmiş. Kullanıcıya etiket oluşturma ve push etme seçenekleri sunuluyor.
+    *   **Geliştirme: Anlamlı Commit Mesajları:** Commit mesajlarını daha anlamlı hale getirmek için otomatik mesaj oluşturma özelliği eklenmiş.
+    *   **Geliştirme: Otomatik Changelog Oluşturma:** Otomatik changelog oluşturma ve güncelleme süreçleri geliştirilmiş.
+
+-   **Kullanıcı Deneyimi:**
+
+    *   **Daha Fazla Kontrol ve Bilgi:** Kullanıcıya daha fazla kontrol ve bilgi sağlayan etkileşimli bir versiyon yükseltme süreci sunuluyor. Kullanıcılar, Gemini tarafından önerilen versiyonu kabul edebilir veya farklı bir versiyon seçebilirler.
+    *   **İş Yükünü Azaltma:** Otomatik öneriler ve mesaj oluşturma gibi özellikler, geliştiricilerin iş yükünü azaltıyor ve daha verimli çalışmalarını sağlıyor.
+    *   **Proje Anlaşılabilirliğini Artırma:** Daha anlamlı commit mesajları ve changelog'lar sayesinde, projenin anlaşılabilirliği artıyor ve yeni geliştiricilerin projeye adapte olması kolaylaşıyor.
+
+-   **Performans, Güvenlik veya Güvenilirlik Üzerindeki Etkiler:**
+
+    *   **Performans Etkisi (Gemini):** Gemini entegrasyonu, ek bir API çağrısı gerektirdiği için versiyon yükseltme sürecini biraz yavaşlatabilir. Ancak, bu gecikme, daha iyi versiyon kararları alınmasıyla dengelenebilir. Optimizasyonlar (caching, asynchronous calls) ile bu performans etkisi azaltılabilir.
+    *   **Güvenlik Açığı Potansiyeli (Gemini):** Gemini API anahtarının güvenli bir şekilde saklanması ve yönetilmesi gerekiyor. Aksi takdirde, güvenlik açığı oluşabilir. Çevresel değişkenler (environment variables) veya güvenli konfigürasyon yönetimi araçları (secrets management) kullanılmalıdır.
+    *   **Güvenilirlik Artışı (Hata Yönetimi):** Hata yönetimi sayesinde, Git ve dosya okuma hatalarından kaynaklanan çökmeler engelleniyor. Ayrıca, kullanıcı onayı mekanizması, yanlışlıkla yapılan versiyon yükseltmelerini önlüyor.
+    *   **Güvenlik (Force Push):** `force_push_with_confirmation` fonksiyonu, yanlışlıkla veri kaybını önleyerek güvenilirliği artırır.
 
 ### 3. TEKNİK DERINLIK:
 
-*   **Uygulanan veya Değiştirilen Tasarım Desenleri:**
-    *   **Facade:** `GitManager` sınıfı, karmaşık Git işlemlerini basitleştirerek `VersionManager` sınıfına daha kullanıcı dostu bir arayüz sunuyor.
-    *   **Factory Pattern (Dolaylı):** Gemini istemcisinin oluşturulması, Factory Pattern'ın dolaylı bir örneği olarak düşünülebilir. `GeminiClient` sınıfı, doğrudan değil, ihtiyaç duyulduğunda oluşturuluyor.
-    *   **Strategy Pattern (Dolaylı):** Farklı versiyon yükseltme stratejileri (major, minor, patch) ve otomatik etki seviyesi belirleme, Strategy Pattern'ın dolaylı bir örneği olarak düşünülebilir.
-    *   **Dependency Injection:** `VersionManager` sınıfının `GitManager`'a olan bağımlılığı, constructor injection ile sağlanıyor.
-*   **Kod Kalitesi ve Sürdürülebilirlik:**
-    *   **Okunabilirlik:** Tip ipuçları, anlamlı değişken isimleri ve iyi yapılandırılmış fonksiyonlar sayesinde kodun okunabilirliği artırıldı.
-    *   **Bakım Kolaylığı:** Modüler tasarım ve sorumlulukların ayrılması sayesinde kodun bakımı ve güncellenmesi kolaylaştırıldı.
-    *   **Test Edilebilirlik:** Bağımlılık enjeksiyonu sayesinde kodun test edilebilirliği artırıldı.
-    *   **Hata Yönetimi:** `try-except` blokları ve loglama sayesinde hata yönetimi iyileştirildi.
-*   **Eklenen Yeni Bağımlılıklar veya Teknolojiler:**
-    *   **Gemini API:** Google Gemini (eski adıyla Bard) dil modeline bağımlılık eklenmiş. `GeminiClient` sınıfı bu API ile etkileşime geçiyor.
-    *   **`requests` kütüphanesi (Muhtemel):** GitHub API'sine erişmek için `requests` kütüphanesinin kullanılması gerekebilir.
-    *   **`subprocess` modülü:** Git komutlarını çalıştırmak için `subprocess` modülü kullanılıyor.
-    *   **`pathlib` modülü:** Dosya ve dizin işlemleri için `pathlib` modülü kullanılıyor.
-    *   **GitHub API:** Issue'lara bağlanma ve etiketleri kontrol etme amacıyla GitHub API'si kullanılıyor.
-    *   **Toml:** `pyproject.toml` dosyalarını okumak için toml kütüphanesi kullanılmış.
-    *   **`gh` CLI:** GitHub Issues'ı çekmek için `gh` CLI aracına bağımlılık eklendi.
+-   **Uygulanan veya Değiştirilen Tasarım Desenleri:**
+
+    *   **Facade:** `GitManager` sınıfı, karmaşık Git komutlarını basitleştirerek bir facade deseni görevi görür.
+    *   **Template Method:** `_run_external_command` fonksiyonu, subprocess'i çalıştırmak için ortak bir şablon sağlar
+    *   **Factory Pattern (Dolaylı):** Gemini istemcisinin oluşturulması, Factory Pattern'ın dolaylı bir örneği olarak düşünülebilir. `GeminiClient` sınıfı, doğrudan değil, ihtiyaç duyulduğunda oluşturuluyor. Bu, istemci oluşturma sürecini soyutlayarak, kodun daha esnek ve test edilebilir olmasını sağlıyor.
+    *   **Strategy Pattern (Dolaylı):** Farklı versiyon yükseltme stratejileri (major, minor, patch) ve otomatik etki seviyesi belirleme, Strategy Pattern'ın dolaylı bir örneği olarak düşünülebilir. `get_next_version` fonksiyonu, farklı stratejileri dinamik olarak seçebilecek şekilde tasarlanmış.
+
+-   **Kod Kalitesi ve Sürdürülebilirlik:**
+
+    *   **Tip İpuçları (Type Hints):** Kodun okunabilirliğini ve sürdürülebilirliğini artırmak için tip ipuçları kullanılmış. Bu, statik analiz araçlarının (mypy) kullanılmasına ve potansiyel hataların erken tespit edilmesine olanak sağlıyor.
+    *   **Docstring'ler:** Fonksiyonların ve sınıfların ne yaptığını açıklayan docstring'ler eklenmiş. Bu, kodun belgelendirilmesini sağlıyor ve yeni geliştiricilerin projeye adapte olmasını kolaylaştırıyor.
+    *   **Loglama:** Hata ayıklamayı ve sorun gidermeyi kolaylaştırmak için loglama kullanılmış. Log seviyeleri (DEBUG, INFO, WARNING, ERROR) kullanılarak, farklı detay seviyelerinde loglama yapılabilmesi sağlanmış.
+    *   **Modülerlik:** Kod, daha küçük ve bağımsız modüllere ayrılmış. Bu, kodun test edilebilirliğini ve yeniden kullanılabilirliğini artırıyor. Örneğin, `GitManager` ve `VersionManager` sınıfları, bağımsız olarak test edilebilir ve farklı projelerde yeniden kullanılabilir.
+    *   **Single Responsibility Principle:** Fonksiyonlar, tek bir sorumluluğa sahip olacak şekilde tasarlanmıştır. Örneğin, `get_current_branch` fonksiyonu sadece mevcut branch bilgisini almaktan sorumludur. Bu, fonksiyonların daha kolay anlaşılmasını ve test edilmesini sağlıyor.
+-   **Yeni Bağımlılıklar veya Teknolojiler:**
+
+    *   **Gemini API:** Google Gemini (eski adıyla Bard) dil modeline bağımlılık eklenmiş. `GeminiClient` sınıfı bu API ile etkileşime geçiyor. Bu, projenin harici bir servise bağımlı hale gelmesine neden oluyor. API'nin kullanılabilirliği, performansı ve maliyeti dikkate alınmalıdır.
+    *   **Toml:** `pyproject.toml` dosyalarını okumak için toml kütüphanesi kullanılmış. Bu, projenin farklı konfigürasyon formatlarına destek sağlamasını sağlıyor.
 
 ### 4. SONUÇ YORUMU:
 
-*   **Değişikliklerin Uzun Vadeli Değeri ve Etkisi:**
-    *   **Geliştirme Sürecini Hızlandırma:** Otomatik sürüm yönetimi ve değişiklik günlüğü oluşturma, geliştiricilerin zamanını ve çabasını azaltarak geliştirme sürecini hızlandırır.
-    *   **Kod Kalitesini Artırma:** Kodun okunabilirliği, bakımı ve test edilebilirliği artırılarak kod kalitesi yükseltilir.
-    *   **Şeffaflığı Artırma:** Sürüm yönetimi sürecinin şeffaflığı ve izlenebilirliği artırılır.
-    *   **Daha İyi İşbirliği:** Issue'lara bağlama ve etiketlere göre sürüm artışı belirleme, geliştirme ekipleri arasındaki işbirliğini kolaylaştırır.
-    *   Otomatik versiyonlama önerileri ve commit mesajı oluşturma gibi özellikler, geliştiricilerin verimliliğini artırıyor.
-    *   Daha anlamlı commit mesajları ve changelog'lar, projenin anlaşılabilirliğini ve bakımını kolaylaştırıyor.
-    *   Git ve GitHub/GitLab entegrasyonu, versiyonlama sürecini daha sorunsuz hale getiriyor.
-    *   Genel olarak, bu değişiklikler, projenin uzun vadeli değerini ve sürdürülebilirliğini artırıyor.
-*   **Projenin Teknik Borcu:**
-    *   **Azaltma:** Kodun modülerleştirilmesi, okunabilirliğinin artırılması ve hata yönetiminin iyileştirilmesi, teknik borcu azaltır.
-    *   **Artırma (Potansiyel):** `subprocess` modülünün aşırı kullanımı veya güvenlik açıkları, teknik borcu artırabilir. Ayrıca, GitHub ve Gemini API'lerine olan bağımlılık, API değişiklikleri durumunda teknik borca neden olabilir. `gh` CLI bağımlılığı da teknik borcu bir miktar artırır.
-*   **Gelecekteki Geliştirmelere Hazırlık:**
-    *   **Modüler Tasarım:** Modüler tasarım, gelecekteki geliştirmeleri kolaylaştırır. Yeni özellikler veya servisler, mevcut koda minimum etkiyle eklenebilir.
-    *   **Test Edilebilirlik:** Test edilebilir kod, gelecekteki değişikliklerin daha güvenli bir şekilde yapılmasını sağlar.
-    *   **API Entegrasyonu:** GitHub ve Gemini API'lerine olan entegrasyon, gelecekteki otomasyon ve işbirliği senaryoları için bir temel oluşturur. Örneğin, Issue'lara otomatik olarak yorum eklemek veya Issue durumunu otomatik olarak güncellemek gibi özellikler geliştirilebilir.
+-   **Bu Değişikliklerin Uzun Vadeli Değeri ve Etkisi:**
 
-Umarım bu detaylı analiz ve README taslağı işinize yarar!
+    *   **Geliştirici Verimliliğini Artırma:** Otomatik versiyonlama önerileri ve commit mesajı oluşturma gibi özellikler, geliştiricilerin verimliliğini artırıyor. Bu, daha kısa sürede daha fazla özellik geliştirilmesine olanak sağlıyor.
+    *   **Proje Anlaşılabilirliğini İyileştirme:** Daha anlamlı commit mesajları ve changelog'lar, projenin anlaşılabilirliğini ve bakımını kolaylaştırıyor. Bu, projenin uzun vadeli sürdürülebilirliğini sağlıyor.
+    *   **Entegrasyon Kolaylığı:** Git ve GitHub/GitLab entegrasyonu, versiyonlama sürecini daha sorunsuz hale getiriyor. Bu, farklı geliştirme araçları ve platformları ile daha iyi entegrasyon sağlanmasına olanak sağlıyor.
+
+-   **Projenin Teknik Borcu Nasıl Etkilendi:**
+
+    *   **Teknik Borcu Azaltan Faktörler:** Kodun modülerleştirilmesi, tip ipuçları ve docstring'ler ile belgelendirilmesi, hata yönetimi iyileştirmeleri teknik borcu azaltıyor.
+    *   **Teknik Borcu Artıran Faktörler:** Gemini API'ye bağımlılık eklenmesi, teknik borcu biraz artırabilir (API'nin kullanılabilirliği, performansı vb. konularında). Ayrıca, `gh` CLI aracına bağımlılık eklenmesi de teknik borcu artırıyor. Bu bağımlılıkların bakımı, güncellenmesi ve potansiyel güvenlik açıklarıyla ilgilenilmesi gerekecektir.
+
+-   **Gelecekteki Geliştirmelere Nasıl Hazırlık Yapıldı:**
+
+    *   **Modüler Tasarım:** Modüler tasarım, gelecekte yeni özellikler eklemeyi veya mevcut özellikleri değiştirmeyi kolaylaştırıyor. Örneğin, farklı versiyon yükseltme stratejileri veya Gemini alternatifleri kolayca entegre edilebilir.
+    *   **Anlaşılabilir Kod:** Tip ipuçları ve docstring'ler, kodun anlaşılabilirliğini artırarak, yeni geliştiricilerin projeye daha kolay katkıda bulunmasını sağlıyor.
+    *   **Test Edilebilir Tasarım:** Test edilebilir tasarım, gelecekte kodun daha güvenilir ve hatasız olmasını sağlıyor. Birim testleri, entegrasyon testleri ve uçtan uca testler ile kodun doğruluğu sağlanabilir. Bu, gelecekteki değişikliklerin güvenle yapılabilmesine olanak sağlıyor.
+```
 
 ## 🛠️ Kurulum (Installation)
 
@@ -261,7 +272,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**Last updated**: June 20, 2025 by Summarizer Framework v15.16.2
+**Last updated**: June 20, 2025 by Summarizer Framework v15.16.3
 *This README is automatically generated and updated based on project activity.*
 
 > *"Automatically maintained with AI-powered analysis"*
