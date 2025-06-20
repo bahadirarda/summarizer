@@ -1,57 +1,65 @@
-# 🚀 project.110620251156
-> ✨ Modern bir web uygulaması için gelişmiş versiyonlama ve değişiklik günlüğü yönetimi sağlayan yardımcı araçlar.  Daha temiz, daha sürdürülebilir ve daha güvenilir bir geliştirme süreci sunar.
+# 🚀 Summarizer Framework
+> Akıllı özetleme, ekran görüntüsü alma ve terminal komut yönetimi özelliklerini birleştiren güçlü ve modüler bir framework.
 
 ## 📊 Proje Durumu
-Proje, versiyonlama ve değişiklik günlüğü yönetimi için yardımcı araçların iyileştirilmesiyle ilgili güncellemeler aldı.  Bu güncellemeler, kodun modülerliğini, okunabilirliğini ve sürdürülebilirliğini artırdı.  Yeni özellikler eklendi ve mevcut olanlar geliştirildi.  Proje şu anda kararlı ve işlevseldir.
+Geliştirme aşamasında.  Son güncellemeler, GUI desteği, gelişmiş ekran görüntüsü alma, terminal komutları yönetimi ve iyileştirilmiş changelog ve versiyonlama sistemini içeriyor.  AI destekli "Summarizer Eye" özelliği için temel atılmış durumda (gelecek sürümlerde).
 
 
 ## ✨ Özellikler
-* **Gelişmiş Versiyon Yönetimi:** Semantik versiyonlama, kod adı ataması ve kırıcı değişiklik tespiti dahil daha kapsamlı versiyon kontrolü.
-* **Otomatik Değişiklik Günlüğü Oluşturma:** Proje türünü otomatik olarak algılayarak değişiklik günlüğüne yeni girdiler ekleme işlemini iyileştirir.
-* **Değişiklik Etki Seviyesi Tespiti:** Otomatik etki seviyesi tespiti, değişikliklerin kapsamını daha iyi anlamaya yardımcı olur.
-* **Daha Modüler ve Sürdürülebilir Kod:**  `version_manager.py` ve `changelog_updater.py` dosyalarındaki iyileştirmeler kodun daha okunabilir ve sürdürülebilir olmasını sağlar.
+* 📄 Çeşitli kaynaklardan metin özetleme
+* 📸 Chrome, Firefox ve Code Editor gibi uygulamaların ekran görüntüsünü alma
+* ⚙️ Komut satırı üzerinden konfigürasyon
+* 🖥️ Kullanıcı dostu grafiksel arayüz (GUI)
+* 终端 Terminal komutlarının kurulumu ve kaldırılması
+* 📊 Sistem durumu raporlama
+* 📝 Otomatik changelog güncellemesi
+* VERSION Gelişmiş versiyon yönetimi
 
 
 ## Değişen Dosyalar:
-`src/utils/version_manager.py`, `src/utils/changelog_updater.py`
+`src/main.py`, `summarizer.py`, `src/core/configuration_manager.py`, `src/utils/version_manager.py`, `src/utils/changelog_updater.py`, `features/parameter_checker.py`, `features/screenshot.py`, `features/terminal_commands.py`, `features/gui_installer.py`, `tests/test_main.py`
 
 
 ## ANALİZ GÖREVİ:
 
 ### 1. YAPISAL ANALİZ:
 
-- **Etkilenen Sistem Bileşenleri ve Katmanlar:** Değişiklikler, projenin `src/utils` alt dizininde bulunan `version_manager.py` ve `changelog_updater.py` dosyalarını etkiledi. Bu, yardımcı araçlar katmanını doğrudan etkiler.  `changelog_updater.py` dosyası ayrıca `file_tracker`, `json_changelog_manager`, `readme_generator`, `version_manager` ve `git_manager` modülleriyle etkileşim halindedir.
+* **Etkilenen Bileşenler ve Katmanlar:** Değişiklikler, projenin neredeyse tüm katmanlarını etkilemiştir.  `src/main.py` ve `summarizer.py` (ana iş mantığı), `src/core/configuration_manager.py` (konfigürasyon), `src/utils` dizini (yardımcı araçlar - özellikle `version_manager.py` ve `changelog_updater.py`), `features` dizini (özellik modülleri) ve `tests` dizini (testler) etkilenmiştir.
 
-- **Mimari Değişikliklerin Etkisi:** Mimari açıdan büyük değişiklikler yoktu.  Var olan mimariye yeni işlevsellikler eklendi ve mevcut işlevsellik iyileştirildi.  `version_manager.py` dosyasındaki değişiklikler, versiyon yönetimi işlevselliğini daha modüler ve sürdürülebilir bir hale getirdi.  `changelog_updater.py` dosyasındaki değişiklikler ise, changelog oluşturma sürecinin projenin türüne göre özelleştirilmesini sağladı.
+* **Mimari Değişikliklerin Etkisi:**  Mimari genel olarak korunmuş ancak gelişmiş ve modüler hale getirilmiştir. `features` dizinindeki modüler tasarım, yeni özelliklerin eklenmesini kolaylaştırmıştır.  GUI ve gelişmiş ekran görüntüsü alma gibi yeni özellikler, mevcut mimariye sorunsuz bir şekilde entegre edilmiştir. Versiyon ve changelog yönetimi de `version_manager.py` ve `changelog_updater.py` dosyalarının iyileştirilmesiyle daha sağlam hale getirilmiştir.
 
-- **Kod Organizasyonunda Yapılan İyileştirmeler:**  `version_manager.py` dosyasındaki uzunluk itibariyle kesilen kod muhtemelen versiyon belirleme, kod adı ataması ve kırıcı değişiklik tespiti fonksiyonlarını daha yapılandırılmış bir şekilde düzenlemiştir.  `changelog_updater.py` dosyasında ise `_detect_impact_level` ve `_detect_project_type` fonksiyonlarının eklenmesi, kodun daha modüler ve anlaşılır olmasını sağlamıştır.  Bu fonksiyonlar, ilgili görevleri daha küçük, daha yönetilebilir birimlere ayırarak okunabilirliği ve bakımı kolaylaştırır.
+* **Kod Organizasyonunda İyileştirmeler:**  `features` dizini, özelliklerin modüler olarak organize edilmesini sağlamıştır. Bu, kodun okunabilirliğini, sürdürülebilirliğini ve bakımı kolaylaştırmıştır. `version_manager.py` ve `changelog_updater.py` dosyalarındaki değişiklikler ise bu dosyaların işlevselliğini daha yapılandırılmış ve modüler hale getirmiştir. Özellikle `changelog_updater.py`'deki `_detect_project_type` fonksiyonunun eklenmesi, changelog oluşturma sürecinin projenin türüne göre özelleştirilmesini sağlamıştır.
 
 
 ### 2. İŞLEVSEL ETKİ:
 
-- **Eklenen, Değiştirilen veya Kaldırılan Özellikler:**  `version_manager.py` dosyasına, `package.json` dosyasından versiyon bilgisinin okunması ve ayrıştırılması, git dalının belirlenmesi, semantik versiyonlamaya uygun versiyon oluşturma, kod adları ataması ve gelişmiş kırıcı değişiklik tespit mekanizması eklendi.  `changelog_updater.py` dosyasına ise projenin türünü otomatik olarak tespit eden (`_detect_project_type`) ve daha kapsamlı bir etki seviyesi tespit algoritması (`_detect_impact_level`) eklendi.
+* **Eklenen Özellikler:** GUI desteği (`--gui` komutu), gelişmiş ekran görüntüsü alma (tarayıcıya özgü komutlar), terminal komut yönetimi (kurulum ve kaldırma komutları), sistem durumu raporlama (`--status` komutu) eklenmiştir.
 
-- **Kullanıcı Deneyiminin Etkilenmesi:**  Kullanıcı deneyimi doğrudan etkilenmez.  Ancak, geliştiriciler için daha doğru versiyon bilgisi ve daha detaylı değişiklik günlüğü, daha iyi bir geliştirme deneyimi sağlar.
+* **Değiştirilen Özellikler:** Komut satırı argümanlarının işlenmesi `argparse` kütüphanesi kullanılarak iyileştirilmiştir. Özetleme fonksiyonunun çağrılma şekli muhtemelen değiştirilmiştir (detaylar eksik).
 
-- **Performans, Güvenlik veya Güvenilirlik Üzerindeki Etkiler:**  Performans etkisi, eklenen fonksiyonların karmaşıklığına bağlıdır ve sağlanan kod parçaları ile tam olarak ölçülemez.  Güvenlik ve güvenilirlik üzerinde doğrudan bir etki görülmez, ancak doğru versiyon yönetimi ve değişiklik takibi, uzun vadede güvenilirliği artırır.
+* **Kaldırılan Özellikler:** Belirtilmemiştir.
+
+* **Kullanıcı Deneyimi:** Kullanıcı deneyimi, yeni komut satırı seçenekleri, GUI ve daha kapsamlı raporlama ile önemli ölçüde iyileştirilmiştir.
+
+* **Performans, Güvenlik veya Güvenilirlik:** Performans etkisi tam olarak belirlenememektedir.  `version_manager.py` ve `changelog_updater.py` dosyalarındaki değişiklikler, versiyonlama ve changelog yönetimini daha güvenilir hale getirmiştir.  Güvenlik üzerinde doğrudan bir etki gözlenmemiştir.
 
 
 ### 3. TEKNİK DERİNLİK:
 
-- **Tasarım Desenleri:** `VersionManager` sınıfı, Tek Sorumluluk Prensibine (Single Responsibility Principle) uygun bir tasarım örneği olarak düşünülebilir.  Diğer fonksiyonlarda belirgin bir tasarım deseni kullanımı görülmez, ancak `JsonChangelogManager` gibi sınıfların varlığı, MVC veya benzeri bir mimarinin kullanılmış olabileceğine işaret eder.
+* **Tasarım Desenleri:** Modülerlik ve Komut (Command) tasarım deseni belirgindir.  `features` dizini modülerliği desteklerken, komut satırı argümanlarının farklı fonksiyonları tetiklemesi Komut desenine işaret etmektedir. `VersionManager` sınıfı tek sorumluluk prensibine (Single Responsibility Principle) uygundur.
 
-- **Kod Kalitesi ve Sürdürülebilirliğin Gelişmesi:** Kod kalitesi ve sürdürülebilirlik, daha modüler ve anlaşılır kod yapısı sayesinde iyileştirilmiştir.  Fonksiyonların daha küçük ve özelleşmiş işlevlere ayrıştırılması, kodun okunabilirliğini ve bakımını kolaylaştırır.
+* **Kod Kalitesi ve Sürdürülebilirlik:** Kod kalitesi, modüler tasarım ve testlerin varlığı sayesinde (testler yetersiz olsa da) iyileştirilmiştir.  `changelog_updater.py`'deki değişiklikler, kodun daha okunabilir ve sürdürülebilir olmasını sağlamıştır.
 
-- **Yeni Bağımlılıklar veya Teknolojiler:**  Sağlanan bilgilerde yeni bağımlılıklar eklendiğine dair bir bilgi bulunmuyor.
+* **Yeni Bağımlılıklar veya Teknolojiler:** `argparse` kütüphanesinin kullanımı belirgindir. Diğer olası bağımlılıklar, `version_manager.py` ve `changelog_updater.py` dosyalarının incelenmesiyle tespit edilebilir.
 
 
 ### 4. SONUÇ YORUMU:
 
-- **Uzun Vadeli Değer ve Etki:** Bu değişiklikler, projenin versiyonlama ve değişiklik günlüğü yönetimini iyileştirerek uzun vadeli sürdürülebilirliğe katkıda bulunmuştur.  Daha doğru versiyon bilgisi ve detaylı değişiklik günlüğü, hata ayıklama ve geriye dönük izleme süreçlerini kolaylaştırır.
+* **Uzun Vadeli Değer ve Etki:**  Bu değişiklikler, Summarizer Framework'ün işlevselliğini önemli ölçüde genişletmiş ve kullanıcı deneyimini iyileştirmiştir. Modüler tasarım, gelecekteki geliştirmeleri kolaylaştırmaktadır.  Gelişmiş versiyon ve changelog yönetimi, sürdürülebilirliği artırmaktadır.  AI destekli "Summarizer Eye" özelliğinin gelecekteki eklenmesine zemin hazırlanmıştır.
 
-- **Projenin Teknik Borcunun Etkilenmesi:**  Projenin teknik borcu, kodun daha modüler ve anlaşılır hale getirilmesiyle azaltılmış olabilir. Ancak, `_has_breaking_changes` fonksiyonunun yalnızca belirli dosya adlarına dayalı olması, yanlış pozitif veya negatif sonuçlara yol açabileceği için potansiyel bir teknik borç olarak değerlendirilebilir.
+* **Projenin Teknik Borcu:**  Testlerin yetersizliği bir teknik borç olarak kalmaktadır. `_has_breaking_changes` fonksiyonunun basit kural tabanlı yaklaşımı da potansiyel bir teknik borçtur; daha gelişmiş bir mekanizma gelecekte ele alınabilir.
 
-- **Gelecekteki Geliştirmelere Hazırlık:**  Daha kapsamlı bir etki seviyesi tespiti mekanizması, gelecekteki geliştirmeleri daha iyi planlamaya olanak sağlayacaktır.  Farklı proje türlerini destekleyen `_detect_project_type` fonksiyonu, gelecekteki genişletilebilirliği artırır.  Ancak,  daha sofistike bir kırıcı değişiklik tespit mekanizması gelecekteki geliştirmelerde düşünülebilir.
+* **Gelecekteki Geliştirmelere Hazırlık:**  Modüler tasarım ve gelişmiş versiyon yönetimi sayesinde, gelecekte yeni özellikler eklemek ve mevcut özellikleri geliştirmek daha kolay olacaktır.  Farklı proje türlerine uyum sağlama yeteneği de gelecekteki ölçeklenebilirliği destekleyecektir.
 
 ## 🛠️ Kurulum (Installation)
 
@@ -212,7 +220,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**Last updated**: June 20, 2025 by Summarizer Framework v8.5.0
+**Last updated**: June 20, 2025 by Summarizer Framework v8.6.0
 *This README is automatically generated and updated based on project activity.*
 
 > *"Automatically maintained with AI-powered analysis"*
