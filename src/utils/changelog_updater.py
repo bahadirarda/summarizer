@@ -437,10 +437,11 @@ def update_changelog(project_root: Optional[Path] = None):
                 # Create PR to target branch
                 target_branch = workflow_decision.get('target_branch', 'develop')
                 
-                if _ask_user(f"   ❔ Push '{current_branch_name}' and create PR to '{target_branch}'?"):
+                if _ask_user(f"   ❔ Push '{current_branch_name}' to remote?"):
                     success, output = git_manager.push(current_branch_name)
                     if success:
                         print("   ✅ Branch pushed successfully.")
+                        # Now handle PR creation/update
                         _handle_pull_request_flow(project_root, git_manager, current_branch_name, target_branch, summary, gemini_client)
                         
                         # Info about main branch protection
@@ -465,10 +466,11 @@ def update_changelog(project_root: Optional[Path] = None):
             elif workflow_decision['workflow'] == 'release':
                 # Special release workflow
                 print("   📦 Following release workflow...")
-                if _ask_user(f"   ❔ Push '{current_branch_name}' for release preparation?"):
+                if _ask_user(f"   ❔ Push '{current_branch_name}' to remote?"):
                     success, output = git_manager.push(current_branch_name)
                     if success:
                         print("   ✅ Release branch pushed.")
+                        # Now handle PR creation for release
                         _handle_pull_request_flow(project_root, git_manager, current_branch_name, 'main', summary, gemini_client)
                     else:
                         print(f"   ❌ Push failed: {output}")
