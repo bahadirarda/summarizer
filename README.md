@@ -1,65 +1,68 @@
-# 🚀 Summarizer Framework
-> Akıllı özetleme, ekran görüntüsü alma ve terminal komut yönetimi özelliklerini birleştiren güçlü ve modüler bir framework.
+# 🚀 project.110620251156
+> Bu web projesi, gelişmiş Git ve GitHub entegrasyonu ile daha verimli bir geliştirme süreci ve gelişmiş sürüm yönetimi sağlamaktadır.  Özetleyici bir çerçeve (Summarizer Framework) olarak da geliştirilmekte olup, ekran görüntüsü alma, GUI ve terminal komut yönetimi gibi özelliklere sahiptir.
 
 ## 📊 Proje Durumu
-Geliştirme aşamasında.  Son güncellemeler, GUI desteği, gelişmiş ekran görüntüsü alma, terminal komutları yönetimi ve iyileştirilmiş changelog ve versiyonlama sistemini içeriyor.  AI destekli "Summarizer Eye" özelliği için temel atılmış durumda (gelecek sürümlerde).
+Proje, aktif geliştirme aşamasındadır.  `git_manager.py` dosyasındaki değişiklikler ile GitHub entegrasyonu önemli ölçüde iyileştirilmiştir. Ancak, `changelog_updater.py` dosyasındaki kodun bir kısmının eksik olması nedeniyle changelog güncelleme süreciyle ilgili tam bir değerlendirme yapılamamıştır. Summarizer Framework ise yeni özellikler kazanmış ve daha modüler bir yapıya kavuşmuştur.  Ancak bu framework'ün kapsamlı testleri hala eksiktir.
 
 
 ## ✨ Özellikler
-* 📄 Çeşitli kaynaklardan metin özetleme
-* 📸 Chrome, Firefox ve Code Editor gibi uygulamaların ekran görüntüsünü alma
-* ⚙️ Komut satırı üzerinden konfigürasyon
-* 🖥️ Kullanıcı dostu grafiksel arayüz (GUI)
-* 终端 Terminal komutlarının kurulumu ve kaldırılması
-* 📊 Sistem durumu raporlama
-* 📝 Otomatik changelog güncellemesi
-* VERSION Gelişmiş versiyon yönetimi
+**Git ve GitHub Entegrasyonu:**
+* Pull Request oluşturma, güncelleme ve sorgulama yetenekleri eklendi.
+* `gh` CLI aracının kullanımı ile gelişmiş Git işlemleri.
+
+**Summarizer Framework:**
+* Komut satırı üzerinden ekran görüntüsü alma (Chrome, Firefox, Code).
+* Grafiksel kullanıcı arayüzü (GUI) desteği.
+* Terminal komutlarının kurulum ve kaldırılması.
+* Sistem durum raporlama (`--status` komutu).
+* Gelişmiş komut satırı argüman işleme (`argparse`).
+* Modüler tasarım ile yeni özelliklerin kolayca eklenmesi.
 
 
 ## Değişen Dosyalar:
-`src/main.py`, `summarizer.py`, `src/core/configuration_manager.py`, `src/utils/version_manager.py`, `src/utils/changelog_updater.py`, `features/parameter_checker.py`, `features/screenshot.py`, `features/terminal_commands.py`, `features/gui_installer.py`, `tests/test_main.py`
+`src/utils/git_manager.py`, `src/utils/changelog_updater.py`, `src/main.py`, `src/core/configuration_manager.py`, `src/utils/version_manager.py`, `features` dizini altındaki modüller (`parameter_checker.py`, `screenshot.py`, `terminal_commands.py`, `gui_installer.py`), `tests/test_main.py`
 
 
 ## ANALİZ GÖREVİ:
 
 ### 1. YAPISAL ANALİZ:
 
-* **Etkilenen Bileşenler ve Katmanlar:** Değişiklikler, projenin neredeyse tüm katmanlarını etkilemiştir.  `src/main.py` ve `summarizer.py` (ana iş mantığı), `src/core/configuration_manager.py` (konfigürasyon), `src/utils` dizini (yardımcı araçlar - özellikle `version_manager.py` ve `changelog_updater.py`), `features` dizini (özellik modülleri) ve `tests` dizini (testler) etkilenmiştir.
+* **Etkilenen Bileşenler:**  Analiz edilen kod değişiklikleri, iki ana proje bileşenini etkilemiştir:  Birincisi, Git ve GitHub entegrasyonunu sağlayan yardımcı araçlar (`src/utils/git_manager.py`, `src/utils/changelog_updater.py`, `src/utils/version_manager.py`); ikincisi ise, özetleyici çerçeve (`src/main.py`, `src/core/configuration_manager.py`, `features` dizini altındaki modüller).  Her iki bileşen de, yardımcı araçlar, iş mantığı ve konfigürasyon yönetimi katmanlarını içermektedir.  `tests` dizini altındaki testler ise kısmen etkilenmiştir.
 
-* **Mimari Değişikliklerin Etkisi:**  Mimari genel olarak korunmuş ancak gelişmiş ve modüler hale getirilmiştir. `features` dizinindeki modüler tasarım, yeni özelliklerin eklenmesini kolaylaştırmıştır.  GUI ve gelişmiş ekran görüntüsü alma gibi yeni özellikler, mevcut mimariye sorunsuz bir şekilde entegre edilmiştir. Versiyon ve changelog yönetimi de `version_manager.py` ve `changelog_updater.py` dosyalarının iyileştirilmesiyle daha sağlam hale getirilmiştir.
+* **Mimari Değişikliklerin Etkisi:** `git_manager.py`'deki değişiklikler, Git ve GitHub ile olan etkileşimi daha sağlam ve modüler hale getirmiştir.  `gh` CLI'nın entegrasyonu, Pull Request yönetimini kolaylaştırmıştır.  Summarizer Framework'te ise modüler tasarımın uygulanması, yeni özelliklerin eklenmesini ve mevcut fonksiyonların iyileştirilmesini kolaylaştırmıştır.  `features` dizini altındaki modüllerin kullanımı, iyi bir modülerlik örneğidir.
 
-* **Kod Organizasyonunda İyileştirmeler:**  `features` dizini, özelliklerin modüler olarak organize edilmesini sağlamıştır. Bu, kodun okunabilirliğini, sürdürülebilirliğini ve bakımı kolaylaştırmıştır. `version_manager.py` ve `changelog_updater.py` dosyalarındaki değişiklikler ise bu dosyaların işlevselliğini daha yapılandırılmış ve modüler hale getirmiştir. Özellikle `changelog_updater.py`'deki `_detect_project_type` fonksiyonunun eklenmesi, changelog oluşturma sürecinin projenin türüne göre özelleştirilmesini sağlamıştır.
+* **Kod Organizasyonunda Yapılan İyileştirmeler:** `git_manager.py`'de yardımcı fonksiyonların (`_run_external_command`, `_run_git_command`) kullanımı kod tekrarını azaltmış ve okunabilirliği artırmıştır. `SyncStatus` enum'unun eklenmesi de okunabilirliği ve bakımı kolaylaştırmıştır. Summarizer Framework'te ise `features` dizininin kullanımı, farklı özelliklerin ayrıştırılmasını ve kodun daha düzenli olmasını sağlamıştır.  `changelog_updater.py` ve `version_manager.py` dosyalarındaki değişiklikler de kodun daha modüler ve anlaşılır olmasına katkıda bulunmuştur, ancak eksik kod parçaları nedeniyle tam değerlendirme yapılamaz.
 
 
 ### 2. İŞLEVSEL ETKİ:
 
-* **Eklenen Özellikler:** GUI desteği (`--gui` komutu), gelişmiş ekran görüntüsü alma (tarayıcıya özgü komutlar), terminal komut yönetimi (kurulum ve kaldırma komutları), sistem durumu raporlama (`--status` komutu) eklenmiştir.
+* **Eklenen Özellikler:**  `git_manager.py`'de `get_existing_pr` ve `update_pr_details` fonksiyonlarının eklenmesiyle, GitHub Pull Request yönetimi otomatikleştirilmiştir. Summarizer Framework'te ise ekran görüntüsü alma (çeşitli uygulamalar için), GUI desteği, terminal komut yönetimi ve sistem durum raporlama gibi yeni özellikler eklenmiştir.
 
-* **Değiştirilen Özellikler:** Komut satırı argümanlarının işlenmesi `argparse` kütüphanesi kullanılarak iyileştirilmiştir. Özetleme fonksiyonunun çağrılma şekli muhtemelen değiştirilmiştir (detaylar eksik).
+* **Değiştirilen Özellikler:**  Summarizer Framework'te komut satırı argüman işleme (`argparse` ile) iyileştirilmiştir.  Özetleme fonksiyonunun çağrılma şekli de muhtemelen değiştirilmiştir.  `version_manager.py` ve `changelog_updater.py` dosyalarındaki değişiklikler, versiyon yönetimi ve değişiklik günlüğü güncelleme süreçlerini iyileştirmiştir.
 
-* **Kaldırılan Özellikler:** Belirtilmemiştir.
+* **Kaldırılan Özellikler:**  Belirlenemedi.
 
-* **Kullanıcı Deneyimi:** Kullanıcı deneyimi, yeni komut satırı seçenekleri, GUI ve daha kapsamlı raporlama ile önemli ölçüde iyileştirilmiştir.
+* **Kullanıcı Deneyimi:**  Git ve GitHub entegrasyonundaki iyileştirmeler, geliştiricilerin verimliliğini artırmıştır. Summarizer Framework'teki yeni özellikler ve GUI desteği, kullanıcılara daha iyi bir deneyim sunmaktadır.
 
-* **Performans, Güvenlik veya Güvenilirlik:** Performans etkisi tam olarak belirlenememektedir.  `version_manager.py` ve `changelog_updater.py` dosyalarındaki değişiklikler, versiyonlama ve changelog yönetimini daha güvenilir hale getirmiştir.  Güvenlik üzerinde doğrudan bir etki gözlenmemiştir.
+* **Performans, Güvenlik veya Güvenilirlik:** `git_manager.py`'deki hata yönetimi ( `try-except` blokları) sayesinde sistemin güvenilirliği artmıştır.  `subprocess` modülünün kullanımı, güvenlik açıklarını azaltmıştır.  Diğer performans, güvenlik ve güvenilirlik etkileri, eksik kod parçaları nedeniyle tam olarak değerlendirilememiştir.
 
 
 ### 3. TEKNİK DERİNLİK:
 
-* **Tasarım Desenleri:** Modülerlik ve Komut (Command) tasarım deseni belirgindir.  `features` dizini modülerliği desteklerken, komut satırı argümanlarının farklı fonksiyonları tetiklemesi Komut desenine işaret etmektedir. `VersionManager` sınıfı tek sorumluluk prensibine (Single Responsibility Principle) uygundur.
+* **Tasarım Desenleri:** `git_manager.py`'de açık bir tasarım deseni kullanımı görülmemektedir. `subprocess` modülü teknik bir uygulama olarak kullanılmıştır. Summarizer Framework'te ise modüler tasarım ve komut deseni (komut satırı argümanları ile farklı fonksiyonların çağrılması) izlenmektedir. `VersionManager` sınıfı tek sorumluluk prensibine uygun tasarlanmıştır.
 
-* **Kod Kalitesi ve Sürdürülebilirlik:** Kod kalitesi, modüler tasarım ve testlerin varlığı sayesinde (testler yetersiz olsa da) iyileştirilmiştir.  `changelog_updater.py`'deki değişiklikler, kodun daha okunabilir ve sürdürülebilir olmasını sağlamıştır.
+* **Kod Kalitesi ve Sürdürülebilirlik:**  `git_manager.py`'deki yardımcı fonksiyonlar ve hata yönetimi, kod kalitesini ve sürdürülebilirliğini artırmıştır.  Summarizer Framework'teki modüler tasarım da sürdürülebilirliğe katkıda bulunmuştur.  Ancak, Summarizer Framework'ün test kapsamının sınırlı olması bir teknik borç olarak değerlendirilebilir.
 
-* **Yeni Bağımlılıklar veya Teknolojiler:** `argparse` kütüphanesinin kullanımı belirgindir. Diğer olası bağımlılıklar, `version_manager.py` ve `changelog_updater.py` dosyalarının incelenmesiyle tespit edilebilir.
+* **Yeni Bağımlılıklar veya Teknolojiler:** `git_manager.py`'de `gh` CLI aracının sistemde kurulu olması gerekir.  Summarizer Framework'te `argparse` kütüphanesi kullanılmaktadır. Diğer olası bağımlılıklar, eksik kod parçaları nedeniyle tespit edilememiştir.
 
 
 ### 4. SONUÇ YORUMU:
 
-* **Uzun Vadeli Değer ve Etki:**  Bu değişiklikler, Summarizer Framework'ün işlevselliğini önemli ölçüde genişletmiş ve kullanıcı deneyimini iyileştirmiştir. Modüler tasarım, gelecekteki geliştirmeleri kolaylaştırmaktadır.  Gelişmiş versiyon ve changelog yönetimi, sürdürülebilirliği artırmaktadır.  AI destekli "Summarizer Eye" özelliğinin gelecekteki eklenmesine zemin hazırlanmıştır.
+* **Uzun Vadeli Değer ve Etki:**  Bu değişiklikler, Git ve GitHub entegrasyonunu geliştirerek ve Summarizer Framework'e yeni özellikler ekleyerek, uzun vadede geliştirme verimliliğini ve kullanıcı deneyimini artıracaktır.
 
-* **Projenin Teknik Borcu:**  Testlerin yetersizliği bir teknik borç olarak kalmaktadır. `_has_breaking_changes` fonksiyonunun basit kural tabanlı yaklaşımı da potansiyel bir teknik borçtur; daha gelişmiş bir mekanizma gelecekte ele alınabilir.
+* **Projenin Teknik Borcu:**  `changelog_updater.py`'deki eksik kod parçası ve Summarizer Framework'ün sınırlı test kapsamı, teknik borç olarak değerlendirilebilir.  `_has_breaking_changes` fonksiyonunun kural tabanlı yaklaşımı da potansiyel bir teknik borçtur.  Ancak, kodun genel okunabilirliği ve modüler tasarımı, teknik borcun yönetilebilir düzeyde kalmasına yardımcı olacaktır.
 
-* **Gelecekteki Geliştirmelere Hazırlık:**  Modüler tasarım ve gelişmiş versiyon yönetimi sayesinde, gelecekte yeni özellikler eklemek ve mevcut özellikleri geliştirmek daha kolay olacaktır.  Farklı proje türlerine uyum sağlama yeteneği de gelecekteki ölçeklenebilirliği destekleyecektir.
+* **Gelecekteki Geliştirmelere Hazırlık:**  `git_manager.py`'deki değişiklikler, gelecekteki GitHub entegrasyonlarını kolaylaştıracaktır.  Summarizer Framework'teki modüler tasarım ise yeni özelliklerin eklenmesini kolaylaştıracaktır.  TODO yorumlarından da anlaşıldığı üzere, AI destekli bir "Summarizer Eye" özelliğinin eklenmesi için temel oluşturulmuştur.
 
 ## 🛠️ Kurulum (Installation)
 
@@ -220,7 +223,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**Last updated**: June 20, 2025 by Summarizer Framework v8.6.0
+**Last updated**: June 20, 2025 by Summarizer Framework v8.7.0
 *This README is automatically generated and updated based on project activity.*
 
 > *"Automatically maintained with AI-powered analysis"*
