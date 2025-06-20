@@ -9,10 +9,11 @@ It handles merging pull requests with appropriate security checks for protected 
 import sys
 import os
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 import subprocess
 import json
 import getpass
+import re
 
 # Add parent directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -128,7 +129,6 @@ Return JSON:
         response = gemini_client.generate_simple_text(prompt)
         
         # Parse JSON from response
-        import re
         json_match = re.search(r'\{.*\}', response, re.DOTALL)
         if json_match:
             return json.loads(json_match.group())
@@ -285,8 +285,68 @@ def execute_merge(pr_to_merge: dict, merge_method: str, project_root: Path, git_
         return False
 
 
+def _get_bulk_ai_analysis(prs: List[Dict], gemini_client: Any) -> Optional[Dict]:
+    """Sends all PRs to AI for a bulk analysis and recommendation."""
+    if not (gemini_client and gemini_client.is_ready()):
+        return None
+
+    pr_data_for_ai = [
+        {
+            "number": pr.get("number"),
+            "title": pr.get("title"),
+            "author": pr.get("author", {}).get("login"),
+            "baseRefName": pr.get("baseRefName"),
+            "headRefName": pr.get("headRefName"),
+            "isDraft": pr.get("isDraft"),
+        }
+        for pr in prs
+    ]
+
+    prompt = f"""
+As a senior DevOps engineer and GitFlow expert, analyze the following list of open pull requests for this project. 
+Your task is to provide a concise summary for each and, most importantly, recommend the SINGLE best PR to merge next.
+
+Here is the list of open PRs in JSON format:
+{json.dumps(pr_data_for_ai, indent=2)}
+
+When making your recommendation, consider:
+- **Urgency:** Hotfixes (`hotfix/`) and Releases (`release/`) have the highest priority.
+- **GitFlow:** Follow the standard flow (feature -> develop -> staging -> main). A PR from develop to staging is a very likely candidate if features have been merged to develop. A release branch going to main is also a top priority.
+- **Risk:** High-impact changes to 'main' are the riskiest. Well-tested, medium-impact fixes are safer.
+- **Dependencies:** If one PR seems to logically precede another, mention it.
+- **Staleness:** Very old PRs might be a sign of problems and should be flagged.
+
+Your response MUST be a single JSON object with the following structure, with no extra text or explanations outside the JSON:
+{{
+  "recommended_pr_number": <number_of_the_best_pr_to_merge>,
+  "recommendation_reason": "A detailed but clear explanation of why this PR is the top choice. Explain the context and next steps.",
+  "analyses": [
+    {{
+      "pr_number": <pr_number>,
+      "one_line_summary": "A very brief, one-sentence summary of the PR's purpose and risk.",
+      "should_merge": true,
+      "merge_method_suggestion": "merge|squash|rebase"
+    }}
+  ]
+}}
+"""
+    try:
+        response_text = gemini_client.generate_simple_text(prompt)
+        
+        # Clean up the response to extract only the JSON
+        json_match = re.search(r'\{.*\}', response_text, re.DOTALL)
+        if json_match:
+            return json.loads(json_match.group())
+        else:
+            print("   ⚠️  AI analysis response was not in the expected JSON format.")
+            return None
+    except Exception as e:
+        print(f"   ❌ Error getting bulk AI analysis: {e}")
+        return None
+
+
 def merge_command(project_root: Path):
-    """Main merge command handler"""
+    """Intelligent PR merge assistant"""
     print("\n🔀 Intelligent PR Merge Assistant")
     print("="*50)
     
@@ -326,69 +386,99 @@ def merge_command(project_root: Path):
     
     # Get open PRs
     print("\n   🔍 Fetching open pull requests...")
-    prs = get_open_prs(project_root)
-    
-    if not prs:
-        print("   ℹ️  No open pull requests found")
+    open_prs = get_open_prs(project_root)
+
+    if not open_prs:
+        print("   ✅ No open pull requests found.")
         return
-    
-    print(f"   ✅ Found {len(prs)} open PR(s)")
-    
-    # Analyze each PR
-    pr_analysis = []
-    for pr in prs:
-        print(f"\n   📊 Analyzing PR #{pr['number']}: {pr['title']}")
-        impact = get_pr_impact_level(pr['number'], project_root, gemini_client)
-        recommendation = get_ai_merge_recommendation(pr, impact, gemini_client)
-        checks_passed = check_pr_status(pr['number'], project_root)
+
+    print(f"   ✅ Found {len(open_prs)} open PR(s)")
+
+    # Get bulk analysis from AI
+    bulk_analysis = None
+    if gemini_client:
+        print("   🤖 Performing bulk AI analysis on all PRs...")
+        bulk_analysis = _get_bulk_ai_analysis(open_prs, gemini_client)
+
+    # -- Display Results --
+    if bulk_analysis and bulk_analysis.get('recommended_pr_number'):
+        recommended_pr_num = bulk_analysis['recommended_pr_number']
+        recommendation_reason = bulk_analysis['recommendation_reason']
         
-        pr_analysis.append({
-            'pr': pr,
-            'impact': impact,
-            'recommendation': recommendation,
-            'checks_passed': checks_passed
-        })
-    
-    # Display analysis
-    print("\n" + "="*50)
-    print("📋 PR Analysis Summary")
-    print("="*50)
-    
-    for i, analysis in enumerate(pr_analysis):
-        pr = analysis['pr']
-        print(f"\n{i+1}. PR #{pr['number']}: {pr['title']}")
+        # Find the recommended PR object
+        recommended_pr = next((pr for pr in open_prs if pr['number'] == recommended_pr_num), None)
+        
+        if recommended_pr:
+            print("\n" + "="*60)
+            print(" " * 20 + "👑 AI Top Recommendation")
+            print("="*60)
+            print(f"   🎯 Merge PR #{recommended_pr_num}: {recommended_pr['title']}")
+            print(f"   🔀  {recommended_pr['headRefName']} → {recommended_pr['baseRefName']}")
+            print("\n   🧠 AI's Reasoning:")
+            # Format reasoning for better readability
+            for line in recommendation_reason.split('\n'):
+                print(f"      {line.strip()}")
+            print("="*60)
+
+    print("\n" + "="*60)
+    print(" " * 22 + "📋 All Open PRs")
+    print("="*60)
+
+    analysis_map = {item['pr_number']: item for item in bulk_analysis.get('analyses', [])} if bulk_analysis else {}
+
+    for i, pr in enumerate(open_prs):
+        pr_num = pr['number']
+        analysis = analysis_map.get(pr_num)
+        
+        # Determine prefix based on recommendation
+        prefix = "👑" if bulk_analysis and pr_num == bulk_analysis.get('recommended_pr_number') else f"{i+1}."
+
+        print(f"\n{prefix} PR #{pr_num}: {pr['title']}")
         print(f"   • Branch: {pr['headRefName']} → {pr['baseRefName']}")
-        print(f"   • Impact: {analysis['impact'].value}")
-        print(f"   • Checks: {'✅ Passed' if analysis['checks_passed'] else '❌ Failed'}")
-        print(f"   • AI Says: {analysis['recommendation']['reasoning']}")
-        if analysis['recommendation'].get('requires_security', False):
-            print(f"   • 🔒 Security: Main branch protection required")
-    
-    # Let user select
-    print("\n" + "="*50)
-    
-    while True:
-        try:
-            choice = input("\n   ❔ Select PR to merge (number) or 'q' to quit: ").strip()
-            
-            if choice.lower() == 'q':
-                print("   👋 Merge cancelled")
+        
+        if analysis:
+            print(f"   • AI Summary: {analysis['one_line_summary']}")
+            print(f"   • Suggested Method: {analysis['merge_method_suggestion'].upper()}")
+        
+        mergeable_str = pr.get('mergeable', 'UNKNOWN')
+        if mergeable_str == 'MERGEABLE':
+            print("   • Status: ✅ Ready to Merge")
+        elif mergeable_str == 'CONFLICTING':
+            print("   • Status: ❌ CONFLICTING")
+        else:
+            print(f"   • Status: ⚠️ {mergeable_str}")
+
+    print("\n" + "="*60)
+
+    # Ask user what to do
+    selected_pr_num = -1
+    if bulk_analysis and bulk_analysis.get('recommended_pr_number'):
+        recommended_pr_num = bulk_analysis.get('recommended_pr_number')
+        if _ask_user(f"\n   ❔ Do you want to proceed with the recommended PR #{recommended_pr_num}?"):
+            selected_pr_num = recommended_pr_num
+        else:
+            choice = input("   ❔ Enter another PR number to merge, or 'q' to quit: ").strip().lower()
+            if choice == 'q': return
+            try:
+                selected_pr_num = int(choice)
+            except ValueError:
+                print("   ❌ Invalid input.")
                 return
-            
-            idx = int(choice) - 1
-            if 0 <= idx < len(pr_analysis):
-                selected = pr_analysis[idx]
-                break
-            else:
-                print("   ❌ Invalid selection")
+    else:
+        choice = input("\n   ❔ Select PR to merge (number) or 'q' to quit: ").strip().lower()
+        if choice == 'q': return
+        try:
+            selected_pr_num = int(choice)
         except ValueError:
-            print("   ❌ Please enter a number or 'q'")
-    
+            print("   ❌ Invalid input.")
+            return
+
+    pr_to_merge = next((p for p in open_prs if p['number'] == selected_pr_num), None)
+
     # Confirm merge
-    pr_to_merge = selected['pr']
-    recommendation = selected['recommendation']
+    recommendation = get_ai_merge_recommendation(pr_to_merge, get_pr_impact_level(selected_pr_num, project_root, gemini_client), gemini_client)
     
-    print(f"\n   🎯 Selected: PR #{pr_to_merge['number']}")
+    print(f"\n   🎯 Selected: PR #{selected_pr_num}")
     
     # Check if already pushed
     sync_status, ahead, _ = git_manager.get_branch_sync_status(git_manager.get_current_branch())
@@ -409,23 +499,6 @@ def merge_command(project_root: Path):
             return
         
         print("   ✅ Security check passed")
-    
-    # Check for failed checks
-    if not selected['checks_passed']:
-        print("\n   ⚠️  Warning: Some checks have not passed!")
-        if input("   ❔ Continue anyway? (y/n): ").lower() != 'y':
-            print("   ❌ Merge cancelled")
-            return
-    
-    # Final confirmation
-    print(f"\n   📋 Ready to merge:")
-    print(f"      • PR: #{pr_to_merge['number']} - {pr_to_merge['title']}")
-    print(f"      • Method: {recommendation['merge_method']}")
-    print(f"      • Target: {pr_to_merge['baseRefName']}")
-    
-    if input("\n   ❔ Proceed with merge? (y/n): ").lower() != 'y':
-        print("   ❌ Merge cancelled")
-        return
     
     # Execute merge
     if execute_merge(pr_to_merge, recommendation['merge_method'], project_root, git_manager):
