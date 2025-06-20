@@ -74,6 +74,11 @@ class GitManager:
         logger.warning(f"Force-pushing '{branch_name}' to remote '{remote_name}'...")
         return self._run_git_command(["push", "--force-with-lease", remote_name, branch_name])
 
+    def force_push_all(self, branch_name: str, remote_name: str = "origin") -> Tuple[bool, str]:
+        """Force push all local changes to remote, overwriting remote history completely"""
+        logger.warning(f"Force-pushing ALL local changes for '{branch_name}' to remote '{remote_name}'...")
+        return self._run_git_command(["push", "--force", remote_name, branch_name])
+
     def is_git_repository(self) -> bool:
         success, _ = self._run_git_command(["rev-parse", "--is-inside-work-tree"])
         return success
