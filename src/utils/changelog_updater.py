@@ -165,16 +165,33 @@ def _handle_pull_request_flow(project_root: Path, git_manager: GitManager, curre
                             print("   ⚠️  WARNING: This PR has merge conflicts!")
                             print("   📝 Conflicts need to be resolved before merging.")
                             
-                            # Offer to resolve conflicts automatically
-                            if _ask_user("\n   ❔ Would you like to try resolving conflicts automatically?"):
-                                if git_manager.resolve_conflicts_with_pr(pr_number):
-                                    print("\n   🎉 Conflicts resolved successfully!")
-                                    print("   📋 The PR has been updated and is ready for review.")
+                            while True:
+                                print("\n   💡 How would you like to proceed?")
+                                print("      1. Attempt to resolve conflicts automatically (merges target into source)")
+                                print("      2. Force push your branch to overwrite remote (DANGEROUS)")
+                                print("      3. Cancel and resolve manually")
+                                choice = input("   Enter your choice (1, 2, or 3): ").strip()
+
+                                if choice == '1':
+                                    if git_manager.resolve_conflicts_with_pr(pr_number):
+                                        print("\n   🎉 Conflicts resolved successfully!")
+                                        print("   📋 The PR has been updated and is ready for review.")
+                                    else:
+                                        print("   ❌ Automatic conflict resolution failed.")
+                                        print("   💡 Please resolve conflicts manually.")
+                                    break
+                                elif choice == '2':
+                                    if git_manager.force_push_with_confirmation(current_branch):
+                                        print("\n   🎉 Force push completed.")
+                                        print("   📋 The PR has been updated and should now be conflict-free.")
+                                    else:
+                                        print("   ❌ Force push was cancelled or failed.")
+                                    break
+                                elif choice == '3':
+                                    print("   ⚪️ Action cancelled. Please resolve conflicts manually.")
+                                    break
                                 else:
-                                    print("   ❌ Automatic conflict resolution failed.")
-                                    print("   💡 Please resolve conflicts manually:")
-                                    print("      • Use GitHub web editor, or")
-                                    print("      • Pull latest changes from target branch and resolve locally")
+                                    print("   ⚠️  Invalid choice. Please enter 1, 2, or 3.")
                         elif conflict_data.get('mergeStateStatus') == 'BLOCKED':
                             print("   ⚠️  PR is blocked (required checks not passed)")
                     except Exception as e:

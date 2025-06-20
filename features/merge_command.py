@@ -204,44 +204,37 @@ def execute_merge(pr_to_merge: dict, merge_method: str, project_root: Path, git_
             print("   ❌ This PR has merge conflicts that must be resolved!")
             print("   📝 Conflicting files need to be resolved before merging.")
             
-            # Offer to resolve conflicts automatically
-            if input("\n   ❔ Would you like to try resolving conflicts automatically? (y/n): ").lower() == 'y':
-                if git_manager.resolve_conflicts_with_pr(pr_to_merge['number']):
-                    print("\n   🎉 Conflicts resolved successfully!")
-                    print("   📋 The PR has been updated with the latest changes.")
-                    print("   ⏳ Waiting for checks to complete...")
-                    
-                    # Give GitHub a moment to update
-                    import time
-                    time.sleep(3)
-                    
-                    # Re-check mergeable status
-                    mergeable_process = subprocess.run(
-                        mergeable_cmd,
-                        cwd=project_root,
-                        capture_output=True,
-                        text=True,
-                        check=True
-                    )
-                    
-                    mergeable_data = json.loads(mergeable_process.stdout)
-                    if mergeable_data.get('mergeable') != 'CONFLICTING':
-                        print("   ✅ PR is now ready to merge!")
+            while True:
+                print("\n   💡 How would you like to proceed?")
+                print("      1. Attempt to resolve conflicts automatically (merges target into source)")
+                print("      2. Force push source branch to overwrite remote (DANGEROUS)")
+                print("      3. Cancel and resolve manually")
+                choice = input("   Enter your choice (1, 2, or 3): ").strip()
+
+                if choice == '1':
+                    print("\n   🔧 Attempting to resolve conflicts automatically...")
+                    if git_manager.resolve_conflicts_with_pr(pr_number):
+                        print("\n   🎉 Conflicts resolved successfully!")
+                        print("   📋 The PR has been updated. You may need to re-run the merge command.")
+                        return True # Indicate that an action was taken, but merge needs re-run
                     else:
-                        print("   ⚠️  Some conflicts may still remain. Manual resolution required.")
-                        return False
+                        print("   ❌ Automatic conflict resolution failed.")
+                        print("   💡 Please resolve conflicts manually.")
+                    break 
+                elif choice == '2':
+                    pr_branch_name = pr_to_merge['headRefName']
+                    if git_manager.force_push_with_confirmation(pr_branch_name):
+                         print("\n   🎉 Force push completed.")
+                         print("   📋 The PR has been updated. You may need to re-run the merge command.")
+                    else:
+                        print("   ❌ Force push was cancelled or failed.")
+                    break
+                elif choice == '3':
+                    print("   ⚪️ Merge cancelled. Please resolve conflicts manually.")
+                    return False # Explicitly stop the merge
                 else:
-                    print("   ❌ Automatic conflict resolution failed.")
-                    print("   💡 Please resolve conflicts manually:")
-                    print("      1. Use GitHub web editor to resolve conflicts")
-                    print("      2. Checkout the branch locally and resolve conflicts")
-                    return False
-            else:
-                print("   💡 Manual conflict resolution required:")
-                print("      1. Use GitHub web editor to resolve conflicts")
-                print("      2. Checkout the branch locally and resolve conflicts")
-                print("      3. Run 'gh pr merge --auto' to auto-merge when conflicts are resolved")
-                return False
+                    print("   ⚠️  Invalid choice. Please enter 1, 2, or 3.")
+            return False
     except Exception as e:
         print(f"   ⚠️  Could not check merge conflicts: {e}")
         # Continue anyway
