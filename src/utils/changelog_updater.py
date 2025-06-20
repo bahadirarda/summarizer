@@ -84,7 +84,7 @@ def _write_next_command(project_root: Path, command: str):
         logger_changelog.error(f"Could not create next_command.sh file: {e}")
 
 
-def _handle_pull_request_flow(project_root: Path, git_manager: GitManager, current_branch: str, target_branch: str, summary: str, gemini_client: Any = None):
+def _handle_pull_request_flow(project_root: Path, git_manager: GitManager, current_branch: str, target_branch: str, summary: str, gemini_client: Any = None, auto_create: bool = True):
     """Handles the pull request creation/update process intelligently and offers next steps."""
     print("   ⏱️  Checking for existing PRs and remote branches...")
     if not git_manager.remote_branch_exists(target_branch):
@@ -124,8 +124,12 @@ def _handle_pull_request_flow(project_root: Path, git_manager: GitManager, curre
         if not git_manager.remote_branch_exists(current_branch):
             print(f"   ⚠️  Branch '{current_branch}' has not been pushed to remote yet.")
             return
-            
-        if _ask_user(f"   ❔ Create a new Pull Request from '{current_branch}' to '{target_branch}'?"):
+        
+        # If auto_create is True (from AI workflow), create PR automatically
+        # Otherwise ask the user
+        should_create = auto_create or _ask_user(f"   ❔ Create a new Pull Request from '{current_branch}' to '{target_branch}'?")
+        
+        if should_create:
             print("   🤖 Generating AI-powered pull request details...")
             new_body = git_manager.generate_pull_request_body(summary, gemini_client)
             print(f"   📝 PR Title: {pr_title}")
