@@ -1,133 +1,107 @@
+```markdown
 # 🚀 project.110620251156
-
-> Web tabanlı özetleme aracınızı daha da güçlendirdik! CLI yetenekleri, kullanıcı arayüzü seçenekleri ve AI entegrasyonu ile projenizi geleceğe taşıyoruz.
+> Web projesi, komut satırı arayüzü (CLI) ve grafik kullanıcı arayüzü (GUI) entegrasyonu ile özetleme yeteneklerini güçlendiren, modüler ve genişletilebilir bir yapı sunar. Kullanıcı deneyimini iyileştirmeye ve gelecekteki geliştirmelere zemin hazırlamaya odaklanılmıştır.
 
 ## 📊 Proje Durumu
-
-✅ Yeni özellikler eklendi ve mevcut işlevsellikler iyileştirildi. Uygulama, kullanıcıların farklı ihtiyaçlarına cevap verebilecek şekilde genişletildi. Google Gemini API entegrasyonu ile AI destekli özetleme özelliği kullanıma sunuldu (API anahtarı gereklidir).  Kod kalitesi ve modülerlik artırılarak projenin sürdürülebilirliği sağlandı.
+✅ Geliştirme aşamasında, yeni özellikler ekleniyor ve mevcut özellikler iyileştiriliyor. Google Gemini API entegrasyonu ile AI destekli özetleme yetenekleri de projeye dahil edilmiştir. 🚧 `TODO` yorumları, projenin hala geliştirme aşamasında olduğunu ve bazı iyileştirmelere ihtiyaç duyulduğunu gösteriyor.
 
 ## ✨ Özellikler
-
-*   **📸 Ekran Görüntüsü Alma:** Belirli bir uygulamanın veya tüm ekranın görüntüsünü alıp analiz edebilirsiniz.
-*   **⚙️ GUI Yapılandırması:** Grafik arayüzü ile kolayca kurulum ve yapılandırma yapabilirsiniz.
-*   **💾 Terminal Komutları:** Terminal komutlarını kurup kaldırarak sistemi yönetebilirsiniz.
-*   **🚦 Durum Kontrolü:** Sistem bileşenlerinin durumunu takip edebilirsiniz.
-*   **🤖 AI Destekli Özetleme:** Google Gemini API ile daha akıllı özetler oluşturabilirsiniz (API anahtarı gereklidir).
-*   **🤝 Otomatik Issue Kapatma:** PR birleştirildikten sonra ilgili issue'lar otomatik olarak kapatılır.
+*   💻 Komut satırı arayüzü (CLI) ile kolay kullanım
+*   🖼️ Ekran görüntüsü alma ve analiz etme
+*   🎨 Grafik kullanıcı arayüzü (GUI) entegrasyonu (kurulum ve yapılandırma)
+*   ⚙️ Terminal komutunu kurma ve kaldırma
+*   ✔️ Sistem durumu kontrolü
+*   🤖 Google Gemini API ile yapay zeka destekli özetleme (API anahtarı gerektirir)
+*   🧩 Modüler tasarım ile kolay genişletilebilirlik
+*   📄 Detaylı hata yönetimi ve logging
 
 ## Değişen Dosyalar:
-* features/merge_command.py
-* src/utils/git_manager.py
-* summarizer.py
-* src/services/gemini_client.py
-* features/parameter_checker.py
-* features/screenshot.py
-* features/terminal_commands.py
-* features/gui_installer.py
-* src/main.py
-* src/utils/version_manager.py
-* src/utils/changelog_updater.py
+summarizer.py
+features/merge_command.py
+features/parameter_checker.py
+features/screenshot.py
+features/terminal_commands.py
+features/gui_installer.py
+src/services/gemini_client.py
+src/utils/version_manager.py
+src/utils/git_manager.py
+src/utils/changelog_updater.py
 
 ## ANALİZ GÖREVİ:
 
 ### 1. YAPISAL ANALİZ:
 
-*   **Etkilenen Sistem Bileşenleri ve Katmanlar:**
+-   **Etkilenen Sistem Bileşenleri ve Katmanlar:**
+    *   **Sunum Katmanı:** `summarizer.py` ana giriş noktası ve CLI arayüzü olarak, argüman ayrıştırma ve komut yönlendirme süreçleri güncellendi.
+    *   **Özellik Katmanı:** `features` altındaki modüller (örneğin `screenshot.py`, `gui_installer.py`) yeni komutlar ve işlevselliklerle (ekran görüntüsü alma, GUI kurulumu) zenginleştirildi.
+    *   **Servis Katmanı:** `src/services/gemini_client.py` dış servis entegrasyonunu (Google Gemini API) sağlarken, `src/utils` altındaki modüller (versiyon yönetimi, git işlemleri, değişiklik günlüğü) temel sistem fonksiyonlarını destekliyor.
+    *   **Çekirdek Mantık:** `src/main.py` içindeki `_summarizer` fonksiyonu dolaylı olarak etkilendi; özetleme işleminin tetiklenme ve konfigüre edilme şekli değiştirildi.
 
-    *   **Sunum Katmanı (Entry Point):** `summarizer.py`, CLI arayüzünü yönetir ve ana kontrol akışını sağlar. Değişiklikler, komut ayrıştırma mantığını ve yeni komutların tanımlanmasını içerir. Bu katman, kullanıcının uygulamayla etkileşimini doğrudan etkiler.
-    *   **Özellik Katmanı:** `features` klasöründeki modüller (`merge_command.py`, `parameter_checker.py`, `screenshot.py`, `terminal_commands.py`, `gui_installer.py`) belirli işlevleri (ekran görüntüsü alma, parametre kontrolü, terminal komutu yönetimi, GUI kurulumu) içerir. Bu modüller, CLI komutlarının işlevselliğini sağlar ve uygulamayı modüler hale getirir. `merge_command.py` deki değişiklikler, birleştirme operasyonunun güvenliğini ve otomasyonunu sağlamayı hedefler.
-    *   **Servis Katmanı:** `src/services/gemini_client.py`, harici bir AI servisi olan Google Gemini API ile entegrasyonu yönetir. `src/utils/` altındaki `version_manager.py`, `git_manager.py` ve `changelog_updater.py` ise sırasıyla versiyon yönetimi, Git işlemleri ve değişiklik günlüğü oluşturma gibi temel sistem fonksiyonlarını kapsar.  `git_manager.py`'e eklenen fonksiyonlar otomatik issue kapatma gibi işlevleri destekler ve diğer modüller tarafından da kullanılabilir.
-    *   **Çekirdek Mantık:** `src/main.py` içindeki `_summarizer` fonksiyonu, ana özetleme mantığını temsil eder. Sunum katmanındaki değişiklikler aracılığıyla doğrudan etkilenmese de, yeni CLI argümanları ve özellikler bu fonksiyonun davranışını dolaylı olarak etkileyebilir.
+-   **Mimari Değişikliklerin Etkisi:**
+    *   **Genişletilebilirlik:** Modüler tasarım, yeni özelliklerin (ekran görüntüsü alma, GUI) nispeten kolay eklenmesini sağladı. `summarizer.py`, argüman ayrıştırma ve komut yönlendirmede merkezi bir rol oynayarak bu esnekliği destekliyor.
+    *   **Bağımlılık Yönetimi:** `GeminiClient` entegrasyonu, harici bir servise bağımlılık ekledi (Google Gemini API). Bu, konfigürasyon (API anahtarının yönetimi) ve hata yönetimi (API kullanılamadığında fallback mekanizmaları) açısından karmaşıklığı artırdı. Ortam değişkenlerinin kullanılması bağımlılığı bir nebze hafifletiyor.
+    *   **Ayrışma:** Yardımcı araçların (`src/utils`) ana özetleme mantığından ayrılması, kodun okunabilirliğini ve sürdürülebilirliğini artırıyor.
 
-*   **Mimari Değişikliklerin Etkisi:**
-
-    *   **Genişletilebilirlik:** Yeni özelliklerin (ekran görüntüsü alma, GUI, AI entegrasyonu) modüler bir şekilde eklenmesi, uygulamanın genel mimarisinin genişletilebilir olduğunu gösterir. `summarizer.py`, argüman ayrıştırma ve komut gönderme yapısının merkezi noktası olarak bu esnekliği destekler.
-    *   **Bağımlılık Yönetimi:** `GeminiClient` entegrasyonu, harici bir servise (Google Gemini API) olan bağımlılığı artırır. Bu, API anahtarı yönetimi, hata yönetimi ve servis kullanılabilirliği konularında ek karmaşıklık getirir. Ortam değişkenlerinin kullanımı (örn. `GEMINI_API_KEY`), anahtarları kodda saklama riskini azaltır ancak güvenli depolama gerekliliğini ortadan kaldırmaz.
-    *   **Ayırma (Separation of Concerns):** Yardımcı araçların (`src/utils`) ana özetleme mantığından ayrılması, kodun okunabilirliğini, sürdürülebilirliğini ve test edilebilirliğini artırır.  Git işlemleriyle ilgili fonksiyonların `git_manager.py` içerisinde toplanması da bu prensibe uygundur.
-
-*   **Kod Organizasyonunda Hangi İyileştirmeler Yapıldı?**
-
-    *   **Modülerlik:** Özelliklerin ayrı modüllerde (örn., `features/screenshot.py`) toplanması, kod organizasyonunu ve yeniden kullanılabilirliği önemli ölçüde iyileştirir.
-    *   **API İstemci Entegrasyonu:** `GeminiClient`'ın `RequestManager`'a kaydedilmesi, istemci yönetimini merkezileştirerek diğer bileşenlerin AI özetleme yeteneklerine daha kolay erişmesini sağlar. Bu, gelecekte farklı AI hizmetlerinin entegrasyonunu kolaylaştırır.
-    *   **Hata Yönetimi:** `GeminiClient` ve `merge_command.py`'deki hata yönetimi ve logging mekanizmaları, API konfigürasyonundaki sorunları ve birleştirme hatalarını daha iyi tespit etmeye ve çözmeye yardımcı olur.  `merge_command.py` de issue kapatma adımı için ayrı bir try-except bloğu kullanılması, hataların birleştirme işlemini tamamen durdurmasını engeller.
-    *   Enum kullanılarak birleştirme statüsünün tanımlanması, kodun okunabilirliğini ve anlaşılırlığını artırır.
+-   **Kod Organizasyonunda Yapılan İyileştirmeler:**
+    *   **Modülerlik:** Özelliklerin ayrı modüllerde (örneğin, `features/screenshot.py`) toplanması, kod organizasyonunu iyileştiriyor ve yeniden kullanılabilirliği artırıyor.
+    *   **API İstemci Entegrasyonu:** `GeminiClient`'ın `RequestManager`'a kaydedilmesi, istemci yönetimini merkezileştirerek diğer bileşenlerin AI özetleme yeteneklerine daha kolay erişmesini sağlıyor.
+    *   **Hata Yönetimi:** `GeminiClient`'taki hata yönetimi ve logging mekanizmaları, API konfigürasyonundaki sorunları daha iyi tespit etmeye ve çözmeye yardımcı oluyor (API anahtarı eksik olduğunda uygun uyarılar).
 
 ### 2. İŞLEVSEL ETKİ:
 
-*   **Hangi Özellikler Eklendi, Değiştirildi veya Kaldırıldı?**
-
-    *   **Yeni Özellikler:**
-        *   Komut satırından ekran görüntüsü alma (`summarizer screenshot`, `summarizer ss`).
+-   **Eklenen, Değiştirilen veya Kaldırılan Özellikler:**
+    *   **Eklenen Özellikler:**
+        *   Ekran görüntüsü alma (`summarizer screenshot`, `summarizer ss`).
         *   GUI konfigürasyonunu başlatma (`summarizer --gui`).
         *   Terminal komutunu kurma/kaldırma (`summarizer --install-terminal`, `summarizer --uninstall-terminal`).
         *   Sistem durumu kontrolü (`summarizer --status`).
-        *   AI özetleme için Google Gemini API entegrasyonu (`GeminiClient`).
-        *   Otomatik Issue Kapatma (PR merge edildikten sonra).
+        *   AI özetleme (Google Gemini API entegrasyonu).
     *   **Değiştirilen Özellikler:**
-        *   Ana özetleme fonksiyonu (`_summarizer`) hala çalışır durumda, ancak komut satırı argümanları ile konfigürasyon seçenekleri zenginleştirilmiş. Bu fonksiyonun davranışını dolaylı olarak etkileyen bir dizi özellik eklendi.
-        *   `summarizer.py`'nin ana giriş noktası, yeni komutları ve özellikleri destekleyecek şekilde genişletilmiş. Argüman ayrıştırma ve komut yönlendirme mantığı güncellendi.
+        *   Ana özetleme fonksiyonu (`_summarizer`) hala çalışır durumda, ancak komut satırı argümanları ile konfigürasyon seçenekleri genişletilmiş.
     *   **Kaldırılan Özellikler:** Açıkça kaldırılan bir özellik belirtilmemiş.
 
-*   **Kullanıcı Deneyimi Nasıl Etkilendi?**
+-   **Kullanıcı Deneyimi Nasıl Etkilendi:**
+    *   **Geliştirilmiş Erişilebilirlik:** CLI araçları ve GUI konfigürasyonu, kullanıcıların özetleme araçlarına farklı yollardan erişmesini sağlıyor, böylece farklı beceri seviyelerine sahip kullanıcılara hitap ediliyor.
+    *   **Artan Özellik Seti:** Yeni özellikler (ekran görüntüsü alma, sistem durumu), kullanıcıların belirli kullanım durumlarına göre özetleme aracını uyarlamasına olanak tanıyor.
+    *   **AI Entegrasyonu:** Gemini API entegrasyonu (API anahtarı mevcutsa), özetlerin kalitesini ve doğruluğunu potansiyel olarak artırıyor.
 
-    *   **Geliştirilmiş Erişilebilirlik:** Komut satırı araçları ve GUI konfigürasyonu, kullanıcıların özetleme araçlarına farklı yollardan erişmesini sağlıyor. Bu, teknik bilgisi farklı seviyelerde olan kullanıcılara hitap edilmesini sağlar.
-    *   **Artan Özellik Seti:** Yeni özellikler (örneğin, ekran görüntüsü alma), kullanıcıların belirli kullanım durumlarına göre özetleme aracını uyarlamasına olanak tanıyor. Bu, uygulamanın esnekliğini ve kullanışlılığını artırır.
-    *   **AI Entegrasyonu:** Gemini API entegrasyonu, özetlerin kalitesini ve doğruluğunu potansiyel olarak artırıyor (API anahtarı mevcutsa). Bu, özetleme aracının temel işlevselliğini geliştirir.
-    *   **Kolaylaştırılmış Geliştirme Süreci**: Otomatik issue kapatma, geliştiricilerin manuel iş yükünü azaltır ve süreci daha verimli hale getirir.
-    *   **Daha Detaylı Bilgilendirme**: Daha detaylı çıktılar sayesinde, birleştirme sürecinin hangi aşamasında ne olduğu kullanıcı tarafından daha net bir şekilde görülebilir.
-
-*   **Performans, Güvenlik veya Güvenilirlik Üzerindeki Etkiler:**
-
-    *   **Performans:** Ekran görüntüsü alma gibi bazı özellikler, performans üzerinde etkiye sahip olabilir. Özellikle büyük ekran görüntüleri işlenirken optimizasyon gerekebilir. AI ile özetleme, API yanıt süresine bağlı olarak performansı etkileyebilir.
-    *   **Güvenlik:** Harici API anahtarlarının (örn. `GEMINI_API_KEY`) güvenli bir şekilde saklanması ve yönetilmesi önemlidir. Ortam değişkenlerinin kullanımı, anahtarları kodda saklama riskini azaltır ancak siber güvenlik prensiplerine uyulması şarttır.
-    *   **Güvenilirlik:** `GeminiClient`'taki hata yönetimi ve fallback mekanizmaları (API anahtarı yoksa), dış servis kullanılamaz olduğunda bile sistemin çalışmaya devam etmesini sağlamaya yardımcı olur. Otomatik issue kapatma işleminin başarılı olması için `gh` CLI aracının doğru şekilde yapılandırılmış olması ve gerekli izinlere sahip olması gerekir.
+-   **Performans, Güvenlik veya Güvenilirlik Üzerindeki Etkiler:**
+    *   **Performans:** Ekran görüntüsü alma gibi bazı özellikler, özellikle büyük ekran görüntüleri işlenirken performans üzerinde etkiye sahip olabilir. API'den veri çekme süreçleri de uygulamanın genel hızını etkileyebilir.
+    *   **Güvenlik:** Harici API anahtarlarının (örn. `GEMINI_API_KEY`) güvenli bir şekilde saklanması ve yönetilmesi kritik öneme sahip. Ortam değişkenlerinin kullanımı, anahtarları kodda saklama riskini azaltır. GUI tarafındaki güvenlik açıkları da potansiyel risk oluşturabilir.
+    *   **Güvenilirlik:** `GeminiClient`'taki hata yönetimi ve fallback mekanizmaları (API anahtarı yoksa), dış servis kullanılamaz olduğunda bile sistemin çalışmaya devam etmesini sağlamaya yardımcı oluyor. Modüler tasarım, hataların tüm sistemi etkileme olasılığını azaltır.
 
 ### 3. TEKNİK DERINLIK:
 
-*   **Uygulanan veya Değiştirilen Tasarım Desenleri:**
+-   **Uygulanan veya Değiştirilen Tasarım Desenleri:**
+    *   **Komut Deseni:** Komut satırı argümanlarını işleme ve ilgili eylemleri tetikleme (ekran görüntüsü alma, GUI başlatma, vb.), komut deseninin bir uygulaması olarak değerlendirilebilir.
+    *   **Fabrika Deseni (İmali):** `GeminiClient`, API anahtarı olup olmamasına bağlı olarak farklı bir şekilde başlatılabilir, bu da bir tür fabrika deseninin basitleştirilmiş bir uygulamasıdır. İstemci nesnesinin oluşturulma şekli bu deseni andırıyor.
+    *   **Singleton Deseni (İmali):** `RequestManager`, tüm bileşenler arasında tutarlı erişimi garanti etmek için tek bir örneğe sahip olabilir, ancak bu durum kodda açıkça belirtilmemiş.
 
-    *   **Komut Deseni:** Komut satırı argümanlarını işleme ve ilgili eylemleri tetikleme, komut deseninin bir uygulaması olarak görülebilir. `summarizer.py` bu deseni uygulamak için bir kontrol merkezi görevi görür.
-    *   **Fabrika Deseni (İmali):** `GeminiClient`, API anahtarı olup olmamasına bağlı olarak farklı bir şekilde başlatılabilir, bu da bir tür fabrika deseninin basitleştirilmiş bir uygulamasıdır. Bu, istemci nesnesinin oluşturulmasını istemci kodundan ayırır.
-    *   **Singleton Deseni (İmali):** `RequestManager`, tüm bileşenler arasında tutarlı erişimi garanti etmek için tek bir örneğe sahip olabilir. Bu, kaynak kullanımını optimize eder ve tutarlılığı sağlar.
-    *   **Facade Pattern:** `git_manager.py` dosyası, alt düzey Git komutlarını daha yüksek seviyeli ve kullanımı kolay fonksiyonlar aracılığıyla sunarak bir facade görevi görür. Bu, `merge_command.py` dosyasının karmaşık Git komutlarıyla doğrudan etkileşim kurmasını engeller ve kodu daha okunabilir ve bakımı kolay hale getirir.
-    *   **Strategy Pattern (Örtülü):** Farklı birleştirme stratejileri (örneğin, squash merge, rebase merge) uygulamak için `git_manager.py`'de farklı fonksiyonlar oluşturulabilir ve `merge_command.py` bu stratejiler arasında seçim yapabilir.
+-   **Kod Kalitesi ve Sürdürülebilirlik Nasıl Gelişti:**
+    *   **Modülerlik:** Kodun modüler yapısı, okunabilirliği ve sürdürülebilirliği artırıyor. Yeni özellikler eklemek ve mevcut olanları değiştirmek daha kolay hale geliyor.
+    *   **Logging:** `GeminiClient` ve diğer modüllerdeki kapsamlı logging, hata ayıklamayı ve sorun gidermeyi kolaylaştırıyor. Olayların kaydedilmesi, sistem davranışını izlemeyi sağlıyor.
+    *   **Hata Yönetimi:** `GeminiClient`'taki detaylı hata yönetimi, uygulamanın daha sağlam ve hataya dayanıklı olmasını sağlıyor. Hata senaryolarının ele alınması, beklenmedik durumların önüne geçilmesine yardımcı oluyor.
 
-*   **Kod Kalitesi ve Sürdürülebilirlik Nasıl Gelişti?**
-
-    *   **Modülerlik:** Kodun modüler yapısı, okunabilirliği ve sürdürülebilirliği artırıyor. Farklı özelliklerin ayrı modüllerde tutulması, bakım ve geliştirmeyi kolaylaştırır.
-    *   **Logging:** `GeminiClient`, `merge_command.py` ve diğer modüllerdeki kapsamlı logging, hata ayıklamayı ve sorun gidermeyi kolaylaştırıyor.
-    *   **Hata Yönetimi:** `GeminiClient` ve `merge_command.py`'deki detaylı hata yönetimi, uygulamanın daha sağlam ve hataya dayanıklı olmasını sağlıyor.
-    *   Kod, PEP 8 standartlarına uygun olarak yazılmıştır.
-    *   Fonksiyonlar, tek bir sorumluluğa sahip olacak şekilde tasarlanmıştır (Single Responsibility Principle).
-    *   Docstring'ler kullanılarak kodun belgelendirilmesi sağlanmıştır.
-    *   Type hinting kullanılarak kodun okunabilirliği ve anlaşılırlığı artırılmıştır.
-    *   Enum kullanımı kodun okunabilirliğini ve anlaşılırlığını artırmanın yanı sıra, olası hataları da azaltır.
-
-*   **Yeni Bağımlılıklar veya Teknolojiler Eklendi mi?**
-
-    *   **Google Gemini API:** AI özetleme yetenekleri için yeni bir bağımlılık. Bu, projenin harici bir servise olan bağımlılığını artırır.
-    *   (Kod örneğinde açıkça belirtilmemiş olsa da) Ekran görüntüsü alma ve GUI özellikleri için ek bağımlılıklar (örn. `PyQt`, `PIL`) eklenmiş olabilir.  Bu bağımlılıkların yönetimi ve lisansları dikkate alınmalıdır.
-    *   `gh` CLI aracı (otomatik issue kapatma için) zaten var olan bir bağımlılık olmasına rağmen, bu özelliğin düzgün çalışması için sistemde kurulu ve doğru şekilde yapılandırılmış olması gereklidir.
+-   **Yeni Bağımlılıklar veya Teknolojiler Eklendi mi:**
+    *   **Google Gemini API:** AI özetleme yetenekleri için yeni ve önemli bir bağımlılık.
+    *   Ekran görüntüsü alma (`PIL/Pillow`, `mss` gibi) ve GUI özellikleri (`PyQt`, `Tkinter`, `wxPython` gibi) için ek bağımlılıklar eklenmiş *olabilir*, ancak kod örneklerinde bu açıkça belirtilmemiş. Bu kütüphanelerin lisansları ve versiyon uyumluluğu dikkate alınmalı.
 
 ### 4. SONUÇ YORUMU:
 
-*   **Bu Değişikliklerin Uzun Vadeli Değeri ve Etkisi Nedir?**
+-   **Bu Değişikliklerin Uzun Vadeli Değeri ve Etkisi Nedir:**
+    *   **Geliştirilmiş İşlevsellik:** Yeni özellikler ve AI entegrasyonu, özetleme aracının işlevselliğini ve değerini artırıyor. Kullanıcıların farklı ihtiyaçlarına cevap verebilecek daha kapsamlı bir araç haline geliyor.
+    *   **Artan Kullanıcı Tabanı:** Farklı erişim yöntemleri (komut satırı, GUI), daha geniş bir kullanıcı kitlesine ulaşılmasını sağlıyor. Teknik bilgisi farklı seviyelerde olan kullanıcılar için erişilebilirlik artıyor.
+    *   **Gelecek Geliştirmeler İçin Temel:** Modüler tasarım, gelecekte yeni özellikler eklemeyi ve mevcut özellikleri geliştirmeyi kolaylaştırıyor. Altyapı sağlamlaştırılıyor.
 
-    *   **Geliştirilmiş İşlevsellik:** Yeni özellikler (ekran görüntüsü alma, GUI, otomatik issue kapatma) ve AI entegrasyonu, özetleme aracının işlevselliğini ve değerini artırıyor. Kullanıcıların farklı ihtiyaçlarına cevap verebilecek şekilde uygulamanın yetenekleri genişletildi.
-    *   **Artan Kullanıcı Tabanı:** Farklı erişim yöntemleri (komut satırı, GUI), daha geniş bir kullanıcı kitlesine ulaşılmasını sağlıyor. Teknik bilgisi farklı seviyelerde olan kullanıcılara hitap edilmesi, projenin benimsenme potansiyelini artırır.
-    *   **Gelecek Geliştirmeler İçin Temel:** Modüler tasarım, gelecekte yeni özellikler eklemeyi kolaylaştırıyor. API istemci yönetimi, birden fazla AI hizmeti entegre etme veya mevcut olanları değiştirme esnekliği sunuyor. Bu değişiklikler, projenin gelecekteki geliştirmeler için sağlam bir temel oluşturmasını sağlar.
+-   **Projenin Teknik Borcu Nasıl Etkilendi:**
+    *   **Potansiyel Artış:** Yeni bağımlılıklar (Google Gemini API, olası GUI kütüphaneleri) ve karmaşıklık (GUI, AI entegrasyonu), teknik borcu artırabilir. Harici servislerin kullanımı ve entegrasyonu ek bakım maliyetleri getirebilir.
+    *   **Azaltma Potansiyeli:** Modüler tasarım, kapsamlı logging ve detaylı hata yönetimi, teknik borcu yönetmeye ve azaltmaya yardımcı olabilir. İyi tasarlanmış kod, gelecekteki değişiklikleri kolaylaştırır ve hataları azaltır.
 
-*   **Projenin Teknik Borcu Nasıl Etkilendi?**
-
-    *   **Potansiyel Artış:** Yeni bağımlılıklar (örneğin, Google Gemini API) ve karmaşıklık (GUI), teknik borcu artırabilir. Harici servis bağımlılıklarının yönetimi, kodun bakımı ve güncellenmesi gibi konularda ek yük getirebilir.
-    *   **Azaltma Potansiyeli:** Modüler tasarım ve kapsamlı logging, teknik borcu yönetmeye ve azaltmaya yardımcı olabilir. Kodun okunabilirliği, test edilebilirliği ve sürdürülebilirliği artırılarak teknik borcun birikmesi önlenebilir.
-
-*   **Gelecekteki Geliştirmelere Nasıl Hazırlık Yapıldı?**
-
-    *   **Modüler Tasarım:** Yeni özelliklerin kolayca eklenmesini sağlıyor. Yeni işlevsellikler eklemek için modüllerin bağımsız olarak geliştirilmesine olanak tanır.
-    *   **API İstemci Yönetimi:** Birden fazla AI hizmeti entegre etme veya mevcut olanları değiştirme esnekliği sunuyor. Farklı AI servislerinin denenmesi ve en uygun olanının seçilmesi için bir platform sağlar.
-    *   Birleştirme süreci daha otomatikleştirilmiş ve güvenilir hale getirildiğinden, gelecekteki birleştirme işlemlerinin sorunsuz bir şekilde gerçekleştirilmesi sağlanır.
-    *   **TODO Yorumları:** Geliştiricilere gelecekteki iyileştirmeler için yol gösteriyor (örn. otomatik release tespiti, kişisel bilgi havuzu, AI destekli kod analizi). Bu yorumlar, projenin gelecekteki yol haritasını belirlemeye yardımcı olur.
+-   **Gelecekteki Geliştirmelere Nasıl Hazırlık Yapıldı:**
+    *   **Modüler Tasarım:** Yeni özelliklerin kolayca eklenmesini ve mevcut olanların değiştirilmesini sağlıyor. Esnek bir yapı sunuluyor.
+    *   **API İstemci Yönetimi:** Birden fazla AI hizmeti entegre etme veya mevcut olanları değiştirme esnekliği sunuyor. Farklı AI sağlayıcılarına geçiş kolaylaştırılıyor.
+    *   **TODO Yorumları:** Geliştiricilere gelecekteki iyileştirmeler için yol gösteriyor (örneğin, otomatik release tespiti, kişisel bilgi havuzu, AI destekli kod analizi). Geliştirme potansiyeli olan alanlar işaretleniyor.
+```
 
 ## 🛠️ Kurulum (Installation)
 
@@ -288,7 +262,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**Last updated**: June 20, 2025 by Summarizer Framework v15.16.5
+**Last updated**: June 20, 2025 by Summarizer Framework v15.16.6
 *This README is automatically generated and updated based on project activity.*
 
 > *"Automatically maintained with AI-powered analysis"*
