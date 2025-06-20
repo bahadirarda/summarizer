@@ -1,11 +1,12 @@
 import logging
 from datetime import datetime
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Any
 import re
 import sys
 import subprocess
 import urllib.parse
+import time
 
 from .file_tracker import (  # Import for getting changed files
     get_changed_files_since_last_run,
@@ -16,7 +17,7 @@ from .file_tracker import (  # Import for getting changed files
 from .json_changelog_manager import JsonChangelogManager, ImpactLevel, ChangeType
 from .readme_generator import update_readme
 from .version_manager import VersionManager
-from .git_manager import GitManager
+from .git_manager import GitManager, SyncStatus
 
 logger_changelog = logging.getLogger(__name__)
 
@@ -83,42 +84,45 @@ def _write_next_command(project_root: Path, command: str):
         logger_changelog.error(f"Could not create next_command.sh file: {e}")
 
 
-def _handle_pull_request_flow(project_root: Path, git_manager: GitManager, current_branch: str, target_branch: str, pr_body: str):
-    if _ask_user(f"   ❔ Create a Pull Request to '{target_branch}'?"):
-        if not _run_ci_checks(project_root):
-            if not _ask_user("   ⚠️  CI checks failed. Proceed with PR anyway?"):
+def _handle_pull_request_flow(project_root: Path, git_manager: GitManager, current_branch: str, target_branch: str, summary: str, gemini_client: Any = None):
+    """Handles the pull request creation/update process intelligently and offers next steps."""
+    print("   ⏱️  Checking for existing PRs and remote branches...")
+    if not git_manager.remote_branch_exists(target_branch):
+        print(f"   ❌ Target branch '{target_branch}' does not exist on the remote. Please push it first.")
+        return
+    git_manager.fetch_updates()
+    if not git_manager.has_diff_between_branches(f"origin/{target_branch}", f"origin/{current_branch}"):
+        print(f"   ⚪️ No new commits to merge. A Pull Request is not needed.")
+        return
+    
+    existing_pr = git_manager.get_existing_pr(current_branch)
+    current_version = VersionManager(project_root).get_current_version()
+    pr_title = f"feat: Release v{current_version} - Automated Changelog Update"
+    
+    if existing_pr:
+        print(f"   ✅ An open pull request already exists: {existing_pr['url']}")
+        prompt = (f"   ❔ The existing PR will be updated with your latest commits and a new description.\n"
+                  f"      This will overwrite the PR's current title and body. Continue?")
+        if _ask_user(prompt):
+            print(f"   🚀 Force-pushing '{current_branch}' to update PR content...")
+            push_success, _ = git_manager.force_push(current_branch)
+            if not push_success:
+                print("   ❌ Failed to push updates to the PR branch. Aborting update.")
                 return
-
-        if not git_manager.has_remote():
-            if _ask_user("   ⚠️  No remote 'origin' found. Add one now?"):
-                remote_url = input("   > Enter repo URL: ")
-                if not (remote_url and git_manager.add_remote(remote_url)):
-                     print("   ❌ Failed to add remote. Aborting push.")
-                     return
+            print("   🤖 Generating updated AI-powered pull request body...")
+            new_body = git_manager.generate_pull_request_body(summary, gemini_client)
+            if git_manager.update_pr_details(existing_pr['number'], pr_title, new_body):
+                print("   ✅ Successfully updated the existing pull request with the latest changes.")
             else:
-                print("   ❌ Push aborted by user.")
-                return
-        
-        if not _ask_user(f"   ❔ CI checks passed. Push '{current_branch}' to remote to prepare PR?"):
-            print("   ❌ Push aborted by user.")
-            return
-
-        success, output = git_manager.push(current_branch)
-        if success:
-            remote_url = git_manager.get_remote_url()
-            branch_parts = current_branch.split('/')
-            if len(branch_parts) > 1:
-                # Handles branches like 'feature/new-login' or 'feature/team/new-button'
-                pr_title = f"{branch_parts[0].capitalize()}: {'-'.join(branch_parts[1:])}"
-            else:
-                # Fallback for branches without a '/' like 'develop'
-                pr_title = f"chore: Sync {current_branch} to {target_branch}"
-
-            pr_url = f"{remote_url}/compare/{target_branch}...{current_branch}?title={urllib.parse.quote(pr_title)}&body={urllib.parse.quote(pr_body)}"
-            print(f"   👇 Click here to create your Pull Request:\n   {pr_url}")
-            _write_next_command(project_root, f"git checkout {target_branch}")
-        else:
-            print(f"   ❌ Push failed. Git Error: {output}")
+                print("   ❌ Failed to update the pull request metadata.")
+    else:
+        if _ask_user(f"   ❔ Create a new Pull Request from '{current_branch}' to '{target_branch}'?"):
+            print("   🤖 Generating AI-powered pull request details...")
+            new_body = git_manager.generate_pull_request_body(summary, gemini_client)
+            print(f"   📝 PR Title: {pr_title}")
+            pr_url = git_manager.create_pull_request(title=pr_title, body=new_body, base_branch=target_branch, head_branch=current_branch)
+            if pr_url: print(f"   ✅ Successfully created Pull Request: {pr_url}")
+            else: print("   ❌ Failed to create Pull Request.")
 
 
 def _handle_release_creation(project_root: Path, git_manager: GitManager, new_version: str):
@@ -131,6 +135,70 @@ def _handle_release_creation(project_root: Path, git_manager: GitManager, new_ve
             _write_next_command(project_root, f"git checkout {release_branch_name}")
         else:
             print(f"   ⚠️  Could not create release branch '{release_branch_name}'.")
+
+
+def _post_workflow_sync(git_manager: GitManager):
+    """After a workflow, offers a safe, professional, and context-aware way to sync the local repo."""
+    print("\n" + "="*50 + "\n   🚀 Workflow Complete - Final Sync Step\n" + "="*50)
+    develop_branch, main_branch, original_branch = 'develop', 'main', git_manager.get_current_branch()
+
+    def sync_branch(branch_name: str) -> bool:
+        print(f"\n   🔎 Analyzing '{branch_name}' branch sync status...")
+        status, ahead, behind = git_manager.get_branch_sync_status(branch_name)
+        if status == SyncStatus.SYNCED:
+            print(f"   ✅ Local '{branch_name}' is already in sync with the remote.")
+            return True
+        elif status == SyncStatus.AHEAD:
+            if _ask_user(f"   ❔ Your local '{branch_name}' is {ahead} commit(s) ahead. Push these changes?"):
+                return git_manager.push(branch_name)[0]
+        elif status == SyncStatus.BEHIND:
+            if _ask_user(f"   ❔ Your local '{branch_name}' is {behind} commit(s) behind. Update from remote?"):
+                return git_manager.pull(branch_name)
+        elif status == SyncStatus.DIVERGED:
+            print(f"   ❌ Critical: Your local '{branch_name}' has diverged. Manual sync required.")
+            return False
+        return False
+
+    if not (sync_branch(main_branch) and sync_branch(develop_branch)):
+        if original_branch: git_manager.checkout(original_branch)
+        return
+        
+    print("\n   ✅ All branches are now synchronized.")
+    if _ask_user(f"   ❔ Prepare for final release by merging '{develop_branch}' into '{main_branch}'?"):
+        if git_manager.checkout(main_branch):
+            print(f"   Ready for merge. To complete, run: git merge {develop_branch}")
+        else:
+            if original_branch: git_manager.checkout(original_branch)
+
+
+def _handle_git_workflow(project_root: Path, git_manager: GitManager, new_version: str, summary: str, gemini_client: Any):
+    current_branch_name = git_manager.get_current_branch()
+    print(f"\n   📂 Preparing to manage changes on branch '{current_branch_name}'...")
+
+    if not git_manager.is_working_directory_clean():
+        git_manager.stage_all()
+        if not _ask_user(f"   ❔ Commit all staged changes to '{current_branch_name}'?"):
+            git_manager.unstage_all()
+            return
+        commit_message = f"feat(summarizer): v{new_version}\n\n{summary}"
+        if not git_manager.commit(commit_message): return
+        print("   ✅ Changes committed successfully.")
+    
+    if _ask_user(f"   ❔ Push the changes on '{current_branch_name}' to remote?"):
+        push_success, push_output = git_manager.push(current_branch_name)
+        if not push_success:
+            if "already up-to-date" not in push_output: return
+        
+        if "already up-to-date" in push_output: print(f"   ⚪️ Branch already up-to-date.")
+        else: print(f"   ✅ Successfully pushed new changes.")
+
+        pr_target_map = {'feature/': 'develop', 'bugfix/': 'develop', 'develop': 'staging', 'release/': 'main', 'hotfix/': 'main'}
+        pr_target = next((target for p, target in pr_target_map.items() if current_branch_name.startswith(p)), pr_target_map.get(current_branch_name))
+
+        if pr_target:
+            _handle_pull_request_flow(project_root, git_manager, current_branch_name, pr_target, summary, gemini_client)
+    
+    _post_workflow_sync(git_manager)
 
 
 def update_changelog(project_root: Optional[Path] = None):
@@ -367,7 +435,7 @@ def update_changelog(project_root: Optional[Path] = None):
             
             if target_branch:
                 # This is a feature, bugfix, or release branch that needs a PR.
-                _handle_pull_request_flow(project_root, git_manager, branch_for_pr, target_branch, summary)
+                _handle_pull_request_flow(project_root, git_manager, branch_for_pr, target_branch, summary, gemini_client)
             elif branch_for_pr in ['main', 'develop', 'staging']:
                 # This is a core branch. After a maintenance commit, we should just push.
                 if _ask_user(f"   ❔ Push the maintenance commit directly to '{branch_for_pr}'?"):
@@ -383,6 +451,9 @@ def update_changelog(project_root: Optional[Path] = None):
     except Exception as e:
         print(f"   ⚠️  Version management failed: {e}")
         logger_changelog.error(f"Error in version management: {e}", exc_info=True)
+
+    # Hand off to the master Git workflow handler
+    _handle_git_workflow(project_root, git_manager, new_version, summary, gemini_client)
 
 
 def _create_initial_project_entry(json_manager, project_root: Path):
