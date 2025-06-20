@@ -18,9 +18,12 @@ import re
 # Add parent directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from src.utils.git_manager import GitManager
+from src.utils.git_manager import GitManager, _ask_user
 from src.services.request_manager import RequestManager
 from src.utils.json_changelog_manager import ImpactLevel
+from src.core.configuration_manager import ConfigurationManager
+from src.services.gemini_client import GeminiClient
+from features.parameter_checker import setup_command
 
 
 def get_open_prs(project_root: Path) -> List[dict]:
@@ -356,10 +359,6 @@ def merge_command(project_root: Path):
     # Get AI client
     gemini_client = None
     try:
-        from src.core.configuration_manager import ConfigurationManager
-        from src.services.gemini_client import GeminiClient
-        from features.parameter_checker import setup_command
-
         config_manager = ConfigurationManager()
         
         # Check if API key is missing
