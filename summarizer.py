@@ -128,6 +128,15 @@ def main():
     if args and args[0] in ['screenshot', 'ss']:
         return screenshot_command(args[1:])
     
+    # Handle merge command
+    if args and args[0] == 'merge':
+        try:
+            from features.merge_command import merge_command
+            return merge_command(Path(__file__).parent)
+        except ImportError as e:
+            print(f"❌ Merge command not available: {e}")
+            return False
+    
     # Handle setup and configuration commands
     if args and args[0] == '--setup':
         return setup_command()
@@ -169,6 +178,7 @@ Examples:
   summarizer --setup            # Interactive setup
   summarizer --gui              # Launch GUI configuration
   summarizer --check            # Check configuration
+  summarizer merge              # AI-powered PR merge assistant
   summarizer screenshot         # Full screen analysis
   summarizer ss chrome          # Chrome window analysis
   
@@ -276,6 +286,14 @@ Examples:
     # Handle command argument
     if parsed_args.command in ['screenshot', 'ss']:
         return screenshot_command(parsed_args.args)
+    
+    if parsed_args.command == 'merge':
+        try:
+            from features.merge_command import merge_command
+            return merge_command(Path(__file__).parent)
+        except ImportError as e:
+            print(f"❌ Merge command not available: {e}")
+            return False
     
     # Default behavior - run summarizer
     print("🚀 Summarizer Framework")

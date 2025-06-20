@@ -7,7 +7,6 @@ import sys
 import subprocess
 import urllib.parse
 import time
-
 from .file_tracker import (  # Import for getting changed files
     get_changed_files_since_last_run,
     get_file_line_changes,
@@ -18,14 +17,10 @@ from .json_changelog_manager import JsonChangelogManager, ImpactLevel, ChangeTyp
 from .readme_generator import update_readme
 from .version_manager import VersionManager
 from .git_manager import GitManager, SyncStatus
-
 logger_changelog = logging.getLogger(__name__)
-
-
 def _detect_impact_level(summary: str, changed_files: list) -> ImpactLevel:
     """Auto-detect impact level based on summary and files"""
     summary_lower = summary.lower()
-
     # Critical indicators
     critical_keywords = [
         "critical",
@@ -33,33 +28,25 @@ def _detect_impact_level(summary: str, changed_files: list) -> ImpactLevel:
         "security"]
     if any(keyword in summary_lower for keyword in critical_keywords):
         return ImpactLevel.CRITICAL
-
     # High impact indicators
     high_keywords = ["major", "breaking", "api"]
     if any(keyword in summary_lower for keyword in high_keywords):
         return ImpactLevel.HIGH
-
     # Low impact indicators
     low_keywords = ["typo", "docs", "readme"]
     if any(keyword in summary_lower for keyword in low_keywords):
         return ImpactLevel.LOW
-
     # Based on file count
     if len(changed_files) > 10:
         return ImpactLevel.HIGH
     elif len(changed_files) <= 2:
         return ImpactLevel.LOW
-
     return ImpactLevel.MEDIUM
-
-
 def _ask_user(prompt: str) -> bool:
     try:
         return input(f"{prompt} (y/n): ").lower() == 'y'
     except (EOFError, KeyboardInterrupt):
         return False
-
-
 def _run_ci_checks(project_root: Path) -> bool:
     ci_script_path = project_root / "scripts" / "run_ci_checks.py"
     if not ci_script_path.exists():
@@ -73,8 +60,6 @@ def _run_ci_checks(project_root: Path) -> bool:
     else:
         print("   ❌ CI checks failed.")
         return False
-
-
 def _write_next_command(project_root: Path, command: str):
     command_file_path = project_root / ".summarizer" / "next_command.sh"
     try:
@@ -84,7 +69,20 @@ def _write_next_command(project_root: Path, command: str):
         logger_changelog.error(f"Could not create next_command.sh file: {e}")
 
 
-def _handle_pull_request_flow(project_root: Path, git_manager: GitManager, current_branch: str, target_branch: str, summary: str, gemini_client: Any = None):
+def _extract_pr_number(pr_url: str) -> Optional[int]:
+    """Extract PR number from GitHub PR URL"""
+    try:
+        # URL format: https://github.com/owner/repo/pull/123
+        parts = pr_url.strip().split('/')
+        if 'pull' in parts:
+            pr_number = int(parts[-1])
+            return pr_number
+    except:
+        pass
+    return None
+
+
+def _handle_pull_request_flow(project_root: Path, git_manager: GitManager, current_branch: str, target_branch: str, summary: str, gemini_client: Any = None, auto_create: bool = True):
     """Handles the pull request creation/update process intelligently and offers next steps."""
     print("   ⏱️  Checking for existing PRs and remote branches...")
     if not git_manager.remote_branch_exists(target_branch):
@@ -104,31 +102,105 @@ def _handle_pull_request_flow(project_root: Path, git_manager: GitManager, curre
         print(f"   ✅ An open pull request already exists: {existing_pr['url']}")
         
         # Check if there are new commits to push
-        if not git_manager.has_diff_between_branches(f"origin/{target_branch}", f"origin/{current_branch}"):
+        sync_status, ahead, behind = git_manager.get_branch_sync_status(current_branch)
+        
+        if sync_status == SyncStatus.AHEAD:
+            # Only push if we have unpushed commits
+            if _ask_user(f"   ❔ Push {ahead} new commit(s) to the existing PR?"):
+                print(f"   🚀 Pushing new commits to '{current_branch}'...")
+                push_success, _ = git_manager.push(current_branch)
+                if push_success:
+                    print("   ✅ Successfully pushed new commits to the existing PR.")
+                    print(f"   📎 PR URL: {existing_pr['url']}")
+                else:
+                    print("   ❌ Failed to push updates to the PR branch.")
+        else:
             print(f"   ⚪️ No new commits since last push. PR is up to date.")
-            return
-            
-        if _ask_user("   ❔ Push new commits to the existing PR?"):
-            print(f"   🚀 Pushing new commits to '{current_branch}'...")
-            push_success, _ = git_manager.push(current_branch)
-            if push_success:
-                print("   ✅ Successfully pushed new commits to the existing PR.")
-                print(f"   📎 PR URL: {existing_pr['url']}")
-            else:
-                print("   ❌ Failed to push updates to the PR branch.")
+            print(f"   📎 PR URL: {existing_pr['url']}")
     else:
-        if not git_manager.has_diff_between_branches(f"origin/{target_branch}", f"origin/{current_branch}"):
-            print(f"   ⚪️ No differences between branches. A Pull Request is not needed.")
+        # Check if branch has been pushed
+        if not git_manager.remote_branch_exists(current_branch):
+            print(f"   ⚠️  Branch '{current_branch}' has not been pushed to remote yet.")
             return
-            
-        if _ask_user(f"   ❔ Create a new Pull Request from '{current_branch}' to '{target_branch}'?"):
+        
+        # If auto_create is True (from AI workflow), create PR automatically
+        # Otherwise ask the user
+        should_create = auto_create or _ask_user(f"   ❔ Create a new Pull Request from '{current_branch}' to '{target_branch}'?")
+        
+        if should_create:
             print("   🤖 Generating AI-powered pull request details...")
             new_body = git_manager.generate_pull_request_body(summary, gemini_client)
             print(f"   📝 PR Title: {pr_title}")
             pr_url = git_manager.create_pull_request(title=pr_title, body=new_body, base_branch=target_branch, head_branch=current_branch)
-            if pr_url: print(f"   ✅ Successfully created Pull Request: {pr_url}")
-            else: print("   ❌ Failed to create Pull Request.")
+            if pr_url:
+                print(f"   ✅ Successfully created Pull Request: {pr_url}")
 
+                # Check if PR has conflicts after creation
+                print("   🔍 Checking for potential conflicts...")
+                try:
+                    # Extract PR number from URL
+                    pr_number = pr_url.split('/')[-1]
+
+                    import subprocess
+                    import json
+                    conflict_cmd = ["gh", "pr", "view", pr_number, "--json", "mergeable,mergeStateStatus"]
+                    conflict_process = subprocess.run(
+                        conflict_cmd,
+                        cwd=project_root,
+                        capture_output=True,
+                        text=True,
+                        check=True
+                    )
+
+                    conflict_data = json.loads(conflict_process.stdout)
+
+                    if conflict_data.get('mergeable') == 'CONFLICTING':
+                        print("   ⚠️  WARNING: This PR has merge conflicts!")
+                        print("   📝 You'll need to resolve conflicts before merging:")
+                        print("      • Use GitHub web editor, or")
+                        print("      • Pull latest changes from target branch and resolve locally")
+                    elif conflict_data.get('mergeStateStatus') == 'BLOCKED':
+                        print("   ⚠️  PR is blocked (required checks not passed)")
+                except:
+                    # Don't fail if conflict check fails
+                    pass
+                pr_number = _extract_pr_number(pr_url)
+                if pr_number:
+                    try:
+                        import subprocess
+                        import json
+                        conflict_cmd = ["gh", "pr", "view", str(pr_number), "--json", "mergeable,mergeStateStatus"]
+                        conflict_process = subprocess.run(
+                            conflict_cmd,
+                            cwd=project_root,
+                            capture_output=True,
+                            text=True,
+                            check=True
+                        )
+
+                        conflict_data = json.loads(conflict_process.stdout)
+
+                        if conflict_data.get('mergeable') == 'CONFLICTING':
+                            print("   ⚠️  WARNING: This PR has merge conflicts!")
+                            print("   📝 Conflicts need to be resolved before merging.")
+
+                            # Offer to resolve conflicts automatically
+                            if _ask_user("\n   ❔ Would you like to try resolving conflicts automatically?"):
+                                if git_manager.resolve_conflicts_with_pr(pr_number):
+                                    print("\n   🎉 Conflicts resolved successfully!")
+                                    print("   📋 The PR has been updated and is ready for review.")
+                                else:
+                                    print("   ❌ Automatic conflict resolution failed.")
+                                    print("   💡 Please resolve conflicts manually:")
+                                    print("      • Use GitHub web editor, or")
+                                    print("      • Pull latest changes from target branch and resolve locally")
+                        elif conflict_data.get('mergeStateStatus') == 'BLOCKED':
+                            print("   ⚠️  PR is blocked (required checks not passed)")
+                    except Exception as e:
+                        # Don't fail if conflict check fails
+                        print(f"   ⚠️  Could not check PR status: {e}")
+            else:
+                print("   ❌ Failed to create Pull Request.")
 
 def _handle_release_creation(project_root: Path, git_manager: GitManager, new_version: str):
     release_branch_name = f"release/v{new_version}"
@@ -140,8 +212,6 @@ def _handle_release_creation(project_root: Path, git_manager: GitManager, new_ve
             _write_next_command(project_root, f"git checkout {release_branch_name}")
         else:
             print(f"   ⚠️  Could not create release branch '{release_branch_name}'.")
-
-
 def _post_workflow_sync(git_manager: GitManager):
     """After a workflow, offers a safe, professional, and context-aware way to sync the local repo."""
     print("\n" + "="*50 + "\n   🚀 Workflow Complete\n" + "="*50)
@@ -166,8 +236,6 @@ def _post_workflow_sync(git_manager: GitManager):
     print(f"   • Current branch: {current_branch}")
     print("   • All changes have been processed")
     print("   • Remember: Use PRs for merging to protected branches")
-
-
 def _handle_git_workflow(project_root: Path, git_manager: GitManager, new_version: str, summary: str, gemini_client: Any):
     """Handle additional git workflow after main processing - simplified version"""
     current_branch_name = git_manager.get_current_branch()
@@ -185,18 +253,14 @@ def _handle_git_workflow(project_root: Path, git_manager: GitManager, new_versio
     
     # Show final sync status
     _post_workflow_sync(git_manager)
-
-
 def update_changelog(project_root: Optional[Path] = None):
     """Update changelog with AI-generated summaries using JSON format"""
     if project_root is None:
         project_root = Path(__file__).resolve().parent.parent.parent
         logger_changelog.warning(
             f"project_root not provided to update_changelog, guessed as {project_root}")
-
     # Initialize JSON changelog manager
     json_manager = JsonChangelogManager(project_root)
-
     # Get changed files - check for different possible source directories
     changed_files = []
     try:
@@ -204,7 +268,6 @@ def update_changelog(project_root: Optional[Path] = None):
         # Use dynamic directory discovery (no manual directory specification needed)
         changed_files = get_changed_files_since_last_run(project_root)
         print(f"   📂 Dynamically scanning all Python directories")
-
         if changed_files:
             print(f"   ✅ Found {len(changed_files)} changed files:")
             for file in changed_files:
@@ -234,48 +297,39 @@ def update_changelog(project_root: Optional[Path] = None):
         )
         # Return if there's an error, don't create fake entries
         return
-
     # Analyze line changes
     line_changes = {}
     total_lines_added = 0
     total_lines_removed = 0
-
     try:
         print("   📊 Analyzing line changes...")
         line_changes = get_file_line_changes(project_root, changed_files)
         aggregate_stats = get_aggregate_line_stats(line_changes)
         total_lines_added = aggregate_stats["total_lines_added"]
         total_lines_removed = aggregate_stats["total_lines_removed"]
-
         print(f"   📈 Line changes: +{total_lines_added} added, -{total_lines_removed} removed")
-
         logger_changelog.info(
             f"Line changes analysis: +{total_lines_added} -{total_lines_removed} "
             f"across {len(changed_files)} files"
         )
-
     except Exception as e:
         print("   ⚠️  Could not analyze line changes")
         logger_changelog.error(
             f"Error analyzing line changes: {e}",
             exc_info=True)
-
     # Get AI summary using RequestManager
     try:
         print("   🤖 Generating AI analysis...")
         from ..services.request_manager import RequestManager
-
         request_manager = RequestManager()
         gemini_client = request_manager.get_client("GeminiClient")
     except ValueError:
         print("   ⚠️  AI client not available")
         logger_changelog.warning("GeminiClient not found in RequestManager.")
         gemini_client = None
-
     summary = "Genel güncelleme."
     impact_level = ImpactLevel.MEDIUM
     change_type = ChangeType.OTHER
-
     if gemini_client and gemini_client.is_ready():
         try:
             prompt = f"Değişen dosyalar: {', '.join(changed_files)}"
@@ -286,11 +340,9 @@ def update_changelog(project_root: Optional[Path] = None):
             print("   ✨ AI analysis completed successfully")
             print(f"   📝 Summary: {summary[:100]}{'...' if len(summary) > 100 else ''}")
             logger_changelog.info(f"AI tarafından oluşturulan özet: {summary}")
-
             # Auto-detect impact level based on summary and files
             impact_level = _detect_impact_level(ai_summary, changed_files)
             print(f"   🎯 Impact level: {impact_level.value}")
-
         except Exception as e:
             print("   ⚠️  AI analysis failed, using fallback")
             logger_changelog.error(
@@ -302,7 +354,6 @@ def update_changelog(project_root: Optional[Path] = None):
         logger_changelog.warning(
             "GeminiClient kullanılamıyor. Varsayılan özet kullanılıyor."
         )
-
     # Add entry to JSON changelog
     print("   💾 Saving changelog entry...")
     entry_id = json_manager.add_entry(
@@ -313,10 +364,8 @@ def update_changelog(project_root: Optional[Path] = None):
         lines_added=total_lines_added,
         lines_removed=total_lines_removed,
     )
-
     print(f"   ✅ Changelog entry created (ID: {entry_id[:8]}...)")
     logger_changelog.info(f"Changelog entry added with ID: {entry_id}")
-
     # Create backups for next run comparison
     try:
         print("   🔄 Creating backup files for future comparison...")
@@ -328,7 +377,6 @@ def update_changelog(project_root: Optional[Path] = None):
         logger_changelog.error(
             f"Error creating file backups: {e}",
             exc_info=True)
-
     # Update README.md automatically with AI enhancement
     try:
         print("   📝 Updating README.md with current project state...")
@@ -351,13 +399,11 @@ def update_changelog(project_root: Optional[Path] = None):
     except Exception as e:
         print(f"   ⚠️  Could not update README.md: {e}")
         logger_changelog.error(f"Error updating README.md: {e}", exc_info=True)
-
     # Professional Version Management
     try:
         print("   🏷️  Analyzing changes for version management...")
         version_manager = VersionManager(project_root)
         git_manager = GitManager(project_root)
-
         # Determine increment type based on impact level ONLY. This is the single source of truth.
         increment_type = "patch"
         if impact_level == ImpactLevel.CRITICAL:
@@ -366,14 +412,11 @@ def update_changelog(project_root: Optional[Path] = None):
             increment_type = "minor"
         elif impact_level == ImpactLevel.MEDIUM:
             increment_type = "minor"
-
         # Use the new centralized incrementer
         new_version, old_version = version_manager.auto_increment(increment_type)
-
         if new_version != old_version and version_manager.update_version_in_files(new_version):
             print(f"   📈 Version updated: {old_version} → {new_version}")
             print(f"   🎯 Change Impact: {impact_level.value} ({increment_type} increment)")
-
             # Get version codename
             major, minor, _ = version_manager.parse_version(new_version)
             codename = version_manager._get_version_codename(major, minor, new_version, gemini_client)
@@ -386,7 +429,6 @@ def update_changelog(project_root: Optional[Path] = None):
                 print(f"   🏷️  Git tag created: v{new_version}")
             except Exception as tag_error:
                 print(f"   ⚠️  Could not create git tag: {tag_error}")
-
             # Get AI workflow decision
             current_branch_name = git_manager.get_current_branch()
             print("\n   🤖 Consulting AI for workflow optimization...")
@@ -418,7 +460,6 @@ def update_changelog(project_root: Optional[Path] = None):
                     print("   ⚪️ CI checks failed, but proceeding with commit as requested.")
                 else:
                     print("   ✅ Pre-commit CI checks passed.")
-
             # Commit changes to git
             if not git_manager.is_working_directory_clean():
                 prompt_message = f"   ❔ Commit changes to '{current_branch_name}'?"
@@ -427,16 +468,16 @@ def update_changelog(project_root: Optional[Path] = None):
                     if not (git_manager.stage_all() and git_manager.commit(commit_message)):
                         print("   ❌ Failed to commit changes. Aborting.")
                         return
-
             # Follow AI-recommended workflow
             if workflow_decision['workflow'] == 'pr':
                 # Create PR to target branch
                 target_branch = workflow_decision.get('target_branch', 'develop')
                 
-                if _ask_user(f"   ❔ Push '{current_branch_name}' and create PR to '{target_branch}'?"):
+                if _ask_user(f"   ❔ Push '{current_branch_name}' to GitHub and create PR to '{target_branch}'?"):
                     success, output = git_manager.push(current_branch_name)
                     if success:
-                        print("   ✅ Branch pushed successfully.")
+                        print("   ✅ Branch pushed to GitHub successfully.")
+                        # Now handle PR creation/update
                         _handle_pull_request_flow(project_root, git_manager, current_branch_name, target_branch, summary, gemini_client)
                         
                         # Info about main branch protection
@@ -449,10 +490,10 @@ def update_changelog(project_root: Optional[Path] = None):
             elif workflow_decision['workflow'] == 'direct':
                 # Direct push (only for non-protected branches)
                 if current_branch_name not in ['main', 'master']:
-                    if _ask_user(f"   ❔ Push changes directly to '{current_branch_name}'?"):
+                    if _ask_user(f"   ❔ Push changes directly to '{current_branch_name}' on GitHub (no PR)?"):
                         success, output = git_manager.push(current_branch_name)
                         if success:
-                            print("   ✅ Changes pushed successfully.")
+                            print("   ✅ Changes pushed directly to GitHub.")
                         else:
                             print(f"   ❌ Push failed: {output}")
                 else:
@@ -461,22 +502,19 @@ def update_changelog(project_root: Optional[Path] = None):
             elif workflow_decision['workflow'] == 'release':
                 # Special release workflow
                 print("   📦 Following release workflow...")
-                if _ask_user(f"   ❔ Push '{current_branch_name}' for release preparation?"):
+                if _ask_user(f"   ❔ Push '{current_branch_name}' to GitHub and create release PR to 'main'?"):
                     success, output = git_manager.push(current_branch_name)
                     if success:
-                        print("   ✅ Release branch pushed.")
+                        print("   ✅ Release branch pushed to GitHub.")
+                        # Now handle PR creation for release
                         _handle_pull_request_flow(project_root, git_manager, current_branch_name, 'main', summary, gemini_client)
                     else:
                         print(f"   ❌ Push failed: {output}")
-
     except Exception as e:
         print(f"   ⚠️  Version management failed: {e}")
         logger_changelog.error(f"Error in version management: {e}", exc_info=True)
-
     # Hand off to the master Git workflow handler
     _handle_git_workflow(project_root, git_manager, new_version, summary, gemini_client)
-
-
 def _create_initial_project_entry(json_manager, project_root: Path):
     """Create professional initial project entry for new projects"""
     
@@ -491,96 +529,74 @@ def _create_initial_project_entry(json_manager, project_root: Path):
     # Professional welcome message based on project type
     if project_type == "python":
         welcome_summary = f"""🚀 **{project_name} Projesi Başlatıldı**
-
 **Proje Türü**: Python Projesi  
 **Başlatılma Tarihi**: {datetime.now().strftime('%d %B %Y')}  
 **Summarizer Framework**: v2.0.0
-
 **📋 Proje Özeti:**
 Bu proje, Summarizer Framework ile otomatik değişiklik takibi ve AI destekli analiz için yapılandırıldı. Artık kod değişiklikleriniz otomatik olarak tespit edilecek ve akıllı özetler oluşturulacak.
-
 **🔧 Aktif Özellikler:**
 - ✅ Otomatik dosya değişiklik takibi
 - ✅ AI destekli kod analizi (Gemini AI)
 - ✅ JSON ve Markdown changelog oluşturma
 - ✅ Etki seviyesi ve değişiklik tipi otomatik tespiti
 - ✅ Satır bazında değişiklik analizi
-
 **📁 Oluşturulan Dosyalar:**
 - `CHANGELOG.md` - İnsan okunabilir değişiklik günlüğü
 - `changelog.json` - Yapılandırılmış değişiklik verisi
 - `.summarizer/` - Gizli sistem dosyaları
-
 **🎯 Sonraki Adımlar:**
 1. Python dosyalarınızda değişiklik yapın
 2. `summarizer` komutunu tekrar çalıştırın
 3. Otomatik oluşturulan değişiklik analizini inceleyin
-
 **💡 İpucu:** `summarizer --help` komutuyla tüm özellikleri keşfedin!"""
-
     elif project_type == "web":
         welcome_summary = f"""🌐 **{project_name} Web Projesi Başlatıldı**
-
 **Proje Türü**: Web Geliştirme Projesi  
 **Başlatılma Tarihi**: {datetime.now().strftime('%d %B %Y')}  
 **Summarizer Framework**: v2.0.0
-
 **📋 Proje Özeti:**
 Web geliştirme projeniz Summarizer Framework ile entegre edildi. Frontend ve backend değişiklikleriniz otomatik olarak takip edilecek ve profesyonel değişiklik raporları oluşturulacak.
-
 **🔧 Desteklenen Dosya Türleri:**
 - ✅ JavaScript/TypeScript dosyaları (.js, .ts, .jsx, .tsx)
 - ✅ HTML/CSS dosyaları (.html, .css, .scss)
 - ✅ Python backend dosyaları (.py)
 - ✅ Konfigürasyon dosyaları (package.json, requirements.txt)
-
 **📁 Proje Yapısı Hazırlandı:**
 - `CHANGELOG.md` - Geliştirme günlüğü
 - `changelog.json` - API entegrasyonu için JSON verisi
 - `.summarizer/` - Gizli sistem dosyaları
-
 **🚀 Web Projesi Özellikleri:**
 - Frontend/Backend değişiklik ayrımı
 - Component bazında analiz
 - Dependencies değişiklik takibi
 - Performance impact analizi
-
 Bu projede değişiklik yaptığınızda, otomatik olarak akıllı analizler oluşturulacak!"""
-
     else:
         welcome_summary = f"""📁 **{project_name} Projesi Başlatıldı**
-
 **Proje Türü**: Genel Yazılım Projesi  
 **Başlatılma Tarihi**: {datetime.now().strftime('%d %B %Y')}  
 **Summarizer Framework**: v2.0.0
-
 **📋 Hoş Geldiniz!**
 Projeniz başarıyla Summarizer Framework ile entegre edildi. Artık tüm kod değişiklikleriniz otomatik olarak takip edilecek ve yapay zeka destekli analizler oluşturulacak.
-
 **🔧 Sistem Özellikleri:**
 - ✅ Dosya değişiklik takibi (.py, .js, .ts, .html, .css ve daha fazlası)
 - ✅ Gemini AI ile kod analizi
 - ✅ Otomatik impact level tespiti (Low/Medium/High/Critical)
 - ✅ Değişiklik tipi kategorilendirmesi (Feature/Bug Fix/Refactor/Config)
 - ✅ Markdown ve JSON format desteği
-
 **📊 Tracking Bilgileri:**
 - **Toplam Dosya**: 0 (henüz değişiklik yok)
 - **Son Güncelleme**: {datetime.now().strftime('%H:%M:%S')}
 - **Durum**: Aktif ve hazır ✅
-
 **🎯 İlk Kullanım:**
 1. Herhangi bir dosyada değişiklik yapın
 2. `summarizer` komutunu tekrar çalıştırın  
 3. Otomatik oluşturulan analizi görüntüleyin
-
 **💡 Komutlar:**
 - `summarizer --gui` - Görsel arayüz
 - `summarizer --status` - Sistem durumu
 - `summarizer screenshot` - Ekran analizi
-
 Projenizde her değişiklik yaptığınızda, akıllı özetler otomatik oluşturulacak!"""
-
     # Add the initial entry
     print("   🎉 Creating welcome entry for new project...")
     entry_id = json_manager.add_entry(
@@ -622,8 +638,6 @@ Projenizde her değişiklik yaptığınızda, akıllı özetler otomatik oluştu
     
     logger_changelog.info(f"Initial project entry created: {entry_id}")
     print(f"   ✅ Project initialized successfully!")
-
-
 def _detect_project_type(project_root: Path) -> str:
     """Detect project type based on files in directory"""
     
@@ -640,8 +654,6 @@ def _detect_project_type(project_root: Path) -> str:
     
     # Default to general project
     return "general"
-
-
 def get_recent_changelog_entries(project_root: Path, count: int = 5) -> list:
     """Get the most recent changelog entries from JSON format"""
     try:
@@ -651,8 +663,6 @@ def get_recent_changelog_entries(project_root: Path, count: int = 5) -> list:
     except Exception as e:
         logger_changelog.error(f"Error reading changelog entries: {e}")
         return []
-
-
 def get_changelog_stats(project_root: Path) -> dict:
     """Get changelog statistics"""
     try:
@@ -661,8 +671,6 @@ def get_changelog_stats(project_root: Path) -> dict:
     except Exception as e:
         logger_changelog.error(f"Error getting changelog stats: {e}")
         return {}
-
-
 def export_changelog(project_root: Path, format_type: str = "json") -> str:
     """Export changelog in specified format"""
     try:
@@ -671,8 +679,6 @@ def export_changelog(project_root: Path, format_type: str = "json") -> str:
     except Exception as e:
         logger_changelog.error(f"Error exporting changelog: {e}")
         return ""
-
-
 def _get_ai_workflow_decision(gemini_client: Any, current_branch: str, summary: str, impact_level: ImpactLevel, changed_files: list) -> dict:
     """Use AI to decide the best workflow, branch strategy, and version management"""
     
@@ -686,22 +692,18 @@ def _get_ai_workflow_decision(gemini_client: Any, current_branch: str, summary: 
     
     try:
         prompt = f"""As a senior DevOps engineer, analyze this Git workflow situation and recommend the best approach:
-
 Current Branch: {current_branch}
 Impact Level: {impact_level.value}
 Changed Files: {', '.join(changed_files[:10])}
 Summary: {summary[:200]}...
-
 CRITICAL CONTEXT:
 - If already on a feature/bugfix/hotfix/release branch, consider staying on it for continued development
 - Only suggest a new branch if the current work is unrelated to the existing branch's purpose
-
 Based on GitFlow best practices, determine:
 1. Should we stay on current branch or create a new one?
 2. If new branch needed, what type (feature/bugfix/release/hotfix)?
 3. The recommended workflow to follow
 4. Whether this change should go through PR or direct push
-
 IMPORTANT RULES:
 - NEVER allow direct commits to main branch
 - If on feature/bugfix/hotfix/release branch, usually stay on it unless work is unrelated
@@ -710,7 +712,6 @@ IMPORTANT RULES:
 - Low impact changes can use existing branches if appropriate
 - Branch names MUST be in English, use descriptive English words based on the changed files
 - For example: hotfix/git-workflow-fix, feature/ai-integration, release/version-update
-
 Return a JSON object with:
 {{
     "recommended_branch": "branch name in ENGLISH or 'current' to stay on {current_branch}",
@@ -719,7 +720,6 @@ Return a JSON object with:
     "target_branch": "where to merge (if PR workflow)",
     "reasoning": "brief explanation of your decision"
 }}"""
-
         response = gemini_client.generate_simple_text(prompt)
         # Parse JSON from response
         import json
@@ -776,6 +776,4 @@ Return a JSON object with:
                 "workflow": "direct",
                 "reasoning": "Standard workflow for this branch type"
             }
-
-
 # Test comment

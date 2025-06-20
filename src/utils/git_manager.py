@@ -9,6 +9,15 @@ from typing import Any, Dict, List, Optional, Tuple
 
 logger = logging.getLogger(__name__)
 
+def _ask_user(prompt: str) -> bool:
+    """Gets user confirmation from the console."""
+    try:
+        return input(f"{prompt} (y/n): ").lower().strip() == 'y'
+    except (EOFError, KeyboardInterrupt):
+        # Handle cases where the user presses Ctrl+D or Ctrl+C
+        print("\n   ⚪️ User cancelled operation.")
+        return False
+
 class SyncStatus(Enum):
     SYNCED = "synced"
     AHEAD = "ahead"
@@ -137,7 +146,7 @@ class GitManager:
             except (EOFError, KeyboardInterrupt):
                 print("\n   🚫 Merge cancelled by user.")
                 return False
-        
+
         success, output = self._run_git_command(['merge', '--no-ff', '-m', f"Merge branch '{source_branch}'", source_branch])
         if not success:
             logger.error(f"Merge failed. Output:\n{output}")
@@ -151,12 +160,12 @@ class GitManager:
         original_branch = self.get_current_branch()
         if original_branch != branch_name:
             if not self.checkout(branch_name): return False
-        
+
         success, output = self._run_git_command(["pull", remote_name, branch_name])
-        
+
         if original_branch and original_branch != branch_name:
              self.checkout(original_branch)
-        
+
         if not success: logger.error(f"Pull failed for '{branch_name}'. Output:\n{output}")
         return success
 
@@ -173,7 +182,7 @@ class GitManager:
             if input("   > Initialize Git repository? (y/n): ").lower() != 'y':
                 return False
             if not self.initialize_repository(): return False
-        
+
         existing_branches = self.get_existing_branches()
         source_branch = "main" if "main" in existing_branches else "master"
         if not source_branch in existing_branches: return False
@@ -183,14 +192,14 @@ class GitManager:
             for branch in missing_branches:
                 if branch != source_branch and not self.create_branch(branch, from_branch=source_branch):
                     return False
-        
+
         print("\n   🔎 Verifying remote branches...")
         all_core_branches = self.get_existing_branches()
         for branch in self.core_branches:
             if branch in all_core_branches and not self.remote_branch_exists(branch):
                 if input(f"   > Remote branch '{branch}' is missing. Push now? (y/n): ").lower() == 'y':
                     self.push(branch)
-        
+
         print("✅ Project structure check complete.")
         return True
 
@@ -262,12 +271,12 @@ class GitManager:
     def merge_pull_request(self, pr_number: int, target_branch: str = None) -> bool:
         """Merge a pull request with security check for main branch"""
         if not self._check_gh_auth(): return False
-        
+
         # Get PR details to check target branch
         if target_branch and target_branch in ['main', 'master']:
             print("\n   🔒 SECURITY CHECK: Merging to MAIN branch!")
             print("   ⚠️  This action will deploy code to production.")
-            
+
             import getpass
             try:
                 password = getpass.getpass("   🔑 Enter admin password to merge to main: ")
@@ -278,7 +287,7 @@ class GitManager:
             except (EOFError, KeyboardInterrupt):
                 print("\n   ❌ Merge cancelled.")
                 return False
-        
+
         command = ["gh", "pr", "merge", str(pr_number), "--merge", "--delete-branch"]
         try:
             process = subprocess.run(
@@ -305,6 +314,142 @@ class GitManager:
                 return True
         return True  # Assume there are differences if we can't determine
 
+    def resolve_conflicts_with_pr(self, pr_number: int) -> bool:
+        """Resolve conflicts by updating PR branch with base branch"""
+        print("\n   🔧 Attempting to resolve conflicts automatically...")
+
+        try:
+            # Get PR details
+            import subprocess
+            import json
+
+            pr_cmd = ["gh", "pr", "view", str(pr_number), "--json", "headRefName,baseRefName"]
+            pr_process = subprocess.run(
+                pr_cmd,
+                cwd=self.project_root,
+                capture_output=True,
+                text=True,
+                check=True
+            )
+
+            pr_data = json.loads(pr_process.stdout)
+            head_branch = pr_data['headRefName']
+            base_branch = pr_data['baseRefName']
+
+            print(f"   📋 Updating '{head_branch}' with latest changes from '{base_branch}'...")
+
+            # Save current branch
+            current_branch = self.get_current_branch()
+
+            # Stash any local changes
+            self._run_git_command(["stash", "push", "-m", "Auto-stash before conflict resolution"])
+
+            # Checkout PR branch
+            if not self.checkout(head_branch):
+                # If local branch doesn't exist, fetch it
+                print(f"   🔄 Fetching '{head_branch}' from remote...")
+                self._run_git_command(["fetch", "origin", f"{head_branch}:{head_branch}"])
+                if not self.checkout(head_branch):
+                    print("   ❌ Failed to checkout PR branch")
+                    return False
+
+            # Pull latest changes
+            print(f"   📥 Pulling latest changes for '{head_branch}'...")
+            if not self.pull(head_branch):
+                print("   ❌ Failed to pull latest changes")
+                return False
+
+            # Merge base branch
+            print(f"   🔀 Merging '{base_branch}' into '{head_branch}'...")
+            merge_success, merge_output = self._run_git_command(["merge", f"origin/{base_branch}"])
+
+            if not merge_success:
+                if "CONFLICT" in merge_output:
+                    print("   ⚠️  Merge conflicts detected. Attempting automatic resolution...")
+
+                    # Try to resolve conflicts automatically
+                    # Strategy: Accept incoming changes for changelog files, ours for others
+                    conflict_files_cmd = self._run_git_command(["diff", "--name-only", "--diff-filter=U"])
+                    if conflict_files_cmd[0]:
+                        conflict_files = [f for f in conflict_files_cmd[1].strip().split('\n') if f]
+
+                        print(f"   📝 Conflicted files: {', '.join(conflict_files)}")
+
+                        for file in conflict_files:
+                            if file in ['CHANGELOG.md', 'changelog.json', 'package.json', 'pyproject.toml', 'README.md']:
+                                # For version/changelog files, accept theirs (from base branch)
+                                print(f"      • {file}: accepting changes from '{base_branch}'")
+                                self._run_git_command(["checkout", "--theirs", file])
+                                self._run_git_command(["add", file])
+                            else:
+                                # For code files, keep ours
+                                print(f"      • {file}: keeping changes from '{head_branch}'")
+                                self._run_git_command(["checkout", "--ours", file])
+                                self._run_git_command(["add", file])
+
+                        # Complete the merge
+                        commit_msg = f"chore: Merge '{base_branch}' into '{head_branch}' and resolve conflicts"
+                        if self.commit(commit_msg):
+                            print("   ✅ Conflicts resolved automatically!")
+
+                            # Push the changes
+                            print(f"   📤 Pushing resolved conflicts to '{head_branch}'...")
+                            push_success, _ = self.push(head_branch)
+
+                            if push_success:
+                                print("   ✅ Conflicts resolved and pushed successfully!")
+
+                                # Return to original branch
+                                if current_branch and current_branch != head_branch:
+                                    self.checkout(current_branch)
+                                    # Pop stash if any
+                                    self._run_git_command(["stash", "pop"], check=False)
+
+                                return True
+                            else:
+                                print("   ❌ Failed to push resolved conflicts")
+                        else:
+                            print("   ❌ Failed to commit conflict resolution")
+                            self._run_git_command(["merge", "--abort"])
+                else:
+                    print(f"   ❌ Merge failed: {merge_output}")
+
+                # Return to original branch
+                if current_branch and current_branch != head_branch:
+                    self.checkout(current_branch)
+                    # Pop stash if any
+                    self._run_git_command(["stash", "pop"], check=False)
+
+                return False
+
+            # If merge was clean, push it
+            print("   ✅ Merge completed without conflicts!")
+            print(f"   📤 Pushing updates to '{head_branch}'...")
+            push_success, _ = self.push(head_branch)
+
+            # Return to original branch
+            if current_branch and current_branch != head_branch:
+                self.checkout(current_branch)
+                # Pop stash if any
+                self._run_git_command(["stash", "pop"], check=False)
+
+            return push_success
+
+        except Exception as e:
+            logger.error(f"Failed to resolve conflicts: {e}")
+            print(f"   ❌ Failed to resolve conflicts: {e}")
+
+            # Try to return to original state
+            try:
+                self._run_git_command(["merge", "--abort"], check=False)
+                if 'current_branch' in locals() and current_branch:
+                    self.checkout(current_branch)
+                    self._run_git_command(["stash", "pop"], check=False)
+            except:
+                pass
+
+            return False
+
     def get_branch_sync_status(self, branch_name: str, remote_name: str = "origin") -> Tuple[SyncStatus, int, int]:
         try:
             self.fetch_updates(remote_name)
@@ -315,7 +460,7 @@ class GitManager:
                 if ahead_success and ahead_output and int(ahead_output) > 0:
                     return SyncStatus.AHEAD, int(ahead_output), 0
                 return SyncStatus.SYNCED, 0, 0
-            
+
             ahead, behind = map(int, output.split())
             if ahead > 0 and behind > 0: return SyncStatus.DIVERGED, ahead, behind
             elif ahead > 0: return SyncStatus.AHEAD, ahead, behind
@@ -324,3 +469,38 @@ class GitManager:
         except Exception as e:
             logger.error(f"Could not get sync status for '{branch_name}': {e}")
             return SyncStatus.DIVERGED, 0, 0
+
+    def force_push_with_confirmation(self, branch_name: str) -> bool:
+        """
+        Executes a force push only after a series of explicit user confirmations.
+        Uses --force-with-lease for slightly safer operation.
+        """
+        print(f"   ⚠️  Force Push Warning for branch '{branch_name}'")
+        print("="*60)
+
+        # Question 1: Initial check
+        q1 = "Your local files seem more up-to-date as a whole. Do you want to consider force pushing to overwrite the remote branch?"
+        if not _ask_user(f"   ❔ {q1}"):
+            print("   ⚪️ Force push cancelled.")
+            return False
+
+        # Question 2: Explain the danger
+        q2 = "This will use 'force push', which can permanently delete commits on the remote branch. Are you sure you want to proceed?"
+        if not _ask_user(f"   ❔ {q2}"):
+            print("   ⚪️ Force push cancelled.")
+            return False
+
+        # Question 3: Final, irreversible confirmation
+        q3 = "This action cannot be undone. Do you approve overwriting the remote branch with your local version?"
+        if not _ask_user(f"   ❔ {q3}"):
+            print("   ⚪️ Force push cancelled.")
+            return False
+
+        print(f"\n   🚀 Executing force push for '{branch_name}'...")
+        success, output = self.force_push(branch_name)
+        if success:
+            print("   ✅ Force push completed successfully.")
+        else:
+            print(f"   ❌ Force push failed:\n{output}")
+
+        return success
