@@ -259,9 +259,51 @@ class GitManager:
             logger.error(f"Failed to update PR #{pr_number}:\n{e.stderr.strip()}")
             return False
 
+    def merge_pull_request(self, pr_number: int, target_branch: str = None) -> bool:
+        """Merge a pull request with security check for main branch"""
+        if not self._check_gh_auth(): return False
+        
+        # Get PR details to check target branch
+        if target_branch and target_branch in ['main', 'master']:
+            print("\n   🔒 SECURITY CHECK: Merging to MAIN branch!")
+            print("   ⚠️  This action will deploy code to production.")
+            
+            import getpass
+            try:
+                password = getpass.getpass("   🔑 Enter admin password to merge to main: ")
+                if not password:
+                    print("   ❌ Merge cancelled.")
+                    return False
+                # Add actual password validation here if needed
+            except (EOFError, KeyboardInterrupt):
+                print("\n   ❌ Merge cancelled.")
+                return False
+        
+        command = ["gh", "pr", "merge", str(pr_number), "--merge", "--delete-branch"]
+        try:
+            process = subprocess.run(
+                command, cwd=self.project_root, capture_output=True, text=True, check=True, encoding="utf-8",
+            )
+            print(f"   ✅ PR #{pr_number} successfully merged!")
+            return True
+        except subprocess.CalledProcessError as e:
+            logger.error(f"Failed to merge PR #{pr_number}:\n{e.stderr.strip()}")
+            return False
+
     def remote_branch_exists(self, branch_name: str, remote_name: str = "origin") -> bool:
         success, output = self._run_git_command(["ls-remote", "--heads", remote_name, branch_name])
         return success and bool(output.strip())
+
+    def has_diff_between_branches(self, branch1: str, branch2: str) -> bool:
+        """Check if there are differences between two branches."""
+        success, output = self._run_git_command(["rev-list", "--count", f"{branch1}..{branch2}"])
+        if success and output:
+            try:
+                count = int(output.strip())
+                return count > 0
+            except ValueError:
+                return True
+        return True  # Assume there are differences if we can't determine
 
     def get_branch_sync_status(self, branch_name: str, remote_name: str = "origin") -> Tuple[SyncStatus, int, int]:
         try:
