@@ -3,6 +3,37 @@
 Bu dosya otomatik olarak generate edilmiştir.
 Düzenlemeler için `changelog.json` dosyasını kullanın.
 
+## 2025-06-20 04:00:20
+
+### 1. YAPISAL ANALİZ:
+
+Değişiklikler `src/utils/changelog_updater.py` dosyasında yapılmış olup, projedeki *Yardımcı Araçlar* katmanını etkiler.  Bu dosya, changelog güncelleme sürecini yöneten bir dizi fonksiyon içerir.  Değişiklikler, özellikle `_detect_impact_level` ve `_get_ai_workflow_decision` fonksiyonlarında yoğunlaşmıştır.  Mimari açıdan büyük bir değişiklik gözlenmez, ancak mevcut iş akışına bir Yapay Zeka (AI) entegrasyonu eklenmiştir.  Kod organizasyonu açısından, fonksiyonların daha okunabilir ve anlaşılır olması için bazı düzenlemeler yapılmış olabilir (kesin kod değişiklikleri verilmediği için bu noktada kesin bir şey söylemek mümkün değil).  Ancak, AI entegrasyonu ile daha karmaşık bir iş akışı ortaya çıkmıştır.
+
+
+### 2. İŞLEVSEL ETKİ:
+
+Bu değişikliklerle, changelog güncelleme sürecine bir AI entegrasyonu eklenmiştir.  `_get_ai_workflow_decision` fonksiyonu, bir AI'dan gelen yanıta dayanarak, yeni bir sürüm için hangi dalların kullanılacağına dair bir karar verir.  Bu, geliştiricilerin daha bilinçli kararlar almasına yardımcı olabilir.  AI'nın önerisi doğrultusunda,  `main` dalına doğrudan commit yapılmasının engellenmesi için bir mekanizma eklenmiş.  Eğer AI  `main` dalında kalmayı önerirse, bu öneri geçersiz kılınıp, release dalına yönlendirme yapılıyor.  Bu,  `main` dalının temizliğini ve istikrarını koruyarak kullanıcı deneyimini dolaylı yoldan olumlu etkiler.  
+
+Özellik olarak, AI tabanlı bir karar verme mekanizması eklenmiş ve `main` dalına doğrudan commit yapılması engellenmiştir.  Kullanıcı deneyimi doğrudan etkilenmese de,  daha istikrarlı bir sürüm yönetimi ve dolayısıyla daha güvenilir bir yazılım sunulması beklenir. Performans etkisi, AI çağrısının süresine ve yanıtın işlenmesine bağlıdır.  Güvenlik ve güvenilirlik açısından,  `main` dalını koruma mekanizması olumlu bir etkiye sahiptir. Ancak, AI sisteminin güvenilirliği ve hataya dayanıklılığı, genel sistem güvenilirliğini etkileyen bir faktördür.
+
+
+### 3. TEKNİK DERINLIK:
+
+Değişiklikler, özellikle  `_get_ai_workflow_decision` fonksiyonunda,  bir çeşit karar verme motoru tasarımı içerir.  AI entegrasyonu ile birlikte,  bir  `if-else` bloğu kullanılarak,  AI yanıtının  işlenmesi ve olası hataların ele alınması sağlanır.  Kod kalitesi açısından,  hata yönetimi iyileştirilmiş ve  `main` dalının korunması için eklenen mekanizma,  sistemin daha sağlam olmasını sağlar.   Sürdürülebilirlik açısından, AI servisinin gelecekteki değişikliklere uyum sağlayacak şekilde tasarlanması önemlidir.  Yeni bir bağımlılık (AI servisi) eklenmiş olup,  bu servis ile iletişimin sağlam ve güvenilir olması kritiktir.  Kodda kullanılan `urllib.parse`, `subprocess` gibi kütüphaneler network ve sistem çağrıları içerdiğinden, güvenlik açıklarına karşı dikkatli olunmalıdır.
+
+
+### 4. SONUÇ YORUMU:
+
+Bu değişikliklerin uzun vadeli değeri,  daha otomatik ve akıllı bir sürüm yönetimi sunmasıdır.  AI'nın entegrasyonu,  geliştirme sürecini hızlandırabilir ve insan hatasını azaltabilir. Ancak, AI sisteminin güvenilirliğine ve bakımına dikkat edilmesi gerekir.  Projenin teknik borcu,  AI entegrasyonunun karmaşıklığı nedeniyle kısmen artabilir.  Ancak,  `main` dalını koruma mekanizması,  gelecekteki hataların önlenmesine yardımcı olarak,  uzun vadede teknik borcu azaltabilir.  Gelecekteki geliştirmelere hazırlık olarak,  AI servisinin ölçeklenebilirliği ve esnekliği önemlidir.  AI servisinin değiştirilmesi veya başka bir servisle değiştirilmesi durumunda,  kodun kolayca güncellenebilecek şekilde tasarlanması gerekir.  Ayrıca,  AI'nın karar verme sürecinin şeffaflığı ve izlenebilirliği sağlanmalıdır.
+
+**Değişen Dosyalar:** src/utils/changelog_updater.py
+**Etki Seviyesi:** High
+**Değişiklik Tipi:** Feature
+**Satır Değişiklikleri:** +14
+**Etiketler:** utils, changelog-updater, api
+
+---
+
 ## 2025-06-20 03:57:00
 
 ### 1. YAPISAL ANALİZ:

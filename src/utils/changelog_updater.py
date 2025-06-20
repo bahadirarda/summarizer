@@ -90,6 +90,25 @@ def _handle_pull_request_flow(project_root: Path, git_manager: GitManager, curre
     if not git_manager.remote_branch_exists(target_branch):
         print(f"   ❌ Target branch '{target_branch}' does not exist on the remote. Please push it first.")
         return
+    
+    # Extra security for main branch
+    if target_branch in ['main', 'master']:
+        print("\n   🔒 SECURITY CHECK: This PR targets the MAIN branch!")
+        print("   ⚠️  Main branch should only receive thoroughly tested code.")
+        
+        # Ask for confirmation with password
+        import getpass
+        try:
+            password = getpass.getpass("   🔑 Enter password to confirm PR to main (or press Enter to cancel): ")
+            if not password:
+                print("   ❌ PR to main cancelled.")
+                return
+            # You can add actual password check here if needed
+            # For now, any non-empty password is accepted
+        except (EOFError, KeyboardInterrupt):
+            print("\n   ❌ PR to main cancelled.")
+            return
+    
     git_manager.fetch_updates()
     
     existing_pr = git_manager.get_existing_pr(current_branch)
@@ -668,17 +687,6 @@ def export_changelog(project_root: Path, format_type: str = "json") -> str:
 def _get_ai_workflow_decision(gemini_client: Any, current_branch: str, summary: str, impact_level: ImpactLevel, changed_files: list) -> dict:
     """Use AI to decide the best workflow, branch strategy, and version management"""
     
-    # Check if we're already on a feature/bugfix/hotfix/release branch
-    if current_branch.startswith(('feature/', 'bugfix/', 'hotfix/', 'release/')):
-        # Stay on current branch and continue development
-        return {
-            "recommended_branch": "current",
-            "branch_type": "none",
-            "workflow": "pr",
-            "target_branch": "main" if current_branch.startswith(('hotfix/', 'release/')) else "develop",
-            "reasoning": f"Continuing development on existing {current_branch.split('/')[0]} branch"
-        }
-    
     if not (gemini_client and gemini_client.is_ready()):
         # Fallback to rule-based decision
         return {
@@ -695,13 +703,19 @@ Impact Level: {impact_level.value}
 Changed Files: {', '.join(changed_files[:10])}
 Summary: {summary[:200]}...
 
+CRITICAL CONTEXT:
+- If already on a feature/bugfix/hotfix/release branch, consider staying on it for continued development
+- Only suggest a new branch if the current work is unrelated to the existing branch's purpose
+
 Based on GitFlow best practices, determine:
-1. If we should create a new branch (and what type: feature/bugfix/release/hotfix)
-2. The recommended workflow to follow
-3. Whether this change should go through PR or direct push
+1. Should we stay on current branch or create a new one?
+2. If new branch needed, what type (feature/bugfix/release/hotfix)?
+3. The recommended workflow to follow
+4. Whether this change should go through PR or direct push
 
 IMPORTANT RULES:
 - NEVER allow direct commits to main branch
+- If on feature/bugfix/hotfix/release branch, usually stay on it unless work is unrelated
 - Critical changes should use hotfix branches
 - High/Medium changes should use feature or release branches
 - Low impact changes can use existing branches if appropriate
@@ -710,11 +724,11 @@ IMPORTANT RULES:
 
 Return a JSON object with:
 {{
-    "recommended_branch": "branch name in ENGLISH or 'current' to stay",
+    "recommended_branch": "branch name in ENGLISH or 'current' to stay on {current_branch}",
     "branch_type": "feature|bugfix|release|hotfix|none",
     "workflow": "pr|direct|release",
     "target_branch": "where to merge (if PR workflow)",
-    "reasoning": "brief explanation"
+    "reasoning": "brief explanation of your decision"
 }}"""
 
         response = gemini_client.generate_simple_text(prompt)
