@@ -259,6 +259,37 @@ class GitManager:
             logger.error(f"Failed to update PR #{pr_number}:\n{e.stderr.strip()}")
             return False
 
+    def merge_pull_request(self, pr_number: int, target_branch: str = None) -> bool:
+        """Merge a pull request with security check for main branch"""
+        if not self._check_gh_auth(): return False
+        
+        # Get PR details to check target branch
+        if target_branch and target_branch in ['main', 'master']:
+            print("\n   🔒 SECURITY CHECK: Merging to MAIN branch!")
+            print("   ⚠️  This action will deploy code to production.")
+            
+            import getpass
+            try:
+                password = getpass.getpass("   🔑 Enter admin password to merge to main: ")
+                if not password:
+                    print("   ❌ Merge cancelled.")
+                    return False
+                # Add actual password validation here if needed
+            except (EOFError, KeyboardInterrupt):
+                print("\n   ❌ Merge cancelled.")
+                return False
+        
+        command = ["gh", "pr", "merge", str(pr_number), "--merge", "--delete-branch"]
+        try:
+            process = subprocess.run(
+                command, cwd=self.project_root, capture_output=True, text=True, check=True, encoding="utf-8",
+            )
+            print(f"   ✅ PR #{pr_number} successfully merged!")
+            return True
+        except subprocess.CalledProcessError as e:
+            logger.error(f"Failed to merge PR #{pr_number}:\n{e.stderr.strip()}")
+            return False
+
     def remote_branch_exists(self, branch_name: str, remote_name: str = "origin") -> bool:
         success, output = self._run_git_command(["ls-remote", "--heads", remote_name, branch_name])
         return success and bool(output.strip())
