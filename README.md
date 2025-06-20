@@ -1,63 +1,84 @@
-# 🚀 Project.110620251156
-
-> Web uygulamanız için otomatik kurulum betiği ve geliştirilmiş komut satırı arayüzü ile kullanıcı dostu, kolay kurulabilen ve genişletilebilir bir deneyim sunar. ✨
+# 🚀 Summarizer Framework
+> Özetleme işlemlerini kolaylaştıran, hem GUI hem de komut satırı arayüzü ile kullanılabilen, modüler ve genişletilebilir bir web projesi.
 
 ## 📊 Proje Durumu
-
-✔️ Kurulum betiği ile kurulum basitleştirildi.
-✔️ CLI arayüzüne yeni komutlar eklendi.
-⚠️ Performans ve güvenlik etkileri inceleniyor.
-🚧 GUI entegrasyonu devam ediyor.
+Proje aktif olarak geliştiriliyor ve kurulum sürecinin otomasyonu, kullanıcı deneyiminin iyileştirilmesi ve yeni özelliklerin eklenmesi üzerinde duruluyor. Stabilite ve performans iyileştirmeleri de devam ediyor.
 
 ## ✨ Özellikler
-
-*   ✅ Otomatik GUI kurulumu
-*   ✅ Otomatik terminal komutu kurulumu
-*   ✅ Ekran görüntüsü alma ve analiz etme (screenshot, ss)
-*   ✅ GUI üzerinden yapılandırma (--gui)
-*   ✅ Terminal komutlarını kurma ve kaldırma (--install-terminal, --uninstall-terminal)
-*   ✅ Uygulama bileşenlerinin durumunu kontrol etme (--status)
-*   ✅ CLI, GUI ve Python import yoluyla erişim imkanı
+*   ✨ **GUI ve CLI Desteği:** Hem grafik arayüzü hem de komut satırı üzerinden kullanım imkanı.
+*   ⚙️ **Otomatik Kurulum:** GUI ve terminal komutlarının otomatik kurulumu ile kolay kurulum deneyimi.
+*   📸 **Ekran Görüntüsü Analizi:** Ekran görüntüsü alma ve analiz etme yeteneği.
+*   ✔️ **Durum Kontrolü:** Uygulamanın farklı bileşenlerinin durumunu kontrol etme özelliği.
+*   🧩 **Modüler Tasarım:** Yeni özelliklerin kolayca eklenebilmesi için modüler bir yapı.
+*   📖 **Geliştirilmiş Kullanıcı Deneyimi:** Kurulum sürecini basitleştiren ve anlaşılır hata mesajları sunan bir deneyim.
 
 ## Değişen Dosyalar:
+`install_gui.py`, `summarizer.py`
 
-*   `install_gui.py`
-*   `summarizer.py`
-
-## ANALİZ GÖREVİ:
+---
 
 ### 1. YAPISAL ANALİZ:
 
-*   **Etkilenen Sistem Bileşenleri ve Katmanlar:** Değişiklikler öncelikle sunum katmanını (GUI, CLI) ve uygulama giriş noktasını (`summarizer.py`) etkilemektedir. `install_gui.py`, GUI ve terminal komutlarının kurulumunu otomatikleştirerek dağıtım katmanını etkiler. `summarizer.py` dosyasına yapılan eklemeler, CLI arayüzünü zenginleştirerek ve yeni özellikler ekleyerek (örneğin ekran görüntüsü alma) doğrudan kullanıcı etkileşimi katmanını etkiler. `features` dizinindeki modüller (örn: `screenshot.py`, `gui_installer.py`) ana iş mantığının bir parçası olarak ele alınabilir ve `summarizer.py`'daki değişikliklerle tetiklenir. `src/main.summarizer` altındaki temel özetleme işlevselliği dolaylı olarak etkilenebilir, ancak doğrudan değiştirilmemiştir.
-*   **Mimari Değişikliklerin Etkisi:** Uygulamaya kurulum betiği eklenmesi ve CLI arayüzünün genişletilmesi, uygulamanın dağıtım mimarisini ve kullanıcı etkileşimini basitleştirerek mikro hizmet mimarilerine yaklaşımını güçlendirir.  Yeni özelliklerin (`screenshot`, `gui` komutları) modüler `features` dizinine eklenmesi, mimarinin genişletilebilirliğini artırır. Ana `summarizer.py` dosyası, komut satırı argümanlarını işleyen ve ilgili işlevselliği çağıran bir "kontrolör" görevi görerek daha temiz ve yönetilebilir kalır. Bu durum, kodun modülerliğini korurken yeni özelliklerin entegrasyonunu kolaylaştırır.
-*   **Kod Organizasyonunda Yapılan İyileştirmeler:** Kod daha modüler bir yapıya kavuşmuştur. `install_gui.py` dosyasında, kurulum adımları ayrı fonksiyonlara delege edilerek okunabilirlik artırılmıştır. `summarizer.py` dosyasında, `argparse` modülü kullanılarak komut satırı argümanlarının işlenmesi standartlaştırılmıştır. Özelliklerin ayrı modüllerde (`features` dizini) tutulması, kodun bakımı ve test edilmesini kolaylaştırır.  Docstring'ler ve yorumlar, kodun anlaşılabilirliğini artırır, ancak `TODO` notları geliştirme çalışmalarının devam ettiğini göstermektedir.
+*   **Etkilenen Sistem Bileşenleri ve Katmanlar:**
+    *   **Kullanıcı Arayüzü Katmanı:** `features.gui_installer` modülü ve `--gui` komutu ile GUI kurulum ve başlatma işlemleri etkilendi.
+    *   **Komut Satırı Arayüzü (CLI) Katmanı:** `features.terminal_commands` modülü ve yeni komut satırı argümanları ( `--install_terminal`, `--uninstall_terminal`, `screenshot` vb.) ile CLI etkilendi.
+    *   **Çekirdek İş Mantığı:** `src.main.summarizer` modülü, `summarizer.py` üzerinden yapılan çağrılarla dolaylı olarak etkilendi. Yeni özellikler (ekran görüntüsü alma) bu katmanın işleyişini etkileyebilir.
+    *   **Giriş Noktası Katmanı:** `summarizer.py` dosyası, uygulamanın ana giriş noktası olarak doğrudan etkilendi. Argüman ayrıştırma, modül çağırma ve özellik aktivasyonu bu katmanın temel sorumlulukları.
+*   **Mimari Değişikliklerin Etkisi:**
+    *   **Dağıtım Mimarisi:** `install_gui.py`, kurulum sürecini otomatikleştirerek dağıtım mimarisini basitleştiriyor. GUI ve CLI kurulumunu tek bir betik üzerinden yönetmek, "infrastructure as code" yaklaşımına yaklaşıyor.
+    *   **Modülerlik ve Genişletilebilirlik:** Yeni komutlar ve özellikler eklemek için modüler bir yaklaşım benimsenmiş. Özellikler ayrı modüllerde tutularak ana kodun daha temiz kalması sağlanıyor.
+    *   **Facade Deseni Uygulaması:** `summarizer.py`, kurulum ve özellik yönetimi gibi karmaşık işlemleri alt sistemlere delege ederek kullanıcıya basitleştirilmiş bir arayüz sunuyor. Bu, Facade deseninin bir uygulaması.
+*   **Kod Organizasyonunda Hangi İyileştirmeler Yapıldı:**
+    *   `install_gui.py` içerisinde GUI ve terminal komutları için kurulum adımları ayrı fonksiyonlara delege edilerek modülerlik arttırıldı. Hata yönetimi (`try...except`) ile kurulumun sağlamlığı iyileştirildi.
+    *   `summarizer.py` içerisindeki işlevsellik, `features` dizinindeki farklı modüllere ayrıldı, bu da kodun okunabilirliğini ve bakımını kolaylaştırdı. Komut satırı argümanlarının kullanımı ve açıklamaları daha net bir şekilde tanımlandı.
 
 ### 2. İŞLEVSEL ETKİ:
 
-*   **Eklenen, Değiştirilen veya Kaldırılan Özellikler:**
-    *   **Eklenen:** Otomatik GUI kurulumu ( `install_gui.py` yoluyla ve `--install-gui` komutu).
-    *   **Eklenen:** Otomatik terminal komutu kurulumu ( `install_gui.py` yoluyla ve `--install-terminal` komutu).
-    *   **Eklenen:** Ekran görüntüsü alma komutları (`screenshot`, `ss`). Bu komutlar, uygulamanın görsel verileri analiz etme yeteneğini artırır.
-    *   **Eklenen:** GUI yapılandırma komutu (`--gui`). Bu komut, teknik bilgisi az olan kullanıcılar için yapılandırmayı kolaylaştırır.
-    *   **Eklenen:** Kurulum ve kaldırma komutları (`--install-gui`, `--install-terminal`, `--uninstall-terminal`). Bu komutlar, uygulamanın dağıtımını ve yönetimini basitleştirir.
-    *   **Eklenen:** Durum kontrolü komutu (`--status`). Bu komut, sistem yöneticileri için faydalıdır.
-*   **Kullanıcı Deneyimi Nasıl Etkilendi:** Kullanıcı deneyimi önemli ölçüde iyileştirilmiştir. Kurulum süreci otomatikleştirilmiş ve basitleştirilmiştir, manuel adımlar ortadan kaldırılmıştır. CLI arayüzü, yeni komutlarla daha işlevsel hale gelmiştir. GUI yapılandırma seçeneği, uygulamanın daha geniş bir kullanıcı kitlesi tarafından erişilebilir olmasını sağlamıştır. Başarısız kurulum durumunda sağlanan hata mesajları ve çözüm önerileri, kullanıcıların sorunları daha kolay çözmelerine yardımcı olur.
-*   **Performans, Güvenlik veya Güvenilirlik Üzerindeki Etkiler:**  `install_gui.py` dosyasının doğrudan performans üzerinde büyük bir etkisi beklenmemektedir, ancak otomatik kurulum hataları azaltarak uygulamanın genel güvenilirliğini artırabilir. `screenshot` komutlarının performans üzerindeki etkisi, ekran görüntüsü alma ve işleme süreçlerinin optimizasyonuna bağlıdır. Güvenlik açısından, ekran görüntüsü alma özelliği hassas bilgilerin açığa çıkmasına neden olabilir, bu nedenle izin kontrolü gibi güvenlik önlemleri alınmalıdır. `install_gui.py` ve `summarizer.py`'daki yeni özelliklerin ve komutların ne kadar iyi test edildiğine ve hata yönetimi mekanizmalarının ne kadar sağlam olduğuna bağlı olarak uygulamanın güvenilirliği artabilir veya azalabilir.
+*   **Hangi Özellikler Eklendi, Değiştirildi veya Kaldırıldı:**
+    *   **Eklendi:** Otomatik GUI kurulumu (`install_full_gui_package` fonksiyonu aracılığıyla).
+    *   **Eklendi:** Otomatik terminal komutu kurulumu (`install_terminal_command` fonksiyonu aracılığıyla).
+    *   **Eklendi:** Kurulum adımlarının başarılı/başarısız olduğuna dair geri bildirim.
+    *   **Eklendi:** Kurulum tamamlandıktan sonra kullanılabilir komutların listesi ve API anahtarı yapılandırma talimatları (`install_gui.py`).
+    *   **Eklendi:** `--setup`, `--gui`, `screenshot`, `ss`, `--install_terminal`, `--uninstall_terminal`, `--status` gibi yeni komut satırı komutları (`summarizer.py`).
+    *   **Eklendi:** GUI entegrasyonu ve ekran görüntüsü alma özelliği (`summarizer.py`).
+*   **Kullanıcı Deneyimi Nasıl Etkilendi:**
+    *   Kurulum süreci basitleştirilerek kullanıcı deneyimi iyileştirildi. Manuel kurulum adımları ortadan kaldırıldı ve kullanıcıya daha akıcı bir deneyim sunuldu (`install_gui.py`).
+    *   Yeni komut satırı komutları ve GUI entegrasyonu sayesinde uygulama daha çok yönlü hale geldi. Kullanıcılar, farklı görevleri daha hızlı ve kolay bir şekilde tamamlayabiliyor (`summarizer.py`).
+    *   Başarısız kurulum durumunda sağlanan hata mesajları ve çözüm önerileri de kullanıcı deneyimini destekliyor (`install_gui.py`).
+*   **Performans, Güvenlik veya Güvenilirlik Üzerindeki Etkiler:**
+    *   **Performans:** Ekran görüntüsü alma ve işleme gibi yeni özellikler uygulamanın performansını etkileyebilir. Bu özellikler için optimizasyonlar yapılması gerekebilir (`summarizer.py`).
+    *   **Güvenlik:** Ekran görüntüsü alma özelliği, hassas bilgilerin yanlışlıkla paylaşılması riskini taşıyor. Bu nedenle güvenlik önlemleri alınmalı (örn. izin kontrolü) (`summarizer.py`). `install_gui.py` içerisindeki kurulum fonksiyonlarının sistemde ayrıcalıklı işlemler yapması durumunda güvenlik açıkları oluşma potansiyeli var.
+    *   **Güvenilirlik:** Modüler tasarım, bir modüldeki hatanın tüm uygulamayı etkileme olasılığını azaltıyor.
 
 ### 3. TEKNİK DERINLIK:
 
-*   **Uygulanan veya Değiştirilen Tasarım Desenleri:**
-    *   **Facade:** `install_gui.py` ve `summarizer.py` dosyaları, karmaşık alt sistemlerin (GUI kurulumu, terminal komutu kurulumu, ekran görüntüsü alma) işlevselliğini basitleştirilmiş bir arayüz aracılığıyla sunarak Facade tasarım desenini uygular.
-    *   **Command:** `summarizer.py` dosyasındaki komut satırı argümanlarının işlenmesi ve ilgili fonksiyonların çağrılması, Command Pattern'in bir uygulaması olarak değerlendirilebilir. Her komut (örneğin `screenshot`, `gui`), belirli bir eylemi temsil eden bir nesne olarak düşünülebilir.
-    *   **Modüler Tasarım:** Uygulama, modüler bir tasarıma sahiptir. Özellikler ayrı modüllerde uygulanır, bu da kodun daha düzenli, bakımı daha kolay ve test edilebilir olmasını sağlar.
-*   **Kod Kalitesi ve Sürdürülebilirlik Nasıl Gelişti:** Modüler tasarım, kodun daha kolay anlaşılmasını, değiştirilmesini ve test edilmesini sağlar. `install_gui.py`'daki hata yönetimi ( `try...except` blokları), kurulumun sağlamlığını artırır. `summarizer.py` dosyasındaki docstring'ler ve yorumlar, kodun anlaşılabilirliğini artırır. Ancak, `install_gui.py` içindeki `install_full_gui_package` ve `install_terminal_command` fonksiyonlarının ve `features` dizinindeki modüllerin kendileri de iyi yazılmış ve test edilmiş olmalıdır.
-*   **Yeni Bağımlılıklar veya Teknolojiler Eklendi mi:** Değişikliklerde doğrudan yeni bir bağımlılık belirtilmemiştir, ancak ekran görüntüsü alma özelliği için muhtemelen `PIL` (Pillow) veya benzeri bir kütüphane kullanılmıştır. GUI kurulumu için de `Tkinter`, `PyQt` veya `wxPython` gibi bir kütüphane kullanılmış olabilir. Bu bağımlılıkların kurulum gereksinimleri ve lisans bilgileri göz önünde bulundurulmalıdır. `argparse` ve `pathlib` modülleri zaten kullanılıyordu.
+*   **Hangi Tasarım Desenleri Uygulandı veya Değiştirildi:**
+    *   **Facade Pattern:** `install_gui.py` ve `summarizer.py`, kurulum işlemlerini ve alt modüllerin işlevselliğini basitleştirilmiş bir arayüz aracılığıyla sunarak Facade Pattern'i uyguluyor.
+    *   **Command Pattern:** `summarizer.py` içerisindeki komut satırı argümanlarının işlenmesi ve ilgili fonksiyonların çağrılması, Command Pattern'in bir uygulaması olarak görülebilir.
+*   **Kod Kalitesi ve Sürdürülebilirlik Nasıl Gelişti:**
+    *   Modüler tasarım, kodun okunabilirliğini, test edilebilirliğini ve sürdürülebilirliğini artırıyor.
+    *   Docstring'ler ve yorumlar, kodun anlaşılmasını kolaylaştırıyor.
+    *   `install_gui.py` ve `summarizer.py` içerisinde hata yönetimi uygulanmış, bu da kodun daha sağlam olmasını sağlıyor.
+*   **Yeni Bağımlılıklar veya Teknolojiler Eklendi mi:**
+    *   `install_gui.py` doğrudan yeni bir bağımlılık eklememiş. Ancak `features.gui_installer` ve `features.terminal_commands` modüllerinin bağımlılıkları kontrol edilmeli.
+    *   `summarizer.py` içerisinde `argparse` ve `pathlib` modülleri kullanılıyor. Ekran görüntüsü alma özelliği için ek kütüphaneler (örn. `PIL`, `mss`) gerekebilir. GUI entegrasyonu için GUI kütüphaneleri (örn. `Tkinter`, `PyQt`, `wxPython`) kullanılıyor olabilir.
 
 ### 4. SONUÇ YORUMU:
 
-*   **Bu Değişikliklerin Uzun Vadeli Değeri ve Etkisi Nedir:** Bu değişiklikler, uygulamanın kullanıcı dostu olmasını ve kolay kurulabilmesini sağlayarak uzun vadede değer yaratır. Yeni kullanıcıların uygulamayı daha kolay benimsemesine ve mevcut kullanıcıların kurulum sorunlarıyla uğraşmak zorunda kalmamasına yardımcı olur. Otomatik kurulum, dağıtım ve bakım maliyetlerini düşürebilir. CLI'ye eklenen yeni komutlar, uygulamanın potansiyel kullanım alanlarını genişletir. GUI yapılandırma seçeneği, uygulamanın daha geniş bir kullanıcı kitlesi tarafından kullanılmasını sağlar.
-*   **Projenin Teknik Borcu Nasıl Etkilendi:** Modüler tasarım ve kod kalitesine verilen önem, projenin teknik borcunu azaltmaya yardımcı olur. Ancak, yeni özelliklerin (özellikle ekran görüntüsü alma) performansı ve güvenliği dikkatle izlenmelidir. Ayrıca, yeni bağımlılıkların (eğer varsa) lisans ve bakım gereksinimleri de dikkate alınmalıdır. Özellikle GUI kısmının test edilmesi ve bakımı maliyetli olabilir. `TODO` notları, çözülmesi gereken sorunları veya iyileştirilmesi gereken alanları gösterir ve teknik borcun bir göstergesi olarak kabul edilebilir.
-*   **Gelecekteki Geliştirmelere Nasıl Hazırlık Yapıldı:** Modüler tasarım, gelecekte yeni özellikler eklemeyi ve mevcut özellikleri değiştirmeyi kolaylaştırır. CLI'ye eklenen yeni komutlar, uygulamanın potansiyel kullanım alanlarını genişletir. Yapılan geliştirmeler, TODO listesindeki maddelerin gerçekleştirilmesi için bir zemin hazırlamaktadır. Özellikle AI destekli göz (Summarizer Eye) ve sesli komut sistemi (Summarizer Enter) gibi daha karmaşık özelliklerin gelecekte entegre edilmesi için gerekli altyapı sağlanmaktadır.
+*   **Bu Değişikliklerin Uzun Vadeli Değeri ve Etkisi Nedir:**
+    *   Uygulamanın daha kullanıcı dostu, erişilebilir ve genişletilebilir hale gelmesini sağlıyor.
+    *   Yeni özelliklerin kolayca entegre edilmesine olanak tanıyor.
+    *   Modüler tasarım, kodun bakımını ve güncellenmesini kolaylaştırıyor.
+    *   Otomatik kurulum, dağıtım ve bakım maliyetlerini düşürebilir.
+*   **Projenin Teknik Borcu Nasıl Etkilendi:**
+    *   Modüler tasarım ve daha iyi dokümantasyon, teknik borcu azaltıyor.
+    *   Ekran görüntüsü alma ve GUI entegrasyonu gibi karmaşık özellikler, eğer iyi tasarlanmaz ve test edilmezse teknik borcu artırabilir.
+    *   `install_gui.py`'deki yetersiz hata yönetimi, belirsiz hata mesajları ve eksik testler ileride kurulum sorunlarına yol açabilir.
+    *   `TODO` yorumları, çözülmesi gereken sorunları veya iyileştirilmesi gereken alanları gösteriyor.
+*   **Gelecekteki Geliştirmelere Nasıl Hazırlık Yapıldı:**
+    *   Modüler tasarım, gelecekteki özelliklerin eklenmesini kolaylaştırıyor.
+    *   Açık arayüzler, farklı bileşenler arasındaki etkileşimleri netleştirerek, gelecekteki değişikliklerin etkisini anlamayı kolaylaştırıyor.
+    *   `TODO` yorumları, gelecekteki geliştirme yönlerini gösteriyor. Konfigürasyon yönetimi için harici bir konfigürasyon dosyası kullanılabilir hale getirilmelidir. Otomatik testler yazılmalı ve kurulumun farklı senaryolarda doğru bir şekilde çalıştığı doğrulanmalıdır. `features.gui_installer` ve `features.terminal_commands` modülleri daha da modüler hale getirilebilir.
 
 ## 🛠️ Kurulum (Installation)
 
@@ -218,7 +239,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**Last updated**: June 20, 2025 by Summarizer Framework v15.16.7
+**Last updated**: June 20, 2025 by Summarizer Framework v15.16.8
 *This README is automatically generated and updated based on project activity.*
 
 > *"Automatically maintained with AI-powered analysis"*
