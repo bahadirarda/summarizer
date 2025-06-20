@@ -14,6 +14,7 @@ import subprocess
 import json
 import getpass
 import re
+import time
 from enum import Enum, auto
 
 # Add parent directory to path for imports
@@ -30,7 +31,6 @@ from features.parameter_checker import setup_command
 class MergeStatus(Enum):
     SUCCESS = auto()
     FAILED = auto()
-    PAUSED = auto()
     CANCELLED = auto()
 
 
@@ -189,112 +189,79 @@ def check_pr_status(pr_number: int, project_root: Path) -> bool:
 
 
 def execute_merge(pr_to_merge: dict, merge_method: str, project_root: Path, git_manager: GitManager) -> MergeStatus:
-    """Execute the actual merge"""
-    pr_number = pr_to_merge['number']
-    
-    print(f"\n   🔄 Merging PR #{pr_number}: {pr_to_merge['title']}")
-    print(f"   📋 Method: {merge_method}")
-    print(f"   🔀 {pr_to_merge['headRefName']} → {pr_to_merge['baseRefName']}")
-    
-    # Check for conflicts first
-    try:
-        print("   🔍 Checking for merge conflicts...")
+    """Executes the merge with an intelligent retry loop for conflicts."""
+    max_retries = 3
+    for attempt in range(1, max_retries + 1):
+        print(f"\n   🚀 Merge attempt {attempt}/{max_retries} for PR #{pr_to_merge['number']}...")
         
-        mergeable_cmd = ["gh", "pr", "view", str(pr_number), "--json", "mergeable,mergeStateStatus"]
-        mergeable_process = subprocess.run(
-            mergeable_cmd,
-            cwd=project_root,
-            capture_output=True,
-            text=True,
-            check=True
-        )
-        
-        mergeable_data = json.loads(mergeable_process.stdout)
-        
-        if mergeable_data.get('mergeable') == 'CONFLICTING':
-            print("   ❌ This PR has merge conflicts that must be resolved!")
-            print("   📝 Conflicting files need to be resolved before merging.")
-            
+        try:
+            # Check for conflicts right before attempting
+            print("   🔍 Checking for merge conflicts...")
+            mergeable_cmd = ["gh", "pr", "view", str(pr_to_merge['number']), "--json", "mergeable,headRefName"]
+            mergeable_process = subprocess.run(
+                mergeable_cmd, cwd=project_root, capture_output=True, text=True, check=True
+            )
+            mergeable_data = json.loads(mergeable_process.stdout)
+
+            # If NOT conflicting, try to merge
+            if mergeable_data.get('mergeable') != 'CONFLICTING':
+                print("   ✅ No conflicts detected. Proceeding with merge.")
+                success, output = git_manager.merge_pr(pr_to_merge['number'], merge_method)
+                if success:
+                    print(f"   🎉 Merge successful on attempt {attempt}!")
+                    return MergeStatus.SUCCESS
+                else:
+                    print(f"   ❌ Merge command failed even without conflicts:\n{output}")
+                    return MergeStatus.FAILED # Hard fail if merge fails without conflicts
+
+            # If conflicting, start the resolution flow
+            print("   ❌ This PR has merge conflicts!")
             while True:
                 print("\n   💡 How would you like to proceed?")
                 print("      1. Attempt to resolve conflicts automatically (merges target into source)")
                 print("      2. Force push source branch to overwrite remote (DANGEROUS)")
-                print("      3. Cancel and resolve manually")
+                print("      3. Cancel merge")
                 choice = input("   Enter your choice (1, 2, or 3): ").strip()
-
+                
+                resolution_action_taken = False
                 if choice == '1':
-                    print("\n   🔧 Attempting to resolve conflicts automatically...")
-                    if git_manager.resolve_conflicts_with_pr(pr_number):
+                    if git_manager.resolve_conflicts_with_pr(pr_to_merge['number']):
                         print("\n   🎉 Conflicts resolved successfully!")
-                        print("   📋 The PR has been updated. You may need to re-run the merge command.")
-                        return MergeStatus.PAUSED
+                        resolution_action_taken = True
                     else:
                         print("   ❌ Automatic conflict resolution failed.")
-                        print("   💡 Please resolve conflicts manually.")
                         return MergeStatus.FAILED
+                    break
                 elif choice == '2':
-                    pr_branch_name = pr_to_merge['headRefName']
+                    pr_branch_name = mergeable_data['headRefName']
                     if git_manager.force_push_with_confirmation(pr_branch_name):
-                         print("\n   🎉 Force push completed.")
-                         print("   📋 The PR has been updated. You may need to re-run the merge command.")
-                         return MergeStatus.PAUSED
+                        print("\n   🎉 Force push completed.")
+                        resolution_action_taken = True
                     else:
                         print("   ❌ Force push was cancelled or failed.")
                         return MergeStatus.CANCELLED
+                    break
                 elif choice == '3':
-                    print("   ⚪️ Merge cancelled. Please resolve conflicts manually.")
+                    print("   ⚪️ Merge cancelled by user.")
                     return MergeStatus.CANCELLED
                 else:
                     print("   ⚠️  Invalid choice. Please enter 1, 2, or 3.")
-            return MergeStatus.FAILED # Fallback if loop is broken unexpectedly
-    except Exception as e:
-        print(f"   ⚠️  Could not check merge conflicts: {e}")
-        # Continue anyway
-    
-    # Execute the merge
-    try:
-        merge_cmd = ["gh", "pr", "merge", str(pr_number), f"--{merge_method}"]
-        
-        print(f"\n   🚀 Executing merge...")
-        merge_process = subprocess.run(
-            merge_cmd,
-            cwd=project_root,
-            capture_output=True,
-            text=True,
-            check=True
-        )
-        
-        print("   ✅ PR merged successfully!")
-        
-        # Sync local repository
-        print("\n   🔄 Syncing local repository...")
-        current_branch = git_manager.get_current_branch()
-        
-        # Fetch latest changes
-        git_manager.fetch_updates()
-        
-        # If we're on the merged branch, switch to base branch
-        if current_branch == pr_to_merge['headRefName']:
-            print(f"   📋 Switching from merged branch to {pr_to_merge['baseRefName']}...")
-            git_manager.checkout(pr_to_merge['baseRefName'])
-            git_manager.pull(pr_to_merge['baseRefName'])
             
-            # Offer to delete the merged branch locally
-            if input(f"\n   ❔ Delete local branch '{pr_to_merge['headRefName']}'? (y/n): ").lower() == 'y':
-                git_manager._run_git_command(["branch", "-d", pr_to_merge['headRefName']])
-                print(f"   ✅ Local branch '{pr_to_merge['headRefName']}' deleted")
-        else:
-            # Just pull latest on current branch
-            git_manager.pull(current_branch)
-        
-        print("   ✅ Local repository synced")
-        return MergeStatus.SUCCESS
-        
-    except subprocess.CalledProcessError as e:
-        print(f"   ❌ Merge failed: {e}")
-        if e.stderr:
-            print(f"   📝 Error details: {e.stderr}")
-        return MergeStatus.FAILED
+            if resolution_action_taken:
+                print("   📋 The PR has been updated. Waiting for GitHub to process changes...")
+                time.sleep(5) # Give GitHub a moment to update
+                print("   Retrying merge...")
+                continue # Go to the next attempt in the for loop
+            
+        except (subprocess.CalledProcessError, json.JSONDecodeError) as e:
+            print(f"   ⚠️  Could not check merge status on attempt {attempt}: {e}")
+            if attempt < max_retries:
+                print("   Retrying after a short delay...")
+                time.sleep(3)
+            continue
+
+    print(f"\n   ❌ Merge failed after {max_retries} attempts.")
+    return MergeStatus.FAILED
 
 
 def _get_bulk_ai_analysis(prs: List[Dict], gemini_client: Any) -> Optional[Dict]:
@@ -502,7 +469,7 @@ def merge_command(project_root: Path):
         
         # Simple password check (in real world, use proper auth)
         password = getpass.getpass("   🔑 Enter security password: ")
-        if password != "merge2main":  # You should use env var or better auth
+        if password != "passWord!":  # You should use env var or better auth
             print("   ❌ Invalid password. Merge cancelled.")
             return MergeStatus.CANCELLED
         
@@ -514,11 +481,15 @@ def merge_command(project_root: Path):
     if merge_status == MergeStatus.SUCCESS:
         print("\n   🎉 Merge completed successfully!")
         print("   🔄 Syncing local repository with remote changes...")
-        git_manager.pull(pr_to_merge['baseRefName'])
-        git_manager.delete_branch(pr_to_merge['headRefName'])
-    elif merge_status == MergeStatus.PAUSED:
-        print("\n   ⏸️  Merge Paused: Action was taken to resolve conflicts.")
-        print("   💡 Please re-run 'summarizer merge' to proceed with the now-updated PR.")
+        try:
+            git_manager.checkout(pr_to_merge['baseRefName'])
+            git_manager.pull(pr_to_merge['baseRefName'])
+            # Ask before deleting the branch
+            if _ask_user(f"   ❔ Do you want to delete the local branch '{pr_to_merge['headRefName']}'?"):
+                git_manager.delete_branch(pr_to_merge['headRefName'])
+        except Exception as e:
+            print(f"   ⚠️  Post-merge cleanup failed: {e}")
+
     elif merge_status == MergeStatus.CANCELLED:
         print("\n   🛑 Merge was cancelled by the user.")
     else: # FAILED
