@@ -55,6 +55,8 @@ class ConfigurationManager:
         # Load configurations
         self._load_schema()
         self._load_settings()
+        # Import from .env if exists
+        self.import_from_env()
 
     def _load_schema(self) -> None:
         """Load configuration schema from JSON file"""
