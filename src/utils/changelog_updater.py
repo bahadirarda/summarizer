@@ -84,7 +84,7 @@ def _write_next_command(project_root: Path, command: str):
         logger_changelog.error(f"Could not create next_command.sh file: {e}")
 
 
-def _handle_pull_request_flow(project_root: Path, git_manager: GitManager, current_branch: str, target_branch: str, summary: str, gemini_client: Any = None):
+def _handle_pull_request_flow(project_root: Path, git_manager: GitManager, current_branch: str, target_branch: str, summary: str, gemini_client: Any = None, auto_create: bool = True):
     """Handles the pull request creation/update process intelligently and offers next steps."""
     print("   ⏱️  Checking for existing PRs and remote branches...")
     if not git_manager.remote_branch_exists(target_branch):
@@ -104,24 +104,32 @@ def _handle_pull_request_flow(project_root: Path, git_manager: GitManager, curre
         print(f"   ✅ An open pull request already exists: {existing_pr['url']}")
         
         # Check if there are new commits to push
-        if not git_manager.has_diff_between_branches(f"origin/{target_branch}", f"origin/{current_branch}"):
+        sync_status, ahead, behind = git_manager.get_branch_sync_status(current_branch)
+        
+        if sync_status == SyncStatus.AHEAD:
+            # Only push if we have unpushed commits
+            if _ask_user(f"   ❔ Push {ahead} new commit(s) to the existing PR?"):
+                print(f"   🚀 Pushing new commits to '{current_branch}'...")
+                push_success, _ = git_manager.push(current_branch)
+                if push_success:
+                    print("   ✅ Successfully pushed new commits to the existing PR.")
+                    print(f"   📎 PR URL: {existing_pr['url']}")
+                else:
+                    print("   ❌ Failed to push updates to the PR branch.")
+        else:
             print(f"   ⚪️ No new commits since last push. PR is up to date.")
-            return
-            
-        if _ask_user("   ❔ Push new commits to the existing PR?"):
-            print(f"   🚀 Pushing new commits to '{current_branch}'...")
-            push_success, _ = git_manager.push(current_branch)
-            if push_success:
-                print("   ✅ Successfully pushed new commits to the existing PR.")
-                print(f"   📎 PR URL: {existing_pr['url']}")
-            else:
-                print("   ❌ Failed to push updates to the PR branch.")
+            print(f"   📎 PR URL: {existing_pr['url']}")
     else:
-        if not git_manager.has_diff_between_branches(f"origin/{target_branch}", f"origin/{current_branch}"):
-            print(f"   ⚪️ No differences between branches. A Pull Request is not needed.")
+        # Check if branch has been pushed
+        if not git_manager.remote_branch_exists(current_branch):
+            print(f"   ⚠️  Branch '{current_branch}' has not been pushed to remote yet.")
             return
-            
-        if _ask_user(f"   ❔ Create a new Pull Request from '{current_branch}' to '{target_branch}'?"):
+        
+        # If auto_create is True (from AI workflow), create PR automatically
+        # Otherwise ask the user
+        should_create = auto_create or _ask_user(f"   ❔ Create a new Pull Request from '{current_branch}' to '{target_branch}'?")
+        
+        if should_create:
             print("   🤖 Generating AI-powered pull request details...")
             new_body = git_manager.generate_pull_request_body(summary, gemini_client)
             print(f"   📝 PR Title: {pr_title}")
@@ -433,10 +441,11 @@ def update_changelog(project_root: Optional[Path] = None):
                 # Create PR to target branch
                 target_branch = workflow_decision.get('target_branch', 'develop')
                 
-                if _ask_user(f"   ❔ Push '{current_branch_name}' and create PR to '{target_branch}'?"):
+                if _ask_user(f"   ❔ Push '{current_branch_name}' to remote?"):
                     success, output = git_manager.push(current_branch_name)
                     if success:
                         print("   ✅ Branch pushed successfully.")
+                        # Now handle PR creation/update
                         _handle_pull_request_flow(project_root, git_manager, current_branch_name, target_branch, summary, gemini_client)
                         
                         # Info about main branch protection
@@ -461,10 +470,11 @@ def update_changelog(project_root: Optional[Path] = None):
             elif workflow_decision['workflow'] == 'release':
                 # Special release workflow
                 print("   📦 Following release workflow...")
-                if _ask_user(f"   ❔ Push '{current_branch_name}' for release preparation?"):
+                if _ask_user(f"   ❔ Push '{current_branch_name}' to remote?"):
                     success, output = git_manager.push(current_branch_name)
                     if success:
                         print("   ✅ Release branch pushed.")
+                        # Now handle PR creation for release
                         _handle_pull_request_flow(project_root, git_manager, current_branch_name, 'main', summary, gemini_client)
                     else:
                         print(f"   ❌ Push failed: {output}")

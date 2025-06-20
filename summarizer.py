@@ -128,6 +128,11 @@ def main():
     if args and args[0] in ['screenshot', 'ss']:
         return screenshot_command(args[1:])
     
+    # Handle merge command
+    if args and args[0] == 'merge':
+        from features.merge_command import merge_command
+        return merge_command(args[1:])
+    
     # Handle setup and configuration commands
     if args and args[0] == '--setup':
         return setup_command()
@@ -171,6 +176,7 @@ Examples:
   summarizer --check            # Check configuration
   summarizer screenshot         # Full screen analysis
   summarizer ss chrome          # Chrome window analysis
+  summarizer merge              # Merge PR with security checks
   
   # Python usage:
   import summarizer
