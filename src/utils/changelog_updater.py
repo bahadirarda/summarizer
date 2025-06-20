@@ -689,10 +689,12 @@ IMPORTANT RULES:
 - Critical changes should use hotfix branches
 - High/Medium changes should use feature or release branches
 - Low impact changes can use existing branches if appropriate
+- Branch names MUST be in English, use descriptive English words based on the changed files
+- For example: hotfix/git-workflow-fix, feature/ai-integration, release/version-update
 
 Return a JSON object with:
 {{
-    "recommended_branch": "branch name or 'current' to stay",
+    "recommended_branch": "branch name in ENGLISH or 'current' to stay",
     "branch_type": "feature|bugfix|release|hotfix|none",
     "workflow": "pr|direct|release",
     "target_branch": "where to merge (if PR workflow)",
@@ -725,8 +727,16 @@ Return a JSON object with:
         logger_changelog.error(f"AI workflow decision failed: {e}")
         # Intelligent fallback based on current situation
         if current_branch == "main":
+            # Generate English branch name based on changed files
+            if changed_files:
+                # Extract meaningful name from first changed file
+                first_file = changed_files[0].replace('/', '-').replace('.py', '').replace('_', '-')
+                branch_suffix = first_file.split('-')[-1] if '-' in first_file else 'update'
+            else:
+                branch_suffix = 'update'
+                
             return {
-                "recommended_branch": f"release/auto-{datetime.now().strftime('%Y%m%d-%H%M%S')}",
+                "recommended_branch": f"release/{branch_suffix}-{datetime.now().strftime('%Y%m%d')}",
                 "branch_type": "release",
                 "workflow": "pr",
                 "target_branch": "main",
