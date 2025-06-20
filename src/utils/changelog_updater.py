@@ -433,9 +433,13 @@ def update_changelog(project_root: Optional[Path] = None):
                         new_version = final_version
                         print(f"   🔄 Version updated to: {new_version}")
                 else:
-                    print(f"   ⚠️  Could not create git tag for v{new_version}")
+                    # The user was already prompted, or an error occurred.
+                    # The specific error/reason is logged by the version_manager.
+                    print(f"   ⚠️  Could not create or decided not to create git tag for v{new_version}.")
             except Exception as tag_error:
-                print(f"   ⚠️  Could not create git tag: {tag_error}")
+                # This will catch unexpected errors during the process
+                print(f"   💥 An unexpected error occurred during git tag creation: {tag_error}")
+                logger_changelog.error("Unexpected error in tag creation step", exc_info=True)
             # Get AI workflow decision
             current_branch_name = git_manager.get_current_branch()
             print("\n   🤖 Consulting AI for workflow optimization...")
