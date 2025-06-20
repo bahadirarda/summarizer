@@ -91,31 +91,35 @@ def _handle_pull_request_flow(project_root: Path, git_manager: GitManager, curre
         print(f"   ❌ Target branch '{target_branch}' does not exist on the remote. Please push it first.")
         return
     git_manager.fetch_updates()
-    if not git_manager.has_diff_between_branches(f"origin/{target_branch}", f"origin/{current_branch}"):
-        print(f"   ⚪️ No new commits to merge. A Pull Request is not needed.")
-        return
     
     existing_pr = git_manager.get_existing_pr(current_branch)
     current_version = VersionManager(project_root).get_current_version()
-    pr_title = f"feat: Release v{current_version} - Automated Changelog Update"
+    
+    # Better PR title based on branch type
+    branch_type = current_branch.split('/')[0] if '/' in current_branch else 'update'
+    pr_title = f"{branch_type}: v{current_version} - {current_branch.split('/')[-1] if '/' in current_branch else 'update'}"
     
     if existing_pr:
         print(f"   ✅ An open pull request already exists: {existing_pr['url']}")
-        prompt = (f"   ❔ The existing PR will be updated with your latest commits and a new description.\n"
-                  f"      This will overwrite the PR's current title and body. Continue?")
-        if _ask_user(prompt):
-            print(f"   🚀 Force-pushing '{current_branch}' to update PR content...")
-            push_success, _ = git_manager.force_push(current_branch)
-            if not push_success:
-                print("   ❌ Failed to push updates to the PR branch. Aborting update.")
-                return
-            print("   🤖 Generating updated AI-powered pull request body...")
-            new_body = git_manager.generate_pull_request_body(summary, gemini_client)
-            if git_manager.update_pr_details(existing_pr['number'], pr_title, new_body):
-                print("   ✅ Successfully updated the existing pull request with the latest changes.")
+        
+        # Check if there are new commits to push
+        if not git_manager.has_diff_between_branches(f"origin/{target_branch}", f"origin/{current_branch}"):
+            print(f"   ⚪️ No new commits since last push. PR is up to date.")
+            return
+            
+        if _ask_user("   ❔ Push new commits to the existing PR?"):
+            print(f"   🚀 Pushing new commits to '{current_branch}'...")
+            push_success, _ = git_manager.push(current_branch)
+            if push_success:
+                print("   ✅ Successfully pushed new commits to the existing PR.")
+                print(f"   📎 PR URL: {existing_pr['url']}")
             else:
-                print("   ❌ Failed to update the pull request metadata.")
+                print("   ❌ Failed to push updates to the PR branch.")
     else:
+        if not git_manager.has_diff_between_branches(f"origin/{target_branch}", f"origin/{current_branch}"):
+            print(f"   ⚪️ No differences between branches. A Pull Request is not needed.")
+            return
+            
         if _ask_user(f"   ❔ Create a new Pull Request from '{current_branch}' to '{target_branch}'?"):
             print("   🤖 Generating AI-powered pull request details...")
             new_body = git_manager.generate_pull_request_body(summary, gemini_client)
@@ -663,10 +667,22 @@ def export_changelog(project_root: Path, format_type: str = "json") -> str:
 
 def _get_ai_workflow_decision(gemini_client: Any, current_branch: str, summary: str, impact_level: ImpactLevel, changed_files: list) -> dict:
     """Use AI to decide the best workflow, branch strategy, and version management"""
+    
+    # Check if we're already on a feature/bugfix/hotfix/release branch
+    if current_branch.startswith(('feature/', 'bugfix/', 'hotfix/', 'release/')):
+        # Stay on current branch and continue development
+        return {
+            "recommended_branch": "current",
+            "branch_type": "none",
+            "workflow": "pr",
+            "target_branch": "main" if current_branch.startswith(('hotfix/', 'release/')) else "develop",
+            "reasoning": f"Continuing development on existing {current_branch.split('/')[0]} branch"
+        }
+    
     if not (gemini_client and gemini_client.is_ready()):
         # Fallback to rule-based decision
         return {
-            "recommended_branch": "feature/auto-update" if current_branch == "main" else current_branch,
+            "recommended_branch": "feature/auto-update" if current_branch == "main" else "current",
             "workflow": "standard",
             "reasoning": "AI unavailable, using standard workflow"
         }
