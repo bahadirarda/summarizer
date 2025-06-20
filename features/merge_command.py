@@ -189,7 +189,7 @@ def check_pr_status(pr_number: int, project_root: Path) -> bool:
 
 
 def execute_merge(pr_to_merge: dict, merge_method: str, project_root: Path, git_manager: GitManager) -> MergeStatus:
-    """Executes the merge with an intelligent retry loop for conflicts."""
+    """Executes the merge with an intelligent retry loop and a guided, choice-based conflict resolution."""
     max_retries = 3
     for attempt in range(1, max_retries + 1):
         print(f"\n   🚀 Merge attempt {attempt}/{max_retries} for PR #{pr_to_merge['number']}...")
@@ -197,7 +197,7 @@ def execute_merge(pr_to_merge: dict, merge_method: str, project_root: Path, git_
         try:
             # Check for conflicts right before attempting
             print("   🔍 Checking for merge conflicts...")
-            mergeable_cmd = ["gh", "pr", "view", str(pr_to_merge['number']), "--json", "mergeable,headRefName"]
+            mergeable_cmd = ["gh", "pr", "view", str(pr_to_merge['number']), "--json", "mergeable,headRefName,baseRefName"]
             mergeable_process = subprocess.run(
                 mergeable_cmd, cwd=project_root, capture_output=True, text=True, check=True
             )
@@ -212,46 +212,59 @@ def execute_merge(pr_to_merge: dict, merge_method: str, project_root: Path, git_
                     return MergeStatus.SUCCESS
                 else:
                     print(f"   ❌ Merge command failed even without conflicts:\n{output}")
-                    return MergeStatus.FAILED # Hard fail if merge fails without conflicts
+                    return MergeStatus.FAILED
 
-            # If conflicting, start the resolution flow
-            print("   ❌ This PR has merge conflicts!")
-            while True:
-                print("\n   💡 How would you like to proceed?")
-                print("      1. Attempt to resolve conflicts automatically (merges target into source)")
-                print("      2. Force push source branch to overwrite remote (DANGEROUS)")
-                print("      3. Cancel merge")
-                choice = input("   Enter your choice (1, 2, or 3): ").strip()
-                
-                resolution_action_taken = False
-                if choice == '1':
-                    if git_manager.resolve_conflicts_with_pr(pr_to_merge['number']):
-                        print("\n   🎉 Conflicts resolved successfully!")
-                        resolution_action_taken = True
-                    else:
-                        print("   ❌ Automatic conflict resolution failed.")
-                        return MergeStatus.FAILED
-                    break
-                elif choice == '2':
-                    pr_branch_name = mergeable_data['headRefName']
-                    if git_manager.force_push_with_confirmation(pr_branch_name):
-                        print("\n   🎉 Force push completed.")
-                        resolution_action_taken = True
-                    else:
-                        print("   ❌ Force push was cancelled or failed.")
-                        return MergeStatus.CANCELLED
-                    break
-                elif choice == '3':
-                    print("   ⚪️ Merge cancelled by user.")
-                    return MergeStatus.CANCELLED
+            # If conflicting, start the new guided resolution flow
+            source_branch = mergeable_data.get('headRefName')
+            target_branch = mergeable_data.get('baseRefName')
+            print(f"\n   ❌ This PR has merge conflicts because '{source_branch}' is out-of-date with '{target_branch}'.")
+            
+            # Recommend the standard, safe solution first
+            print("\n   💡 **Recommended Action:** The standard way to fix this is to update your branch with the latest changes from the target branch.")
+            prompt = f"❔ Do you want to automatically resolve the conflict this way? (y/n): "
+            
+            resolution_action_taken = False
+            if _ask_user(prompt):
+                # User accepts the recommended solution
+                print(f"\n   🔧 Attempting to resolve conflicts by merging '{target_branch}' into '{source_branch}'...")
+                if git_manager.resolve_conflicts_with_pr(pr_to_merge['number']):
+                    print("   🎉 Conflicts resolved successfully!")
+                    resolution_action_taken = True
                 else:
-                    print("   ⚠️  Invalid choice. Please enter 1, 2, or 3.")
+                    print("   ❌ Automatic conflict resolution failed. This might be a complex conflict.")
+                    return MergeStatus.FAILED
+            else:
+                # User rejects the recommended solution, offer advanced alternatives
+                print("\n   ⚪️ Automatic resolution declined.")
+                print("   ⚠️  Please choose an alternative action. Be aware that these are advanced options.")
+                print("      1. Force Push branch: Overwrite the remote branch with your version.")
+                print("         (Use this ONLY if you want to discard remote changes. This does not resolve the conflict itself).")
+                print("      2. Cancel: I will resolve the conflict manually.")
+                
+                while True:
+                    choice = input("   Enter your choice (1 or 2): ").strip()
+                    if choice == '1':
+                        if git_manager.force_push_with_confirmation(source_branch):
+                            print("\n   🎉 Force push completed.")
+                            resolution_action_taken = True
+                        else:
+                            print("   ❌ Force push was cancelled or failed.")
+                            return MergeStatus.CANCELLED
+                        break
+                    elif choice == '2':
+                        print("   ⚪️ Merge cancelled by user. Please resolve conflicts manually.")
+                        return MergeStatus.CANCELLED
+                    else:
+                        print("   ⚠️  Invalid choice. Please enter 1 or 2.")
             
             if resolution_action_taken:
                 print("   📋 The PR has been updated. Waiting for GitHub to process changes...")
-                time.sleep(5) # Give GitHub a moment to update
+                time.sleep(5)
                 print("   Retrying merge...")
-                continue # Go to the next attempt in the for loop
+                continue
+            else:
+                # This path should ideally not be reached if logic is correct
+                return MergeStatus.FAILED
             
         except (subprocess.CalledProcessError, json.JSONDecodeError) as e:
             print(f"   ⚠️  Could not check merge status on attempt {attempt}: {e}")
@@ -260,7 +273,7 @@ def execute_merge(pr_to_merge: dict, merge_method: str, project_root: Path, git_
                 time.sleep(3)
             continue
 
-    print(f"\n   ❌ Merge failed after {max_retries} attempts.")
+    print(f"\n   ❌ Merge failed after {max_retries} attempts. Please check the PR on GitHub.")
     return MergeStatus.FAILED
 
 

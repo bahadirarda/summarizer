@@ -110,7 +110,7 @@ def check_gui_availability():
 
 def validate_config():
     """Validate current configuration and return status"""
-    from src.utils.parameter_checker import check_required_parameters
+    from parameter_checker import check_required_parameters
     missing_params, _ = check_required_parameters()
     
     if not missing_params:

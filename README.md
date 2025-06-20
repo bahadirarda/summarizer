@@ -1,75 +1,53 @@
 # 🚀 project.110620251156 - Akıllı Pull Request Birleştirme Sistemi
->  GitHub entegrasyonu ile akıllı pull request (PR) birleştirme işlemini yöneten, yapay zeka destekli ve güvenli bir web uygulaması.
+> GitHub entegrasyonu ile gelişmiş güvenlik ve yapay zeka destekli birleştirme önerileri sunan, kullanıcı dostu bir Pull Request birleştirme sistemi.
 
 ## 📊 Proje Durumu
-Proje aktif geliştirme aşamasındadır. Son değişiklikler, birleştirme işlemine ek güvenlik kontrolleri eklenmesi, yapay zeka destekli birleştirme önerilerinin entegrasyonu ve kullanıcı deneyiminin iyileştirilmesine odaklanmıştır.  Ancak, güvenlik kontrol mekanizmasının (basit şifre kontrolü) iyileştirilmesi gerekmektedir.  Tam kod mevcut olmadığı için bazı analizler sınırlıdır.
+Proje aktif geliştirme aşamasındadır.  Son değişiklikler, güvenlik ve kullanıcı deneyimini iyileştirmeye odaklanmıştır.  Ancak, güvenlik mekanizmasının (şifre kontrolü) iyileştirilmesi ve tam kod analizi için ek çalışmalar gereklidir.  Yapay zeka entegrasyonu, gelecekteki geliştirmelerin temelini oluşturmaktadır.
 
 
 ## ✨ Özellikler
-* **Akıllı PR Birleştirme:** Yapay zeka destekli PR birleştirme önerileri sunar.  Hangi dalın birleştirileceğine dair en uygun yöntemi önerir.
-* **Gelişmiş Güvenlik:**  `main` veya `master` dallarına yapılan birleştirme işlemlerini korumak için (henüz yetersiz olan) bir güvenlik kontrol mekanizması mevcuttur.
-* **Kullanıcı Dostu Arayüz:** Açık PR'lerin detaylı listesi sunar ve kullanıcıdan birleştirme işlemi için onay ister.
-* **GitHub Entegrasyonu:**  `gh` komut satırı aracı aracılığıyla GitHub ile sorunsuz bir şekilde entegre olur.
-* **Otomatik Günlük Güncelleme:** Değişiklik günlüğü otomatik olarak güncellenir.
-* **Yerel Değişiklik Kontrolü:** Birleştirmeden önce yerel değişikliklerin push edilip edilmeyeceği konusunda kullanıcıya bilgi verir ve seçim şansı sunar.
+* **Akıllı Birleştirme Önerileri:** Yapay zeka destekli bir sistem, en uygun birleştirme stratejisini önerir.
+* **Gelişmiş Güvenlik:** Ana dala birleştirme işlemi için güvenlik kontrolü (şu an basit şifre kontrolü, gelecekte daha gelişmiş bir sistemle değiştirilecek).
+* **Kullanıcı Dostu Geri Bildirim:** Birleştirme işlemi sırasında detaylı geri bildirim ve uyarılar.
+* **Draft PR Filtreleme:** Sadece açık PR'ler listelenir.
+* **Otomatik Issue Bağlantısı:** Birleştirme sonrası ilgili GitHub issue'ları otomatik olarak bağlanır (doğrulanmayı bekliyor).
+* **Detaylı PR Bilgileri:** `get_open_prs` fonksiyonu, PR'lerin daha fazla özniteliğini (örneğin, `mergeable`, `isDraft`) sunar.
 
 
 ## Değişen Dosyalar:
-`features/merge_command.py`, `src/utils/git_manager.py`, `src/utils/changelog_updater.py` (ve muhtemelen diğer `src` altındaki modüller: `request_manager`, `json_changelog_manager`, `configuration_manager`, `gemini_client`)
+`features/merge_command.py`, `features/parameter_checker.py`, `src/utils/git_manager.py`, `src/utils/changelog_updater.py`  (ve muhtemelen `flet` kütüphanesi ile ilgili dosyalar, kodun kırpılmış olması nedeniyle kesin değil).
 
 
 ## ANALİZ GÖREVİ:
 
 ### 1. YAPISAL ANALİZ:
 
-* **Etkin Sistem Bileşenleri ve Katmanlar:** Değişiklikler, üç ana katmanı etkiler:
-    * **Ana İş Mantığı Katmanı (`features/merge_command.py`):**  Pull request birleştirme işleminin ana lojiki burada bulunur.  `get_open_prs`, `execute_merge`, `get_ai_merge_recommendation` gibi fonksiyonlar bu katmanda yer alır.  Bu katman, `src` dizini altındaki yardımcı modüllere bağımlıdır.
-    * **Yardımcı Araçlar Katmanı (`src/utils`):**  `git_manager.py` (Git işlemleri), `changelog_updater.py` (değişiklik günlüğü güncelleme) ve muhtemelen diğer yardımcı fonksiyonlar içeren modüller. Bu katman, alt seviye işlemleri soyutlar ve `features` katmanına hizmet verir.
-    * **Servis Katmanı (Muhtemel):** `src` dizini altındaki `request_manager`, `json_changelog_manager`, `configuration_manager`, `gemini_client` modülleri, muhtemelen harici servislerle veya konfigürasyonlarla etkileşimi yönetir. Bu, katmanlı mimariyi daha da derinleştirir.
-
-* **Mimari Değişikliklerin Etkisi:** Mimari açıdan büyük bir değişiklik gözlenmez.  Ancak, kodun daha modüler hale getirilmesi ve sorumlulukların daha iyi ayrılması yönünde adımlar atılmıştır. Yardımcı fonksiyonlar ayrı modüllere taşınarak kod okunabilirliği ve sürdürülebilirliği hedeflenmiştir.  Yapay zeka entegrasyonu, sistemin karmaşıklığını artırmıştır.
-
-* **Kod Organizasyonundaki İyileştirmeler:** `MergeStatus` enum'unun eklenmesi, kodun okunabilirliğini ve sürdürülebilirliğini artırır. Fonksiyonların daha küçük ve daha özelleşmiş birimlere bölünmesi (örneğin, `get_open_prs`, `execute_merge`)  kodun anlaşılırlığını iyileştirir.  `sys.path.insert` satırı, bağımlılık yönetimini iyileştirir.  Ancak, tam kod olmadan bu iyileştirmelerin kapsamını kesin olarak belirlemek zordur.
+* **Etkilenen Bileşenler ve Katmanlar:** Değişiklikler,  projenin üç ana katmanını etkiler:  **Ana İş Mantığı** (`features/merge_command.py`), **Yardımcı Araçlar** (`src/utils/git_manager.py`, `src/utils/changelog_updater.py`) ve **Parametre Doğrulama** (`features/parameter_checker.py`).  `merge_command.py`, Git işlemleri, API istekleri, günlük kayıtları, konfigürasyon yönetimi ve Gemini API etkileşimini yöneten çeşitli alt sistemlerle etkileşim halindedir. Bu, sistemin farklı katmanlarını bir araya getiren bir entegratör rolü oynadığını gösterir.
+* **Mimari Değişikliklerin Etkisi:** Mimaride büyük bir değişiklik yok, ancak yapay zeka tabanlı birleştirme önerileri ve gelişmiş güvenlik kontrollerinin eklenmesi sistemin karmaşıklığını ve işlevselliğini artırmıştır.  `parameter_checker.py`'deki değişiklikler konfigürasyonu daha sağlam hale getirmiştir.
+* **Kod Organizasyonundaki İyileştirmeler:** `MergeStatus` enum'unun eklenmesi, kodun okunabilirliğini ve sürdürülebilirliğini artırmıştır. Fonksiyonların daha küçük ve özelleştirilmiş parçalara ayrılması (örneğin, `get_open_prs`, `execute_merge`) da okunabilirliği iyileştirmiştir.  Yardımcı fonksiyonların ayrı modüllere taşınması da kod organizasyonunu iyileştirmiştir.
 
 
 ### 2. İŞLEVSEL ETKİ:
 
-* **Eklenen Özellikler:**
-    * Yapay zeka destekli birleştirme önerileri (`get_ai_merge_recommendation`).
-    * Gelişmiş güvenlik kontrolü (şifre kontrolü - güvenlik açısından zayıf).
-    * Açık PR'lerin daha detaylı listesi (`get_open_prs`, `mergeable`, `isDraft` gibi ek bilgiler).
-    * Otomatik issue bağlantısı (kod kesintisi nedeniyle belirsiz).
-    * Yerel değişiklik kontrolü ve push önerisi.
-
-* **Değiştirilen Özellikler:** Birleştirme işleminin akışı, yapay zeka entegrasyonu ve ek güvenlik kontrolü nedeniyle değiştirilmiştir. PR seçimi artık daha interaktiftir.
-
-* **Kaldırılan Özellikler:** Bilgi yetersizliği nedeniyle belirlenemedi.
-
-* **Kullanıcı Deneyimi:**  Kullanıcı deneyimi, interaktif PR seçimi ve detaylı PR bilgileriyle iyileştirilmiştir. Ancak, basit şifre kontrolü, kullanıcı deneyimini olumsuz etkileyebilir.
-
-* **Performans:** Yapay zeka entegrasyonunun performansı, kullanılan AI hizmetinin yanıt süresine bağlıdır.  `gh` komutunun kullanımı ağ performansından etkilenebilir.
-
-* **Güvenlik:** Şifre tabanlı güvenlik, yetersizdir ve önemli bir güvenlik açığı oluşturur.  Güvenliğin iyileştirilmesi için daha güçlü bir kimlik doğrulama mekanizması gereklidir.
-
-* **Güvenilirlik:** Hata yönetimi iyileştirmeleri (tam kod mevcut olmadığı için kesin değil) güvenilirliği artırabilir.  Ancak, GitHub ve yapay zeka entegrasyonuna bağımlılık, güvenilirliği etkileyebilir.
+* **Eklenen Özellikler:** Yapay zeka destekli birleştirme önerileri (`get_ai_merge_recommendation`), gelişmiş güvenlik kontrolleri (şifre kontrolü), draft PR filtreleme, daha ayrıntılı PR listesi (`get_open_prs`), otomatik issue bağlantısı.
+* **Değiştirilen Özellikler:** PR birleştirme süreci, güvenlik kontrollerinin ve yapay zeka entegrasyonunun eklenmesiyle değiştirilmiştir.
+* **Kaldırılan Özellikler:** Yok.
+* **Kullanıcı Deneyimi:** Kullanıcı deneyimi, yapay zeka destekli öneriler ve daha fazla geri bildirim ile iyileştirilmiştir. Ancak, basit şifre kontrolü kullanımı kullanıcı deneyimini olumsuz etkileyebilir.
+* **Performans, Güvenlik ve Güvenilirlik:** Performans üzerindeki etki minimaldir. Güvenlik, şifre kontrolünün eklenmesiyle artırılmış, ancak daha güvenli bir mekanizma gereklidir. Güvenilirlik, gelişmiş hata yönetimi ile potansiyel olarak iyileşmiştir ancak tam kod olmadan kesin bir yargı yapılamaz.
 
 
 ### 3. TEKNİK DERINLIK:
 
-* **Tasarım Desenleri:** `MergeStatus` enum'u ve muhtemelen `GitManager` sınıfı (Facade deseni) kullanılmıştır. Ancak, kodun büyük kısmı prosedürel bir yaklaşımla yazılmıştır.
-
-* **Kod Kalitesi ve Sürdürülebilirlik:** Kod kalitesi, modülerlik ve hata yönetimi iyileştirmeleriyle artmıştır. Ancak, basit şifre kontrolü ve potansiyel eksik hata yönetimi, uzun vadeli sürdürülebilirliği tehlikeye atmaktadır.
-
-* **Yeni Bağımlılıklar ve Teknolojiler:** `getpass` (şifre için), ve muhtemelen yapay zeka hizmetinin API'si yeni bağımlılıklar olarak eklenmiştir. `gh` komutu zaten mevcut bir bağımlılıktır.
+* **Tasarım Desenleri:** `MergeStatus` enum'u (Enum tasarım deseni), `GitManager` sınıfı (potansiyel Facade deseni).
+* **Kod Kalitesi ve Sürdürülebilirlik:** Kod kalitesi ve sürdürülebilirlik, hata yönetiminin iyileştirilmesi, daha açıklayıcı değişken isimleri, yorumlar ve fonksiyonların daha küçük parçalara ayrılmasıyla iyileştirilmiştir. Ancak, basit şifre kontrolü kod kalitesini düşürmektedir.
+* **Yeni Bağımlılıklar ve Teknolojiler:**  Yapay zeka hizmetinin entegrasyonu yeni bir API veya kütüphane bağımlılığı eklemiş olabilir. `getpass` kütüphanesi şifre kontrolü için eklenmiştir.
 
 
 ### 4. SONUÇ YORUMU:
 
-* **Uzun Vadeli Değer ve Etki:** Yapay zeka entegrasyonu, uzun vadede daha verimli bir PR birleştirme süreci sağlayabilir. Ancak, güvenlik açığı nedeniyle uzun vadeli değer sınırlıdır.  Basit şifre kontrolünün daha güvenli bir mekanizma ile değiştirilmesi şarttır.
-
-* **Teknik Borç:** Basit şifre kontrolü ve yetersiz hata yönetimi, teknik borcu artırmıştır.  Daha güvenli bir kimlik doğrulama ve daha kapsamlı hata yönetimi, teknik borcu azaltacaktır.
-
-* **Gelecekteki Geliştirmelere Hazırlık:** Yapay zeka entegrasyonu, gelecekteki geliştirmeler için bir temel oluşturur. Ancak, güvenlik ve hata yönetiminin iyileştirilmesi önceliklidir. Daha güvenli ve ölçeklenebilir bir kimlik doğrulama sistemi (OAuth, token tabanlı sistemler gibi) tasarlanmalı ve uygulanmalıdır.  Detaylı loglama eklenmelidir.
+* **Uzun Vadeli Değer ve Etki:** Yapay zeka entegrasyonu ve kullanıcı deneyiminin iyileştirilmesi uzun vadeli değeri temsil eder. Ancak, basit şifre kontrolü yerine daha güvenli bir kimlik doğrulama mekanizması kullanılması şarttır.
+* **Teknik Borç:** Basit şifre kontrolü nedeniyle teknik borç artmıştır.  Daha güvenli bir kimlik doğrulama sistemi, teknik borcu azaltacaktır.
+* **Gelecekteki Geliştirmelere Hazırlık:** Kod daha modüler ve genişletilebilir hale getirilmiştir.  Yapay zeka entegrasyonu gelecekteki geliştirmeler için temel oluşturmaktadır.  Ancak, güvenlik mekanizmasının acilen iyileştirilmesi gerekmektedir (örneğin, OAuth, çok faktörlü kimlik doğrulama).  `changelog_updater`'ın daha detaylı incelenmesi ve hata yönetiminin iyileştirilmesi de önerilir.
 
 ## 🛠️ Kurulum (Installation)
 
@@ -230,7 +208,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**Last updated**: June 20, 2025 by Summarizer Framework v8.29.0
+**Last updated**: June 20, 2025 by Summarizer Framework v8.30.0
 *This README is automatically generated and updated based on project activity.*
 
 > *"Automatically maintained with AI-powered analysis"*
