@@ -3,10 +3,30 @@
     "version": "1.0",
     "project_name": "Summarizer Framework",
     "created_at": "2025-06-11T16:09:37.067316",
-    "last_updated": "2025-06-20T03:33:26.666195",
-    "total_entries": 65
+    "last_updated": "2025-06-20T03:39:14.625511",
+    "total_entries": 66
   },
   "entries": [
+    {
+      "id": "entry_20250620_033914",
+      "timestamp": "2025-06-20T03:39:14.625196",
+      "ai_summary": "### 1. YAPISAL ANALİZ:\n\nDeğişiklikler sadece `src/utils/changelog_updater.py` dosyasını etkiliyor. Bu dosya, projede değişiklik takibi ve changelog yönetimi için yardımcı fonksiyonlar sağlayan bir yardımcı araçlar (`utils`) katmanının parçasıdır.  Mimari değişiklik yok, mevcut fonksiyonlar geliştirilmiş veya yeni fonksiyonlar eklenmiş.\n\nKod organizasyonu açısından, `_detect_impact_level` fonksiyonu, değişikliklerin etki seviyesini belirlemek için daha gelişmiş bir mantık içeriyor.  Önce kritik, yüksek ve düşük etki seviyelerini belirleyen keyword'ler kontrol ediliyor. Daha sonra ise değiştirilen dosya sayısı kontrolü ile etki seviyesi belirleniyor.  `_detect_project_type` fonksiyonu ise projenin türünü (web, python veya genel) tespit etmek için dosya varlığını kontrol eden bir mantık içeriyor. Bu iki fonksiyonun daha ayrıntılı hale getirilmesi kodun okunabilirliğini ve bakımı kolaylaştırır.  Genel olarak, fonksiyonlar daha modüler ve okunabilir hale getirilmiş olabilir, ancak eksik kod nedeniyle bunu kesin olarak söylemek mümkün değil.\n\n\n### 2. İŞLEVSEL ETKİ:\n\nEksik kod nedeniyle tam olarak neyin eklendiğini, değiştirildiğini veya kaldırıldığını belirlemek mümkün değil. Ancak, mevcut kod parçalarından şu çıkarımlar yapılabilir:\n\n* **Değişiklik tespiti ve etki seviyesi belirleme geliştirildi:**  `_detect_impact_level` fonksiyonundaki değişiklikler, değişikliklerin etki seviyesini (kritik, yüksek, düşük) daha doğru ve kapsamlı bir şekilde belirlemeye olanak tanıyor. Keyword tabanlı kontrol ve değiştirilen dosya sayısına göre etki seviyesi belirleme daha hassas bir değerlendirme sağlar.\n* **Proje tipi tespiti eklendi:** `_detect_project_type` fonksiyonu eklenerek, changelog güncelleyici, projenin türünü (web, python, genel) otomatik olarak tespit edebiliyor. Bu, changelog'un içeriğini ve formatını projenin türüne göre özelleştirme imkanı sağlayabilir (eksik kodda bu durumun nasıl kullanıldığı belirtilmemiştir).\n* **Kullanıcı deneyimi:** Kullanıcı deneyimi doğrudan etkilenmez.  Bu fonksiyonlar arka planda çalışır ve geliştiricilerin changelog oluşturma sürecini kolaylaştırır.\n* **Performans, güvenlik, güvenilirlik:**  Bu değişikliklerin performans, güvenlik veya güvenilirlik üzerindeki etkisi, fonksiyonların tam içeriği bilinmediği için değerlendirilemez.\n\n\n### 3. TEKNİK DERINLIK:\n\n* **Tasarım Desenleri:**  Belirgin bir tasarım deseni değişikliği gözlemlenmiyor. Mevcut kod, fonksiyonel programlama yaklaşımını takip ediyor.\n* **Kod Kalitesi ve Sürdürülebilirlik:**  `_detect_impact_level` ve `_detect_project_type` fonksiyonlarındaki iyileştirmeler, kodun okunabilirliğini ve sürdürülebilirliğini artırabilir. Daha spesifik ve anlamlı fonksiyon isimleri, daha iyi yorumlar ve daha düzenli kod yapısı, bakımı kolaylaştırır.\n* **Yeni Bağımlılıklar:**  Yeni bir bağımlılık eklenmediği gözüküyor.\n\n\n### 4. SONUÇ YORUMU:\n\nBu değişikliklerin uzun vadeli değeri, changelog oluşturma ve yönetim sürecini otomatikleştirerek ve daha doğru etki seviyesi belirleyerek geliştirici verimliliğini artırmaktır.  Projenin teknik borcu, kodun okunabilirliği ve sürdürülebilirliği artırılarak azaltılmış olabilir.  Gelecekteki geliştirmelere hazırlık olarak, projenin türünü otomatik tespit etme özelliği eklenmesi, farklı proje türleri için changelog yönetimini özelleştirmeye olanak tanır. Ancak, bu potansiyel faydalar, eksik kod nedeniyle tam olarak değerlendirilememektedir.  Tam kodun incelenmesi daha net bir sonuç yorumu için gereklidir.",
+      "changed_files": [
+        "src/utils/changelog_updater.py"
+      ],
+      "impact_level": "high",
+      "change_type": "feature",
+      "tags": [
+        "api",
+        "changelog-updater",
+        "utils"
+      ],
+      "file_count": 1,
+      "lines_added": 97,
+      "lines_removed": 0,
+      "commit_hash": null,
+      "author": null
+    },
     {
       "id": "entry_20250620_033326",
       "timestamp": "2025-06-20T03:33:26.665503",

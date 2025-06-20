@@ -53,6 +53,94 @@ def _detect_impact_level(summary: str, changed_files: list) -> ImpactLevel:
     return ImpactLevel.MEDIUM
 
 
+def _get_ai_workflow_decision(gemini_client: Any, current_branch: str, summary: str, impact_level: ImpactLevel, changed_files: list) -> dict:
+    """Use AI to decide the best workflow, branch strategy, and version management"""
+    if not (gemini_client and gemini_client.is_ready()):
+        # Fallback to rule-based decision
+        return {
+            "recommended_branch": "feature/auto-update" if current_branch == "main" else current_branch,
+            "workflow": "standard",
+            "reasoning": "AI unavailable, using standard workflow"
+        }
+    
+    try:
+        prompt = f"""As a senior DevOps engineer, analyze this Git workflow situation and recommend the best approach:
+
+Current Branch: {current_branch}
+Impact Level: {impact_level.value}
+Changed Files: {', '.join(changed_files[:10])}  # First 10 files
+Summary: {summary[:200]}...
+
+Based on GitFlow best practices, determine:
+1. If we should create a new branch (and what type: feature/bugfix/release/hotfix)
+2. The recommended workflow to follow
+3. Whether this change should go through PR or direct push
+
+IMPORTANT RULES:
+- NEVER allow direct commits to main branch
+- Critical changes should use hotfix branches
+- High/Medium changes should use feature or release branches
+- Low impact changes can use existing branches if appropriate
+
+Return a JSON object with:
+{{
+    "recommended_branch": "branch name or 'current' to stay",
+    "branch_type": "feature|bugfix|release|hotfix|none",
+    "workflow": "pr|direct|release",
+    "target_branch": "where to merge (if PR workflow)",
+    "reasoning": "brief explanation"
+}}"""
+
+        response = gemini_client.generate_simple_text(prompt)
+        # Parse JSON from response
+        import json
+        import re
+        
+        # Extract JSON from response
+        json_match = re.search(r'\{.*\}', response, re.DOTALL)
+        if json_match:
+            decision = json.loads(json_match.group())
+            
+            # Validate and sanitize the decision
+            if current_branch == "main" and decision.get("recommended_branch") == "current":
+                # Override AI if it suggests staying on main
+                decision["recommended_branch"] = f"release/v{VersionManager(Path.cwd()).get_current_version()}"
+                decision["branch_type"] = "release"
+                decision["workflow"] = "pr"
+                decision["reasoning"] = "Overriding to prevent direct commits to main branch"
+            
+            return decision
+        else:
+            raise ValueError("Could not parse AI response")
+            
+    except Exception as e:
+        logger_changelog.error(f"AI workflow decision failed: {e}")
+        # Intelligent fallback based on current situation
+        if current_branch == "main":
+            return {
+                "recommended_branch": f"release/auto-{datetime.now().strftime('%Y%m%d-%H%M%S')}",
+                "branch_type": "release",
+                "workflow": "pr",
+                "target_branch": "main",
+                "reasoning": "Protecting main branch from direct commits"
+            }
+        elif current_branch.startswith("feature/"):
+            return {
+                "recommended_branch": "current",
+                "branch_type": "none",
+                "workflow": "pr",
+                "target_branch": "develop",
+                "reasoning": "Standard feature branch workflow"
+            }
+        else:
+            return {
+                "recommended_branch": "current",
+                "branch_type": "none", 
+                "workflow": "direct",
+                "reasoning": "Standard workflow for this branch type"
+            }
+
+
 def _ask_user(prompt: str) -> bool:
     try:
         return input(f"{prompt} (y/n): ").lower() == 'y'
@@ -139,65 +227,46 @@ def _handle_release_creation(project_root: Path, git_manager: GitManager, new_ve
 
 def _post_workflow_sync(git_manager: GitManager):
     """After a workflow, offers a safe, professional, and context-aware way to sync the local repo."""
-    print("\n" + "="*50 + "\n   🚀 Workflow Complete - Final Sync Step\n" + "="*50)
-    develop_branch, main_branch, original_branch = 'develop', 'main', git_manager.get_current_branch()
-
-    def sync_branch(branch_name: str) -> bool:
-        print(f"\n   🔎 Analyzing '{branch_name}' branch sync status...")
-        status, ahead, behind = git_manager.get_branch_sync_status(branch_name)
-        if status == SyncStatus.SYNCED:
-            print(f"   ✅ Local '{branch_name}' is already in sync with the remote.")
-            return True
-        elif status == SyncStatus.AHEAD:
-            if _ask_user(f"   ❔ Your local '{branch_name}' is {ahead} commit(s) ahead. Push these changes?"):
-                return git_manager.push(branch_name)[0]
-        elif status == SyncStatus.BEHIND:
-            if _ask_user(f"   ❔ Your local '{branch_name}' is {behind} commit(s) behind. Update from remote?"):
-                return git_manager.pull(branch_name)
-        elif status == SyncStatus.DIVERGED:
-            print(f"   ❌ Critical: Your local '{branch_name}' has diverged. Manual sync required.")
-            return False
-        return False
-
-    if not (sync_branch(main_branch) and sync_branch(develop_branch)):
-        if original_branch: git_manager.checkout(original_branch)
-        return
-        
-    print("\n   ✅ All branches are now synchronized.")
-    if _ask_user(f"   ❔ Prepare for final release by merging '{develop_branch}' into '{main_branch}'?"):
-        if git_manager.checkout(main_branch):
-            print(f"   Ready for merge. To complete, run: git merge {develop_branch}")
-        else:
-            if original_branch: git_manager.checkout(original_branch)
+    print("\n" + "="*50 + "\n   🚀 Workflow Complete\n" + "="*50)
+    
+    # Just sync current branch, don't offer dangerous merges
+    current_branch = git_manager.get_current_branch()
+    print(f"\n   🔎 Checking sync status for current branch '{current_branch}'...")
+    
+    status, ahead, behind = git_manager.get_branch_sync_status(current_branch)
+    if status == SyncStatus.SYNCED:
+        print(f"   ✅ Branch '{current_branch}' is in sync with remote.")
+    elif status == SyncStatus.AHEAD:
+        if _ask_user(f"   ❔ Your branch is {ahead} commit(s) ahead. Push remaining changes?"):
+            git_manager.push(current_branch)
+    elif status == SyncStatus.BEHIND:
+        if _ask_user(f"   ❔ Your branch is {behind} commit(s) behind. Pull latest changes?"):
+            git_manager.pull(current_branch)
+    elif status == SyncStatus.DIVERGED:
+        print(f"   ⚠️  Branch has diverged. Manual intervention required.")
+    
+    print("\n   📋 Workflow Summary:")
+    print(f"   • Current branch: {current_branch}")
+    print("   • All changes have been processed")
+    print("   • Remember: Use PRs for merging to protected branches")
 
 
 def _handle_git_workflow(project_root: Path, git_manager: GitManager, new_version: str, summary: str, gemini_client: Any):
+    """Handle additional git workflow after main processing - simplified version"""
     current_branch_name = git_manager.get_current_branch()
-    print(f"\n   📂 Preparing to manage changes on branch '{current_branch_name}'...")
-
+    
+    # Only handle if there are uncommitted changes (edge case)
     if not git_manager.is_working_directory_clean():
-        git_manager.stage_all()
-        if not _ask_user(f"   ❔ Commit all staged changes to '{current_branch_name}'?"):
-            git_manager.unstage_all()
-            return
-        commit_message = f"feat(summarizer): v{new_version}\n\n{summary}"
-        if not git_manager.commit(commit_message): return
-        print("   ✅ Changes committed successfully.")
+        print(f"\n   📂 Additional changes detected on '{current_branch_name}'...")
+        if _ask_user("   ❔ Stage and commit these additional changes?"):
+            git_manager.stage_all()
+            commit_message = f"feat(summarizer): Additional changes for v{new_version}"
+            if git_manager.commit(commit_message):
+                print("   ✅ Additional changes committed.")
+                if _ask_user("   ❔ Push these additional changes?"):
+                    git_manager.push(current_branch_name)
     
-    if _ask_user(f"   ❔ Push the changes on '{current_branch_name}' to remote?"):
-        push_success, push_output = git_manager.push(current_branch_name)
-        if not push_success:
-            if "already up-to-date" not in push_output: return
-        
-        if "already up-to-date" in push_output: print(f"   ⚪️ Branch already up-to-date.")
-        else: print(f"   ✅ Successfully pushed new changes.")
-
-        pr_target_map = {'feature/': 'develop', 'bugfix/': 'develop', 'develop': 'staging', 'release/': 'main', 'hotfix/': 'main'}
-        pr_target = next((target for p, target in pr_target_map.items() if current_branch_name.startswith(p)), pr_target_map.get(current_branch_name))
-
-        if pr_target:
-            _handle_pull_request_flow(project_root, git_manager, current_branch_name, pr_target, summary, gemini_client)
-    
+    # Show final sync status
     _post_workflow_sync(git_manager)
 
 
@@ -401,8 +470,25 @@ def update_changelog(project_root: Optional[Path] = None):
             except Exception as tag_error:
                 print(f"   ⚠️  Could not create git tag: {tag_error}")
 
-            # Pre-commit CI checks for main/develop branches
+            # Get AI workflow decision
             current_branch_name = git_manager.get_current_branch()
+            print("\n   🤖 Consulting AI for workflow optimization...")
+            workflow_decision = _get_ai_workflow_decision(gemini_client, current_branch_name, summary, impact_level, changed_files)
+            
+            print(f"   🎯 AI Recommendation: {workflow_decision['reasoning']}")
+            
+            # Handle branch creation if recommended
+            if workflow_decision['recommended_branch'] != 'current' and workflow_decision['recommended_branch'] != current_branch_name:
+                recommended_branch = workflow_decision['recommended_branch']
+                if _ask_user(f"   ❔ AI suggests creating branch '{recommended_branch}'. Create it?"):
+                    if git_manager.create_branch(recommended_branch):
+                        git_manager.checkout(recommended_branch)
+                        current_branch_name = recommended_branch
+                        print(f"   ✅ Switched to recommended branch: {recommended_branch}")
+                    else:
+                        print(f"   ⚠️  Could not create recommended branch. Continuing on {current_branch_name}")
+            
+            # Pre-commit CI checks for main/develop branches
             if current_branch_name in ['main', 'develop', 'staging']:
                 print(f"\n   🔬 Running pre-commit CI checks for '{current_branch_name}' branch...")
                 if not _run_ci_checks(project_root):
@@ -418,35 +504,46 @@ def update_changelog(project_root: Optional[Path] = None):
 
             # Commit changes to git
             if not git_manager.is_working_directory_clean():
-                prompt_message = f"   ❔ Summarizer updated project files. Commit these maintenance changes to '{current_branch_name}'?"
+                prompt_message = f"   ❔ Commit changes to '{current_branch_name}'?"
                 if _ask_user(prompt_message):
                     commit_message = f"chore(summarizer): Auto-update to v{new_version}\n\n{summary}"
                     if not (git_manager.stage_all() and git_manager.commit(commit_message)):
-                        print("   ❌ Failed to commit maintenance changes. Aborting next git actions.")
+                        print("   ❌ Failed to commit changes. Aborting.")
                         return
 
-            # Handle GitFlow and CI checks
-            branch_for_pr = git_manager.get_current_branch()
-            target_branch = None
-            if branch_for_pr.startswith(('feature/', 'bugfix/')): target_branch = 'develop'
-            elif branch_for_pr == 'develop': target_branch = 'staging'
-            elif branch_for_pr.startswith('release/'): target_branch = 'main'
-            elif branch_for_pr.startswith('hotfix/'): target_branch = 'main'
-            
-            if target_branch:
-                # This is a feature, bugfix, or release branch that needs a PR.
-                _handle_pull_request_flow(project_root, git_manager, branch_for_pr, target_branch, summary, gemini_client)
-            elif branch_for_pr in ['main', 'develop', 'staging']:
-                # This is a core branch. After a maintenance commit, we should just push.
-                if _ask_user(f"   ❔ Push the maintenance commit directly to '{branch_for_pr}'?"):
-                    print(f"   🚀 Pushing changes to '{branch_for_pr}'...")
-                    success, output = git_manager.push(branch_for_pr)
+            # Follow AI-recommended workflow
+            if workflow_decision['workflow'] == 'pr':
+                # Create PR to target branch
+                target_branch = workflow_decision.get('target_branch', 'develop')
+                if _ask_user(f"   ❔ Push '{current_branch_name}' and create PR to '{target_branch}'?"):
+                    success, output = git_manager.push(current_branch_name)
                     if success:
-                        print("   ✅ Successfully pushed to remote.")
+                        print("   ✅ Branch pushed successfully.")
+                        _handle_pull_request_flow(project_root, git_manager, current_branch_name, target_branch, summary, gemini_client)
                     else:
-                        print(f"   ❌ Push failed. Git Error:\n{output}")
-            else:
-                 print(f"   ⚪️ No standard GitFlow action defined for branch '{branch_for_pr}'.")
+                        print(f"   ❌ Push failed: {output}")
+            elif workflow_decision['workflow'] == 'direct':
+                # Direct push (only for non-protected branches)
+                if current_branch_name not in ['main', 'master']:
+                    if _ask_user(f"   ❔ Push changes directly to '{current_branch_name}'?"):
+                        success, output = git_manager.push(current_branch_name)
+                        if success:
+                            print("   ✅ Changes pushed successfully.")
+                        else:
+                            print(f"   ❌ Push failed: {output}")
+                else:
+                    print("   ❌ Direct push to main/master branch is not allowed!")
+                    print("   💡 Please create a release or hotfix branch instead.")
+            elif workflow_decision['workflow'] == 'release':
+                # Special release workflow
+                print("   📦 Following release workflow...")
+                if _ask_user(f"   ❔ Push '{current_branch_name}' for release preparation?"):
+                    success, output = git_manager.push(current_branch_name)
+                    if success:
+                        print("   ✅ Release branch pushed.")
+                        _handle_pull_request_flow(project_root, git_manager, current_branch_name, 'main', summary, gemini_client)
+                    else:
+                        print(f"   ❌ Push failed: {output}")
 
     except Exception as e:
         print(f"   ⚠️  Version management failed: {e}")

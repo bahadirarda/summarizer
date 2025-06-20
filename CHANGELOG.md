@@ -3,6 +3,44 @@
 Bu dosya otomatik olarak generate edilmiştir.
 Düzenlemeler için `changelog.json` dosyasını kullanın.
 
+## 2025-06-20 03:39:14
+
+### 1. YAPISAL ANALİZ:
+
+Değişiklikler sadece `src/utils/changelog_updater.py` dosyasını etkiliyor. Bu dosya, projede değişiklik takibi ve changelog yönetimi için yardımcı fonksiyonlar sağlayan bir yardımcı araçlar (`utils`) katmanının parçasıdır.  Mimari değişiklik yok, mevcut fonksiyonlar geliştirilmiş veya yeni fonksiyonlar eklenmiş.
+
+Kod organizasyonu açısından, `_detect_impact_level` fonksiyonu, değişikliklerin etki seviyesini belirlemek için daha gelişmiş bir mantık içeriyor.  Önce kritik, yüksek ve düşük etki seviyelerini belirleyen keyword'ler kontrol ediliyor. Daha sonra ise değiştirilen dosya sayısı kontrolü ile etki seviyesi belirleniyor.  `_detect_project_type` fonksiyonu ise projenin türünü (web, python veya genel) tespit etmek için dosya varlığını kontrol eden bir mantık içeriyor. Bu iki fonksiyonun daha ayrıntılı hale getirilmesi kodun okunabilirliğini ve bakımı kolaylaştırır.  Genel olarak, fonksiyonlar daha modüler ve okunabilir hale getirilmiş olabilir, ancak eksik kod nedeniyle bunu kesin olarak söylemek mümkün değil.
+
+
+### 2. İŞLEVSEL ETKİ:
+
+Eksik kod nedeniyle tam olarak neyin eklendiğini, değiştirildiğini veya kaldırıldığını belirlemek mümkün değil. Ancak, mevcut kod parçalarından şu çıkarımlar yapılabilir:
+
+* **Değişiklik tespiti ve etki seviyesi belirleme geliştirildi:**  `_detect_impact_level` fonksiyonundaki değişiklikler, değişikliklerin etki seviyesini (kritik, yüksek, düşük) daha doğru ve kapsamlı bir şekilde belirlemeye olanak tanıyor. Keyword tabanlı kontrol ve değiştirilen dosya sayısına göre etki seviyesi belirleme daha hassas bir değerlendirme sağlar.
+* **Proje tipi tespiti eklendi:** `_detect_project_type` fonksiyonu eklenerek, changelog güncelleyici, projenin türünü (web, python, genel) otomatik olarak tespit edebiliyor. Bu, changelog'un içeriğini ve formatını projenin türüne göre özelleştirme imkanı sağlayabilir (eksik kodda bu durumun nasıl kullanıldığı belirtilmemiştir).
+* **Kullanıcı deneyimi:** Kullanıcı deneyimi doğrudan etkilenmez.  Bu fonksiyonlar arka planda çalışır ve geliştiricilerin changelog oluşturma sürecini kolaylaştırır.
+* **Performans, güvenlik, güvenilirlik:**  Bu değişikliklerin performans, güvenlik veya güvenilirlik üzerindeki etkisi, fonksiyonların tam içeriği bilinmediği için değerlendirilemez.
+
+
+### 3. TEKNİK DERINLIK:
+
+* **Tasarım Desenleri:**  Belirgin bir tasarım deseni değişikliği gözlemlenmiyor. Mevcut kod, fonksiyonel programlama yaklaşımını takip ediyor.
+* **Kod Kalitesi ve Sürdürülebilirlik:**  `_detect_impact_level` ve `_detect_project_type` fonksiyonlarındaki iyileştirmeler, kodun okunabilirliğini ve sürdürülebilirliğini artırabilir. Daha spesifik ve anlamlı fonksiyon isimleri, daha iyi yorumlar ve daha düzenli kod yapısı, bakımı kolaylaştırır.
+* **Yeni Bağımlılıklar:**  Yeni bir bağımlılık eklenmediği gözüküyor.
+
+
+### 4. SONUÇ YORUMU:
+
+Bu değişikliklerin uzun vadeli değeri, changelog oluşturma ve yönetim sürecini otomatikleştirerek ve daha doğru etki seviyesi belirleyerek geliştirici verimliliğini artırmaktır.  Projenin teknik borcu, kodun okunabilirliği ve sürdürülebilirliği artırılarak azaltılmış olabilir.  Gelecekteki geliştirmelere hazırlık olarak, projenin türünü otomatik tespit etme özelliği eklenmesi, farklı proje türleri için changelog yönetimini özelleştirmeye olanak tanır. Ancak, bu potansiyel faydalar, eksik kod nedeniyle tam olarak değerlendirilememektedir.  Tam kodun incelenmesi daha net bir sonuç yorumu için gereklidir.
+
+**Değişen Dosyalar:** src/utils/changelog_updater.py
+**Etki Seviyesi:** High
+**Değişiklik Tipi:** Feature
+**Satır Değişiklikleri:** +97
+**Etiketler:** api, changelog-updater, utils
+
+---
+
 ## 2025-06-20 03:33:26
 
 ### 1. YAPISAL ANALİZ:
