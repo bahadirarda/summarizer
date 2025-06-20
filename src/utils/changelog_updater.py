@@ -91,24 +91,6 @@ def _handle_pull_request_flow(project_root: Path, git_manager: GitManager, curre
         print(f"   ❌ Target branch '{target_branch}' does not exist on the remote. Please push it first.")
         return
     
-    # Extra security for main branch
-    if target_branch in ['main', 'master']:
-        print("\n   🔒 SECURITY CHECK: This PR targets the MAIN branch!")
-        print("   ⚠️  Main branch should only receive thoroughly tested code.")
-        
-        # Ask for confirmation with password
-        import getpass
-        try:
-            password = getpass.getpass("   🔑 Enter password to confirm PR to main (or press Enter to cancel): ")
-            if not password:
-                print("   ❌ PR to main cancelled.")
-                return
-            # You can add actual password check here if needed
-            # For now, any non-empty password is accepted
-        except (EOFError, KeyboardInterrupt):
-            print("\n   ❌ PR to main cancelled.")
-            return
-    
     git_manager.fetch_updates()
     
     existing_pr = git_manager.get_existing_pr(current_branch)
@@ -450,6 +432,22 @@ def update_changelog(project_root: Optional[Path] = None):
             if workflow_decision['workflow'] == 'pr':
                 # Create PR to target branch
                 target_branch = workflow_decision.get('target_branch', 'develop')
+                
+                # Security check BEFORE push for main/master
+                if target_branch in ['main', 'master']:
+                    print("\n   🔒 SECURITY CHECK: This will create a PR to MAIN branch!")
+                    print("   ⚠️  Main branch should only receive thoroughly tested code.")
+                    
+                    import getpass
+                    try:
+                        password = getpass.getpass("   🔑 Enter password to continue (or press Enter to cancel): ")
+                        if not password:
+                            print("   ❌ Operation cancelled.")
+                            return
+                    except (EOFError, KeyboardInterrupt):
+                        print("\n   ❌ Operation cancelled.")
+                        return
+                
                 if _ask_user(f"   ❔ Push '{current_branch_name}' and create PR to '{target_branch}'?"):
                     success, output = git_manager.push(current_branch_name)
                     if success:
@@ -789,3 +787,4 @@ Return a JSON object with:
             }
 
 
+# Test comment
