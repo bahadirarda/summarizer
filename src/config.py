@@ -3,7 +3,7 @@
 🔧 Configuration Management
 
 This module handles configuration for the Summarizer Framework.
-Enhanced with better error handling and environment support.
+Enhanced with better error handling and environment support...
 """
 
 import logging
