@@ -542,3 +542,26 @@ class GitManager:
     def stash_changes(self) -> Tuple[bool, str]:
         """Stashes uncommitted changes."""
         # ... existing code ...
+
+    def get_pr_body(self, pr_number: int) -> Tuple[bool, str]:
+        """Gets the body of a specific pull request."""
+        command = ["gh", "pr", "view", str(pr_number), "--json", "body", "-q", ".body"]
+        return self._run_external_command(command)
+
+    def find_linked_issue_in_text(self, text: str) -> Optional[int]:
+        """Finds a linked issue number (e.g., 'Closes #123') in a body of text."""
+        # This regex is case-insensitive and looks for closing keywords.
+        match = re.search(r'(?i)(?:closes|fixes|resolves)\s+#(\d+)', text)
+        if match:
+            issue_number = int(match.group(1))
+            logger.info(f"Found linked issue number: {issue_number}")
+            return issue_number
+        return None
+
+    def close_issue(self, issue_number: int, comment: Optional[str] = None) -> Tuple[bool, str]:
+        """Closes a GitHub issue, optionally with a comment."""
+        logger.info(f"Closing issue #{issue_number}...")
+        command = ["gh", "issue", "close", str(issue_number)]
+        if comment:
+            command.extend(["--comment", comment])
+        return self._run_external_command(command)
