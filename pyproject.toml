@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "summarizer-framework"
-version = "8.9.0" # This will be updated by the version manager
+version = "8.10.0" # This will be updated by the version manager
 authors = [
   { name="Bahadir Arda", email="bahadirarda96@icloud.com" },
 ]
