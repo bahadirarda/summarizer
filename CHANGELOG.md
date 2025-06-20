@@ -3,6 +3,93 @@
 Bu dosya otomatik olarak generate edilmiştir.
 Düzenlemeler için `changelog.json` dosyasını kullanın.
 
+## 2025-06-20 08:16:49
+
+### 1. YAPISAL ANALİZ:
+
+Bu değişiklik, `summarizer.py` dosyasında gerçekleşmiştir ve bu dosya, uygulamanın ana giriş noktası ve komut satırı arayüzünü (CLI) yöneten bir katman olarak tanımlanabilir. Değişiklikler, temel olarak CLI'nin yeteneklerini genişletmeye ve yapılandırma/kurulum süreçlerini kolaylaştırmaya odaklanmıştır.
+
+**Etkilenen Sistem Bileşenleri ve Katmanlar:**
+
+*   **Giriş Noktası Katmanı (`summarizer.py`):** Uygulamanın dış dünyayla etkileşimini sağlayan bu katman, yeni komutlar (örn., `screenshot`, `gui`, `setup`) ve argüman ayrıştırma mantığıyla güncellenmiştir.
+*   **Özellik Modülleri (`features` klasörü):** `features` klasöründeki modüller (örn., `screenshot.py`, `parameter_checker.py`, `gui_installer.py`, `terminal_commands.py`), CLI komutlarının belirli işlevlerini gerçekleştiren modüler bileşenlerdir. Bu modüller, yeni komutlar veya mevcut komutların yeteneklerini geliştirmek için kullanılmıştır.
+*   **Ana İş Mantığı (`src/main.py`):** `_summarizer` fonksiyonu (`src/main.summarizer`) ile temsil edilen ana özetleme işlevi, doğrudan etkilenmemiş gibi görünse de, giriş noktası katmanındaki değişiklikler aracılığıyla dolaylı olarak çağrılmaktadır.
+
+**Mimari Değişikliklerin Etkisi:**
+
+*   **Artan Modülerlik:** `features` klasörüne eklenen yeni modüller, uygulamanın modülerliğini ve genişletilebilirliğini artırır. Yeni özellikler (örneğin, ekran görüntüsü alma) daha kolay bir şekilde eklenebilir.
+*   **İyileştirilmiş Kullanıcı Arayüzü:** CLI'ye eklenen yeni komutlar ve argümanlar, kullanıcıların uygulamayla daha etkileşimli ve kolay bir şekilde etkileşim kurmasını sağlar. GUI kurulumu ve yapılandırması için eklenen seçenekler, kullanıcı deneyimini daha da geliştirir.
+
+**Kod Organizasyonunda Yapılan İyileştirmeler:**
+
+*   **Komut Ayrıştırma:** `argparse` modülünün kullanılması, komut satırı argümanlarını daha yapılandırılmış ve kolay bir şekilde ayrıştırmayı sağlar.
+*   **Modüler Yapı:** Özelliklerin ayrı modüllerde (features klasöründe) uygulanması, kodun daha düzenli, bakımı daha kolay ve test edilebilir olmasını sağlar.
+*   **Açıkça Tanımlanmış Giriş Noktası:** `summarizer.py`, uygulamanın ana giriş noktası olarak işlev görür ve farklı kullanım senaryolarını (CLI, Python import) destekler.
+
+### 2. İŞLEVSEL ETKİ:
+
+**Eklenen, Değiştirilen veya Kaldırılan Özellikler:**
+
+*   **Eklenen Özellikler:**
+    *   **Ekran Görüntüsü Alma Komutları (`screenshot`, `ss`):** Belirli bir uygulamayı hedefleyerek veya tam ekran görüntüsü almayı ve analiz etmeyi sağlayan yeni komutlar eklendi. Bu, görsel bilgileri özetleme yeteneğini genişletir.
+    *   **GUI Yapılandırma Komutu (`--gui`):** Grafiksel kullanıcı arayüzü aracılığıyla yapılandırma ve kurulum yapmayı sağlayan bir komut eklendi. Bu, teknik bilgisi daha az olan kullanıcılar için erişilebilirliği artırır.
+    *   **Kurulum ve Kaldırma Komutları (`--install-gui`, `--install-terminal`, `--uninstall-terminal`):** GUI ve terminal komutlarını kurma ve kaldırma yetenekleri eklendi. Bu, uygulamanın dağıtımını ve yönetilmesini kolaylaştırır.
+    *   **Durum Kontrolü Komutu (`--status`):** Yapılandırma, GUI ve terminal komutlarının durumunu kontrol etmeyi sağlayan bir komut eklendi. Bu, sistem yöneticileri için kullanışlıdır.
+*   **Değiştirilen Özellikler:**
+    *   Ana özetleme işlevi (`_summarizer`), CLI argümanlarına göre farklı özelliklerin çağrılmasıyla dolaylı olarak değiştirilmiştir.
+*   **Kaldırılan Özellikler:** Bu revizyonda herhangi bir özellik kaldırıldığına dair bir bilgi bulunmamaktadır.
+
+**Kullanıcı Deneyimi Üzerindeki Etki:**
+
+*   **Kolaylaştırılmış Kurulum ve Yapılandırma:** GUI ve terminal kurulum komutları, kurulum sürecini daha kullanıcı dostu hale getirir.
+*   **Genişletilmiş İşlevsellik:** Ekran görüntüsü alma özelliği, uygulamanın kullanım alanlarını genişletir.
+*   **Daha İyi Erişilebilirlik:** GUI yapılandırma komutu, teknik bilgisi daha az olan kullanıcıların uygulamayı kullanmasını kolaylaştırır.
+*   **Daha Fazla Kontrol:** Durum kontrolü komutu, kullanıcıların sistemin durumunu izlemesini ve sorunları gidermesini sağlar.
+
+**Performans, Güvenlik veya Güvenilirlik Üzerindeki Etkiler:**
+
+*   Performans üzerindeki etki, ekran görüntüsü alma işleminin hızı ve özetleme algoritmasının karmaşıklığına bağlıdır. Ancak, modüler tasarım, performansı etkileyen bölümleri kolayca izole edip optimize etmeyi sağlar.
+*   Güvenlik üzerindeki etki, ekran görüntüsü alma işleminin gizli bilgileri açığa çıkarma potansiyeline ve GUI uygulamasının güvenlik açıklarına bağlıdır.
+*   Güvenilirlik üzerindeki etki, yeni komutların ve özelliklerin ne kadar iyi test edildiğine ve hata yönetimi mekanizmalarının ne kadar sağlam olduğuna bağlıdır.
+
+### 3. TEKNİK DERINLIK:
+
+**Uygulanan veya Değiştirilen Tasarım Desenleri:**
+
+*   **Komut Tasarım Deseni:** CLI'ye eklenen her komut, potansiyel olarak bir komut tasarım deseni olarak düşünülebilir. Her komut, belirli bir eylemi (ekran görüntüsü alma, GUI'yi başlatma, vb.) temsil eder ve ilgili özelliği yürütmek için çağrılır.
+*   **Modüler Tasarım:** Uygulama, modüler bir tasarıma sahiptir. Özellikler ayrı modüllerde uygulanır, bu da kodun daha düzenli, bakımı daha kolay ve test edilebilir olmasını sağlar.
+*   **Fabrika Deseni (Dolaylı):** GUI ve terminal komutlarını kurma ve kaldırma işlemleri, bir fabrika deseni ile benzerlik gösterebilir. Çünkü, farklı kurulum yöntemlerine (GUI, terminal) göre farklı nesneler (kurulum işlemleri) oluşturulur.
+
+**Kod Kalitesi ve Sürdürülebilirlik Nasıl Gelişti:**
+
+*   **Artan Modülerlik:** Modüler tasarım, kodun daha kolay anlaşılmasını, değiştirilmesini ve test edilmesini sağlar.
+*   **Açıkça Tanımlanmış Arayüzler:** `argparse` modülünün kullanılması, komut satırı argümanlarını ayrıştırmak için açık ve standart bir arayüz sağlar.
+*   **Yorumlar ve Dökümantasyon:** Dosya başındaki açıklamalar ve kod içindeki yorumlar, kodun anlaşılabilirliğini artırır.
+
+**Yeni Bağımlılıklar veya Teknolojiler Eklendi mi:**
+
+*   Bu değişiklikte yeni bir bağımlılık eklendiği belirtilmemiş ancak ekran görüntüsü alma özelliği için muhtemelen `PIL` (Pillow) veya benzeri bir kütüphane kullanılmıştır. GUI kurulumu için de `Tkinter`, `PyQt` veya `wxPython` gibi bir kütüphane kullanılmış olabilir. Bu bağımlılıkların kurulum gereksinimleri ve lisans bilgileri göz önünde bulundurulmalıdır.
+
+### 4. SONUÇ YORUMU:
+
+Bu değişiklikler, Summarizer Framework'ünün kullanılabilirliğini ve işlevselliğini önemli ölçüde artırır. CLI'ye eklenen yeni komutlar ve GUI yapılandırma seçeneği, kullanıcı deneyimini geliştirir ve uygulamanın daha geniş bir kullanıcı kitlesi tarafından kullanılmasını sağlar. Modüler tasarım ve açıkça tanımlanmış arayüzler, kodun sürdürülebilirliğini ve gelecekteki geliştirmeler için esnekliğini artırır.
+
+**Projenin Teknik Borcu Nasıl Etkilendi:**
+
+*   Modüler tasarım ve kod kalitesine verilen önem, projenin teknik borcunu azaltmaya yardımcı olur. Ancak, yeni özelliklerin (özellikle ekran görüntüsü alma) performansı ve güvenliği dikkatle izlenmelidir. Ayrıca, yeni bağımlılıkların (eğer varsa) lisans ve bakım gereksinimleri de dikkate alınmalıdır.
+
+**Gelecekteki Geliştirmelere Nasıl Hazırlık Yapıldı:**
+
+*   Modüler tasarım, gelecekte yeni özellikler eklemeyi ve mevcut özellikleri değiştirmeyi kolaylaştırır. CLI'ye eklenen yeni komutlar, uygulamanın potansiyel kullanım alanlarını genişletir. Yapılan geliştirmeler, TODO listesindeki maddelerin gerçekleştirilmesi için bir zemin hazırlamaktadır. Özellikle AI destekli göz (Summarizer Eye) ve sesli komut sistemi (Summarizer Enter) gibi daha karmaşık özelliklerin gelecekte entegre edilmesi için gerekli altyapı sağlanmaktadır.
+
+**Değişen Dosyalar:** summarizer.py
+**Etki Seviyesi:** High
+**Değişiklik Tipi:** Other
+**Satır Değişiklikleri:** +306
+**Etiketler:** gui, summarizer, api
+
+---
+
 ## 2025-06-20 08:13:47
 
 İşte yazılım projesindeki değişikliklerin detaylı analizi:

@@ -63,7 +63,7 @@ def get_framework_version():
         return '2.2.0'
 
 def print_version_info():
-    """Print comprehensive version information"""
+    """Print comprehensive version information!"""
     # Get version from VersionManager for consistency
     try:
         from src.utils.version_manager import VersionManager
