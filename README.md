@@ -1,107 +1,63 @@
-```markdown
-# 🚀 project.110620251156
-> Web projesi, komut satırı arayüzü (CLI) ve grafik kullanıcı arayüzü (GUI) entegrasyonu ile özetleme yeteneklerini güçlendiren, modüler ve genişletilebilir bir yapı sunar. Kullanıcı deneyimini iyileştirmeye ve gelecekteki geliştirmelere zemin hazırlamaya odaklanılmıştır.
+# 🚀 Project.110620251156
+
+> Web uygulamanız için otomatik kurulum betiği ve geliştirilmiş komut satırı arayüzü ile kullanıcı dostu, kolay kurulabilen ve genişletilebilir bir deneyim sunar. ✨
 
 ## 📊 Proje Durumu
-✅ Geliştirme aşamasında, yeni özellikler ekleniyor ve mevcut özellikler iyileştiriliyor. Google Gemini API entegrasyonu ile AI destekli özetleme yetenekleri de projeye dahil edilmiştir. 🚧 `TODO` yorumları, projenin hala geliştirme aşamasında olduğunu ve bazı iyileştirmelere ihtiyaç duyulduğunu gösteriyor.
+
+✔️ Kurulum betiği ile kurulum basitleştirildi.
+✔️ CLI arayüzüne yeni komutlar eklendi.
+⚠️ Performans ve güvenlik etkileri inceleniyor.
+🚧 GUI entegrasyonu devam ediyor.
 
 ## ✨ Özellikler
-*   💻 Komut satırı arayüzü (CLI) ile kolay kullanım
-*   🖼️ Ekran görüntüsü alma ve analiz etme
-*   🎨 Grafik kullanıcı arayüzü (GUI) entegrasyonu (kurulum ve yapılandırma)
-*   ⚙️ Terminal komutunu kurma ve kaldırma
-*   ✔️ Sistem durumu kontrolü
-*   🤖 Google Gemini API ile yapay zeka destekli özetleme (API anahtarı gerektirir)
-*   🧩 Modüler tasarım ile kolay genişletilebilirlik
-*   📄 Detaylı hata yönetimi ve logging
+
+*   ✅ Otomatik GUI kurulumu
+*   ✅ Otomatik terminal komutu kurulumu
+*   ✅ Ekran görüntüsü alma ve analiz etme (screenshot, ss)
+*   ✅ GUI üzerinden yapılandırma (--gui)
+*   ✅ Terminal komutlarını kurma ve kaldırma (--install-terminal, --uninstall-terminal)
+*   ✅ Uygulama bileşenlerinin durumunu kontrol etme (--status)
+*   ✅ CLI, GUI ve Python import yoluyla erişim imkanı
 
 ## Değişen Dosyalar:
-summarizer.py
-features/merge_command.py
-features/parameter_checker.py
-features/screenshot.py
-features/terminal_commands.py
-features/gui_installer.py
-src/services/gemini_client.py
-src/utils/version_manager.py
-src/utils/git_manager.py
-src/utils/changelog_updater.py
+
+*   `install_gui.py`
+*   `summarizer.py`
 
 ## ANALİZ GÖREVİ:
 
 ### 1. YAPISAL ANALİZ:
 
--   **Etkilenen Sistem Bileşenleri ve Katmanlar:**
-    *   **Sunum Katmanı:** `summarizer.py` ana giriş noktası ve CLI arayüzü olarak, argüman ayrıştırma ve komut yönlendirme süreçleri güncellendi.
-    *   **Özellik Katmanı:** `features` altındaki modüller (örneğin `screenshot.py`, `gui_installer.py`) yeni komutlar ve işlevselliklerle (ekran görüntüsü alma, GUI kurulumu) zenginleştirildi.
-    *   **Servis Katmanı:** `src/services/gemini_client.py` dış servis entegrasyonunu (Google Gemini API) sağlarken, `src/utils` altındaki modüller (versiyon yönetimi, git işlemleri, değişiklik günlüğü) temel sistem fonksiyonlarını destekliyor.
-    *   **Çekirdek Mantık:** `src/main.py` içindeki `_summarizer` fonksiyonu dolaylı olarak etkilendi; özetleme işleminin tetiklenme ve konfigüre edilme şekli değiştirildi.
-
--   **Mimari Değişikliklerin Etkisi:**
-    *   **Genişletilebilirlik:** Modüler tasarım, yeni özelliklerin (ekran görüntüsü alma, GUI) nispeten kolay eklenmesini sağladı. `summarizer.py`, argüman ayrıştırma ve komut yönlendirmede merkezi bir rol oynayarak bu esnekliği destekliyor.
-    *   **Bağımlılık Yönetimi:** `GeminiClient` entegrasyonu, harici bir servise bağımlılık ekledi (Google Gemini API). Bu, konfigürasyon (API anahtarının yönetimi) ve hata yönetimi (API kullanılamadığında fallback mekanizmaları) açısından karmaşıklığı artırdı. Ortam değişkenlerinin kullanılması bağımlılığı bir nebze hafifletiyor.
-    *   **Ayrışma:** Yardımcı araçların (`src/utils`) ana özetleme mantığından ayrılması, kodun okunabilirliğini ve sürdürülebilirliğini artırıyor.
-
--   **Kod Organizasyonunda Yapılan İyileştirmeler:**
-    *   **Modülerlik:** Özelliklerin ayrı modüllerde (örneğin, `features/screenshot.py`) toplanması, kod organizasyonunu iyileştiriyor ve yeniden kullanılabilirliği artırıyor.
-    *   **API İstemci Entegrasyonu:** `GeminiClient`'ın `RequestManager`'a kaydedilmesi, istemci yönetimini merkezileştirerek diğer bileşenlerin AI özetleme yeteneklerine daha kolay erişmesini sağlıyor.
-    *   **Hata Yönetimi:** `GeminiClient`'taki hata yönetimi ve logging mekanizmaları, API konfigürasyonundaki sorunları daha iyi tespit etmeye ve çözmeye yardımcı oluyor (API anahtarı eksik olduğunda uygun uyarılar).
+*   **Etkilenen Sistem Bileşenleri ve Katmanlar:** Değişiklikler öncelikle sunum katmanını (GUI, CLI) ve uygulama giriş noktasını (`summarizer.py`) etkilemektedir. `install_gui.py`, GUI ve terminal komutlarının kurulumunu otomatikleştirerek dağıtım katmanını etkiler. `summarizer.py` dosyasına yapılan eklemeler, CLI arayüzünü zenginleştirerek ve yeni özellikler ekleyerek (örneğin ekran görüntüsü alma) doğrudan kullanıcı etkileşimi katmanını etkiler. `features` dizinindeki modüller (örn: `screenshot.py`, `gui_installer.py`) ana iş mantığının bir parçası olarak ele alınabilir ve `summarizer.py`'daki değişikliklerle tetiklenir. `src/main.summarizer` altındaki temel özetleme işlevselliği dolaylı olarak etkilenebilir, ancak doğrudan değiştirilmemiştir.
+*   **Mimari Değişikliklerin Etkisi:** Uygulamaya kurulum betiği eklenmesi ve CLI arayüzünün genişletilmesi, uygulamanın dağıtım mimarisini ve kullanıcı etkileşimini basitleştirerek mikro hizmet mimarilerine yaklaşımını güçlendirir.  Yeni özelliklerin (`screenshot`, `gui` komutları) modüler `features` dizinine eklenmesi, mimarinin genişletilebilirliğini artırır. Ana `summarizer.py` dosyası, komut satırı argümanlarını işleyen ve ilgili işlevselliği çağıran bir "kontrolör" görevi görerek daha temiz ve yönetilebilir kalır. Bu durum, kodun modülerliğini korurken yeni özelliklerin entegrasyonunu kolaylaştırır.
+*   **Kod Organizasyonunda Yapılan İyileştirmeler:** Kod daha modüler bir yapıya kavuşmuştur. `install_gui.py` dosyasında, kurulum adımları ayrı fonksiyonlara delege edilerek okunabilirlik artırılmıştır. `summarizer.py` dosyasında, `argparse` modülü kullanılarak komut satırı argümanlarının işlenmesi standartlaştırılmıştır. Özelliklerin ayrı modüllerde (`features` dizini) tutulması, kodun bakımı ve test edilmesini kolaylaştırır.  Docstring'ler ve yorumlar, kodun anlaşılabilirliğini artırır, ancak `TODO` notları geliştirme çalışmalarının devam ettiğini göstermektedir.
 
 ### 2. İŞLEVSEL ETKİ:
 
--   **Eklenen, Değiştirilen veya Kaldırılan Özellikler:**
-    *   **Eklenen Özellikler:**
-        *   Ekran görüntüsü alma (`summarizer screenshot`, `summarizer ss`).
-        *   GUI konfigürasyonunu başlatma (`summarizer --gui`).
-        *   Terminal komutunu kurma/kaldırma (`summarizer --install-terminal`, `summarizer --uninstall-terminal`).
-        *   Sistem durumu kontrolü (`summarizer --status`).
-        *   AI özetleme (Google Gemini API entegrasyonu).
-    *   **Değiştirilen Özellikler:**
-        *   Ana özetleme fonksiyonu (`_summarizer`) hala çalışır durumda, ancak komut satırı argümanları ile konfigürasyon seçenekleri genişletilmiş.
-    *   **Kaldırılan Özellikler:** Açıkça kaldırılan bir özellik belirtilmemiş.
-
--   **Kullanıcı Deneyimi Nasıl Etkilendi:**
-    *   **Geliştirilmiş Erişilebilirlik:** CLI araçları ve GUI konfigürasyonu, kullanıcıların özetleme araçlarına farklı yollardan erişmesini sağlıyor, böylece farklı beceri seviyelerine sahip kullanıcılara hitap ediliyor.
-    *   **Artan Özellik Seti:** Yeni özellikler (ekran görüntüsü alma, sistem durumu), kullanıcıların belirli kullanım durumlarına göre özetleme aracını uyarlamasına olanak tanıyor.
-    *   **AI Entegrasyonu:** Gemini API entegrasyonu (API anahtarı mevcutsa), özetlerin kalitesini ve doğruluğunu potansiyel olarak artırıyor.
-
--   **Performans, Güvenlik veya Güvenilirlik Üzerindeki Etkiler:**
-    *   **Performans:** Ekran görüntüsü alma gibi bazı özellikler, özellikle büyük ekran görüntüleri işlenirken performans üzerinde etkiye sahip olabilir. API'den veri çekme süreçleri de uygulamanın genel hızını etkileyebilir.
-    *   **Güvenlik:** Harici API anahtarlarının (örn. `GEMINI_API_KEY`) güvenli bir şekilde saklanması ve yönetilmesi kritik öneme sahip. Ortam değişkenlerinin kullanımı, anahtarları kodda saklama riskini azaltır. GUI tarafındaki güvenlik açıkları da potansiyel risk oluşturabilir.
-    *   **Güvenilirlik:** `GeminiClient`'taki hata yönetimi ve fallback mekanizmaları (API anahtarı yoksa), dış servis kullanılamaz olduğunda bile sistemin çalışmaya devam etmesini sağlamaya yardımcı oluyor. Modüler tasarım, hataların tüm sistemi etkileme olasılığını azaltır.
+*   **Eklenen, Değiştirilen veya Kaldırılan Özellikler:**
+    *   **Eklenen:** Otomatik GUI kurulumu ( `install_gui.py` yoluyla ve `--install-gui` komutu).
+    *   **Eklenen:** Otomatik terminal komutu kurulumu ( `install_gui.py` yoluyla ve `--install-terminal` komutu).
+    *   **Eklenen:** Ekran görüntüsü alma komutları (`screenshot`, `ss`). Bu komutlar, uygulamanın görsel verileri analiz etme yeteneğini artırır.
+    *   **Eklenen:** GUI yapılandırma komutu (`--gui`). Bu komut, teknik bilgisi az olan kullanıcılar için yapılandırmayı kolaylaştırır.
+    *   **Eklenen:** Kurulum ve kaldırma komutları (`--install-gui`, `--install-terminal`, `--uninstall-terminal`). Bu komutlar, uygulamanın dağıtımını ve yönetimini basitleştirir.
+    *   **Eklenen:** Durum kontrolü komutu (`--status`). Bu komut, sistem yöneticileri için faydalıdır.
+*   **Kullanıcı Deneyimi Nasıl Etkilendi:** Kullanıcı deneyimi önemli ölçüde iyileştirilmiştir. Kurulum süreci otomatikleştirilmiş ve basitleştirilmiştir, manuel adımlar ortadan kaldırılmıştır. CLI arayüzü, yeni komutlarla daha işlevsel hale gelmiştir. GUI yapılandırma seçeneği, uygulamanın daha geniş bir kullanıcı kitlesi tarafından erişilebilir olmasını sağlamıştır. Başarısız kurulum durumunda sağlanan hata mesajları ve çözüm önerileri, kullanıcıların sorunları daha kolay çözmelerine yardımcı olur.
+*   **Performans, Güvenlik veya Güvenilirlik Üzerindeki Etkiler:**  `install_gui.py` dosyasının doğrudan performans üzerinde büyük bir etkisi beklenmemektedir, ancak otomatik kurulum hataları azaltarak uygulamanın genel güvenilirliğini artırabilir. `screenshot` komutlarının performans üzerindeki etkisi, ekran görüntüsü alma ve işleme süreçlerinin optimizasyonuna bağlıdır. Güvenlik açısından, ekran görüntüsü alma özelliği hassas bilgilerin açığa çıkmasına neden olabilir, bu nedenle izin kontrolü gibi güvenlik önlemleri alınmalıdır. `install_gui.py` ve `summarizer.py`'daki yeni özelliklerin ve komutların ne kadar iyi test edildiğine ve hata yönetimi mekanizmalarının ne kadar sağlam olduğuna bağlı olarak uygulamanın güvenilirliği artabilir veya azalabilir.
 
 ### 3. TEKNİK DERINLIK:
 
--   **Uygulanan veya Değiştirilen Tasarım Desenleri:**
-    *   **Komut Deseni:** Komut satırı argümanlarını işleme ve ilgili eylemleri tetikleme (ekran görüntüsü alma, GUI başlatma, vb.), komut deseninin bir uygulaması olarak değerlendirilebilir.
-    *   **Fabrika Deseni (İmali):** `GeminiClient`, API anahtarı olup olmamasına bağlı olarak farklı bir şekilde başlatılabilir, bu da bir tür fabrika deseninin basitleştirilmiş bir uygulamasıdır. İstemci nesnesinin oluşturulma şekli bu deseni andırıyor.
-    *   **Singleton Deseni (İmali):** `RequestManager`, tüm bileşenler arasında tutarlı erişimi garanti etmek için tek bir örneğe sahip olabilir, ancak bu durum kodda açıkça belirtilmemiş.
-
--   **Kod Kalitesi ve Sürdürülebilirlik Nasıl Gelişti:**
-    *   **Modülerlik:** Kodun modüler yapısı, okunabilirliği ve sürdürülebilirliği artırıyor. Yeni özellikler eklemek ve mevcut olanları değiştirmek daha kolay hale geliyor.
-    *   **Logging:** `GeminiClient` ve diğer modüllerdeki kapsamlı logging, hata ayıklamayı ve sorun gidermeyi kolaylaştırıyor. Olayların kaydedilmesi, sistem davranışını izlemeyi sağlıyor.
-    *   **Hata Yönetimi:** `GeminiClient`'taki detaylı hata yönetimi, uygulamanın daha sağlam ve hataya dayanıklı olmasını sağlıyor. Hata senaryolarının ele alınması, beklenmedik durumların önüne geçilmesine yardımcı oluyor.
-
--   **Yeni Bağımlılıklar veya Teknolojiler Eklendi mi:**
-    *   **Google Gemini API:** AI özetleme yetenekleri için yeni ve önemli bir bağımlılık.
-    *   Ekran görüntüsü alma (`PIL/Pillow`, `mss` gibi) ve GUI özellikleri (`PyQt`, `Tkinter`, `wxPython` gibi) için ek bağımlılıklar eklenmiş *olabilir*, ancak kod örneklerinde bu açıkça belirtilmemiş. Bu kütüphanelerin lisansları ve versiyon uyumluluğu dikkate alınmalı.
+*   **Uygulanan veya Değiştirilen Tasarım Desenleri:**
+    *   **Facade:** `install_gui.py` ve `summarizer.py` dosyaları, karmaşık alt sistemlerin (GUI kurulumu, terminal komutu kurulumu, ekran görüntüsü alma) işlevselliğini basitleştirilmiş bir arayüz aracılığıyla sunarak Facade tasarım desenini uygular.
+    *   **Command:** `summarizer.py` dosyasındaki komut satırı argümanlarının işlenmesi ve ilgili fonksiyonların çağrılması, Command Pattern'in bir uygulaması olarak değerlendirilebilir. Her komut (örneğin `screenshot`, `gui`), belirli bir eylemi temsil eden bir nesne olarak düşünülebilir.
+    *   **Modüler Tasarım:** Uygulama, modüler bir tasarıma sahiptir. Özellikler ayrı modüllerde uygulanır, bu da kodun daha düzenli, bakımı daha kolay ve test edilebilir olmasını sağlar.
+*   **Kod Kalitesi ve Sürdürülebilirlik Nasıl Gelişti:** Modüler tasarım, kodun daha kolay anlaşılmasını, değiştirilmesini ve test edilmesini sağlar. `install_gui.py`'daki hata yönetimi ( `try...except` blokları), kurulumun sağlamlığını artırır. `summarizer.py` dosyasındaki docstring'ler ve yorumlar, kodun anlaşılabilirliğini artırır. Ancak, `install_gui.py` içindeki `install_full_gui_package` ve `install_terminal_command` fonksiyonlarının ve `features` dizinindeki modüllerin kendileri de iyi yazılmış ve test edilmiş olmalıdır.
+*   **Yeni Bağımlılıklar veya Teknolojiler Eklendi mi:** Değişikliklerde doğrudan yeni bir bağımlılık belirtilmemiştir, ancak ekran görüntüsü alma özelliği için muhtemelen `PIL` (Pillow) veya benzeri bir kütüphane kullanılmıştır. GUI kurulumu için de `Tkinter`, `PyQt` veya `wxPython` gibi bir kütüphane kullanılmış olabilir. Bu bağımlılıkların kurulum gereksinimleri ve lisans bilgileri göz önünde bulundurulmalıdır. `argparse` ve `pathlib` modülleri zaten kullanılıyordu.
 
 ### 4. SONUÇ YORUMU:
 
--   **Bu Değişikliklerin Uzun Vadeli Değeri ve Etkisi Nedir:**
-    *   **Geliştirilmiş İşlevsellik:** Yeni özellikler ve AI entegrasyonu, özetleme aracının işlevselliğini ve değerini artırıyor. Kullanıcıların farklı ihtiyaçlarına cevap verebilecek daha kapsamlı bir araç haline geliyor.
-    *   **Artan Kullanıcı Tabanı:** Farklı erişim yöntemleri (komut satırı, GUI), daha geniş bir kullanıcı kitlesine ulaşılmasını sağlıyor. Teknik bilgisi farklı seviyelerde olan kullanıcılar için erişilebilirlik artıyor.
-    *   **Gelecek Geliştirmeler İçin Temel:** Modüler tasarım, gelecekte yeni özellikler eklemeyi ve mevcut özellikleri geliştirmeyi kolaylaştırıyor. Altyapı sağlamlaştırılıyor.
-
--   **Projenin Teknik Borcu Nasıl Etkilendi:**
-    *   **Potansiyel Artış:** Yeni bağımlılıklar (Google Gemini API, olası GUI kütüphaneleri) ve karmaşıklık (GUI, AI entegrasyonu), teknik borcu artırabilir. Harici servislerin kullanımı ve entegrasyonu ek bakım maliyetleri getirebilir.
-    *   **Azaltma Potansiyeli:** Modüler tasarım, kapsamlı logging ve detaylı hata yönetimi, teknik borcu yönetmeye ve azaltmaya yardımcı olabilir. İyi tasarlanmış kod, gelecekteki değişiklikleri kolaylaştırır ve hataları azaltır.
-
--   **Gelecekteki Geliştirmelere Nasıl Hazırlık Yapıldı:**
-    *   **Modüler Tasarım:** Yeni özelliklerin kolayca eklenmesini ve mevcut olanların değiştirilmesini sağlıyor. Esnek bir yapı sunuluyor.
-    *   **API İstemci Yönetimi:** Birden fazla AI hizmeti entegre etme veya mevcut olanları değiştirme esnekliği sunuyor. Farklı AI sağlayıcılarına geçiş kolaylaştırılıyor.
-    *   **TODO Yorumları:** Geliştiricilere gelecekteki iyileştirmeler için yol gösteriyor (örneğin, otomatik release tespiti, kişisel bilgi havuzu, AI destekli kod analizi). Geliştirme potansiyeli olan alanlar işaretleniyor.
-```
+*   **Bu Değişikliklerin Uzun Vadeli Değeri ve Etkisi Nedir:** Bu değişiklikler, uygulamanın kullanıcı dostu olmasını ve kolay kurulabilmesini sağlayarak uzun vadede değer yaratır. Yeni kullanıcıların uygulamayı daha kolay benimsemesine ve mevcut kullanıcıların kurulum sorunlarıyla uğraşmak zorunda kalmamasına yardımcı olur. Otomatik kurulum, dağıtım ve bakım maliyetlerini düşürebilir. CLI'ye eklenen yeni komutlar, uygulamanın potansiyel kullanım alanlarını genişletir. GUI yapılandırma seçeneği, uygulamanın daha geniş bir kullanıcı kitlesi tarafından kullanılmasını sağlar.
+*   **Projenin Teknik Borcu Nasıl Etkilendi:** Modüler tasarım ve kod kalitesine verilen önem, projenin teknik borcunu azaltmaya yardımcı olur. Ancak, yeni özelliklerin (özellikle ekran görüntüsü alma) performansı ve güvenliği dikkatle izlenmelidir. Ayrıca, yeni bağımlılıkların (eğer varsa) lisans ve bakım gereksinimleri de dikkate alınmalıdır. Özellikle GUI kısmının test edilmesi ve bakımı maliyetli olabilir. `TODO` notları, çözülmesi gereken sorunları veya iyileştirilmesi gereken alanları gösterir ve teknik borcun bir göstergesi olarak kabul edilebilir.
+*   **Gelecekteki Geliştirmelere Nasıl Hazırlık Yapıldı:** Modüler tasarım, gelecekte yeni özellikler eklemeyi ve mevcut özellikleri değiştirmeyi kolaylaştırır. CLI'ye eklenen yeni komutlar, uygulamanın potansiyel kullanım alanlarını genişletir. Yapılan geliştirmeler, TODO listesindeki maddelerin gerçekleştirilmesi için bir zemin hazırlamaktadır. Özellikle AI destekli göz (Summarizer Eye) ve sesli komut sistemi (Summarizer Enter) gibi daha karmaşık özelliklerin gelecekte entegre edilmesi için gerekli altyapı sağlanmaktadır.
 
 ## 🛠️ Kurulum (Installation)
 
@@ -262,7 +218,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**Last updated**: June 20, 2025 by Summarizer Framework v15.16.6
+**Last updated**: June 20, 2025 by Summarizer Framework v15.16.7
 *This README is automatically generated and updated based on project activity.*
 
 > *"Automatically maintained with AI-powered analysis"*
