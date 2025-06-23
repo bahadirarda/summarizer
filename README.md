@@ -1,83 +1,95 @@
-# 🚀 project.110620251156
-> Web uygulamanız için daha iyi yapılandırma, daha kullanıcı dostu kurulum ve daha sağlam bir temel.
+```markdown
+# 🚀 Summarizer Framework
+
+> Summarizer Framework, metin özetleme süreçlerini kolaylaştıran ve kullanıcı dostu bir arayüz sunan bir web projesidir. Otomatik kurulum, yapılandırma ve kolay kullanım imkanları ile metin özetleme işlevselliğini herkes için erişilebilir hale getirir.
 
 ## 📊 Proje Durumu
-✅ Yapılandırma yönetimi iyileştirildi ve loglama altyapısı güçlendirildi.
-✅ GUI ve CLI kurulum süreçleri otomatikleştirildi, kullanıcı deneyimi iyileştirildi.
-✅ Teknik borç azaltıldı, gelecekteki geliştirmeler için zemin hazırlandı.
+
+✅ Proje, otomatik kurulum süreçleri ve yapılandırma iyileştirmeleri ile geliştirilme aşamasındadır. Kullanıcı deneyimini ön planda tutan yeni özellikler ve modüler kod yapısıyla sürdürülebilir bir temel oluşturulmaktadır.
 
 ## ✨ Özellikler
-*   **Dinamik Yapılandırma:** Ortam değişkenlerine göre otomatik yapılandırma seçimi (Geliştirme/Üretim). ⚙️
-*   **Gelişmiş Loglama:** Ortama özel loglama seviyeleri ve formatları, `NullHandler` ile hatalı loglama önleme. 🪵
-*   **Kolay Kurulum:** Otomatik GUI ve CLI kurulum betiği, kullanıcı dostu deneyim. 🖱️⌨️
-*   **Modüler Kod:** Daha okunabilir ve sürdürülebilir kod yapısı, farklı ortamlara kolay adaptasyon. 🧱
-*   **Azaltılmış Teknik Borç:** Daha temiz kod ve geliştirilmiş loglama ile gelecekteki hataların teşhisi kolaylaştırıldı. 📉
+
+*   ✨ **Otomatik GUI Kurulumu:** Kullanıcı arayüzü bileşenlerinin kolayca kurulmasını sağlar.
+*   💻 **Otomatik Terminal Komutu Kurulumu:** Terminal komutlarının otomatik olarak yapılandırılmasıyla komut satırı erişimi kolaylaştırır.
+*   🤝 **Kullanıcı Dostu Kurulum Süreci:** Anlaşılır adımlar ve bilgilendirici hata mesajları ile kurulumu basitleştirir.
+*   📚 **Kurulum Sonrası Talimatlar:** Uygulamanın nasıl kullanılacağına dair net talimatlar sunar.
+*   ⚙️ **Gelişmiş Konfigürasyon Yönetimi:** Ortam değişkenlerine göre dinamik yapılandırma seçenekleri sunar.
+*   🛡️ **Gelişmiş Loglama Altyapısı:** Hata ayıklama ve performans takibi için detaylı loglama imkanı sağlar.
+*   🚀 **Modüler Kod Yapısı:** Kolay bakım ve gelecekteki geliştirmeler için esnek bir temel sunar.
 
 ## Değişen Dosyalar:
-*   `src/config.py`: Yapılandırma ve loglama altyapısı iyileştirmeleri.
-*   `install_gui.py`: Otomatik GUI ve CLI kurulum betiği.
+*   `install_gui.py`: Kurulum betiği, kullanıcı arayüzü ve terminal komutları kurulumunu otomatikleştirir.
+*   `src/config.py`: Konfigürasyon dosyası, ortam değişkenlerine göre dinamik loglama ve yapılandırma ayarları sunar.
+*   `features/gui_installer.py`: GUI bileşenlerinin kurulumunu yöneten modül.
+*   `features/terminal_commands.py`: Terminal komutlarının kurulumunu yöneten modül.
+
+```
 
 ## ANALİZ GÖREVİ:
 
 ### 1. YAPISAL ANALİZ:
 
-*   **Etkilenen Sistem Bileşenleri ve Katmanlar:**
-    *   **Yapılandırma Katmanı:** `src/config.py` ile uygulamanın temel yapılandırma katmanı doğrudan etkilendi. Loglama sistemi ve ortam değişkenlerine bağlı konfigürasyon davranışları yenilendi.
-    *   **Sunum Katmanı (GUI) ve CLI:** `install_gui.py` betiği ile kullanıcı arayüzü (GUI) kurulumu ve komut satırı arayüzü (CLI) yapılandırılması otomatikleştirildi. `features.gui_installer` ve `features.terminal_commands` modülleri aracılığıyla sistemin çekirdek fonksiyonlarına da dolaylı olarak etki edildi.
-*   **Mimari Değişikliklerin Etkisi:**
-    *   **Yapılandırma:** `src/config.py`'deki değişiklikler, uygulamanın çoklu ortam desteğini (development/production) güçlendirdi. Loglama altyapısının dinamik yapılandırılması, farklı ortamlar ve ihtiyaçlar için daha iyi esneklik sağladı.
-    *   **Kurulum:** `install_gui.py` betiği, uygulamanın kurulum ve yapılandırma sürecini otomatikleştirerek ve kolaylaştırarak dağıtım mimarisini basitleştirdi. "Infrastructure as code" prensibine yaklaşım olarak değerlendirilebilir. Tek bir betik ile GUI ve CLI bileşenlerinin kurulumu mümkün hale geldi.
-*   **Kod Organizasyonunda İyileştirmeler:**
-    *   **Yapılandırma:** `BaseConfig`, `DevelopmentConfig`, ve `ProductionConfig` sınıflarının kullanımı, konfigürasyonun daha organize ve okunabilir olmasını sağladı. `get_config()` fonksiyonu, ortam değişkenine göre uygun yapılandırma sınıfını döndürerek konfigürasyon seçimini merkezileştirdi. `setup_logging()` fonksiyonu, loglama sistemini yapılandırma nesnesindeki ayarlara göre dinamik olarak ayarladı.
-    *   **Kurulum:** `install_gui.py` betiği, temel kurulum adımlarını (GUI ve terminal komutları) ayrı fonksiyonlara delege ederek daha modüler hale geldi. Hata yönetimi (`try...except` blokları) ile kurulumun genel sağlamlığı artırıldı.
+-   **Etkilenen Sistem Bileşenleri ve Katmanlar:**
+    *   **Kullanıcı Arayüzü Katmanı:** `install_gui.py` ve `features/gui_installer.py` ile GUI bileşenlerinin kurulumu ve kullanıcı etkileşimi yönetimi. Kurulum sürecinin otomasyonu ve kullanıcı dostu hale getirilmesi amaçlanmıştır.
+    *   **Komut Satırı Arayüzü (CLI) Katmanı:** `features/terminal_commands.py` modülü ile terminal komutlarının kurulumu ve yapılandırılması sağlanır. Kullanıcının komut satırından uygulamaya erişimini kolaylaştırır.
+    *   **Konfigürasyon Katmanı:** `src/config.py` dosyası ile uygulamanın temel yapılandırma ayarları yönetilir. Ortam değişkenlerine (development/production) göre farklı yapılandırma profilleri oluşturulur. Loglama sistemi de bu katman üzerinden dinamik olarak yapılandırılır.
+    *   **Kurulum ve Yapılandırma Katmanı:** `install_gui.py`, `features/gui_installer.py` ve `features/terminal_commands.py` modüllerinin entegrasyonu ile kurulum adımları yönetilir ve sisteme entegre edilir. Bu, sistemin kolayca kurulabilir ve yapılandırılabilir olmasını sağlar.
+-   **Mimari Değişikliklerin Etkisi:**
+    *   **Kurulum Süreci Merkezileştirilmesi:** `install_gui.py` dosyası, kurulum sürecini basitleştiren ve merkezileştiren bir rol üstlenir. `features/gui_installer.py` ve `features/terminal_commands.py` modüllerindeki karmaşık işlemleri soyutlar ve kullanıcıya daha basit bir arayüz sunar.
+    *   **Konfigürasyon Yönetimi İyileştirmesi:** `src/config.py` dosyasındaki değişiklikler, uygulamanın farklı ortamlara (development, production) daha kolay adapte olmasını sağlar. Loglama altyapısının dinamik olarak yapılandırılması, her ortam için uygun loglama seviyesini ve formatını ayarlamayı mümkün kılar.
+    *   **Modülerlik ve Sorumluluk Ayrımı:** Kurulum adımları ve yapılandırma ayarları ayrı modüllerde tutularak, kodun daha okunabilir, bakımı kolay ve yeniden kullanılabilir olması sağlanır. Bu, uygulamanın genel mimarisini daha sürdürülebilir hale getirir.
+-   **Kod Organizasyonunda Yapılan İyileştirmeler:**
+    *   **Modülerlik ve Sorumluluk Ayrımı:** Kurulum adımları (GUI ve terminal komutları) ve yapılandırma ayarları ayrı modüllere ayrılmıştır. Bu, kodun daha okunabilir, bakımı kolay ve yeniden kullanılabilir olmasını sağlar.
+    *   **Hata Yönetimi:** `try...except` blokları kullanılarak hatalar yakalanır ve kullanıcıya bilgilendirici mesajlar gösterilir. Bu, kurulum sürecinin daha sağlam ve kullanıcı dostu olmasını sağlar. `ImportError` ve genel `Exception` yakalama, beklenmedik durumlarda uygulamanın çökmesini engeller ve sorunun kaynağı hakkında ipuçları verir.
+    *   **Başarı Durumu Takibi:** Kurulum adımlarının başarıyla tamamlanıp tamamlanmadığını izlemek için `success` değişkeni kullanılıyor. Bu, kurulumun sonunda genel bir durum bilgisi vermeyi sağlıyor.
+    *   **Konfigürasyon Sınıfları:** `BaseConfig`, `DevelopmentConfig` ve `ProductionConfig` sınıfları, yapılandırma ayarlarını organize ve okunabilir hale getirir. Temel yapılandırmalar `BaseConfig` sınıfında tanımlanır ve ortam özelinde farklılıklar alt sınıflarda belirtilir.
+    *   **Loglama Yapılandırma Fonksiyonu:** `setup_logging()` fonksiyonu, loglama sistemini yapılandırma nesnesindeki ayarlara göre dinamik olarak ayarlar. Bu, farklı ortamlarda farklı loglama davranışları elde etmeyi kolaylaştırır. Gereksiz handler'ların temizlenmesi ve `NullHandler` eklenmesi hatalı loglama durumlarını engeller.
 
 ### 2. İŞLEVSEL ETKİ:
 
-*   **Eklenen, Değiştirilen veya Kaldırılan Özellikler:**
-    *   **`src/config.py`:**
-        *   **Eklenen:** `ProductionConfig` sınıfı ile üretim ortamı için özelleştirilmiş loglama ayarları (LOG_LEVEL ve LOG_FORMAT).
-        *   **Eklenen:** `NullHandler` kullanımı ile hatalı loglama durumlarının engellenmesi.
-        *   **Değiştirilen:** `get_config()` fonksiyonu, ortam değişkeni (`APP_ENV`) kontrolü yaparak uygun yapılandırma sınıfını seçiyor.
-        *   **Değiştirilen:** Loglama kurulumu (`setup_logging()`) tamamen yeniden yazıldı.
-    *   **`install_gui.py`:**
-        *   **Eklenen:** Otomatik GUI kurulumu (`install_full_gui_package` fonksiyonu aracılığıyla).
-        *   **Eklenen:** Otomatik terminal komutu kurulumu (`install_terminal_command` fonksiyonu aracılığıyla).
-        *   **Eklenen:** Kurulum adımlarının başarılı/başarısız olduğuna dair geri bildirim.
-        *   **Eklenen:** Kurulum tamamlandıktan sonra kullanılabilir komutların listesi ve API anahtarı yapılandırma talimatları.
-*   **Kullanıcı Deneyimi:**
-    *   **Yapılandırma:** Kullanıcı deneyimi doğrudan etkilenmiyor. Ancak, daha iyi loglama, geliştiricilerin hataları daha hızlı teşhis etmesine ve düzeltmesine yardımcı olarak dolaylı olarak kullanıcı deneyimini iyileştirebilir. Üretim ortamında gereksiz loglamanın kapatılması performansı artırabilir.
-    *   **Kurulum:** Kurulum sürecini basitleştirerek kullanıcı deneyimini önemli ölçüde iyileştirir. Manuel kurulum adımlarını ortadan kaldırır ve kullanıcıya daha akıcı ve anlaşılır bir deneyim sunar. Başarısız kurulum durumunda sağlanan hata mesajları ve çözüm önerileri de kullanıcı deneyimini destekler.
-*   **Performans, Güvenlik veya Güvenilirlik Üzerindeki Etkiler:**
-    *   **Performans:** Üretim ortamında konsola loglama kapatılarak potansiyel performans sorunları önlenmiş olabilir.
-    *   **Güvenlik:** Loglama hassas bilgileri içeriyorsa, üretimde daha yüksek bir log seviyesi (WARNING, ERROR, CRITICAL) kullanılması ve konsola loglama yapılmaması güvenlik açısından daha iyi bir yaklaşımdır.
-    *   **Güvenilirlik:** Daha sağlam bir konfigürasyon yönetimi ve loglama sistemi, uygulamanın genel güvenilirliğini artırır. `NullHandler` eklenmesi, beklenmedik loglama hatalarını önleyerek sistemin daha kararlı çalışmasını sağlıyor. Kurulum betiğinin otomatikleştirilmesi ve hataları azaltması uygulamanın genel güvenilirliğini artırabilir.
+-   **Eklenen/Değiştirilen/Kaldırılan Özellikler:**
+    *   **Eklenen:**
+        *   **Otomatik GUI Kurulumu:** `features/gui_installer.py` modülü kullanılarak GUI bileşenlerinin otomatik kurulumu sağlanır.
+        *   **Otomatik Terminal Komutu Kurulumu:** `features/terminal_commands.py` modülü kullanılarak terminal komutlarının otomatik kurulumu sağlanır.
+        *   **Kullanıcı Dostu Kurulum Süreci:** Kurulum adımları net bir şekilde gösterilir ve hatalar durumunda bilgilendirici mesajlar verilir.
+        *   **Kurulum Sonrası Talimatlar:** Kurulum tamamlandıktan sonra, kullanıcıya `summarizer` komutunun nasıl kullanılacağı ve API anahtarının nasıl yapılandırılacağı hakkında talimatlar verilir.
+        *   **`ProductionConfig` Sınıfı:** Üretim ortamı için özelleştirilmiş loglama ayarlarını (LOG_LEVEL ve LOG_FORMAT) tanımlar.
+        *   **`NullHandler` Kullanımı:** Beklenmedik loglama hatalarını önler.
+    *   **Değiştirilen:**
+        *   Daha önce ayrı ayrı yapılan GUI ve terminal komutu kurulum adımları, tek bir komutla otomatikleştirilmiştir. Bu, kurulum sürecini büyük ölçüde basitleştirir.
+        *   `get_config()` fonksiyonu, ortam değişkeni (`APP_ENV`) kontrolü yaparak uygun yapılandırma sınıfını seçiyor.
+        *   Loglama kurulumu (`setup_logging()`) tamamen yeniden yazıldı.
+    *   **Kaldırılan:** Herhangi bir özellik doğrudan kaldırılmamış, ancak loglama sisteminin çalışma şekli önemli ölçüde değiştirilmiş.
+-   **Kullanıcı Deneyimi Nasıl Etkilendi?**
+    *   **Kurulum Süreci Kolaylığı:** Kullanıcı deneyimi önemli ölçüde iyileştirilmiştir. Kurulum süreci daha kolay, daha anlaşılır ve daha az hataya açık hale getirilmiştir. Kurulum sonrası talimatlar sayesinde kullanıcı, uygulamayı hemen kullanmaya başlayabilir.
+    *   **Geliştirici Deneyimi:** Daha iyi loglama, geliştiricilerin hataları daha hızlı teşhis etmesine ve düzeltmesine yardımcı olarak dolaylı olarak kullanıcı deneyimini iyileştirebilir. Üretim ortamında gereksiz loglamanın kapatılması, performansı artırabilir.
+-   **Performans, Güvenlik veya Güvenilirlik Üzerindeki Etkiler:**
+    *   **Performans:** Kurulum süreci otomatikleştirildiği için, kullanıcılar için kurulum süresi kısalacaktır. Üretim ortamında konsola loglama kapatılarak potansiyel performans sorunları önlenmiş olabilir.
+    *   **Güvenlik:** Özellikle loglama hassas bilgileri içeriyorsa, üretimde daha yüksek bir log seviyesi (WARNING, ERROR, CRITICAL) kullanılması ve konsola loglama yapılmaması güvenlik açısından daha iyi bir yaklaşımdır.
+    *   **Güvenilirlik:** Hata yönetimi sayesinde kurulum süreci daha güvenilir hale getirilmiştir. Hatalar yakalanır ve kullanıcıya bilgilendirici mesajlar verilir. Daha sağlam bir konfigürasyon yönetimi ve loglama sistemi, uygulamanın genel güvenilirliğini artırır. `NullHandler` eklenmesi, beklenmedik loglama hatalarını önleyerek sistemin daha kararlı çalışmasını sağlıyor. `urllib3` uyarılarının bastırılması, gereksiz hataların ve uyarıların loglanmasını engelleyerek, gerçek sorunlara odaklanmayı kolaylaştırır.
 
 ### 3. TEKNİK DERINLIK:
 
-*   **Uygulanan veya Değiştirilen Tasarım Desenleri:**
-    *   **`src/config.py`:**
-        *   **Factory Pattern:** `get_config()` fonksiyonu, ortam değişkenine göre uygun yapılandırma nesnesini döndürerek basit bir Factory Pattern uygulamasıdır.
-        *   **Strategy Pattern:** Farklı konfigürasyon sınıfları (`DevelopmentConfig`, `ProductionConfig`) kullanılarak, ortama göre farklı davranışlar (loglama, debug modu vb.) belirleniyor.
-    *   **`install_gui.py`:**
-        *   **Facade Pattern:** Kurulum işlemlerini karmaşık alt sistemlere (`gui_installer` ve `terminal_commands`) delege ederek kullanıcıya basitleştirilmiş bir arayüz sunar.
-*   **Kod Kalitesi ve Sürdürülebilirlik:**
-    *   **`src/config.py`:** Kod daha modüler ve okunabilir hale getirilmiş. Konfigürasyon ayarları sınıflar içinde gruplandırılmış ve loglama sistemi ayrı bir fonksiyonda yapılandırılmış. Farklı ortamlar için ayrı konfigürasyon sınıfları, uygulamanın farklı ortamlara kolayca uyarlanabilmesini sağlıyor.
-    *   **`install_gui.py`:** Kod, modüler ve okunabilir bir yapıya sahiptir. Hata yönetimi uygulanmıştır.
-*   **Yeni Bağımlılıklar veya Teknolojiler:**
-    *   **`src/config.py`:** Herhangi bir yeni bağımlılık eklenmemiş. Sadece `urllib3` kütüphanesinin uyarılarını bastırmak için iyileştirmeler yapılmış.
-    *   **`install_gui.py`:** Bu dosya içinde doğrudan yeni bir bağımlılık görünmüyor. Ancak `gui_installer` ve `terminal_commands` modüllerinin yeni bağımlılıklar getirip getirmediği kontrol edilmelidir.
+-   **Uygulanan/Değiştirilen Tasarım Desenleri:**
+    *   **Facade:** `install_gui.py` dosyası, `features/gui_installer.py` ve `features/terminal_commands.py` modüllerindeki karmaşık kurulum işlemlerini basitleştiren ve kullanıcıya sunan bir arayüz görevi görmektedir.
+    *   **Factory Pattern:** `get_config()` fonksiyonu, ortam değişkenine göre uygun yapılandırma nesnesini döndürerek basit bir Factory Pattern uygulamasıdır.
+    *   **Strategy Pattern:** Farklı konfigürasyon sınıfları (`DevelopmentConfig`, `ProductionConfig`) kullanılarak, ortama göre farklı davranışlar (loglama, debug modu vb.) belirleniyor.
+-   **Kod Kalitesi ve Sürdürülebilirlik:**
+    *   **Okunabilirlik:** Kod, yorum satırları ve anlamlı değişken isimleri kullanılarak okunabilirliği artırılmıştır.
+    *   **Modülerlik:** Kurulum adımları ayrı modüllere ayrılmıştır, bu da kodun daha modüler ve bakımı kolay olmasını sağlar. Konfigürasyon ayarları sınıflar içinde gruplandırılmıştır.
+    *   **Hata Yönetimi:** Hata yönetimi sayesinde kodun daha sağlam ve güvenilir olması sağlanmıştır.
+    *   **Sürdürülebilirlik:** Kodun modüler ve okunabilir olması, gelecekteki geliştirmeler için sürdürülebilirliğini artırır. Farklı ortamlar için ayrı konfigürasyon sınıfları, uygulamanın farklı ortamlara kolayca uyarlanabilmesini sağlıyor. Loglama sisteminin dinamik olarak yapılandırılması, gelecekteki değişiklikleri kolaylaştırıyor.
+-   **Eklenen Bağımlılıklar veya Teknolojiler:**
+    *   Bu dosyanın kendisi yeni bir bağımlılık veya teknoloji eklememektedir. Ancak, `features/gui_installer.py` ve `features/terminal_commands.py` modüllerinin yeni bağımlılıklar veya teknolojiler ekleyip eklemediğini değerlendirmek için bu modüllerin içeriğinin incelenmesi gerekir. Örneğin, GUI kurulumu için bir GUI kütüphanesi (Tkinter, PyQt, vb.) ve terminal komutu kurulumu için `os` veya `subprocess` modülü kullanılabilir. Sadece `urllib3` kütüphanesinin uyarılarını bastırmak için iyileştirmeler yapılmış.
 
 ### 4. SONUÇ YORUMU:
 
-*   **Uzun Vadeli Değeri ve Etkisi:**
-    *   **Yapılandırma:** Bu değişiklikler, uygulamanın yapılandırma yönetimini ve loglama altyapısını önemli ölçüde iyileştirerek uzun vadeli değer katıyor. Daha iyi konfigürasyon yönetimi, uygulamanın farklı ortamlarda daha kolay yönetilmesini ve ölçeklenmesini sağlıyor.
-    *   **Kurulum:** Uygulamanın kullanıcı dostu olmasını ve kolay kurulabilmesini sağlayarak uzun vadede değer yaratır. Yeni kullanıcıların uygulamayı daha kolay benimsemesine ve mevcut kullanıcıların kurulum sorunlarıyla uğraşmak zorunda kalmamasına yardımcı olur. Otomatik kurulum, dağıtım ve bakım maliyetlerini düşürebilir.
-*   **Projenin Teknik Borcu:**
-    *   **Yapılandırma:** Yapılan değişiklikler teknik borcu azaltıyor. Daha temiz ve modüler kod, bakım ve geliştirmeyi kolaylaştırıyor. Daha iyi bir loglama altyapısı, gelecekteki hataların teşhisini kolaylaştırarak teknik borcun birikmesini önlüyor.
-    *   **Kurulum:** Bu değişiklik, teknik borcu azaltır. Kurulum sürecini basitleştirerek ve hataları azaltarak, gelecekteki bakım ve geliştirme maliyetlerini düşürür.
-*   **Gelecekteki Geliştirmelere Hazırlık:**
-    *   **Yapılandırma:** Bu değişiklikler, uygulamanın gelecekteki geliştirmelerine zemin hazırlıyor. Daha iyi konfigürasyon yönetimi ve loglama altyapısı, yeni özelliklerin daha kolay entegre edilmesini ve test edilmesini sağlıyor. Örneğin, ileride farklı loglama backend'leri (Elasticsearch, Graylog vb.) eklenmek istenirse, `setup_logging()` fonksiyonu kolayca genişletilebilir. `APP_ENV` ortam değişkeninin kullanılması, uygulamanın Docker veya Kubernetes gibi ortamlarda çalıştırılmasını da kolaylaştırıyor.
-    *   **Kurulum:** Kurulum sürecini otomatikleştirerek, yeni özelliklerin ve bileşenlerin entegrasyonunu kolaylaştırır. Ayrıca, modüler yapısı sayesinde, kurulum betiği kolayca genişletilebilir ve özelleştirilebilir. Örneğin, gelecekte farklı işletim sistemleri veya dağıtım yöntemleri için destek eklenebilir.
+-   **Uzun Vadeli Değer ve Etki:**
+    *   Kurulum sürecini basitleştirerek, yazılımın daha fazla kullanıcı tarafından benimsenmesi sağlanabilir. Daha iyi konfigürasyon yönetimi, uygulamanın farklı ortamlarda daha kolay yönetilmesini ve ölçeklenmesini sağlıyor. Daha iyi loglama ise, hataların daha hızlı teşhis edilmesine ve düzeltilmesine yardımcı olarak uygulamanın genel kalitesini artırıyor.
+-   **Projenin Teknik Borcu Nasıl Etkilendi?**
+    *   Bu değişiklikler, projenin teknik borcunu azaltmıştır. Kurulum süreci basitleştirildiği ve kod daha modüler hale getirildiği için, yazılımın bakımı ve güncellenmesi daha kolay olacaktır. Ancak, `features/gui_installer.py` ve `features/terminal_commands.py` modüllerinin iç yapısı karmaşık veya okunaksız ise, bu modüllerin teknik borcu artmış olabilir. Yapılan değişiklikler teknik borcu azaltıyor. Daha temiz ve modüler kod, bakım ve geliştirmeyi kolaylaştırıyor. Ayrıca, daha iyi bir loglama altyapısı, gelecekteki hataların teşhisini kolaylaştırarak teknik borcun birikmesini önlüyor.
+-   **Gelecekteki Geliştirmelere Nasıl Hazırlık Yapıldı?**
+    *   Kodun modüler olması, gelecekteki geliştirmeler için iyi bir temel oluşturur. Yeni özellikler eklemek veya mevcut özellikleri değiştirmek daha kolay olacaktır. Ayrıca, hataların yakalanması ve kullanıcıya bilgilendirici mesajlar verilmesi, gelecekteki sorunların daha hızlı çözülmesine yardımcı olacaktır. Kodun modüler olması, gelecekteki geliştirmeler için iyi bir temel oluşturur. Örneğin, ileride farklı loglama backend'leri (Elasticsearch, Graylog vb.) eklenmek istenirse, `setup_logging()` fonksiyonu kolayca genişletilebilir. `APP_ENV` ortam değişkeninin kullanılması, uygulamanın Docker veya Kubernetes gibi ortamlarda çalıştırılmasını da kolaylaştırıyor.Bir sonraki adım olarak GUI ve terminal komutu kurulum detaylarını içeren `features/gui_installer.py` ve `features/terminal_commands.py` dosyaları incelenerek, bu modüllerin de benzer şekilde modüler ve okunabilir hale getirilmesi projenin genel kalitesini artıracaktır. Ayrıca, kurulum sürecinin daha da otomatikleştirilmesi ve kullanıcıya daha fazla seçenek sunulması da gelecekteki geliştirmeler için hedeflerden biri olabilir.
 
 ## 🛠️ Kurulum (Installation)
 
@@ -238,7 +250,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**Last updated**: June 20, 2025 by Summarizer Framework v15.16.9
+**Last updated**: June 23, 2025 by Summarizer Framework v15.16.10
 *This README is automatically generated and updated based on project activity.*
 
 > *"Automatically maintained with AI-powered analysis"*
